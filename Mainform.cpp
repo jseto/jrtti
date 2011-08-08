@@ -8,6 +8,7 @@
 #pragma package(smart_init)
 #pragma resource "*.dfm"
 TForm1 *Form1;
+struct A { int data; };
 //---------------------------------------------------------------------------
 __fastcall TForm1::TForm1(TComponent* Owner)
 	: TForm(Owner)
@@ -29,6 +30,16 @@ __fastcall TForm1::TForm1(TComponent* Owner)
 	prop3->getter(boost::bind(&MPoint::x,_1));
 	prop3->name("x");
 	PropertyContainer::instance()->add("x",prop3);
+
+	Property<TForm1,int> * prop4 = new Property<TForm1,int>();
+
+	prop4->setter(&TForm1::testInt);
+	prop4->getter(&TForm1::testInt);
+	prop4->name("testInt");
+	PropertyContainer::instance()->add("testInt",prop4);
+
+//	thisClass=new Metaclass<TForm1>("TForm1");
+//	thisClass->property<double>("test", &TForm1::setTest, &TForm1::getTest);
 }
 //---------------------------------------------------------------------------
 
@@ -70,6 +81,11 @@ void __fastcall TForm1::Button1Click(TObject *Sender)
 	Property<MPoint,double> *p3 = PropertyContainer::instance()->get<MPoint,double>("x");
 	p3->set(&point,90);
 	d=p3->get(&point);
+	testInt=20;
+	PropertyContainer::instance()->setValue(this,"testInt",46);
+	int i=PropertyContainer::instance()->getValue<int>(this,"testInt");
+
+
 }
 //---------------------------------------------------------------------------
 

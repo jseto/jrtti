@@ -7,7 +7,7 @@
 #include <Controls.hpp>
 #include <StdCtrls.hpp>
 #include <Forms.hpp>
-#include "unit2.h"
+#include "machinery.h"
 //---------------------------------------------------------------------------
 
 struct MPoint
@@ -24,6 +24,7 @@ __published:	// IDE-managed Components
 private:	// User declarations
 	double test;
 	MPoint _point;
+//	Metaclass<TForm1>* thisClass;
 
 public:		// User declarations
 	__fastcall TForm1(TComponent* Owner);
@@ -33,6 +34,7 @@ public:		// User declarations
 
 	void setPoint(MPoint p);
 	MPoint getPoint();
+	int testInt;
 };
 
 
