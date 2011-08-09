@@ -72,64 +72,166 @@ public:
 
 };
 
-class PropertyContainer
+template <class TheClass, class ReturnType>
+class Method
 {
-private:
-	std::map<std::string,void *> properties;
+	typedef boost::function<ReturnType (TheClass*)> 		FunctionType;
+	typedef Method<TheClass, ReturnType>						MethodType;
 
 public:
-	static PropertyContainer * instance()
+//	Method(std::string name, FuncType f)
+//		: m_name(name),m_functor(f)
+//	{}
+
+	MethodType& name(std::string name)
 	{
-		static PropertyContainer instance;
-		return &instance;
+		m_name=name;
+		return *this;
 	}
 
-	template <class aClass, class propType>
-	void add(std::string name, Property<aClass,propType> *prop)
+	MethodType& function(FunctionType f)
 	{
-		properties[name]=prop;
+		m_functor=f;
+		return *this;
 	}
 
-	template <class aClass, class propType>
-	Property<aClass, propType> * get(std::string name)
+	ReturnType call(TheClass * instance)
 	{
-		return (Property<aClass, propType> *)properties[name];
+		return (ReturnType)m_functor((TheClass *)instance);
 	}
 
-	template <class propType, class aClass>
-	propType getValue(aClass * instance, std::string name)
+private:
+	FunctionType 	m_functor;
+	std::string		m_name;
+};
+
+class MemberContainer
+{
+public:
+	template <typename ElementType>
+	add(std::string name, ElementType * item)
 	{
-		return get<aClass, propType>(name)->get(instance);
+		items[name]=item;
 	}
 
-	template <class propType, class aClass>
-	void setValue(aClass * instance, std::string name, propType value)
+	template <typename ElementType>
+	ElementType * get(std::string name)
 	{
-		get<aClass, propType>(name)->set(instance,value);
+		return (ElementType *)items[name];
 	}
+
+private:
+	std::map<std::string, void *>	items;
 };
 
 template <class TheClass>
 class Metaclass
 {
-	MetaClass(std::string name)
+public:
+	Metaclass(){}
 
+	Metaclass(std::string name)
 	{
 		m_name=name;
 	}
-	
+
 	template <typename PropType>
-	void property(std::string name,boost::function<void (TheClass*, PropType)> setter,boost::function<PropType (TheClass*)> getter)
+	Metaclass& property(std::string name,boost::function<void (TheClass *, PropType)> setter,boost::function<PropType (TheClass *)> getter)
 	{
-/*		Property<TheClass, PropType> * p = new Property<TheClass, PropType>();
+		Property<TheClass, PropType> * p = new Property<TheClass, PropType>();
 		p->setter(setter);
 		p->getter(getter);
 		p->name(name);
-*///		properties.add(name,p);
+		m_properties.add(name,p);
+		return *this;
 	}
+
+	template <typename PropType>
+	Property<TheClass, PropType>& getProperty(std::string name)
+	{
+		typedef Property<TheClass, PropType> ElementType;
+		return *m_properties.get<ElementType>(name);
+	}
+
+	template <typename ReturnType>
+	Metaclass& method(std::string name,boost::function<ReturnType (TheClass*)> f)
+	{
+		typedef Method<TheClass,ReturnType> MethodType;
+
+		MethodType * m = new MethodType();
+		m->name(name);
+		m->function(f);
+		m_methods.add(name,m);
+		return *this;
+	}
+/*
+	template <typename ReturnType, typename Param1>
+	Metaclass& method(std::string name,boost::function<ReturnType (TheClass*, Param1)> f)
+	{
+		typedef Method<TheClass,ReturnType, Param1> MethodType;
+
+		MethodType * m = new MethodType();
+		m->name(name);
+		m->function(f);
+		m_methods.add(name,m);
+		return *this;
+	}
+*/
+	template <typename ReturnType>
+	Method<TheClass,ReturnType>& getMethod(std::string name)
+	{
+		typedef Method<TheClass,ReturnType> ElementType;
+		return *m_methods.get<ElementType>(name);
+	}
+
 private:
 	std::string 		m_name;
-//	PropertyContainer properties;
+	MemberContainer 	m_properties;
+	MemberContainer 	m_methods;
+};
+
+template <class TheClass>
+class Metaobject
+{
+public:
+	Metaobject(TheClass * pinstance)
+   	: m_instance(pinstance)
+	{}
+
+ //hauria de buscar la Metaclass corresconent sola
+	Metaobject& instance(TheClass * pinstance)
+	{
+		m_instance=pinstance;
+		return *this;
+	}
+
+	Metaobject& metaclass(Metaclass<TheClass> pmetaclass)
+	{
+		m_metaclass=pmetaclass;
+		return *this;
+	}
+
+	template <typename PropType>
+	PropType getValue(std::string propName)
+	{
+		return m_metaclass.getProperty<PropType>(propName).get(m_instance);
+	}
+
+	template <typename PropType>
+	setValue(std::string propName, PropType value)
+	{
+		m_metaclass.getProperty<PropType>(propName).set(m_instance,value);
+	}
+
+	template <typename ReturnType>
+	ReturnType call(std::string name)
+	{
+		return m_metaclass.getMethod<ReturnType>(name).call(m_instance);
+   }
+
+ private:
+	Metaclass<TheClass> m_metaclass;
+	TheClass * m_instance;
 };
 
 #endif

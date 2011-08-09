@@ -24,7 +24,7 @@ __published:	// IDE-managed Components
 private:	// User declarations
 	double test;
 	MPoint _point;
-//	Metaclass<TForm1>* thisClass;
+	Metaclass<TForm1> thisClass;
 
 public:		// User declarations
 	__fastcall TForm1(TComponent* Owner);
@@ -34,6 +34,10 @@ public:		// User declarations
 
 	void setPoint(MPoint p);
 	MPoint getPoint();
+
+	void testFunc(){ShowMessage("Test works ok");}
+	int testIntFunc(){return 23;}
+	double testSquare(double val){return val*val;}
 	int testInt;
 };
 

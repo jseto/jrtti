@@ -13,35 +13,33 @@ struct A { int data; };
 __fastcall TForm1::TForm1(TComponent* Owner)
 	: TForm(Owner)
 {
-	Property<TForm1,double> * prop = new Property<TForm1,double>();
-	prop->setter(&TForm1::setTest);
-	prop->getter(&TForm1::getTest);
-	prop->name("test");
-	PropertyContainer::instance()->add("test",prop);
-
-	Property<TForm1,MPoint> * prop2 = new Property<TForm1,MPoint>();
-	prop2->setter(&TForm1::setPoint);
-	prop2->getter(&TForm1::getPoint);
-	prop2->name("point");
-	PropertyContainer::instance()->add("point",prop2);
-
-	Property<MPoint,double> * prop3 = new Property<MPoint,double>();
-	prop3->setter(boost::bind(&MPoint::x,_1));
-	prop3->getter(boost::bind(&MPoint::x,_1));
-	prop3->name("x");
-	PropertyContainer::instance()->add("x",prop3);
-
-	Property<TForm1,int> * prop4 = new Property<TForm1,int>();
-
-	prop4->setter(&TForm1::testInt);
-	prop4->getter(&TForm1::testInt);
-	prop4->name("testInt");
-	PropertyContainer::instance()->add("testInt",prop4);
-
-//	thisClass=new Metaclass<TForm1>("TForm1");
-//	thisClass->property<double>("test", &TForm1::setTest, &TForm1::getTest);
+	thisClass=Metaclass<TForm1>("TForm1")
+						.property<double>("testDouble", &TForm1::setTest, &TForm1::getTest)
+						.property<MPoint>("point", &TForm1::setPoint, &TForm1::getPoint)
+						.method<void>("testMethod", &TForm1::testFunc)
+						.method<int>("testIntMethod", &TForm1::testIntFunc);
+//						.method<double>("restSquare", &TForm1::testSquare);
 }
+
 //---------------------------------------------------------------------------
+void __fastcall TForm1::Button1Click(TObject *Sender)
+{
+	Metaobject<TForm1> mobject(this);
+	mobject.metaclass(thisClass);
+
+	test=0;
+	mobject.setValue<double>("testDouble",34.0);
+	double d=mobject.getValue<double>("testDouble");
+
+	_point.x=0;
+	_point.y=0;
+	MPoint p; p.x=45; p.y=80;
+	mobject.setValue<MPoint>("point",p);
+	MPoint pr=mobject.getValue<MPoint>("point");
+
+	mobject.call<void>("testMethod");
+	int i=mobject.call<int>("testIntMethod");
+}
 
 void TForm1::setTest(double d)
 {
@@ -63,29 +61,5 @@ MPoint TForm1::getPoint()
 	return _point;
 }
 
-void __fastcall TForm1::Button1Click(TObject *Sender)
-{
-	PropertyContainer::instance()->setValue(this,"test",36.0);
-	double d=getTest();
-	d=0;
-	d=PropertyContainer::instance()->getValue<double>(this,"test");
-
-	Property<TForm1,MPoint> *p2 = PropertyContainer::instance()->get<TForm1,MPoint>("point");
-	MPoint point; point.x=34; point.y=5;
-	p2->set(this,point);
-	point=getPoint();
-	point.x=0;
-	point.y=0;
-	point=p2->get(this);
-
-	Property<MPoint,double> *p3 = PropertyContainer::instance()->get<MPoint,double>("x");
-	p3->set(&point,90);
-	d=p3->get(&point);
-	testInt=20;
-	PropertyContainer::instance()->setValue(this,"testInt",46);
-	int i=PropertyContainer::instance()->getValue<int>(this,"testInt");
-
-
-}
 //---------------------------------------------------------------------------
 
