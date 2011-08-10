@@ -62,11 +62,11 @@ public:
 
 };
 
-template <class TheClass, class ReturnType>
+template <class TheClass, class ReturnType, class Param1=void, class Param2=void>
 class Method
 {
-	typedef boost::function<ReturnType (TheClass*)> 		FunctionType;
-	typedef Method<TheClass, ReturnType>						MethodType;
+	typedef boost::function<ReturnType (TheClass*, Param1, Param2)> 		FunctionType;
+	typedef Method<TheClass, ReturnType, Param1, Param2>	MethodType;
 
 public:
 	MethodType& name(std::string name)
@@ -150,9 +150,9 @@ public:
 		m_methods.add(name,m);
 		return *this;
 	}
-/*
+
 	template <typename ReturnType, typename Param1>
-	Metaclass& method(std::string name,boost::function<ReturnType (TheClass*, Param1)> f)
+	Metaclass& method1(std::string name,boost::function<ReturnType (TheClass*, Param1)> f)
 	{
 		typedef Method<TheClass,ReturnType, Param1> MethodType;
 
@@ -162,7 +162,7 @@ public:
 		m_methods.add(name,m);
 		return *this;
 	}
-*/
+
 	template <typename ReturnType>
 	Method<TheClass,ReturnType>& getMethod(std::string name)
 	{
@@ -212,7 +212,7 @@ public:
 	template <typename ReturnType>
 	ReturnType call(std::string name)
 	{
-		return m_metaclass.getMethod<ReturnType>(name).call(m_instance);
+//		return m_metaclass.getMethod<ReturnType>(name).call(m_instance);
    }
 
  private:
