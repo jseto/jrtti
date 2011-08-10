@@ -30,15 +30,18 @@ void __fastcall TForm1::Button1Click(TObject *Sender)
 	test=0;
 	mobject.setValue<double>("testDouble",34.0);
 	double d=mobject.getValue<double>("testDouble");
+	assert(d==34.0);
 
 	_point.x=0;
 	_point.y=0;
 	MPoint p; p.x=45; p.y=80;
 	mobject.setValue<MPoint>("point",p);
 	MPoint pr=mobject.getValue<MPoint>("point");
+	assert(pr.x==45 && pr.y==80);
 
 	mobject.call<void>("testMethod");
 	int i=mobject.call<int>("testIntMethod");
+	assert(i==23);
 }
 
 void TForm1::setTest(double d)

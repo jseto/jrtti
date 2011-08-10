@@ -15,17 +15,10 @@ class Property
 private:
 	boost::function<void (aClass*, propType)>	_setter;
 	boost::function<propType (aClass*)>			_getter;
-	boost::function<void (aClass*, propType&)>	_memberSet;
 	propType	aClass::*								m_dataMember;
 	std::string _name;
 
 public:
-	Property(){};
-	gsetter()
-	{
-   	
-	}
-
 	setter(boost::function<void (aClass*, propType)> functor)
 	{
 		_setter=functor;
@@ -43,10 +36,7 @@ public:
 
 	propType get(aClass * instance)
 	{
-//		if (_getter)
 			return (propType)_getter((aClass *)instance);
-//		else
-//			return _member((aClass *)instance));
 	}
 
 	void set(aClass * instance, propType value)
@@ -79,10 +69,6 @@ class Method
 	typedef Method<TheClass, ReturnType>						MethodType;
 
 public:
-//	Method(std::string name, FuncType f)
-//		: m_name(name),m_functor(f)
-//	{}
-
 	MethodType& name(std::string name)
 	{
 		m_name=name;
