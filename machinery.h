@@ -5,23 +5,16 @@
 //---------------------------------------------------------------------------
 
 #include <boost/function.hpp>
-#include <boost/bind.hpp>
-#include <boost/utility/enable_if.hpp>
 #include <map>
 #include <string>
 
 template <class aClass, class propType>
 class Property
 {
-private:
-	boost::function<void (aClass*, propType)>	_setter;
-	boost::function<propType (aClass*)>			_getter;
-	propType	aClass::*								m_dataMember;
-	std::string _name;
-
 public:
 	setter(boost::function<void (aClass*, propType)> functor)
 	{
+		m_dataMember=NULL;
 		_setter=functor;
 	}
 
@@ -42,13 +35,13 @@ public:
 
 	void set(aClass * instance, propType value)
 	{
-		if (_setter)
-			_setter((aClass *)instance,(propType)value);
-		else
+		if (m_dataMember)
 		{
 			aClass * p = static_cast<aClass *>(instance);
 			p->*m_dataMember=value;
 		}
+		else
+			_setter((aClass *)instance,(propType)value);
 	}
 
 	void name(std::string aName)
@@ -61,6 +54,11 @@ public:
 		return _name;
 	}
 
+private:
+	boost::function<void (aClass*, propType)>	_setter;
+	boost::function<propType (aClass*)>			_getter;
+	propType	aClass::*								m_dataMember;
+	std::string _name;
 };
 
 template <class TheClass, class ReturnType, class Param1=void, class Param2=void>
@@ -176,7 +174,8 @@ template <class TheClass>
 class Metaclass
 {
 public:
-	Metaclass(){}
+	Metaclass()
+	{}
 
 	Metaclass(std::string name)
 	{
@@ -250,6 +249,7 @@ private:
 		m_methods.add(name,m);
 		return *this;
 	}
+
 	std::string 		m_name;
 	MemberContainer 	m_properties;
 	MemberContainer 	m_methods;
@@ -278,7 +278,7 @@ public:
 
 	template <typename PropType>
 	PropType getValue(std::string propName)
-	{
+	{                 												//point.x
 		return m_metaclass.getProperty<PropType>(propName).get(m_instance);
 	}
 
