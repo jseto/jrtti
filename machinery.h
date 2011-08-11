@@ -202,24 +202,27 @@ public:
 	Metaclass& method(std::string name,boost::function<ReturnType (TheClass*)> f)
 	{
 		typedef Method<TheClass,ReturnType> MethodType;
+		typedef typename boost::function<ReturnType (TheClass*)> FunctionType;
 
-		MethodType * m = new MethodType();
-		m->name(name);
-		m->function(f);
-		m_methods.add(name,m);
-		return *this;
+		return fillMethod<MethodType, FunctionType>(name,f);
 	}
 
 	template <typename ReturnType, typename Param1>
 	Metaclass& method(std::string name,boost::function<ReturnType (TheClass*, Param1)> f)
 	{
-		typedef Method<TheClass,ReturnType, Param1> MethodType;
+		typedef typename Method<TheClass,ReturnType, Param1> MethodType;
+		typedef typename boost::function<ReturnType (TheClass*, Param1)> FunctionType;
 
-		MethodType * m = new MethodType();
-		m->name(name);
-		m->function(f);
-		m_methods.add(name,m);
-		return *this;
+		return fillMethod<MethodType, FunctionType>(name,f);
+	}
+
+	template <typename ReturnType, typename Param1, typename Param2>
+	Metaclass& method(std::string name,boost::function<ReturnType (TheClass*, Param1, Param2)> f)
+	{
+		typedef typename Method<TheClass,ReturnType, Param1, Param2> MethodType;
+		typedef typename boost::function<ReturnType (TheClass*, Param1, Param2)> FunctionType;
+
+		return fillMethod<MethodType, FunctionType>(name,f);
 	}
 
 	template <typename ReturnType, typename Param1, typename Param2>
@@ -230,6 +233,15 @@ public:
 	}
 
 private:
+	template <typename M, typename F>
+	Metaclass& fillMethod(std::string name, F function)
+	{
+		M * m = new M();
+		m->name(name);
+		m->function(function);
+		m_methods.add(name,m);
+		return *this;
+	}
 	std::string 		m_name;
 	MemberContainer 	m_properties;
 	MemberContainer 	m_methods;

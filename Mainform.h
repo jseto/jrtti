@@ -38,6 +38,7 @@ public:		// User declarations
 	void testFunc(){ShowMessage("Test works ok");}
 	int testIntFunc(){return 23;}
 	double testSquare(double val){return val*val;}
+	int testSum(int a, int b){return a+b;}
 	int testInt;
 };
 

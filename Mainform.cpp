@@ -18,7 +18,8 @@ __fastcall TForm1::TForm1(TComponent* Owner)
 						.property<MPoint>("point", &TForm1::setPoint, &TForm1::getPoint)
 						.method<void>("testMethod", &TForm1::testFunc)
 						.method<int>("testIntMethod", &TForm1::testIntFunc)
-						.method<double,double>("testSquare", &TForm1::testSquare);
+						.method<double,double>("testSquare", &TForm1::testSquare)
+						.method<int,int,int>("testSum", &TForm1::testSum);
 }
 
 //---------------------------------------------------------------------------
@@ -46,6 +47,9 @@ void __fastcall TForm1::Button1Click(TObject *Sender)
 
 	double d1=mobject.call<double,double>("testSquare",4);
 	assert(d1==16);
+
+	double d2=mobject.call<int,int,int>("testSum",9,6);
+	assert(d2==15);
 }
 
 void TForm1::setTest(double d)
