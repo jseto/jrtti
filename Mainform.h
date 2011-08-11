@@ -25,6 +25,7 @@ private:	// User declarations
 	double test;
 	MPoint _point;
 	Metaclass<TForm1> thisClass;
+	Metaclass<MPoint> pointClass;
 
 public:		// User declarations
 	__fastcall TForm1(TComponent* Owner);

@@ -169,6 +169,9 @@ private:
 	std::map<std::string, void *>	items;
 };
 
+template <typename TheClass>
+class Metaobject;
+
 template <class TheClass>
 class Metaclass
 {
@@ -232,6 +235,11 @@ public:
 		return *m_methods.get<ElementType>(name);
 	}
 
+	Metaobject<TheClass> getMetaobject(TheClass * instance)
+	{
+      return Metaobject<TheClass>(*this,instance);
+   }
+
 private:
 	template <typename M, typename F>
 	Metaclass& fillMethod(std::string name, F function)
@@ -251,8 +259,8 @@ template <class TheClass>
 class Metaobject
 {
 public:
-	Metaobject(TheClass * pinstance)
-   	: m_instance(pinstance)
+	Metaobject(Metaclass<TheClass> pmetaclass, TheClass * pinstance)
+   	: m_metaclass(pmetaclass), m_instance(pinstance)
 	{}
 
  //hauria de buscar la Metaclass corresconent sola
