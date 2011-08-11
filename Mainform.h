@@ -39,7 +39,7 @@ public:		// User declarations
 	void testFunc(){ShowMessage("Test works ok");}
 	int testIntFunc(){return 23;}
 	double testSquare(double val){return val*val;}
-	int testSum(int a, int b){return a+b;}
+	double testSum(int a, double b){return (double)a+b;}
 	int testInt;
 };
 

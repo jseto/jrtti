@@ -185,12 +185,18 @@ public:
 	template <typename PropType>
 	Metaclass& property(std::string name,boost::function<void (TheClass *, PropType)> setter,boost::function<PropType (TheClass *)> getter)
 	{
-		Property<TheClass, PropType> * p = new Property<TheClass, PropType>();
-		p->setter(setter);
-		p->getter(getter);
-		p->name(name);
-		m_properties.add(name,p);
-		return *this;
+		typedef typename boost::function<void (TheClass *, PropType)> 	SetterType;
+		typedef typename boost::function<PropType (TheClass *)>			GetterType;
+
+		return fillProperty<PropType,SetterType,GetterType>(name,setter,getter);
+	}
+
+	template <typename PropType>
+	Metaclass& property(std::string name, PropType TheClass::* member)
+	{
+		typedef typename PropType TheClass::* 	MemberType;
+
+		return fillProperty<PropType, MemberType, MemberType>(name, member, member);
 	}
 
 	template <typename PropType>
@@ -236,8 +242,13 @@ public:
 
 	Metaobject<TheClass> getMetaobject(TheClass * instance)
 	{
-      return Metaobject<TheClass>(*this,instance);
-   }
+		return Metaobject<TheClass>(*this,instance);
+	}
+
+	std::string typeName()
+	{
+		return typeid(TheClass).name();
+	}
 
 private:
 	template <typename M, typename F>
@@ -247,6 +258,17 @@ private:
 		m->name(name);
 		m->function(function);
 		m_methods.add(name,m);
+		return *this;
+	}
+
+	template <typename T, typename S, typename G>
+	Metaclass& fillProperty(std::string name,S setter, G getter)
+	{
+		Property< TheClass, T > * p = new Property< TheClass, T >();
+		p->setter(setter);
+		p->getter(getter);
+		p->name(name);
+		m_properties.add(name,p);
 		return *this;
 	}
 
@@ -310,5 +332,13 @@ public:
 	Metaclass<TheClass> m_metaclass;
 	TheClass * m_instance;
 };
-
+/*
+class Reflector
+{
+	Reflector & operator()() 	{
+		static Reflector instance;
+		return instance;
+	}
+};
+  */
 #endif
