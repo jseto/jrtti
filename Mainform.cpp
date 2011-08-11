@@ -44,7 +44,7 @@ void __fastcall TForm1::Button1Click(TObject *Sender)
 	int i=mobject.call<int>("testIntMethod");
 	assert(i==23);
 
-	double d1=mobject.call1<double,double>("testSquare",4);
+	double d1=mobject.call<double,double>("testSquare",4);
 	assert(d1==16);
 }
 

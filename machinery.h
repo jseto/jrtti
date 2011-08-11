@@ -269,13 +269,13 @@ public:
 	}
 
 	template <typename ReturnType, typename Param1, typename Param2>
-	ReturnType call2(std::string name, Param1 p1, Param2 p2)
+	ReturnType call(std::string name, Param1 p1, Param2 p2)
 	{
 		return m_metaclass.getMethod<ReturnType,Param1,Param2>(name).call(m_instance,p1,p2);
 	}
 
 	template <typename ReturnType, typename Param1>
-	ReturnType call1(std::string name, Param1 p1)
+	ReturnType call(std::string name, Param1 p1)
 	{
 		return m_metaclass.getMethod<ReturnType,Param1,void>(name).call(m_instance,p1);
 	}
