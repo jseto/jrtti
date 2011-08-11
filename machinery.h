@@ -223,7 +223,7 @@ public:
 	}
 
 	template <typename ReturnType, typename Param1, typename Param2>
-	Method<TheClass,ReturnType>& getMethod(std::string name)
+	Method<TheClass,ReturnType, Param1, Param2>& getMethod(std::string name)
 	{
 		typedef Method<TheClass,ReturnType, Param1, Param2> ElementType;
 		return *m_methods.get<ElementType>(name);
@@ -269,21 +269,21 @@ public:
 	}
 
 	template <typename ReturnType, typename Param1, typename Param2>
-	ReturnType call(std::string name, Param1 p1, Param2 p2)
+	ReturnType call2(std::string name, Param1 p1, Param2 p2)
 	{
 		return m_metaclass.getMethod<ReturnType,Param1,Param2>(name).call(m_instance,p1,p2);
 	}
 
 	template <typename ReturnType, typename Param1>
-	ReturnType call(std::string name, Param1 p1)
+	ReturnType call1(std::string name, Param1 p1)
 	{
-		return m_metaclass.getMethod<ReturnType,Param1>(name).call(m_instance,p1);
+		return m_metaclass.getMethod<ReturnType,Param1,void>(name).call(m_instance,p1);
 	}
 
 	template <typename ReturnType>
 	ReturnType call(std::string name)
 	{
-		return m_metaclass.getMethod<ReturnType>(name).call(m_instance);
+		return m_metaclass.getMethod<ReturnType,void,void>(name).call(m_instance);
 	}
 
  private:
