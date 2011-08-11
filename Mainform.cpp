@@ -17,8 +17,8 @@ __fastcall TForm1::TForm1(TComponent* Owner)
 						.property<double>("testDouble", &TForm1::setTest, &TForm1::getTest)
 						.property<MPoint>("point", &TForm1::setPoint, &TForm1::getPoint)
 						.method<void>("testMethod", &TForm1::testFunc)
-						.method<int>("testIntMethod", &TForm1::testIntFunc);
-//						.method<double>("restSquare", &TForm1::testSquare);
+						.method<int>("testIntMethod", &TForm1::testIntFunc)
+						.method<double,double>("testSquare", &TForm1::testSquare);
 }
 
 //---------------------------------------------------------------------------
@@ -38,11 +38,15 @@ void __fastcall TForm1::Button1Click(TObject *Sender)
 	mobject.setValue<MPoint>("point",p);
 	MPoint pr=mobject.getValue<MPoint>("point");
 	assert(pr.x==45 && pr.y==80);
-
+/*
 	mobject.call<void>("testMethod");
+
 	int i=mobject.call<int>("testIntMethod");
 	assert(i==23);
-}
+
+	double d1=mobject.call<double,double>("testSquare",4);
+	assert(d1==16);
+*/}
 
 void TForm1::setTest(double d)
 {

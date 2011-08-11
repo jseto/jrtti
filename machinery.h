@@ -6,6 +6,7 @@
 
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
+#include <boost/utility/enable_if.hpp>
 #include <map>
 #include <string>
 
@@ -65,8 +66,37 @@ public:
 template <class TheClass, class ReturnType, class Param1=void, class Param2=void>
 class Method
 {
-	typedef boost::function<ReturnType (TheClass*, Param1, Param2)> 		FunctionType;
-	typedef Method<TheClass, ReturnType, Param1, Param2>	MethodType;
+	typedef boost::function<ReturnType (TheClass*, Param1, Param2)> 	FunctionType;
+	typedef Method<TheClass, ReturnType, Param1, Param2 >					MethodType;
+
+public:
+	MethodType& name(std::string name)
+	{
+		m_name=name;
+		return *this;
+	}
+
+	MethodType& function(FunctionType f)
+	{
+		m_functor=f;
+		return *this;
+	}
+
+	ReturnType call(TheClass * instance, Param1 p1, Param2 p2)
+	{
+		return (ReturnType)m_functor(instance,p1,p2);
+	}
+
+private:
+	FunctionType 	m_functor;
+	std::string		m_name;
+};
+
+template <class TheClass, class ReturnType>
+class Method<TheClass, ReturnType, void, void>
+{
+	typedef boost::function<ReturnType (TheClass*)> 	FunctionType;
+	typedef Method<TheClass, ReturnType, void, void >	MethodType;
 
 public:
 	MethodType& name(std::string name)
@@ -83,7 +113,36 @@ public:
 
 	ReturnType call(TheClass * instance)
 	{
-		return (ReturnType)m_functor((TheClass *)instance);
+		return (ReturnType)m_functor(instance);
+	}
+
+private:
+	FunctionType 	m_functor;
+	std::string		m_name;
+};
+
+template <class TheClass, class ReturnType, class Param1>
+class Method<TheClass, ReturnType, Param1, void>
+{
+	typedef boost::function<ReturnType (TheClass*, Param1)> 	FunctionType;
+	typedef Method<TheClass, ReturnType, Param1, void >		MethodType;
+
+public:
+	MethodType& name(std::string name)
+	{
+		m_name=name;
+		return *this;
+	}
+
+	MethodType& function(FunctionType f)
+	{
+		m_functor=f;
+		return *this;
+	}
+
+	ReturnType call(TheClass * instance, Param1 p)
+	{
+		return (ReturnType)m_functor(instance,p);
 	}
 
 private:
@@ -152,7 +211,7 @@ public:
 	}
 
 	template <typename ReturnType, typename Param1>
-	Metaclass& method1(std::string name,boost::function<ReturnType (TheClass*, Param1)> f)
+	Metaclass& method(std::string name,boost::function<ReturnType (TheClass*, Param1)> f)
 	{
 		typedef Method<TheClass,ReturnType, Param1> MethodType;
 
@@ -163,10 +222,10 @@ public:
 		return *this;
 	}
 
-	template <typename ReturnType>
+	template <typename ReturnType, typename Param1, typename Param2>
 	Method<TheClass,ReturnType>& getMethod(std::string name)
 	{
-		typedef Method<TheClass,ReturnType> ElementType;
+		typedef Method<TheClass,ReturnType, Param1, Param2> ElementType;
 		return *m_methods.get<ElementType>(name);
 	}
 
@@ -209,11 +268,23 @@ public:
 		m_metaclass.getProperty<PropType>(propName).set(m_instance,value);
 	}
 
+	template <typename ReturnType, typename Param1, typename Param2>
+	ReturnType call(std::string name, Param1 p1, Param2 p2)
+	{
+		return m_metaclass.getMethod<ReturnType,Param1,Param2>(name).call(m_instance,p1,p2);
+	}
+
+	template <typename ReturnType, typename Param1>
+	ReturnType call(std::string name, Param1 p1)
+	{
+		return m_metaclass.getMethod<ReturnType,Param1>(name).call(m_instance,p1);
+	}
+
 	template <typename ReturnType>
 	ReturnType call(std::string name)
 	{
-//		return m_metaclass.getMethod<ReturnType>(name).call(m_instance);
-   }
+		return m_metaclass.getMethod<ReturnType>(name).call(m_instance);
+	}
 
  private:
 	Metaclass<TheClass> m_metaclass;
