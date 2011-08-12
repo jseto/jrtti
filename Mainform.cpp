@@ -13,11 +13,13 @@ struct A { int data; };
 __fastcall TForm1::TForm1(TComponent* Owner)
 	: TForm(Owner)
 {
-	pointClass=Metaclass<MPoint>("MPoint")
+//	pointClass=Metaclass<MPoint>("MPoint")
+	Reflector().declare<MPoint>()                         //implicit metaclass name
 						.property<double>("x",&MPoint::x)
 						.property<double>("y",&MPoint::y);
 
-	thisClass=Metaclass<TForm1>("TForm1")
+//	thisClass=Metaclass<TForm1>("TForm1")
+	Reflector().declare<TForm1>("TForm1")						//exlicit metaclass name
 						.property<double>("testDouble", &TForm1::setTest, &TForm1::getTest)
 						.property<MPoint>("point", &TForm1::setPoint, &TForm1::getPoint)
 						.property<int>("testInt", &TForm1::testInt)
@@ -30,7 +32,7 @@ __fastcall TForm1::TForm1(TComponent* Owner)
 //---------------------------------------------------------------------------
 void __fastcall TForm1::Button1Click(TObject *Sender)
 {
-	Metaobject<TForm1> mobject=thisClass.getMetaobject(this);
+	Metaobject<TForm1> mobject=Reflector().getMetaobject<TForm1>("TForm1");   //thisClass.getMetaobject(this);
 
 //double property
 	test=0;

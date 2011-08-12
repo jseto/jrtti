@@ -148,7 +148,7 @@ private:
 	std::string		m_name;
 };
 
-class MemberContainer
+class GenericContainer
 {
 public:
 	template <typename ElementType>
@@ -175,7 +175,9 @@ class Metaclass
 {
 public:
 	Metaclass()
-	{}
+	{
+		m_name = typeid(TheClass).name();
+	}
 
 	Metaclass(std::string name)
 	{
@@ -273,8 +275,8 @@ private:
 	}
 
 	std::string 		m_name;
-	MemberContainer 	m_properties;
-	MemberContainer 	m_methods;
+	GenericContainer 	m_properties;
+	GenericContainer 	m_methods;
 };
 
 template <class TheClass>
@@ -332,13 +334,38 @@ public:
 	Metaclass<TheClass> m_metaclass;
 	TheClass * m_instance;
 };
-/*
+
 class Reflector
 {
+public:
 	Reflector & operator()() 	{
 		static Reflector instance;
 		return instance;
 	}
+
+	template <typename C>
+	Metaclass<C>& declare()
+	{
+		Metaclass<C> * mc = new Metaclass<C>();
+		m_metaclases.add(typeid(C).name(),mc);
+		return *mc;
+	}
+
+	template <typename C>
+	Metaclass<C>& declare(std::string name)
+	{
+		Metaclass<C> * mc = new Metaclass<C>(name);
+		m_metaclases.add(name,mc);
+		return *mc;
+	}
+
+	template <typename C>
+	Metaobject<C>& getMetaobject(std::string className, C * instance)
+	{
+		m_metaclasess.get<C>(className).getMetaobject(instance);
+   }
+
+private:
+	GenericContainer m_metaclases;
 };
-  */
 #endif
