@@ -1,7 +1,9 @@
 #include <string>
 #include <iostream>
-#include "jrtti.hpp"
+#include "include/jrtti.hpp"
 #include "test_jrtti.h"
+
+using namespace jrtti;
 
 struct MPoint
 {
