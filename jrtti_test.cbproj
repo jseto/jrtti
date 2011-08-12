@@ -71,10 +71,6 @@
       <BuildOrder>0</BuildOrder>
     </ResFiles>
     <CppCompile Include="jrtti_test.cpp">
-      <BuildOrder>3</BuildOrder>
-    </CppCompile>
-    <CppCompile Include="machinery.cpp">
-      <DependentOn>machinery.h</DependentOn>
       <BuildOrder>2</BuildOrder>
     </CppCompile>
     <CppCompile Include="Mainform.cpp">
@@ -82,6 +78,9 @@
       <DependentOn>Mainform.h</DependentOn>
       <BuildOrder>1</BuildOrder>
     </CppCompile>
+    <None Include="jrtti.hpp">
+      <BuildOrder>3</BuildOrder>
+    </None>
     <FormResources Include="Mainform.dfm" />
     <BuildConfiguration Include="Debug">
       <Key>Cfg_1</Key>
