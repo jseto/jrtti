@@ -12,18 +12,18 @@ template <class aClass, class propType>
 class Property
 {
 public:
-	setter(boost::function<void (aClass*, propType)> functor)
+	void setter( boost::function<void (typename aClass*, typename propType)> functor)
 	{
 		m_dataMember=NULL;
 		_setter=functor;
 	}
 
-	setter(propType aClass::* dataMember)
+	void setter(propType aClass::* dataMember)
 	{
 		m_dataMember=dataMember;
 	}
 
-	getter(boost::function<propType (aClass*)> functor)
+	void getter(boost::function<propType (aClass*)> functor)
 	{
 		_getter=functor;
 	}
@@ -152,7 +152,7 @@ class GenericContainer
 {
 public:
 	template <typename ElementType>
-	add(std::string name, ElementType * item)
+	void add(std::string name, ElementType * item)
 	{
 		items[name]=item;
 	}
@@ -209,7 +209,8 @@ public:
 	}
 
 	template <typename ReturnType>
-	Metaclass& method(std::string name,boost::function<ReturnType (TheClass*)> f)
+	Metaclass&
+	method(std::string name,boost::function<ReturnType (TheClass*)> f)
 	{
 		typedef Method<TheClass,ReturnType> MethodType;
 		typedef typename boost::function<ReturnType (TheClass*)> FunctionType;
@@ -218,7 +219,8 @@ public:
 	}
 
 	template <typename ReturnType, typename Param1>
-	Metaclass& method(std::string name,boost::function<ReturnType (TheClass*, Param1)> f)
+	Metaclass&
+	method(std::string name,boost::function<ReturnType (TheClass*, Param1)> f)
 	{
 		typedef typename Method<TheClass,ReturnType, Param1> MethodType;
 		typedef typename boost::function<ReturnType (TheClass*, Param1)> FunctionType;
@@ -227,7 +229,8 @@ public:
 	}
 
 	template <typename ReturnType, typename Param1, typename Param2>
-	Metaclass& method(std::string name,boost::function<ReturnType (TheClass*, Param1, Param2)> f)
+	Metaclass&
+	method(std::string name,boost::function<ReturnType (TheClass*, Param1, Param2)> f)
 	{
 		typedef typename Method<TheClass,ReturnType, Param1, Param2> MethodType;
 		typedef typename boost::function<ReturnType (TheClass*, Param1, Param2)> FunctionType;
@@ -236,18 +239,22 @@ public:
 	}
 
 	template <typename ReturnType, typename Param1, typename Param2>
-	Method<TheClass,ReturnType, Param1, Param2>& getMethod(std::string name)
+	Method<TheClass,ReturnType, Param1, Param2>&
+	getMethod(std::string name)
 	{
 		typedef Method<TheClass,ReturnType, Param1, Param2> ElementType;
 		return *m_methods.get<ElementType>(name);
 	}
 
-	Metaobject<TheClass> getMetaobject(TheClass * instance)
+	Metaobject<TheClass>&
+	getMetaobject(TheClass * instance)
 	{
-		return Metaobject<TheClass>(*this,instance);
+		static Metaobject<TheClass> mo(*this,instance);
+		return mo;
 	}
 
-	std::string typeName()
+	std::string
+	typeName()
 	{
 		return typeid(TheClass).name();
 	}
@@ -307,7 +314,7 @@ public:
 	}
 
 	template <typename PropType>
-	setValue(std::string propName, PropType value)
+	void setValue(std::string propName, PropType value)
 	{
 		m_metaclass.getProperty<PropType>(propName).set(m_instance,value);
 	}
@@ -338,13 +345,16 @@ public:
 class Reflector
 {
 public:
-	Reflector & operator()() 	{
+	static Reflector & 
+	instance()
+	{
 		static Reflector instance;
 		return instance;
 	}
 
 	template <typename C>
-	Metaclass<C>& declare()
+	Metaclass<C>&
+	declare()
 	{
 		Metaclass<C> * mc = new Metaclass<C>();
 		m_metaclasses.add(typeid(C).name(),mc);
@@ -352,22 +362,32 @@ public:
 	}
 
 	template <typename C>
-	Metaclass<C>& declare(std::string name)
+	Metaclass<C>&
+	declare(std::string name)
 	{
 		Metaclass<C> * mc = new Metaclass<C>(name);
 		m_metaclasses.add(name,mc);
 		return *mc;
 	}
 
-	template <typename C>
-	Metaobject<C>& getMetaobject(std::string className, C * instance)
+	template < typename C >
+	Metaclass< C >&
+	getMetaclass(std::string name)
 	{
-		typedef typename Metaclass<C> Mc;
+		typedef typename Metaclass<C> MetaclassType;
 		
-		m_metaclasses.get<Mc>(className)->getMetaobject(instance);
+		return *m_metaclasses.get< MetaclassType >(name);
+	}
+	
+	template < typename C >
+	Metaobject< C >& 
+	getMetaobject(std::string className, C * instance)
+	{
+		return getMetaclass< C >( className ).getMetaobject( instance );
    }
 
 private:
+
 	GenericContainer m_metaclasses;
 };
 #endif
