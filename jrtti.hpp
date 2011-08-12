@@ -387,7 +387,7 @@ public:
    }
 
 private:
-
+	Reflector(){};
 	GenericContainer m_metaclasses;
 };
 #endif

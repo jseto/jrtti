@@ -57,6 +57,10 @@ void test()
 	Metaobject<SampleClass> mo = mc.getMetaobject(&aClass);
 	Metaobject<SampleClass> mobject=Reflector::instance().getMetaobject("SampleClass",&aClass); //  thisClass.getMetaobject(this);
 
+//demonstrates use without TheClass template qualifier
+	Reflector::instance().getMetaobject("SampleClass",&aClass).setValue<double>("testDouble",56);
+	double d0=Reflector::instance().getMetaobject("SampleClass",&aClass).getValue<double>("testDouble");
+	assert(d0==56);
 //double property
 	mobject.setValue<double>("testDouble",34);
 	double d=mobject.getValue<double>("testDouble");
@@ -92,6 +96,7 @@ int main()
 {
 	declare();
 	test();
+	std::cout << "jrtti tests done ok" << std::endl ;
 	char ch;
 	std::cin.get(ch);
 }
