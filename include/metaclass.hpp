@@ -2,6 +2,7 @@
 #define metaclassH
 
 #include <boost/function.hpp>
+#include <boost/bind.hpp>
 
 #include "property.hpp"
 #include "method.hpp"
@@ -15,13 +16,13 @@ class Metaobject;
 
 //------------------------------------------------------------------------------
 
-template <class TheClass>
+template <class ClassType>
 class Metaclass
 {
 public:
 	Metaclass()
 	{
-		m_name = typeid(TheClass).name();
+		m_name = typeid(ClassType).name();
 	}
 
 	Metaclass(std::string name)
@@ -30,95 +31,100 @@ public:
 	}
 
 	template <typename PropType>
-	Metaclass& property(std::string name,boost::function<void (TheClass *, PropType)> setter,boost::function<PropType (TheClass *)> getter)
+	Metaclass&
+	property(std::string name,boost::function<void (ClassType *, PropType)> setter,boost::function<PropType (ClassType *)> getter)
 	{
-		typedef typename boost::function<void (TheClass *, PropType)> 	SetterType;
-		typedef typename boost::function<PropType (TheClass *)>			GetterType;
+		typedef typename boost::function<void (ClassType *, PropType)> 	SetterType;
+		typedef typename boost::function<PropType (ClassType *)>			GetterType;
 
 		return fillProperty<PropType,SetterType,GetterType>(name,setter,getter);
 	}
 
 	template <typename PropType>
-	Metaclass& property(std::string name, PropType TheClass::* member)
+	Metaclass&
+	property(std::string name, PropType ClassType::* member)
 	{
-		typedef typename PropType TheClass::* 	MemberType;
+		typedef typename PropType ClassType::* 	MemberType;
 
 		return fillProperty<PropType, MemberType, MemberType>(name, member, member);
 	}
 
 	template <typename PropType>
-	Property<TheClass, PropType>& getProperty(std::string name)
+	Property<ClassType, PropType>&
+	getProperty(std::string name)
 	{
-		typedef Property<TheClass, PropType> ElementType;
+		typedef Property<ClassType, PropType> ElementType;
 		return *m_properties.get<ElementType>(name);
 	}
 
 	template <typename ReturnType>
 	Metaclass&
-	method(std::string name,boost::function<ReturnType (TheClass*)> f)
+	method(std::string name,boost::function<ReturnType (ClassType*)> f)
 	{
-		typedef Method<TheClass,ReturnType> MethodType;
-		typedef typename boost::function<ReturnType (TheClass*)> FunctionType;
+		typedef Method<ClassType,ReturnType> MethodType;
+		typedef typename boost::function<ReturnType (ClassType*)> FunctionType;
 
 		return fillMethod<MethodType, FunctionType>(name,f);
 	}
 
 	template <typename ReturnType, typename Param1>
 	Metaclass&
-	method(std::string name,boost::function<ReturnType (TheClass*, Param1)> f)
+	method(std::string name,boost::function<ReturnType (ClassType*, Param1)> f)
 	{
-		typedef typename Method<TheClass,ReturnType, Param1> MethodType;
-		typedef typename boost::function<ReturnType (TheClass*, Param1)> FunctionType;
+		typedef typename Method<ClassType,ReturnType, Param1> MethodType;
+		typedef typename boost::function<ReturnType (ClassType*, Param1)> FunctionType;
 
 		return fillMethod<MethodType, FunctionType>(name,f);
 	}
 
 	template <typename ReturnType, typename Param1, typename Param2>
 	Metaclass&
-	method(std::string name,boost::function<ReturnType (TheClass*, Param1, Param2)> f)
+	method(std::string name,boost::function<ReturnType (ClassType*, Param1, Param2)> f)
 	{
-		typedef typename Method<TheClass,ReturnType, Param1, Param2> MethodType;
-		typedef typename boost::function<ReturnType (TheClass*, Param1, Param2)> FunctionType;
+		typedef typename Method<ClassType,ReturnType, Param1, Param2> MethodType;
+		typedef typename boost::function<ReturnType (ClassType*, Param1, Param2)> FunctionType;
 
 		return fillMethod<MethodType, FunctionType>(name,f);
 	}
 
 	template <typename ReturnType, typename Param1, typename Param2>
-	Method<TheClass,ReturnType, Param1, Param2>&
+	Method<ClassType,ReturnType, Param1, Param2>&
 	getMethod(std::string name)
 	{
-		typedef Method<TheClass,ReturnType, Param1, Param2> ElementType;
+		typedef Method<ClassType,ReturnType, Param1, Param2> ElementType;
 		return *m_methods.get<ElementType>(name);
 	}
 
-	Metaobject<TheClass>&
-	getMetaobject(TheClass * instance)
+	Metaobject<ClassType>&
+	getMetaobject(ClassType * instance)
 	{
-		static Metaobject<TheClass> mo(*this,instance);
+		static Metaobject<ClassType> mo(*this,instance);
 		return mo;
 	}
 
 	std::string
 	typeName()
 	{
-		return typeid(TheClass).name();
+		return typeid(ClassType).name();
 	}
 
 private:
-	template <typename M, typename F>
-	Metaclass& fillMethod(std::string name, F function)
+	template <typename MethodType, typename FunctionType>
+	Metaclass&
+	fillMethod(std::string name, FunctionType function)
 	{
-		M * m = new M();
+		MethodType * m = new MethodType();
 		m->name(name);
 		m->function(function);
 		m_methods.add(name,m);
 		return *this;
 	}
 
-	template <typename T, typename S, typename G>
-	Metaclass& fillProperty(std::string name,S setter, G getter)
+	template <typename PropType, typename SetterType, typename GetterType>
+	Metaclass&
+	fillProperty(std::string name, SetterType setter, GetterType getter)
 	{
-		Property< TheClass, T > * p = new Property< TheClass, T >();
+		Property< ClassType, PropType > * p = new Property< ClassType, PropType >();
 		p->setter(setter);
 		p->getter(getter);
 		p->name(name);

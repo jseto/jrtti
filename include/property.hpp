@@ -5,56 +5,63 @@ namespace jrtti {
 
 //------------------------------------------------------------------------------
 
-template <class aClass, class propType>
+template <class ClassType, class PropType>
 class Property
 {
 public:
-	void setter( boost::function<void (typename aClass*, typename propType)> functor)
+	void
+	setter( boost::function<void (typename ClassType*, typename PropType)> functor)
 	{
 		m_dataMember=NULL;
 		_setter=functor;
 	}
 
-	void setter(propType aClass::* dataMember)
+	void
+	setter(PropType ClassType::* dataMember)
 	{
 		m_dataMember=dataMember;
 	}
 
-	void getter(boost::function<propType (aClass*)> functor)
+	void
+	getter(boost::function<PropType (ClassType*)> functor)
 	{
 		_getter=functor;
 	}
 
-	propType get(aClass * instance)
+	PropType
+	get(ClassType * instance)
 	{
-			return (propType)_getter((aClass *)instance);
+			return (PropType)_getter((ClassType *)instance);
 	}
 
-	void set(aClass * instance, propType value)
+	void
+	set(ClassType * instance, PropType value)
 	{
 		if (m_dataMember)
 		{
-			aClass * p = static_cast<aClass *>(instance);
+			ClassType * p = static_cast<ClassType *>(instance);
 			p->*m_dataMember=value;
 		}
 		else
-			_setter((aClass *)instance,(propType)value);
+			_setter((ClassType *)instance,(PropType)value);
 	}
 
-	void name(std::string aName)
+	void
+	name(std::string aName)
 	{
 		_name=aName;
 	}
 
-	std::string getName()
+	std::string
+	getName()
 	{
 		return _name;
 	}
 
 private:
-	boost::function<void (aClass*, propType)>	_setter;
-	boost::function<propType (aClass*)>			_getter;
-	propType	aClass::*								m_dataMember;
+	boost::function<void (ClassType*, PropType)>	_setter;
+	boost::function<PropType (ClassType*)>			_getter;
+	PropType	ClassType::*								m_dataMember;
 	std::string _name;
 };
 
