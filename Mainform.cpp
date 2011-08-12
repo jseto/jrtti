@@ -32,7 +32,7 @@ __fastcall TForm1::TForm1(TComponent* Owner)
 //---------------------------------------------------------------------------
 void __fastcall TForm1::Button1Click(TObject *Sender)
 {
-	Metaobject<TForm1> mobject=Reflector().getMetaobject<TForm1>("TForm1");   //thisClass.getMetaobject(this);
+	Metaobject<TForm1> mobject=Reflector().getMetaobject<TForm1>("TForm1",this);   //thisClass.getMetaobject(this);
 
 //double property
 	test=0;

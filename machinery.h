@@ -284,7 +284,7 @@ class Metaobject
 {
 public:
 	Metaobject(Metaclass<TheClass> pmetaclass, TheClass * pinstance)
-   	: m_metaclass(pmetaclass), m_instance(pinstance)
+		: m_metaclass(pmetaclass), m_instance(pinstance)
 	{}
 
  //hauria de buscar la Metaclass corresconent sola
@@ -347,7 +347,7 @@ public:
 	Metaclass<C>& declare()
 	{
 		Metaclass<C> * mc = new Metaclass<C>();
-		m_metaclases.add(typeid(C).name(),mc);
+		m_metaclasses.add(typeid(C).name(),mc);
 		return *mc;
 	}
 
@@ -355,17 +355,19 @@ public:
 	Metaclass<C>& declare(std::string name)
 	{
 		Metaclass<C> * mc = new Metaclass<C>(name);
-		m_metaclases.add(name,mc);
+		m_metaclasses.add(name,mc);
 		return *mc;
 	}
 
 	template <typename C>
 	Metaobject<C>& getMetaobject(std::string className, C * instance)
 	{
-		m_metaclasess.get<C>(className).getMetaobject(instance);
+		typedef typename Metaclass<C> Mc;
+		
+		m_metaclasses.get<Mc>(className)->getMetaobject(instance);
    }
 
 private:
-	GenericContainer m_metaclases;
+	GenericContainer m_metaclasses;
 };
 #endif
