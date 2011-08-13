@@ -63,6 +63,7 @@ void test()
 	Reflector::instance().getMetaobject("SampleClass",&aClass).setValue<double>("testDouble",56);
 	double d0=Reflector::instance().getMetaobject("SampleClass",&aClass).getValue<double>("testDouble");
 	assert(d0==56);
+	
 //double property
 	mobject.setValue<double>("testDouble",34);
 	double d=mobject.getValue<double>("testDouble");

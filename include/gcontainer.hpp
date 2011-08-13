@@ -2,7 +2,9 @@
 #define gcontainerH
 
 #include <map>
+#include <vector>
 #include <string>
+#include <algorithm>
 
 namespace jrtti {
 
@@ -15,18 +17,30 @@ public:
 	void
 	add(std::string name, ElementType * item)
 	{
-		items[name]=item;
+		m_items[name]=item;
 	}
 
 	template <typename ElementType>
 	ElementType *
 	get(std::string name)
 	{
-		return (ElementType *)items[name];
+		if (  m_items.count(name) )
+			return (ElementType *) m_items[name];
+		else
+			return NULL;
 	}
 
+	template < typename ElementType >
+	std::vector<ElementType *>
+	items()
+	{
+		std::vector<ElementType *> 					v;
+		std::map<std::string, void *>::iterator 	it;
+
+		for_each( it.begin(), it.end(), v.push_back );
+	}
 private:
-	std::map<std::string, void *>	items;
+	std::map<std::string, void *>	m_items;
 };
 
 //------------------------------------------------------------------------------

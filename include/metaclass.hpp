@@ -6,8 +6,6 @@
 
 #include "property.hpp"
 #include "method.hpp"
-//#include "metaobject.hpp"
-
 
 namespace jrtti {
 
@@ -21,11 +19,13 @@ class Metaclass
 {
 public:
 	Metaclass()
+		: m_typeName(typeid(ClassType).name())
 	{
-		m_name = typeid(ClassType).name();
+		m_name = typeName();
 	}
 
 	Metaclass(std::string name)
+		: m_typeName(typeid(ClassType).name())
 	{
 		m_name=name;
 	}
@@ -56,6 +56,13 @@ public:
 		typedef Property<ClassType, PropType> ElementType;
 		return *m_properties.get<ElementType>(name);
 	}
+
+	template <typename PropType>
+	std::vector<PropType *>
+	getProperties()
+	{
+		return m_properties.items<PropType>();
+   }
 
 	template <typename ReturnType>
 	Metaclass&
@@ -105,7 +112,7 @@ public:
 	std::string
 	typeName()
 	{
-		return typeid(ClassType).name();
+		return m_typeName;
 	}
 
 private:
@@ -129,10 +136,24 @@ private:
 		p->getter(getter);
 		p->name(name);
 		m_properties.add(name,p);
+		addSubProperties(p);
 		return *this;
 	}
 
+	template <typename PropType>
+	void
+	addSubProperties( PropType * p )
+	{
+		try
+		{
+			Metaclass<PropType> mc = Reflector::instance().getMetaclass< PropType >( p->typeName() );
+			std::vector< typename PropType * > properties = mc.getProperties()
+		}
+		catch (exception &e){}
+	}
+
 	std::string 		m_name;
+	std::string			m_typeName;
 	GenericContainer 	m_properties;
 	GenericContainer 	m_methods;
 };

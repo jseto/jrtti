@@ -9,11 +9,15 @@ template <class ClassType, class PropType>
 class Property
 {
 public:
+	Property()
+		: m_typeName(typeid(PropType).name())
+	{}
+
 	void
 	setter( boost::function<void (typename ClassType*, typename PropType)> functor)
 	{
 		m_dataMember=NULL;
-		_setter=functor;
+		m_setter=functor;
 	}
 
 	void
@@ -25,13 +29,13 @@ public:
 	void
 	getter(boost::function<PropType (ClassType*)> functor)
 	{
-		_getter=functor;
+		m_getter=functor;
 	}
 
 	PropType
 	get(ClassType * instance)
 	{
-			return (PropType)_getter((ClassType *)instance);
+			return (PropType) m_getter( (ClassType *)instance );
 	}
 
 	void
@@ -43,26 +47,34 @@ public:
 			p->*m_dataMember=value;
 		}
 		else
-			_setter((ClassType *)instance,(PropType)value);
+			m_setter((ClassType *)instance,(PropType)value);
 	}
 
 	void
 	name(std::string aName)
 	{
-		_name=aName;
+		m_name=aName;
 	}
 
 	std::string
-	getName()
+	name()
 	{
-		return _name;
+		return m_name;
 	}
 
+	std::string
+	typeName()
+	{
+		return m_typeName;
+	}
+
+
 private:
-	boost::function<void (ClassType*, PropType)>	_setter;
-	boost::function<PropType (ClassType*)>			_getter;
+	boost::function<void (ClassType*, PropType)>	m_setter;
+	boost::function<PropType (ClassType*)>			m_getter;
 	PropType	ClassType::*								m_dataMember;
-	std::string _name;
+	std::string 											m_name;
+	std::string												m_typeName;
 };
 
 //------------------------------------------------------------------------------
