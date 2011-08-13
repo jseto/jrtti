@@ -1,8 +1,13 @@
 #ifndef metaclassH
 #define metaclassH
 
+#include <memory>
+#include <vector>
+#include <map>
 #include <boost/function.hpp>
-#include <boost/bind.hpp>
+//#include <boost/bind.hpp>
+#include <boost/type_traits/is_fundamental.hpp>
+#include <boost/utility/enable_if.hpp>
 
 #include "property.hpp"
 #include "method.hpp"
@@ -13,20 +18,56 @@ template < typename ClassType >
 class Metaobject;
 
 //------------------------------------------------------------------------------
+class MetaclassBase
+{
+public:
+	template <typename PropType>
+	std::vector< PropertyBase * >
+	getProperties()
+	{
+		std::vector< PropertyBase * > v;
+
+		for (PropertyMap::iterator it = m_properties.begin(); it != m_properties.end(); ++it )
+			v.push_back( (*it).second );
+
+		return v;
+	}
+
+	std::string
+	name()
+	{
+		return m_name;
+	}
+
+	std::string
+	typeName()
+	{
+		return m_typeName;
+	}
+
+protected:
+	typedef std::map< std::string, PropertyBase * > PropertyMap;
+	typedef std::map< std::string, MethodBase * >	MethodMap;
+
+	std::string 	m_name;
+	std::string		m_typeName;
+	PropertyMap		m_properties;
+	MethodMap		m_methods;
+};
 
 template <class ClassType>
-class Metaclass
+class Metaclass : public MetaclassBase
 {
 public:
 	Metaclass()
-		: m_typeName(typeid(ClassType).name())
 	{
+		m_typeName = typeid(ClassType).name();
 		m_name = typeName();
 	}
 
 	Metaclass(std::string name)
-		: m_typeName(typeid(ClassType).name())
 	{
+		m_typeName = typeid(ClassType).name();
 		m_name=name;
 	}
 
@@ -54,15 +95,8 @@ public:
 	getProperty(std::string name)
 	{
 		typedef Property<ClassType, PropType> ElementType;
-		return *m_properties.get<ElementType>(name);
+		return * static_cast< ElementType * >(m_properties[name]);
 	}
-
-	template <typename PropType>
-	std::vector<PropType *>
-	getProperties()
-	{
-		return m_properties.items<PropType>();
-   }
 
 	template <typename ReturnType>
 	Metaclass&
@@ -99,7 +133,7 @@ public:
 	getMethod(std::string name)
 	{
 		typedef Method<ClassType,ReturnType, Param1, Param2> ElementType;
-		return *m_methods.get<ElementType>(name);
+		return * static_cast< ElementType * >( m_methods[name] );
 	}
 
 	Metaobject<ClassType>&
@@ -107,12 +141,6 @@ public:
 	{
 		static Metaobject<ClassType> mo(*this,instance);
 		return mo;
-	}
-
-	std::string
-	typeName()
-	{
-		return m_typeName;
 	}
 
 private:
@@ -123,7 +151,7 @@ private:
 		MethodType * m = new MethodType();
 		m->name(name);
 		m->function(function);
-		m_methods.add(name,m);
+		m_methods[name]=m;
 		return *this;
 	}
 
@@ -131,31 +159,38 @@ private:
 	Metaclass&
 	fillProperty(std::string name, SetterType setter, GetterType getter)
 	{
-		Property< ClassType, PropType > * p = new Property< ClassType, PropType >();
+		Property< ClassType, PropType > * p = new Property< ClassType, PropType >;
 		p->setter(setter);
 		p->getter(getter);
 		p->name(name);
-		m_properties.add(name,p);
+		m_properties[name]=p;
 		addSubProperties(p);
 		return *this;
 	}
 
+	//SFINAE for fundamental types as they do not have Metaclass
 	template <typename PropType>
-	void
-	addSubProperties( PropType * p )
+	typename boost::enable_if< boost::is_fundamental< PropType >, void >::type
+	addSubProperties( Property< ClassType, PropType > * p )
+	{}
+
+	template <typename PropType>
+	typename boost::disable_if< boost::is_fundamental< PropType >, void >::type
+	addSubProperties( Property< ClassType, PropType > * p )
 	{
 		try
 		{
-			Metaclass<PropType> mc = Reflector::instance().getMetaclass< PropType >( p->typeName() );
-			std::vector< typename PropType * > properties = mc.getProperties()
-		}
-		catch (exception &e){}
-	}
+			Metaclass<PropType>
+			mc = Reflector::instance().getMetaclass< PropType >( p->typeName() );
 
-	std::string 		m_name;
-	std::string			m_typeName;
-	GenericContainer 	m_properties;
-	GenericContainer 	m_methods;
+			std::vector< PropertyBase * >
+			subProperties = mc.getProperties<PropType>();
+
+			for (std::vector< PropertyBase * >::iterator it = subProperties.begin(); it!=subProperties.end(); ++it)
+				m_properties[ p->name() + "." + (*it)->name() ] = (*it);
+		}
+		catch (exception){}
+	}
 };
 
 //------------------------------------------------------------------------------

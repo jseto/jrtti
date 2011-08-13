@@ -80,7 +80,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\exception.hpp" />
-    <ClInclude Include="include\gcontainer.hpp" />
     <ClInclude Include="include\jrtti.hpp" />
     <ClInclude Include="include\metaclass.hpp" />
     <ClInclude Include="include\metaobject.hpp" />

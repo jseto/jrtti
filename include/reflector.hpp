@@ -23,7 +23,7 @@ public:
 	declare()
 	{
 		Metaclass<C> * mc = new Metaclass<C>();
-		m_metaclasses.add(typeid(C).name(),mc);
+		m_metaclasses[ typeid(C).name() ] = mc;
 		return *mc;
 	}
 
@@ -32,7 +32,7 @@ public:
 	declare(std::string name)
 	{
 		Metaclass<C> * mc = new Metaclass<C>(name);
-		m_metaclasses.add(name,mc);
+		m_metaclasses[ name ] = mc;
 		return *mc;
 	}
 
@@ -42,11 +42,10 @@ public:
 	{
 		typedef typename Metaclass<C> MetaclassType;
 		
-		Metaclass<C> * mc = m_metaclasses.get< MetaclassType >(name);
-		if ( mc )
-			return *mc;
-		else
-			exception( BAD_CLASS + ": "  + name );
+		Metaclass<C> * mc = static_cast < MetaclassType * >( m_metaclasses[ name ] );
+		if ( !mc )
+			throw exception( BAD_CLASS + ": "  + name );
+		return *mc;
 	}
 
 	template < typename C >
@@ -58,7 +57,7 @@ public:
 
 private:
 	Reflector(){};
-	GenericContainer m_metaclasses;
+	std::map< std::string, MetaclassBase * > m_metaclasses;
 };
 
 //------------------------------------------------------------------------------

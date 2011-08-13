@@ -4,9 +4,20 @@
 namespace jrtti {
 
 //------------------------------------------------------------------------------
+class MethodBase
+{
+public:
+	std::string
+	name()
+	{
+		return m_name;
+	}
+protected:
+	std::string m_name;
+};
 
 template <class ClassType, class ReturnType, class Param1=void, class Param2=void>
-class Method
+class Method : public MethodBase
 {
 	typedef boost::function<ReturnType (ClassType*, Param1, Param2)> 	FunctionType;
 	typedef Method<ClassType, ReturnType, Param1, Param2 >					MethodType;
@@ -34,11 +45,10 @@ public:
 
 private:
 	FunctionType 	m_functor;
-	std::string		m_name;
 };
 
 template <class ClassType, class ReturnType>
-class Method<ClassType, ReturnType, void, void>
+class Method<ClassType, ReturnType, void, void>  : public MethodBase
 {
 	typedef boost::function<ReturnType (ClassType*)> 	FunctionType;
 	typedef Method<ClassType, ReturnType, void, void >	MethodType;
@@ -66,11 +76,10 @@ public:
 
 private:
 	FunctionType 	m_functor;
-	std::string		m_name;
 };
 
 template <class ClassType, class ReturnType, class Param1>
-class Method<ClassType, ReturnType, Param1, void>
+class Method<ClassType, ReturnType, Param1, void> : public MethodBase
 {
 	typedef boost::function<ReturnType (ClassType*, Param1)> 	FunctionType;
 	typedef Method<ClassType, ReturnType, Param1, void >		MethodType;
@@ -98,7 +107,6 @@ public:
 
 private:
 	FunctionType 	m_functor;
-	std::string		m_name;
 };
 
 //------------------------------------------------------------------------------
