@@ -55,11 +55,18 @@ public:
 		return getMetaclass< C >( className ).getMetaobject( instance );
 	}
 
-	template < typename ClassT, typename PropT >
+	template < typename PropT, typename ClassT >
 	PropT
 	getValue( ClassT * instance, std::string propName )
 	{
 		return getMetaobject< ClassT >(typeid(ClassT).name(),instance).getValue<PropT>( propName );
+	}
+
+	template < typename PropT, typename ClassT >
+	void
+	setValue( ClassT * instance, std::string propName, const PropT & value )
+	{
+		return getMetaobject< ClassT >(typeid(ClassT).name(),instance).setValue<PropT>( propName, value );
 	}
 
 private:

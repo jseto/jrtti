@@ -32,7 +32,8 @@ public:
 	PropType
 	getValue(std::string propName)
 	{
-		m_metaclass.getProperty<PropType>(propName).getParentMetaobject(m_instance)										//point.x
+//		Reflector::instance().getMetaobject(m_instance)
+//		m_metaclass.getProperty<PropType>(propName).getParentMetaobject(m_instance)										//point.x
 		return m_metaclass.getProperty<PropType>(propName).get(m_instance);
 	}
 
