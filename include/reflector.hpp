@@ -55,6 +55,13 @@ public:
 		return getMetaclass< C >( className ).getMetaobject( instance );
 	}
 
+	template < typename ClassT, typename PropT >
+	PropT
+	getValue( ClassT * instance, std::string propName )
+	{
+		return getMetaobject< ClassT >(typeid(ClassT).name(),instance).getValue<PropT>( propName );
+	}
+
 private:
 	Reflector(){};
 	std::map< std::string, MetaclassBase * > m_metaclasses;

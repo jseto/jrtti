@@ -31,7 +31,8 @@ public:
 	template <typename PropType>
 	PropType
 	getValue(std::string propName)
-	{                 												//point.x
+	{
+		m_metaclass.getProperty<PropType>(propName).getParentMetaobject(m_instance)										//point.x
 		return m_metaclass.getProperty<PropType>(propName).get(m_instance);
 	}
 
