@@ -79,6 +79,7 @@
     <ClCompile Include="test_jrtti.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\biIndexMap.hpp" />
     <ClInclude Include="include\exception.hpp" />
     <ClInclude Include="include\jrtti.hpp" />
     <ClInclude Include="include\metaclass.hpp" />

@@ -180,7 +180,7 @@ private:
 		try
 		{
 			Metaclass<PropType>
-			mc = Reflector::instance().getMetaclass< PropType >( p->typeName() );
+			mc = Reflector::instance().getMetaclassByType< PropType >( p->typeName() );
 
 			std::vector< PropertyBase * >
 			subProperties = mc.getProperties<PropType>();

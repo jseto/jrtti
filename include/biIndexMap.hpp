@@ -15,13 +15,13 @@ public:
 	add( const Index1T& idx1, const Index2T& idx2, ElemT item )
 	{
 		firstMap[idx1]=item;
-		secondMap[idx2]=&item;
+		secondMap[idx2]=item;
 	}
 
 	ElemT&
 	find2( const Index2T& idx )
 	{
-		return *secondMap[idx];
+		return secondMap[idx];
 	}
 
 	ElemT&
@@ -38,7 +38,7 @@ public:
 
 private:
 	std::map< Index1T, ElemT > firstMap;
-	std::map< Index2T, ElemT * >	secondMap;
+	std::map< Index2T, ElemT >	secondMap;
 };
 
 

@@ -25,7 +25,8 @@ public:
 	declare()
 	{
 		Metaclass<C> * mc = new Metaclass<C>();
-		m_metaclasses[ typeid(C).name() ] = mc;
+		std::string name = typeid(C).name();
+		m_metaclasses.add( name, name, mc );
 		return *mc;
 	}
 
@@ -34,7 +35,7 @@ public:
 	declare(std::string name)
 	{
 		Metaclass<C> * mc = new Metaclass<C>(name);
-		m_metaclasses[ name ] = mc;
+		m_metaclasses.add( name, typeid(C).name(), mc );
 		return *mc;
 	}
 
@@ -43,10 +44,35 @@ public:
 	getMetaclass(std::string name)
 	{
 		typedef typename Metaclass<C> MetaclassType;
-		
-		Metaclass<C> * mc = static_cast < MetaclassType * >( m_metaclasses[ name ] );
+
+		Metaclass<C> * mc;
+
+		if (!name.empty())
+			mc = static_cast < MetaclassType * >( m_metaclasses[ name ] );
+		else
+	      	mc = static_cast < MetaclassType * >( m_metaclasses.find2( typeid( C ).name() ) );
 		if ( !mc )
 			throw exception( BAD_CLASS + ": "  + name );
+		return *mc;
+	}
+
+	template < typename C >
+	Metaclass< C >&
+	getMetaclass()
+	{ 
+		return getMetaclass<C>("");
+	}
+
+	template < typename C >
+	Metaclass< C >&
+	getMetaclassByType(std::string typeName)
+	{
+		typedef typename Metaclass<C> MetaclassType;
+
+		Metaclass<C> * 
+      	mc = static_cast < MetaclassType * >( m_metaclasses.find2( typeName ) );
+		if ( !mc )
+			throw exception( BAD_CLASS + ": "  + typeName );
 		return *mc;
 	}
 
@@ -57,18 +83,25 @@ public:
 		return getMetaclass< C >( className ).getMetaobject( instance );
 	}
 
+	template < typename C >
+	Metaobject< C >&
+	getMetaobject(C * instance)
+	{
+		return getMetaclass< C >().getMetaobject( instance );
+	}
+
 	template < typename PropT, typename ClassT >
 	PropT
 	getValue( ClassT * instance, std::string propName )
 	{
-		return getMetaobject< ClassT >(typeid(ClassT).name(),instance).getValue<PropT>( propName );
+		return getMetaobject< ClassT >(instance).getValue<PropT>( propName );
 	}
 
 	template < typename PropT, typename ClassT >
 	void
 	setValue( ClassT * instance, std::string propName, const PropT & value )
 	{
-		return getMetaobject< ClassT >(typeid(ClassT).name(),instance).setValue<PropT>( propName, value );
+		return getMetaobject< ClassT >(instance).setValue<PropT>( propName, value );
 	}
 
 private:
