@@ -64,19 +64,6 @@ public:
 	}
 
 	template < typename C >
-	Metaclass< C >&
-	getMetaclassByType(std::string typeName)
-	{
-		typedef typename Metaclass<C> MetaclassType;
-
-		Metaclass<C> * 
-      	mc = static_cast < MetaclassType * >( m_metaclasses.find2( typeName ) );
-		if ( !mc )
-			throw exception( BAD_CLASS + ": "  + typeName );
-		return *mc;
-	}
-
-	template < typename C >
 	Metaobject< C >&
 	getMetaobject(std::string className, C * instance)
 	{
