@@ -2,6 +2,8 @@
 #define reflectorH
 
 #include <string>
+#include "biIndexMap.hpp"
+
 #include "exception.hpp"
 
 namespace jrtti {
@@ -71,7 +73,8 @@ public:
 
 private:
 	Reflector(){};
-	std::map< std::string, MetaclassBase * > m_metaclasses;
+//	std::map< std::string, MetaclassBase * > m_metaclasses;
+	BiIndexMap< std::string, std::string, MetaclassBase * >	m_metaclasses;
 };
 
 //------------------------------------------------------------------------------
