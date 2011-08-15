@@ -31,11 +31,21 @@ public:
 	template <typename PropType>
 	PropType
 	getValue(std::string propName)
-	{
-//		Reflector::instance().getMetaobject(m_instance)
-//		m_metaclass.getProperty<PropType>(propName).getParentMetaobject(m_instance)										//point.x
-		return m_metaclass.getProperty<PropType>(propName).get(m_instance);
+	{                           // in the case propName is like "point.x" m_instance is to get point and ClassType is the class having point as member
+//			Reflector::instance().evaluate(&aClass,"point", m_instance );                            // for "point.x" we call  getX(getInstancePoint(m_instance))
+
+		return m_metaclass
+					.getProperty<PropType>(propName)
+					.get( /*getParentPropInstance*/( m_instance ) );
 	}
+/*
+	template < typename ParentClass >
+	ParentClass *
+	getParentPropInstance(ClassType * m_instance)
+	{
+
+	}
+  */
 
 	template <typename PropType>
 	void

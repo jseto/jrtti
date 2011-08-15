@@ -5,7 +5,7 @@
 
 using namespace jrtti;
 
-struct MPoint
+struct Point
 {
 	double x;
 	double y;
@@ -17,8 +17,8 @@ public:
 	void setTest(double d);
 	double getTest();
 
-	void setPoint(MPoint p);
-	MPoint getPoint();
+	void setPoint(Point p);
+	Point getPoint();
 
 	void testFunc(){ std::cout << "Test works ok" << std::endl;}
 	int testIntFunc(){return 23;}
@@ -28,22 +28,22 @@ public:
 
 private:	// User declarations
 	double test;
-	MPoint _point;
+	Point _point;
 	Metaclass< SampleClass > thisClass;
-	Metaclass< MPoint > pointClass;
+	Metaclass< Point > pointClass;
 };
 
 void declare()
 {
    //	pointClass=Metaclass<MPoint>("MPoint")
-	Reflector::instance().declare<MPoint>()								//implicit metaclass name
-						.property<double>("x",&MPoint::x)
-						.property<double>("y",&MPoint::y);
+	Reflector::instance().declare<Point>()								//implicit metaclass name
+						.property<double>("x",&Point::x)
+						.property<double>("y",&Point::y);
 
 //	pointClass=Metaclass<SampleClass>("SampleClass")
 	Reflector::instance().declare<SampleClass>("SampleClass")				//exlicit metaclass name
 						.property<double>("testDouble", &SampleClass::setTest, &SampleClass::getTest)
-						.property<MPoint>("point", &SampleClass::setPoint, &SampleClass::getPoint)
+						.property<Point>("point", &SampleClass::setPoint, &SampleClass::getPoint)
 						.property<int>("testInt", &SampleClass::testInt)
 						.method<void>("testMethod", &SampleClass::testFunc)
 						.method<int>("testIntMethod", &SampleClass::testIntFunc)
@@ -74,9 +74,9 @@ void test()
 	assert(d==34.0);
 
 //struct property
-	MPoint p; p.x=45; p.y=80;
-	mobject.setValue<MPoint>("point",p);
-	MPoint pr=mobject.getValue<MPoint>("point");
+	Point p; p.x=45; p.y=80;
+	mobject.setValue<Point>("point",p);
+	Point pr=mobject.getValue<Point>("point");
 	assert(pr.x==45 && pr.y==80);
 
 //ind data member property
@@ -97,6 +97,9 @@ void test()
 //double x(int p1, double p2) method call
 	double d2=mobject.call<double,int,double>("testSum",9,6);
 	assert(d2==15.0);
+
+
+// TODO:	double i = get<double>(&aClass,"point.x");
 }
 
 int main()
@@ -119,12 +122,12 @@ double SampleClass::getTest()
 	return test;
 }
 
-void SampleClass::setPoint(MPoint _p)
+void SampleClass::setPoint(Point _p)
 {
 	_point=_p;
 }
 
-MPoint SampleClass::getPoint()
+Point SampleClass::getPoint()
 {
 	return _point;
 }

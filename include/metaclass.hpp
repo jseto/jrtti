@@ -94,8 +94,7 @@ public:
 	Property<ClassType, PropType>&
 	getProperty(std::string name)
 	{
-		typedef Property<ClassType, PropType> ElementType;
-		return * static_cast< ElementType * >(m_properties[name]);
+		return * static_cast< Property<ClassType, PropType> * >(m_properties[name]);
 	}
 
 	template <typename ReturnType>
@@ -187,7 +186,11 @@ private:
 			subProperties = mc.getProperties<PropType>();
 
 			for (std::vector< PropertyBase * >::iterator it = subProperties.begin(); it!=subProperties.end(); ++it)
-				m_properties[ p->name() + "." + (*it)->name() ] = (*it);
+			{
+				PropertyBase * subProp = *it;
+//				subProp->parent(p);
+				m_properties[ p->name() + "." + subProp->name() ] = subProp;
+			}
 		}
 		catch (exception){}
 	}
