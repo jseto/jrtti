@@ -39,6 +39,12 @@ public:
 		return *mc;
 	}
 
+	MetaclassBase *
+	getGenericMetaclass( std::string name )
+	{
+		return m_metaclasses[name];
+	}
+
 	template < typename C >
 	Metaclass< C >&
 	getMetaclass(std::string name)

@@ -14,11 +14,11 @@ struct Point
 class SampleClass
 {
 public:
-	void setTest(double d);
-	double getTest();
+	void setTest(double d) { test = d; }
+	double getTest() { return test; }
 
-	void setPoint(Point p);
-	Point getPoint();
+	void setPoint(Point p) { _point = p; }
+	Point& getPoint() { return _point; }
 
 	void testFunc(){ std::cout << "Test works ok" << std::endl;}
 	int testIntFunc(){return 23;}
@@ -99,7 +99,7 @@ void test()
 	assert(d2==15.0);
 
 
-// TODO:	double i = get<double>(&aClass,"point.x");
+	double d3 = Reflector::instance().getValue<double>(&aClass,"point.x");
 }
 
 int main()
@@ -109,25 +109,4 @@ int main()
 	std::cout << "jrtti tests done ok" << std::endl ;
 	char ch;
 	std::cin.get(ch);
-}
-
-
-void SampleClass::setTest(double d)
-{
-	test=d;
-}
-
-double SampleClass::getTest()
-{
-	return test;
-}
-
-void SampleClass::setPoint(Point _p)
-{
-	_point=_p;
-}
-
-Point SampleClass::getPoint()
-{
-	return _point;
 }

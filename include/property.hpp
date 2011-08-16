@@ -1,6 +1,8 @@
 #ifndef propertyH
 #define propertyH
 
+#include <boost/bind.hpp>
+
 namespace jrtti {
 
 //------------------------------------------------------------------------------
@@ -25,6 +27,11 @@ public:
 	{
 		return m_typeName;
 	}
+
+	virtual
+	void *
+	getReference( void * instance ) = 0;
+
 protected:
 	std::string		m_name;
 	std::string		m_typeName;
@@ -59,9 +66,9 @@ public:
 	}
 
 	PropType
-	get(ClassType * instance)
+	get(void * instance)
 	{
-			return (PropType) m_getter( (ClassType *)instance );
+		return (PropType) m_getter( (ClassType *)instance );
 	}
 
 	void
@@ -74,6 +81,15 @@ public:
 		}
 		else
 			m_setter((ClassType *)instance,(PropType)value);
+	}
+
+	virtual
+	void *
+	getReference( void * instance )
+	{
+		PropType ref;
+		ref=m_getter( (ClassType *)instance );
+		return &ref;
 	}
 
 private:

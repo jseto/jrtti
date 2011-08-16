@@ -5,7 +5,6 @@
 #include <vector>
 #include <map>
 #include <boost/function.hpp>
-//#include <boost/bind.hpp>
 #include <boost/type_traits/is_fundamental.hpp>
 #include <boost/utility/enable_if.hpp>
 
@@ -31,6 +30,12 @@ public:
 			v.push_back( (*it).second );
 
 		return v;
+	}
+
+	PropertyBase *
+	getGenericProperty( std::string name )
+	{
+		return m_properties[name];
 	}
 
 	std::string
