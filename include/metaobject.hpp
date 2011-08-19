@@ -49,20 +49,10 @@ public:
 			pMetaclass = p->parentMetaclass();
 		}
 
-		return *( static_cast< PropType *>( p->getReference( instance ) ) );
- /*
-		return pMetaclass
-					->getProperty<PropType>(name)
-					.get( instance );
-  */	}
-/*
-	template < typename ParentClass >
-	ParentClass *
-	getParentPropInstance(ClassType * m_instance)
-	{
+//		return *( static_cast< PropType *>( p->getReference( instance ) ) );
 
+		return m_metaclass.getProperty<PropType>(name).get( instance );
 	}
-  */
 
 	template <typename PropType>
 	void

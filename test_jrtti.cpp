@@ -98,8 +98,11 @@ void test()
 	double d2=mobject.call<double,int,double>("testSum",9,6);
 	assert(d2==15.0);
 
+	Reflector::instance().setValue<double>(&Reflector::instance().getValue<Point&>(&aClass,"point"),"x",743);
+	double d3 = Reflector::instance().getValue<double>(&Reflector::instance().getValue<Point&>(&aClass,"point"),"x");
+	assert(d3==743);
 
-	double d3 = Reflector::instance().getValue<double>(&aClass,"point.x");
+//	double d3 = Reflector::instance().getValue<double>(&aClass,"point.x");
 }
 
 int main()

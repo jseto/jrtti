@@ -174,9 +174,7 @@ private:
 		return *this;
 	}
 
-	//SFINAE for non reference getters
 	template <typename PropType, typename SetterType, typename GetterType >
-//	typename boost::enable_if< typename boost::is_same< typename PropType, typename GetterType::result_type >::type, Metaclass& >::type
 	Metaclass&
 	fillProperty(std::string name, SetterType setter, GetterType getter)
 	{
@@ -189,21 +187,7 @@ private:
 //		addSubProperties(p);
 		return *this;
 	}
-/*
-	//SFINAE for non reference getters
-	template <typename PropType, typename SetterType, typename GetterType>
-	typename boost::disable_if< typename boost::is_same< typename PropType, typename GetterType::result_type >::type, Metaclass& >::type
-	fillProperty(std::string name, SetterType setter, GetterType getter, bool returnsRef)
-	{
-		Property< ClassType, PropType > * p = new Property< ClassType, PropType >;
-		p->setter(setter);
-		p->getter(getter);
-		p->name(name);
-		m_properties[name]=p;
-//		addSubProperties(p);
-		return *this;
-	}
-*/
+
 	//SFINAE for fundamental types as they do not have Metaclass
 	template <typename PropType>
 	typename boost::enable_if< boost::is_fundamental< PropType >, void >::type
