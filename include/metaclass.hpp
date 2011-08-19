@@ -6,6 +6,8 @@
 #include <map>
 #include <boost/function.hpp>
 #include <boost/type_traits/is_fundamental.hpp>
+#include <boost/type_traits/is_same.hpp>
+#include <boost/functional.hpp>
 #include <boost/utility/enable_if.hpp>
 
 #include "property.hpp"
@@ -76,14 +78,29 @@ public:
 		m_name=name;
 	}
 
-	template <typename PropType>
-	Metaclass&
-	property(std::string name,boost::function<void (ClassType *, PropType)> setter,boost::function<PropType (ClassType *)> getter)
-	{
-		typedef typename boost::function<void (ClassType *, PropType)> 	SetterType;
-		typedef typename boost::function<PropType (ClassType *)>			GetterType;
+	template <typename >
+	struct FunctionTypes;
 
-		return fillProperty<PropType,SetterType,GetterType>(name,setter,getter);
+	template < typename R >
+	struct FunctionTypes< R ( ClassType::* )() >
+	{
+		typedef R 		result_type;
+		typedef void 	param_type;
+	};
+
+	template < typename SetterT, typename GetterT >
+	Metaclass&
+	property(std::string name, SetterT setter, GetterT getter)
+	{
+		typedef typename FunctionTypes< typename GetterT >::result_type								PropT;
+		typedef typename boost::remove_reference< PropT >::type											PropNoRefT;
+		typedef typename boost::function< void (typename ClassType*, typename PropNoRefT ) >	BoostSetter;
+		typedef typename boost::function< typename PropT ( typename ClassType * ) >				BoostGetter;
+
+		std::string rf = typeid(PropT).name();
+		std::string t = typeid(PropNoRefT).name();
+
+		return fillProperty< typename PropNoRefT, BoostSetter, BoostGetter, PropT >(name,setter,getter/*,!boost::is_same< PropT, PropNoRefT>::value*/);
 	}
 
 	template <typename PropType>
@@ -91,15 +108,17 @@ public:
 	property(std::string name, PropType ClassType::* member)
 	{
 		typedef typename PropType ClassType::* 	MemberType;
+		typedef typename boost::function< void (typename ClassType*, typename PropType ) >	BoostSetter;
+		typedef typename boost::function< typename PropType ( typename ClassType * ) >		BoostGetter;
 
-		return fillProperty<PropType, MemberType, MemberType>(name, member, member);
+		return fillProperty<PropType, BoostSetter, BoostGetter, PropType>(name, boost::bind(member,_1),boost::bind(member,_1));
 	}
 
 	template <typename PropType>
-	Property<ClassType, PropType>&
+	Property<ClassType, boost::remove_reference< PropType >, PropType >&
 	getProperty(std::string name)
 	{
-		return * static_cast< Property<ClassType, PropType> * >(m_properties[name]);
+		return * static_cast< Property<ClassType, typename boost::remove_reference< PropType >, PropType > * >(m_properties[name]);
 	}
 
 	template <typename ReturnType>
@@ -159,19 +178,35 @@ private:
 		return *this;
 	}
 
-	template <typename PropType, typename SetterType, typename GetterType>
+	//SFINAE for non reference getters
+	template <typename PropType, typename SetterType, typename GetterType, typename RefPropT >
+//	typename boost::enable_if< typename boost::is_same< typename PropType, typename GetterType::result_type >::type, Metaclass& >::type
 	Metaclass&
 	fillProperty(std::string name, SetterType setter, GetterType getter)
+	{
+		Property< ClassType, PropType, RefPropT > * p = new Property< ClassType, PropType, RefPropT >;
+		p->setter(setter);
+		p->getter(getter);
+		p->name(name);
+		m_properties[name]=p;
+//		addSubProperties(p);
+		return *this;
+	}
+/*
+	//SFINAE for non reference getters
+	template <typename PropType, typename SetterType, typename GetterType>
+	typename boost::disable_if< typename boost::is_same< typename PropType, typename GetterType::result_type >::type, Metaclass& >::type
+	fillProperty(std::string name, SetterType setter, GetterType getter, bool returnsRef)
 	{
 		Property< ClassType, PropType > * p = new Property< ClassType, PropType >;
 		p->setter(setter);
 		p->getter(getter);
 		p->name(name);
 		m_properties[name]=p;
-		addSubProperties(p);
+//		addSubProperties(p);
 		return *this;
 	}
-
+*/
 	//SFINAE for fundamental types as they do not have Metaclass
 	template <typename PropType>
 	typename boost::enable_if< boost::is_fundamental< PropType >, void >::type
