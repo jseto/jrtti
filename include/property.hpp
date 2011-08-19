@@ -9,6 +9,8 @@ namespace jrtti {
 
 //------------------------------------------------------------------------------
 
+class MetaclassBase;
+
 class PropertyBase
 {
 public:
@@ -30,13 +32,26 @@ public:
 		return m_typeName;
 	}
 
+	void
+	parentMetaclass( MetaclassBase * metaclass )
+	{
+		m_parentMetaclass = metaclass;
+	}
+
+	MetaclassBase *
+	parentMetaclass()
+	{
+		return m_parentMetaclass;
+	}
+
 	virtual
 	void *
 	getReference( void * instance ) = 0;
 
 protected:
-	std::string		m_name;
-	std::string		m_typeName;
+	std::string			m_name;
+	std::string			m_typeName;
+	MetaclassBase *	m_parentMetaclass;
 };
 
 template <class ClassType, class PropType >
@@ -50,24 +65,27 @@ public:
 		m_typeName=typeid(PropType).name();
 	}
 
-	void
+	Property&
 	setter( boost::function<void ( ClassType*, PropNoRefT ) > functor)
 	{
 		m_dataMember=NULL;
 		m_setter=functor;
+		return *this;
 	}
 
-	void
+	Property&
 	setter(PropType ClassType::* dataMember)
 	{
 		m_dataMember=dataMember;
 		m_setter=NULL;
+		return *this;
 	}
 
-	void
+	Property&
 	getter(boost::function< PropType (ClassType*) > functor)
 	{
 		m_getter=functor;
+		return *this;
 	}
 
 	PropType
@@ -87,7 +105,6 @@ public:
 		else
 			m_setter((ClassType *)instance,(PropType)value);
 	}
-
 
 	virtual
 	void *

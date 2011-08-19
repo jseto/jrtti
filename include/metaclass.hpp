@@ -184,6 +184,7 @@ private:
 		p->setter(setter);
 		p->getter(getter);
 		p->name(name);
+		p->parentMetaclass(this);
 		m_properties[name]=p;
 //		addSubProperties(p);
 		return *this;

@@ -33,20 +33,28 @@ public:
 	getValue(std::string propName)
 	{                           // in the case propName is like "point.x" m_instance is to get point and ClassType is the class having point as member
 //			Reflector::instance().evaluate(&aClass,"point", m_instance );                            // for "point.x" we call  getX(getInstancePoint(m_instance))
+		PropertyBase * p;
+
 		void * instance = m_instance;
+		MetaclassBase * pMetaclass = &m_metaclass;
 		size_t pos;
 		std::string name = propName;
+
 		while ( name.npos != ( pos = name.find_first_of(".") ) )
 		{
 			std::string parentName = name.substr( 0, pos );
 			name = name.substr(pos+1);
-			instance = m_metaclass.getGenericProperty(parentName)->getReference( instance );
+			p = pMetaclass->getGenericProperty(parentName);
+			instance = p->getReference( instance );
+			pMetaclass = p->parentMetaclass();
 		}
-		
-		return m_metaclass
-					.getProperty<PropType>(name)
-					.get( /*getParentPropInstance*/( instance ) );
-	}
+
+		return *( static_cast< PropType *>( p->getReference( instance ) ) );
+ /*
+		return pMetaclass
+					->getProperty<PropType>(name)
+					.get( instance );
+  */	}
 /*
 	template < typename ParentClass >
 	ParentClass *
