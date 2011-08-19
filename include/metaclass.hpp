@@ -4,6 +4,7 @@
 #include <memory>
 #include <vector>
 #include <map>
+#include <string>
 #include <boost/function.hpp>
 #include <boost/type_traits/is_fundamental.hpp>
 #include <boost/type_traits/is_same.hpp>
@@ -79,21 +80,24 @@ public:
 		m_name=name;
 	}
 
-	template <typename >
-	struct FunctionTypes;
-
-	template < typename R >
-	struct FunctionTypes< R ( ClassType::* )() >
+	struct detail
 	{
-		typedef R 		result_type;
-		typedef void 	param_type;
+		template <typename >
+		struct FunctionTypes;
+
+		template < typename R >
+		struct FunctionTypes< R ( ClassType::* )() >
+		{
+			typedef R 		result_type;
+			typedef void 	param_type;
+		};
 	};
 
 	template < typename SetterT, typename GetterT >
 	Metaclass&
 	property(std::string name, SetterT setter, GetterT getter)
 	{
-		typedef typename FunctionTypes< typename GetterT >::result_type								PropT;
+		typedef typename detail::FunctionTypes< GetterT >::result_type					PropT;
 		typedef typename boost::remove_reference< PropT >::type											PropNoRefT;
 		typedef typename boost::function< void (typename ClassType*, typename PropNoRefT ) >	BoostSetter;
 		typedef typename boost::function< typename PropT ( typename ClassType * ) >				BoostGetter;
@@ -109,6 +113,21 @@ public:
 
 		return fillProperty< PropT, MemberType, MemberType >(name, member, member);
 	}
+
+	template < typename GetterT >
+	Metaclass&
+	property_RO(std::string name, GetterT getter)
+	{
+		typedef typename detail::FunctionTypes< GetterT >::result_type											PropT;
+		typedef typename boost::remove_reference< PropT >::type											PropNoRefT;
+		typedef typename boost::function< void (typename ClassType*, typename PropNoRefT ) >	BoostSetter;
+		typedef typename boost::function< typename PropT ( typename ClassType * ) >				BoostGetter;
+
+		BoostSetter s;       //s empty is used by Property<>::isReadOnly()
+
+		return fillProperty< typename PropT, BoostSetter, BoostGetter >(name,s,getter);
+	}
+
 
 	template <typename PropType>
 	Property<ClassType, PropType >&

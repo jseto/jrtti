@@ -20,22 +20,25 @@ public:
 	void setPoint(Point p) { _point = p; }
 	Point& getPoint() { return _point; }
 
+	std::string getStr(){return s; }
+	void	setStr(std::string ps) { s=ps; }
+
+	int testInt;
+
 	void testFunc(){ std::cout << "Test works ok" << std::endl;}
 	int testIntFunc(){return 23;}
 	double testSquare(double val){return val*val;}
 	double testSum(int a, double b){return (double)a+b;}
-	int testInt;
 
 private:	// User declarations
 	double test;
 	Point _point;
-	Metaclass< SampleClass > thisClass;
-	Metaclass< Point > pointClass;
+	std::string	s;
 };
 
 void declare()
 {
-   //	pointClass=Metaclass<MPoint>("MPoint")
+	//	pointClass=Metaclass<MPoint>("MPoint")
 	Reflector::instance().declare<Point>()								//implicit metaclass name
 						.property("x",&Point::x)
 						.property("y",&Point::y);
@@ -45,6 +48,8 @@ void declare()
 						.property("testDouble", &SampleClass::setTest, &SampleClass::getTest)
 						.property("point", &SampleClass::setPoint, &SampleClass::getPoint)
 						.property("testInt", &SampleClass::testInt)
+//						.property("testStr",&SampleClass::setStr,&SampleClass::getStr)
+						.property_RO("testRO",&SampleClass::getTest)
 						.method<void>("testMethod", &SampleClass::testFunc)
 						.method<int>("testIntMethod", &SampleClass::testIntFunc)
 						.method<double,double>("testSquare", &SampleClass::testSquare)
