@@ -53,7 +53,7 @@ public:
 	void
 	setter( boost::function<void ( ClassType*, PropNoRefT ) > functor)
 	{
-//		m_dataMember=NULL;
+		m_dataMember=NULL;
 		m_setter=functor;
 	}
 
@@ -61,6 +61,7 @@ public:
 	setter(PropType ClassType::* dataMember)
 	{
 		m_dataMember=dataMember;
+		m_setter=NULL;
 	}
 
 	void
@@ -87,17 +88,31 @@ public:
 			m_setter((ClassType *)instance,(PropType)value);
 	}
 
+
 	virtual
 	void *
 	getReference( void * instance )
 	{
-//		PropNoRefT * ref;
-//		ref=m_getter( (ClassType *)instance );
-//		return &ref;
-		return 0;
+		return getReference_<PropType>(instance);
 	}
 
 private:
+	//SFINAE to discriminate types by reference
+	template < typename PropT>
+	typename boost::enable_if< typename boost::is_same< typename PropT, typename PropNoRefT >::type, void * >::type
+	getReference_(void * instance)
+	{
+		return NULL;
+	}
+
+	template < typename PropT >
+	typename boost::disable_if< typename boost::is_same< typename PropT, typename PropNoRefT >::type, void * >::type
+	getReference_(void * instance)
+	{
+		return &m_getter( (ClassType *)instance );
+	}
+	//SFINAE end
+
 	boost::function<void (ClassType*, PropNoRefT)>	m_setter;
 	boost::function< PropType (ClassType*)>			m_getter;
 	PropType	ClassType::*									m_dataMember;

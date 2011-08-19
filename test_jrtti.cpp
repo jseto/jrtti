@@ -99,7 +99,7 @@ void test()
 	assert(d2==15.0);
 
 
-//	double d3 = Reflector::instance().getValue<double>(&aClass,"point.x");
+	double d3 = Reflector::instance().getValue<double>(&aClass,"point.x");
 }
 
 int main()
