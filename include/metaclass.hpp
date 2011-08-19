@@ -7,6 +7,7 @@
 #include <boost/function.hpp>
 #include <boost/type_traits/is_fundamental.hpp>
 #include <boost/type_traits/is_same.hpp>
+#include <boost/type_traits/add_lvalue_reference.hpp>
 #include <boost/functional.hpp>
 #include <boost/utility/enable_if.hpp>
 
@@ -103,15 +104,18 @@ public:
 		return fillProperty< typename PropT, BoostSetter, BoostGetter >(name,setter,getter);
 	}
 
-	template <typename PropType>
+	template <typename MemberType>
 	Metaclass&
-	property(std::string name, PropType ClassType::* member)
+	property(std::string name, MemberType member)
 	{
-		typedef typename PropType ClassType::* 	MemberType;
-		typedef typename boost::function< void (typename ClassType*, typename PropType ) >	BoostSetter;
-		typedef typename boost::function< typename PropType ( typename ClassType * ) >		BoostGetter;
+//		typedef typename PropType ClassType::* 	MemberType;
+ //		typedef typename boost::add_lvalue_reference< typename PropType > PropRefT;
+		typedef typename MemberType::result_type										PropType
+//		typedef typename boost::add_lvalue_reference< typename ClassType > ClassRefT;
+		typedef typename boost::function< typename MemberType >	BoostMember;
+		typedef typename boost::function< typename PropType ( ClassType * ) >		BoostGetter;
 
-		return fillProperty<PropType, BoostSetter, BoostGetter>(name, boost::bind(member,_1),boost::bind(member,_1));
+		return fillProperty<PropType, MemberType, MemberType>(name, member, member);
 	}
 
 	template <typename PropType>

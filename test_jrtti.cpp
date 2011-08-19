@@ -37,14 +37,14 @@ void declare()
 {
    //	pointClass=Metaclass<MPoint>("MPoint")
 	Reflector::instance().declare<Point>()								//implicit metaclass name
-						.property<double>("x",&Point::x)
-						.property<double>("y",&Point::y);
+						.property("x",boost::bind(&Point::x,_1))
+						.property("y",boost::bind(&Point::y,_1));
 
 //	pointClass=Metaclass<SampleClass>("SampleClass")
 	Reflector::instance().declare<SampleClass>("SampleClass")				//exlicit metaclass name
 						.property("testDouble", &SampleClass::setTest, &SampleClass::getTest)
 						.property("point", &SampleClass::setPoint, &SampleClass::getPoint)
-						.property<int>("testInt", &SampleClass::testInt)
+						.property("testInt", boost::bind(&SampleClass::testInt,_1))
 						.method<void>("testMethod", &SampleClass::testFunc)
 						.method<int>("testIntMethod", &SampleClass::testIntFunc)
 						.method<double,double>("testSquare", &SampleClass::testSquare)
