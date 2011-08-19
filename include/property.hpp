@@ -38,23 +38,6 @@ protected:
 	std::string		m_name;
 	std::string		m_typeName;
 };
-template < typename T, typename U, typename Enable = void >
-struct TrySecondType
-{
-//	typedef typename T type;
-};
-
-template < typename T, typename U >
-struct TrySecondType < T, U, typename boost::disable_if< boost::is_void< U > >::type >
-{
-	typedef typename U type;
-};
-
-template < typename T, typename U >
-struct TrySecondType < T, U, typename boost::enable_if< boost::is_void< U > >::type >
-{
-	typedef typename T type;
-};
 
 template <class ClassType, class PropType >
 class Property : public PropertyBase
@@ -70,16 +53,16 @@ public:
 	void
 	setter( boost::function<void ( ClassType*, PropNoRefT ) > functor)
 	{
-		m_dataMember=NULL;
+//		m_dataMember=NULL;
 		m_setter=functor;
 	}
 
-	void
+/*	void
 	setter(PropType ClassType::* dataMember)
 	{
 		m_dataMember=dataMember;
 	}
-
+	*/
 	void
 	getter(boost::function< PropType (ClassType*) > functor)
 	{
@@ -97,21 +80,21 @@ public:
 	void
 	set(ClassType * instance, PropType value)
 	{
-		if (m_dataMember)
+/*		if (m_dataMember)
 		{
 			ClassType * p = static_cast<ClassType *>(instance);
 			p->*m_dataMember=value;
 		}
 		else
-			m_setter((ClassType *)instance,(PropType)value);
+	*/		m_setter((ClassType *)instance,(PropType)value);
 	}
 
 	virtual
 	void *
 	getReference( void * instance )
 	{
-		PropType ref;
-		ref=m_getter( (ClassType *)instance );
+//		PropNoRefT * ref;
+//		ref=m_getter( (ClassType *)instance );
 //		return &ref;
 		return 0;
 	}
@@ -119,7 +102,7 @@ public:
 private:
 	boost::function<void (ClassType*, PropNoRefT)>	m_setter;
 	boost::function< PropType (ClassType*)>			m_getter;
-	PropType	ClassType::*								m_dataMember;
+//	PropType	ClassType::*								m_dataMember;
 };
 
 //------------------------------------------------------------------------------

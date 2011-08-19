@@ -100,7 +100,7 @@ public:
 		std::string rf = typeid(PropT).name();
 		std::string t = typeid(PropNoRefT).name();
 
-		return fillProperty< typename PropNoRefT, BoostSetter, BoostGetter, PropT >(name,setter,getter/*,!boost::is_same< PropT, PropNoRefT>::value*/);
+		return fillProperty< typename PropT, BoostSetter, BoostGetter >(name,setter,getter);
 	}
 
 	template <typename PropType>
@@ -111,7 +111,7 @@ public:
 		typedef typename boost::function< void (typename ClassType*, typename PropType ) >	BoostSetter;
 		typedef typename boost::function< typename PropType ( typename ClassType * ) >		BoostGetter;
 
-		return fillProperty<PropType, BoostSetter, BoostGetter, PropType>(name, boost::bind(member,_1),boost::bind(member,_1));
+		return fillProperty<PropType, BoostSetter, BoostGetter>(name, boost::bind(member,_1),boost::bind(member,_1));
 	}
 
 	template <typename PropType>
@@ -179,7 +179,7 @@ private:
 	}
 
 	//SFINAE for non reference getters
-	template <typename PropType, typename SetterType, typename GetterType, typename RefPropT >
+	template <typename PropType, typename SetterType, typename GetterType >
 //	typename boost::enable_if< typename boost::is_same< typename PropType, typename GetterType::result_type >::type, Metaclass& >::type
 	Metaclass&
 	fillProperty(std::string name, SetterType setter, GetterType getter)

@@ -76,8 +76,8 @@ void test()
 //struct property
 	Point p; p.x=45; p.y=80;
 	mobject.setValue<Point>("point",p);
-	Point pr=mobject.getValue<Point>("point");
-	assert(pr.x==45 && pr.y==80);
+	Point *pr=&mobject.getValue<Point&>("point");
+	assert(pr->x==45 && pr->y==80);
 
 //ind data member property
 	mobject.setValue<int>("testInt",45);
