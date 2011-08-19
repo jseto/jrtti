@@ -104,18 +104,19 @@ public:
 		return fillProperty< typename PropT, BoostSetter, BoostGetter >(name,setter,getter);
 	}
 
-	template <typename MemberType>
+	template <typename PropT>
 	Metaclass&
-	property(std::string name, MemberType member)
+	property(std::string name, PropT ClassType::* member)
 	{
-//		typedef typename PropType ClassType::* 	MemberType;
+		typedef typename PropT ClassType::* 	MemberType;
  //		typedef typename boost::add_lvalue_reference< typename PropType > PropRefT;
-		typedef typename MemberType::result_type										PropType
+//		typedef typename MemberType::result_type										PropType
 //		typedef typename boost::add_lvalue_reference< typename ClassType > ClassRefT;
-		typedef typename boost::function< typename MemberType >	BoostMember;
-		typedef typename boost::function< typename PropType ( ClassType * ) >		BoostGetter;
+//		typedef typename boost::function< void (typename ClassType*, typename PropNoRefT ) >	BoostSetter;
+//		typedef typename boost::function< typename PropT ( typename ClassType * ) >				BoostGetter;
+//		typedef typename boost::function< typename PropType ( ClassType * ) >		BoostGetter;
 
-		return fillProperty<PropType, MemberType, MemberType>(name, member, member);
+		return fillProperty< PropT, MemberType, MemberType >(name, member, member);
 	}
 
 	template <typename PropType>

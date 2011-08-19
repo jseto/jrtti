@@ -57,12 +57,12 @@ public:
 		m_setter=functor;
 	}
 
-/*	void
+	void
 	setter(PropType ClassType::* dataMember)
 	{
 		m_dataMember=dataMember;
 	}
-	*/
+
 	void
 	getter(boost::function< PropType (ClassType*) > functor)
 	{
@@ -72,21 +72,19 @@ public:
 	PropType
 	get(void * instance)
 	{
-		std::string rf = typeid(PropNoRefT).name();
-		std::string t = typeid(PropType).name();
 		return (PropType) m_getter( (ClassType *)instance );
 	}
 
 	void
 	set(ClassType * instance, PropType value)
 	{
-/*		if (m_dataMember)
+		if (m_dataMember)
 		{
 			ClassType * p = static_cast<ClassType *>(instance);
 			p->*m_dataMember=value;
 		}
 		else
-	*/		m_setter((ClassType *)instance,(PropType)value);
+			m_setter((ClassType *)instance,(PropType)value);
 	}
 
 	virtual
@@ -102,7 +100,7 @@ public:
 private:
 	boost::function<void (ClassType*, PropNoRefT)>	m_setter;
 	boost::function< PropType (ClassType*)>			m_getter;
-//	PropType	ClassType::*								m_dataMember;
+	PropType	ClassType::*									m_dataMember;
 };
 
 //------------------------------------------------------------------------------
