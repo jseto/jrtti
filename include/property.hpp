@@ -56,17 +56,19 @@ struct TrySecondType < T, U, typename boost::enable_if< boost::is_void< U > >::t
 	typedef typename T type;
 };
 
-template <class ClassType, class PropType, typename RefT = void >
+template <class ClassType, class PropType >
 class Property : public PropertyBase
 {
 public:
+	typedef typename boost::remove_reference< typename PropType >::type PropNoRefT;
+
 	Property()
 	{
 		m_typeName=typeid(PropType).name();
 	}
 
 	void
-	setter( boost::function<void (typename ClassType*, typename boost::remove_reference< typename PropType >::type ) > functor)
+	setter( boost::function<void ( ClassType*, PropNoRefT ) > functor)
 	{
 		m_dataMember=NULL;
 		m_setter=functor;
@@ -77,22 +79,19 @@ public:
 	{
 		m_dataMember=dataMember;
 	}
-	
-	typedef typename TrySecondType< PropType, RefT >::type ResultT;
 
 	void
-	getter(boost::function<ResultT (ClassType*)> functor)
+	getter(boost::function< PropType (ClassType*) > functor)
 	{
 		m_getter=functor;
 	}
 
-	ResultT
+	PropType
 	get(void * instance)
 	{
-		std::string r = typeid(ResultT).name();
-		std::string rf = typeid(RefT).name();
+		std::string rf = typeid(PropNoRefT).name();
 		std::string t = typeid(PropType).name();
-		return (ResultT) m_getter( (ClassType *)instance );
+		return (PropType) m_getter( (ClassType *)instance );
 	}
 
 	void
@@ -118,8 +117,8 @@ public:
 	}
 
 private:
-	boost::function<void (ClassType*, PropType)>	m_setter;
-	boost::function< ResultT (ClassType*)>			m_getter;
+	boost::function<void (ClassType*, PropNoRefT)>	m_setter;
+	boost::function< PropType (ClassType*)>			m_getter;
 	PropType	ClassType::*								m_dataMember;
 };
 

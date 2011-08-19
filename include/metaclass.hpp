@@ -115,10 +115,10 @@ public:
 	}
 
 	template <typename PropType>
-	Property<ClassType, boost::remove_reference< PropType >, PropType >&
+	Property<ClassType, PropType >&
 	getProperty(std::string name)
 	{
-		return * static_cast< Property<ClassType, typename boost::remove_reference< PropType >, PropType > * >(m_properties[name]);
+		return * static_cast< Property<ClassType, PropType > * >(m_properties[name]);
 	}
 
 	template <typename ReturnType>
@@ -184,7 +184,7 @@ private:
 	Metaclass&
 	fillProperty(std::string name, SetterType setter, GetterType getter)
 	{
-		Property< ClassType, PropType, RefPropT > * p = new Property< ClassType, PropType, RefPropT >;
+		Property< ClassType, PropType > * p = new Property< ClassType, PropType >;
 		p->setter(setter);
 		p->getter(getter);
 		p->name(name);
