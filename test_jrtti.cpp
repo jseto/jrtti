@@ -48,7 +48,7 @@ void declare()
 						.property("testDouble", &SampleClass::setTest, &SampleClass::getTest)
 						.property("point", &SampleClass::setPoint, &SampleClass::getPoint)
 						.property("testInt", &SampleClass::testInt)
-//						.property("testStr",&SampleClass::setStr,&SampleClass::getStr)
+						.property("testStr",&SampleClass::setStr,&SampleClass::getStr)
 						.property_RO("testRO",&SampleClass::testIntFunc)
 						.method<void>("testMethod", &SampleClass::testFunc)
 						.method<int>("testIntMethod", &SampleClass::testIntFunc)
@@ -103,6 +103,9 @@ void test()
 	double d2=mobject.call<double,int,double>("testSum",9,6);
 	assert(d2==15.0);
 
+//string prop
+	Reflector::instance().setValue<std::string>(&aClass,"testStr","Hello world");
+	assert( Reflector::instance().getValue<std::string>(&aClass,"testStr") == "Hello world" );
 //read only prop
 	assert(mc.getGenericProperty("point")->isReadOnly() == false);
 	assert(mc.getGenericProperty("testInt")->isWriteOnly() == false);
