@@ -101,7 +101,7 @@ public:
 	}
 
 	Property&
-	setter(PropType ClassType::* dataMember)
+	setter(PropNoRefT ClassType::* dataMember)
 	{
 		m_isReadOnly = false;
 		m_dataMember = dataMember;
@@ -161,7 +161,7 @@ private:
 
 	boost::function<void (ClassType*, PropNoRefT)>	m_setter;
 	boost::function< PropType (ClassType*)>			m_getter;
-	PropType	ClassType::*									m_dataMember;
+	PropNoRefT	ClassType::*								m_dataMember;
 };
 
 //------------------------------------------------------------------------------
