@@ -1,9 +1,8 @@
 #ifndef propertyH
 #define propertyH
 
-#include <boost/bind.hpp>
 #include <boost/type_traits/remove_reference.hpp>
-#include <boost/type_traits/add_lvalue_reference.hpp>
+#include <boost/type_traits/is_same.hpp>
 
 namespace jrtti {
 
@@ -80,19 +79,19 @@ protected:
 	MetaclassBase *	m_parentMetaclass;
 };
 
-template <class ClassType, class PropType >
+template <class ClassT, class PropT >
 class Property : public PropertyBase
 {
 public:
-	typedef typename boost::remove_reference< typename PropType >::type PropNoRefT;
+	typedef typename boost::remove_reference< typename PropT >::type PropNoRefT;
 
 	Property()
 	{
-		m_typeName=typeid(PropType).name();
+		m_typeName=typeid(PropT).name();
 	}
 
 	Property&
-	setter( boost::function<void ( ClassType*, PropNoRefT ) > functor)
+	setter( boost::function<void ( ClassT*, PropNoRefT ) > functor)
 	{
 		m_isReadOnly = functor.empty();
 		m_dataMember = NULL;
@@ -101,7 +100,7 @@ public:
 	}
 
 	Property&
-	setter(PropNoRefT ClassType::* dataMember)
+	setter(PropNoRefT ClassT::* dataMember)
 	{
 		m_isReadOnly = false;
 		m_dataMember = dataMember;
@@ -110,36 +109,36 @@ public:
 	}
 
 	Property&
-	getter(boost::function< PropType (ClassType*) > functor)
+	getter(boost::function< PropT (ClassT*) > functor)
 	{
 		m_isWriteOnly = functor.empty();
 		m_getter=functor;
 		return *this;
 	}
 
-	PropType
+	PropT
 	get(void * instance)
 	{
-		return (PropType) m_getter( (ClassType *)instance );
+		return (PropT) m_getter( (ClassT *)instance );
 	}
 
 	void
-	set(ClassType * instance, PropType value)
+	set(ClassT * instance, PropT value)
 	{
 		if (m_dataMember)
 		{
-			ClassType * p = static_cast<ClassType *>(instance);
+			ClassT * p = static_cast<ClassT *>(instance);
 			p->*m_dataMember=value;
 		}
 		else
-			m_setter((ClassType *)instance,(PropType)value);
+			m_setter((ClassT *)instance,(PropT)value);
 	}
 
 	virtual
 	void *
 	getReference( void * instance )
 	{
-		return getReference_<PropType>(instance);
+		return getReference_<PropT>(instance);
 	}
 
 private:
@@ -155,13 +154,13 @@ private:
 	typename boost::disable_if< typename boost::is_same< typename PropT, typename PropNoRefT >::type, void * >::type
 	getReference_(void * instance)
 	{
-		return &m_getter( (ClassType *)instance );
+		return &m_getter( (ClassT *)instance );
 	}
 	//SFINAE end
 
-	boost::function<void (ClassType*, PropNoRefT)>	m_setter;
-	boost::function< PropType (ClassType*)>			m_getter;
-	PropNoRefT	ClassType::*								m_dataMember;
+	boost::function<void (ClassT*, PropNoRefT)>	m_setter;
+	boost::function< PropT (ClassT*)>				m_getter;
+	PropNoRefT	ClassT::*								m_dataMember;
 };
 
 //------------------------------------------------------------------------------
