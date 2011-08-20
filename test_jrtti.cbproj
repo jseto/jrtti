@@ -97,10 +97,6 @@
     <None Include="include\exception.hpp">
       <BuildOrder>7</BuildOrder>
     </None>
-    <None Include="include\helpers.hpp">
-      <ModuleName>File1</ModuleName>
-      <BuildOrder>9</BuildOrder>
-    </None>
     <None Include="include\jrtti.hpp">
       <BuildOrder>5</BuildOrder>
     </None>

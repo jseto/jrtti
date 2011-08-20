@@ -49,7 +49,7 @@ void declare()
 						.property("point", &SampleClass::setPoint, &SampleClass::getPoint)
 						.property("testInt", &SampleClass::testInt)
 //						.property("testStr",&SampleClass::setStr,&SampleClass::getStr)
-						.property_RO("testRO",&SampleClass::getTest)
+						.property_RO("testRO",&SampleClass::testIntFunc)
 						.method<void>("testMethod", &SampleClass::testFunc)
 						.method<int>("testIntMethod", &SampleClass::testIntFunc)
 						.method<double,double>("testSquare", &SampleClass::testSquare)
@@ -72,7 +72,7 @@ void test()
 	Reflector::instance().setValue<double>(&aClass,"testDouble",69);
 	d0=Reflector::instance().getValue<double>(&aClass,"testDouble");
 	assert(d0==69);
-	
+
 //double property
 	mobject.setValue<double>("testDouble",34);
 	double d=mobject.getValue<double>("testDouble");
@@ -103,6 +103,15 @@ void test()
 	double d2=mobject.call<double,int,double>("testSum",9,6);
 	assert(d2==15.0);
 
+//read only prop
+	assert(mc.getGenericProperty("point")->isReadOnly() == false);
+	assert(mc.getGenericProperty("testInt")->isWriteOnly() == false);
+	assert(mc.getGenericProperty("testDouble")->isReadWrite() == true);
+	assert(mc.getGenericProperty("testRO")->isReadWrite() == false);
+	assert(mc.getGenericProperty("testRO")->isReadOnly() == true);
+	assert(Reflector::instance().getValue<int>(&aClass,"testRO") == 23 );
+
+//composed prop
 	Reflector::instance().setValue<double>(&Reflector::instance().getValue<Point&>(&aClass,"point"),"x",743);
 	double d3 = Reflector::instance().getValue<double>(&Reflector::instance().getValue<Point&>(&aClass,"point"),"x");
 	assert(d3==743);

@@ -14,6 +14,12 @@ class MetaclassBase;
 class PropertyBase
 {
 public:
+	PropertyBase()
+		: 	m_isReadOnly(true),
+			m_isWriteOnly(true)
+	{
+	}
+
 	void
 	name(std::string aName)
 	{
@@ -44,11 +50,31 @@ public:
 		return m_parentMetaclass;
 	}
 
+	bool
+	isReadOnly()
+	{
+		return m_isReadOnly;
+	}
+
+	bool
+	isWriteOnly()
+	{
+		return m_isWriteOnly;
+	}
+
+	bool
+	isReadWrite()
+	{
+      return ! ( m_isReadOnly || m_isWriteOnly );
+   }
+
 	virtual
 	void *
 	getReference( void * instance ) = 0;
 
 protected:
+	bool					m_isReadOnly;
+	bool					m_isWriteOnly;
 	std::string			m_name;
 	std::string			m_typeName;
 	MetaclassBase *	m_parentMetaclass;
@@ -68,15 +94,17 @@ public:
 	Property&
 	setter( boost::function<void ( ClassType*, PropNoRefT ) > functor)
 	{
-		m_dataMember=NULL;
-		m_setter=functor;
+		m_isReadOnly = functor.empty();
+		m_dataMember = NULL;
+		m_setter = functor;
 		return *this;
 	}
 
 	Property&
 	setter(PropType ClassType::* dataMember)
 	{
-		m_dataMember=dataMember;
+		m_isReadOnly = false;
+		m_dataMember = dataMember;
 		m_setter=NULL;
 		return *this;
 	}
@@ -84,6 +112,7 @@ public:
 	Property&
 	getter(boost::function< PropType (ClassType*) > functor)
 	{
+		m_isWriteOnly = functor.empty();
 		m_getter=functor;
 		return *this;
 	}

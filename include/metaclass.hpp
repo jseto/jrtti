@@ -118,7 +118,7 @@ public:
 	Metaclass&
 	property_RO(std::string name, GetterT getter)
 	{
-		typedef typename detail::FunctionTypes< GetterT >::result_type											PropT;
+		typedef typename detail::FunctionTypes< GetterT >::result_type									PropT;
 		typedef typename boost::remove_reference< PropT >::type											PropNoRefT;
 		typedef typename boost::function< void (typename ClassType*, typename PropNoRefT ) >	BoostSetter;
 		typedef typename boost::function< typename PropT ( typename ClassType * ) >				BoostGetter;
