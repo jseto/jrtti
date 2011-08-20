@@ -1,111 +1,180 @@
 #ifndef metaclassH
 #define metaclassH
 
+#include <memory>
+#include <vector>
+#include <map>
+#include <string>
 #include <boost/function.hpp>
-#include <boost/bind.hpp>
+#include <boost/type_traits/is_fundamental.hpp>
+#include <boost/utility/enable_if.hpp>
 
 #include "property.hpp"
 #include "method.hpp"
-//#include "metaobject.hpp"
-
 
 namespace jrtti {
 
-template < typename ClassType >
+template < typename ClassT >
 class Metaobject;
 
 //------------------------------------------------------------------------------
+class MetaclassBase
+{
+public:
+	std::vector< PropertyBase * >
+	getProperties()
+	{
+		std::vector< PropertyBase * > v;
 
-template <class ClassType>
-class Metaclass
+		for (PropertyMap::iterator it = m_properties.begin(); it != m_properties.end(); ++it )
+			v.push_back( (*it).second );
+
+		return v;
+	}
+
+	PropertyBase *
+	getGenericProperty( std::string name )
+	{
+		return m_properties[name];
+	}
+
+	std::string
+	name()
+	{
+		return m_name;
+	}
+
+	std::string
+	typeName()
+	{
+		return m_typeName;
+	}
+
+protected:
+	typedef std::map< std::string, PropertyBase * > PropertyMap;
+	typedef std::map< std::string, MethodBase * >	MethodMap;
+
+	std::string 	m_name;
+	std::string		m_typeName;
+	PropertyMap		m_properties;
+	MethodMap		m_methods;
+};
+
+template <class ClassT>
+class Metaclass : public MetaclassBase
 {
 public:
 	Metaclass()
 	{
-		m_name = typeid(ClassType).name();
+		m_typeName = typeid(ClassT).name();
+		m_name = typeName();
 	}
 
 	Metaclass(std::string name)
 	{
+		m_typeName = typeid(ClassT).name();
 		m_name=name;
 	}
 
-	template <typename PropType>
-	Metaclass&
-	property(std::string name,boost::function<void (ClassType *, PropType)> setter,boost::function<PropType (ClassType *)> getter)
+	struct detail
 	{
-		typedef typename boost::function<void (ClassType *, PropType)> 	SetterType;
-		typedef typename boost::function<PropType (ClassType *)>			GetterType;
+		template <typename >
+		struct FunctionTypes;
 
-		return fillProperty<PropType,SetterType,GetterType>(name,setter,getter);
+		template < typename R >
+		struct FunctionTypes< R ( ClassT::* )() >
+		{
+			typedef R 		result_type;
+			typedef void 	param_type;
+		};
+	};
+
+	template < typename SetterT, typename GetterT >
+	Metaclass&
+	property(std::string name, SetterT setter, GetterT getter)
+	{
+		typedef typename detail::FunctionTypes< GetterT >::result_type					PropT;
+		typedef typename boost::remove_reference< PropT >::type											PropNoRefT;
+		typedef typename boost::function< void (typename ClassT*, typename PropNoRefT ) >	BoostSetter;
+		typedef typename boost::function< typename PropT ( typename ClassT * ) >				BoostGetter;
+
+		return fillProperty< typename PropT, BoostSetter, BoostGetter >(name,setter,getter);
 	}
 
-	template <typename PropType>
+	template <typename PropT>
 	Metaclass&
-	property(std::string name, PropType ClassType::* member)
+	property(std::string name, PropT ClassT::* member)
 	{
-		typedef typename PropType ClassType::* 	MemberType;
+		typedef typename PropT ClassT::* 	MemberType;
 
-		return fillProperty<PropType, MemberType, MemberType>(name, member, member);
+		return fillProperty< PropT, MemberType, MemberType >(name, member, member);
 	}
 
-	template <typename PropType>
-	Property<ClassType, PropType>&
+	template < typename GetterT >
+	Metaclass&
+	property_RO(std::string name, GetterT getter)
+	{
+		typedef typename detail::FunctionTypes< GetterT >::result_type									PropT;
+		typedef typename boost::remove_reference< PropT >::type											PropNoRefT;
+		typedef typename boost::function< void (typename ClassT*, typename PropNoRefT ) >	BoostSetter;
+		typedef typename boost::function< typename PropT ( typename ClassT * ) >				BoostGetter;
+
+		BoostSetter s;       //s empty is used by Property<>::isReadOnly()
+
+		return fillProperty< typename PropT, BoostSetter, BoostGetter >(name,s,getter);
+	}
+
+
+	template <typename PropT>
+	Property<ClassT, PropT >&
 	getProperty(std::string name)
 	{
-		typedef Property<ClassType, PropType> ElementType;
-		return *m_properties.get<ElementType>(name);
+		return * static_cast< Property<ClassT, PropT > * >(m_properties[name]);
 	}
 
 	template <typename ReturnType>
 	Metaclass&
-	method(std::string name,boost::function<ReturnType (ClassType*)> f)
+	method(std::string name,boost::function<ReturnType (ClassT*)> f)
 	{
-		typedef Method<ClassType,ReturnType> MethodType;
-		typedef typename boost::function<ReturnType (ClassType*)> FunctionType;
+		typedef Method<ClassT,ReturnType> MethodType;
+		typedef typename boost::function<ReturnType (ClassT*)> FunctionType;
 
 		return fillMethod<MethodType, FunctionType>(name,f);
 	}
 
 	template <typename ReturnType, typename Param1>
 	Metaclass&
-	method(std::string name,boost::function<ReturnType (ClassType*, Param1)> f)
+	method(std::string name,boost::function<ReturnType (ClassT*, Param1)> f)
 	{
-		typedef typename Method<ClassType,ReturnType, Param1> MethodType;
-		typedef typename boost::function<ReturnType (ClassType*, Param1)> FunctionType;
+		typedef typename Method<ClassT,ReturnType, Param1> MethodType;
+		typedef typename boost::function<ReturnType (ClassT*, Param1)> FunctionType;
 
 		return fillMethod<MethodType, FunctionType>(name,f);
 	}
 
 	template <typename ReturnType, typename Param1, typename Param2>
 	Metaclass&
-	method(std::string name,boost::function<ReturnType (ClassType*, Param1, Param2)> f)
+	method(std::string name,boost::function<ReturnType (ClassT*, Param1, Param2)> f)
 	{
-		typedef typename Method<ClassType,ReturnType, Param1, Param2> MethodType;
-		typedef typename boost::function<ReturnType (ClassType*, Param1, Param2)> FunctionType;
+		typedef typename Method<ClassT,ReturnType, Param1, Param2> MethodType;
+		typedef typename boost::function<ReturnType (ClassT*, Param1, Param2)> FunctionType;
 
 		return fillMethod<MethodType, FunctionType>(name,f);
 	}
 
 	template <typename ReturnType, typename Param1, typename Param2>
-	Method<ClassType,ReturnType, Param1, Param2>&
+	Method<ClassT,ReturnType, Param1, Param2>&
 	getMethod(std::string name)
 	{
-		typedef Method<ClassType,ReturnType, Param1, Param2> ElementType;
-		return *m_methods.get<ElementType>(name);
+		typedef Method<ClassT,ReturnType, Param1, Param2> ElementType;
+		return * static_cast< ElementType * >( m_methods[name] );
 	}
 
-	Metaobject<ClassType>&
-	getMetaobject(ClassType * instance)
+	Metaobject<ClassT>&
+	getMetaobject(ClassT * instance)
 	{
-		static Metaobject<ClassType> mo(*this,instance);
+		static Metaobject<ClassT> mo(*this,instance);
 		return mo;
-	}
-
-	std::string
-	typeName()
-	{
-		return typeid(ClassType).name();
 	}
 
 private:
@@ -116,25 +185,51 @@ private:
 		MethodType * m = new MethodType();
 		m->name(name);
 		m->function(function);
-		m_methods.add(name,m);
+		m_methods[name]=m;
 		return *this;
 	}
 
-	template <typename PropType, typename SetterType, typename GetterType>
+	template <typename PropT, typename SetterType, typename GetterType >
 	Metaclass&
 	fillProperty(std::string name, SetterType setter, GetterType getter)
 	{
-		Property< ClassType, PropType > * p = new Property< ClassType, PropType >();
+		Property< ClassT, PropT > * p = new Property< ClassT, PropT >;
 		p->setter(setter);
 		p->getter(getter);
 		p->name(name);
-		m_properties.add(name,p);
+		p->parentMetaclass(this);
+		m_properties[name]=p;
+//		addSubProperties(p);
 		return *this;
 	}
 
-	std::string 		m_name;
-	GenericContainer 	m_properties;
-	GenericContainer 	m_methods;
+	//SFINAE for fundamental types as they do not have Metaclass
+	template <typename PropT>
+	typename boost::enable_if< boost::is_fundamental< PropT >, void >::type
+	addSubProperties( Property< ClassT, PropT > * p )
+	{}
+
+	template <typename PropT>
+	typename boost::disable_if< boost::is_fundamental< PropT >, void >::type
+	addSubProperties( Property< ClassT, PropT > * p )
+	{
+		try
+		{
+			Metaclass<PropT>
+			mc = Reflector::instance().getMetaclass< PropT >();
+
+			std::vector< PropertyBase * >
+			subProperties = mc.getProperties<PropT>();
+
+			for (std::vector< PropertyBase * >::iterator it = subProperties.begin(); it!=subProperties.end(); ++it)
+			{
+				PropertyBase * subProp = *it;
+//				subProp->parent(p);
+				m_properties[ p->name() + "." + subProp->name() ] = subProp;
+			}
+		}
+		catch (exception){}
+	}
 };
 
 //------------------------------------------------------------------------------

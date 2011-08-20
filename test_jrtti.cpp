@@ -5,7 +5,7 @@
 
 using namespace jrtti;
 
-struct MPoint
+struct Point
 {
 	double x;
 	double y;
@@ -14,37 +14,42 @@ struct MPoint
 class SampleClass
 {
 public:
-	void setTest(double d);
-	double getTest();
+	void setTest(double d) { test = d; }
+	double getTest() { return test; }
 
-	void setPoint(MPoint p);
-	MPoint getPoint();
+	void setPoint(Point p) { _point = p; }
+	Point& getPoint() { return _point; }
+
+	std::string getStr(){return s; }
+	void	setStr(std::string ps) { s=ps; }
+
+	int testInt;
 
 	void testFunc(){ std::cout << "Test works ok" << std::endl;}
 	int testIntFunc(){return 23;}
 	double testSquare(double val){return val*val;}
 	double testSum(int a, double b){return (double)a+b;}
-	int testInt;
 
 private:	// User declarations
 	double test;
-	MPoint _point;
-	Metaclass< SampleClass > thisClass;
-	Metaclass< MPoint > pointClass;
+	Point _point;
+	std::string	s;
 };
 
 void declare()
 {
-   //	pointClass=Metaclass<MPoint>("MPoint")
-	Reflector::instance().declare<MPoint>()								//implicit metaclass name
-						.property<double>("x",&MPoint::x)
-						.property<double>("y",&MPoint::y);
+	//	pointClass=Metaclass<MPoint>("MPoint")
+	Reflector::instance().declare<Point>()								//implicit metaclass name
+						.property("x",&Point::x)
+						.property("y",&Point::y);
 
 //	pointClass=Metaclass<SampleClass>("SampleClass")
 	Reflector::instance().declare<SampleClass>("SampleClass")				//exlicit metaclass name
-						.property<double>("testDouble", &SampleClass::setTest, &SampleClass::getTest)
-						.property<MPoint>("point", &SampleClass::setPoint, &SampleClass::getPoint)
-						.property<int>("testInt", &SampleClass::testInt)
+						.property("testDouble", &SampleClass::setTest, &SampleClass::getTest)
+						.property("point", &SampleClass::setPoint, &SampleClass::getPoint)
+						.property("testInt", &SampleClass::testInt)
+//						.property("testStr",&SampleClass::setStr,&SampleClass::getStr)
+						.property_RO("testRO",&SampleClass::testIntFunc)
 						.method<void>("testMethod", &SampleClass::testFunc)
 						.method<int>("testIntMethod", &SampleClass::testIntFunc)
 						.method<double,double>("testSquare", &SampleClass::testSquare)
@@ -63,16 +68,21 @@ void test()
 	Reflector::instance().getMetaobject("SampleClass",&aClass).setValue<double>("testDouble",56);
 	double d0=Reflector::instance().getMetaobject("SampleClass",&aClass).getValue<double>("testDouble");
 	assert(d0==56);
+//quick access
+	Reflector::instance().setValue<double>(&aClass,"testDouble",69);
+	d0=Reflector::instance().getValue<double>(&aClass,"testDouble");
+	assert(d0==69);
+
 //double property
 	mobject.setValue<double>("testDouble",34);
 	double d=mobject.getValue<double>("testDouble");
 	assert(d==34.0);
 
 //struct property
-	MPoint p; p.x=45; p.y=80;
-	mobject.setValue<MPoint>("point",p);
-	MPoint pr=mobject.getValue<MPoint>("point");
-	assert(pr.x==45 && pr.y==80);
+	Point p; p.x=45; p.y=80;
+	mobject.setValue<Point>("point",p);
+	Point *pr=&mobject.getValue<Point&>("point");
+	assert(pr->x==45 && pr->y==80);
 
 //ind data member property
 	mobject.setValue<int>("testInt",45);
@@ -92,6 +102,21 @@ void test()
 //double x(int p1, double p2) method call
 	double d2=mobject.call<double,int,double>("testSum",9,6);
 	assert(d2==15.0);
+
+//read only prop
+	assert(mc.getGenericProperty("point")->isReadOnly() == false);
+	assert(mc.getGenericProperty("testInt")->isWriteOnly() == false);
+	assert(mc.getGenericProperty("testDouble")->isReadWrite() == true);
+	assert(mc.getGenericProperty("testRO")->isReadWrite() == false);
+	assert(mc.getGenericProperty("testRO")->isReadOnly() == true);
+	assert(Reflector::instance().getValue<int>(&aClass,"testRO") == 23 );
+
+//composed prop
+	Reflector::instance().setValue<double>(&Reflector::instance().getValue<Point&>(&aClass,"point"),"x",743);
+	double d3 = Reflector::instance().getValue<double>(&Reflector::instance().getValue<Point&>(&aClass,"point"),"x");
+	assert(d3==743);
+
+//	double d3 = Reflector::instance().getValue<double>(&aClass,"point.x");
 }
 
 int main()
@@ -101,25 +126,4 @@ int main()
 	std::cout << "jrtti tests done ok" << std::endl ;
 	char ch;
 	std::cin.get(ch);
-}
-
-
-void SampleClass::setTest(double d)
-{
-	test=d;
-}
-
-double SampleClass::getTest()
-{
-	return test;
-}
-
-void SampleClass::setPoint(MPoint _p)
-{
-	_point=_p;
-}
-
-MPoint SampleClass::getPoint()
-{
-	return _point;
 }
