@@ -6,6 +6,7 @@
 #include <map>
 #include <string>
 #include <boost/function.hpp>
+#include <boost/bind.hpp>
 #include <boost/type_traits/is_fundamental.hpp>
 #include <boost/utility/enable_if.hpp>
 
@@ -93,12 +94,12 @@ public:
 	Metaclass&
 	property(std::string name, SetterT setter, GetterT getter)
 	{
-		typedef typename detail::FunctionTypes< GetterT >::result_type					PropT;
-		typedef typename boost::remove_reference< PropT >::type											PropNoRefT;
+		typedef typename detail::FunctionTypes< GetterT >::result_type								PropT;
+		typedef typename boost::remove_reference< PropT >::type										PropNoRefT;
 		typedef typename boost::function< void (typename ClassT*, typename PropNoRefT ) >	BoostSetter;
 		typedef typename boost::function< typename PropT ( typename ClassT * ) >				BoostGetter;
 
-		return fillProperty< typename PropT, BoostSetter, BoostGetter >(name,setter,getter);
+		return fillProperty< typename PropT, BoostSetter, BoostGetter >(name,boost::bind(setter,_1,_2),boost::bind(getter,_1));
 	}
 
 	template <typename PropT>
@@ -114,8 +115,8 @@ public:
 	Metaclass&
 	property_RO(std::string name, GetterT getter)
 	{
-		typedef typename detail::FunctionTypes< GetterT >::result_type									PropT;
-		typedef typename boost::remove_reference< PropT >::type											PropNoRefT;
+		typedef typename detail::FunctionTypes< GetterT >::result_type								PropT;
+		typedef typename boost::remove_reference< PropT >::type										PropNoRefT;
 		typedef typename boost::function< void (typename ClassT*, typename PropNoRefT ) >	BoostSetter;
 		typedef typename boost::function< typename PropT ( typename ClassT * ) >				BoostGetter;
 
