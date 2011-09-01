@@ -3,6 +3,7 @@
 
 #include <boost/type_traits/remove_reference.hpp>
 #include <boost/type_traits/is_same.hpp>
+#include <boost/any.hpp>
 
 namespace jrtti {
 
@@ -65,7 +66,15 @@ public:
 	isReadWrite()
 	{
       return ! ( m_isReadOnly || m_isWriteOnly );
-   }
+	}
+
+	virtual
+	void
+	setVariant(	void * instance, boost::any val ) = 0;
+
+	virtual
+	boost::any
+	getVariant(void * instance) = 0;
 
 	virtual
 	void *
@@ -132,6 +141,20 @@ public:
 		}
 		else
 			m_setter((ClassT *)instance,(PropT)value);
+	}
+
+	virtual
+	boost::any
+	getVariant( void * instance )
+	{
+		return get( instance );
+	}
+
+	virtual
+	void
+	setVariant( void * instance, boost::any val)
+	{
+		set( (ClassT *)instance, boost::any_cast< PropT >( val ) );
 	}
 
 	virtual

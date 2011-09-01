@@ -33,12 +33,14 @@ public:
 	getValue(std::string propName)
 	{                           // in the case propName is like "point.x" m_instance is to get point and ClassT is the class having point as member
 //			Reflector::instance().evaluate(&aClass,"point", m_instance );                            // for "point.x" we call  getX(getInstancePoint(m_instance))
-		PropertyBase * p;
+		if (propName.npos == propName.find_first_of(".") )
+			return m_metaclass.getProperty<PropT>(propName).get( m_instance );
+		PropertyBase * 	p;
+		void * 				instance		= m_instance;
+		MetaclassBase * 	pMetaclass 	= &m_metaclass;
+		size_t				pos;
+		std::string 		name			= propName;
 
-		void * instance = m_instance;
-		MetaclassBase * pMetaclass = &m_metaclass;
-		size_t pos;
-		std::string name = propName;
 
 		while ( name.npos != ( pos = name.find_first_of(".") ) )
 		{
@@ -49,9 +51,10 @@ public:
 			pMetaclass = p->parentMetaclass();
 		}
 
-//		return *( static_cast< PropT *>( p->getReference( instance ) ) );
+		typedef typename boost::remove_reference< typename PropT >::type PropNoRefT;
 
-		return m_metaclass.getProperty<PropT>(name).get( instance );
+		boost::any temp = p->getVariant( instance );
+		return boost::any_cast< PropT >( temp );
 	}
 
 	template <typename PropT>
