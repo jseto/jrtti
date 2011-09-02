@@ -15,7 +15,6 @@
 
 namespace jrtti {
 
-template < typename ClassT >
 class Metaobject;
 
 //------------------------------------------------------------------------------
@@ -171,10 +170,10 @@ public:
 		return * static_cast< ElementType * >( m_methods[name] );
 	}
 
-	Metaobject<ClassT>&
+	Metaobject&
 	getMetaobject(ClassT * instance)
 	{
-		static Metaobject<ClassT> mo(*this,instance);
+		static Metaobject mo(this,instance);
 		return mo;
 	}
 

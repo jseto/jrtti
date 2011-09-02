@@ -5,24 +5,23 @@ namespace jrtti {
 
 //------------------------------------------------------------------------------
 
-template <class ClassT>
 class Metaobject
 {
 public:
-	Metaobject(Metaclass<ClassT> pmetaclass, ClassT * pinstance)
+	Metaobject(MetaclassBase * pmetaclass, void * pinstance)
 		: m_metaclass(pmetaclass), m_instance(pinstance)
 	{}
 
  //hauria de buscar la Metaclass corresconent sola
 	Metaobject&
-	instance(ClassT * pinstance)
+	instance(void * pinstance)
 	{
 		m_instance=pinstance;
 		return *this;
 	}
 
 	Metaobject&
-	metaclass(Metaclass<ClassT> pmetaclass)
+	metaclass(MetaclassBase * pmetaclass)
 	{
 		m_metaclass=pmetaclass;
 		return *this;
@@ -33,11 +32,17 @@ public:
 	getValue(std::string propName)
 	{                           // in the case propName is like "point.x" m_instance is to get point and ClassT is the class having point as member
 //			Reflector::instance().evaluate(&aClass,"point", m_instance );                            // for "point.x" we call  getX(getInstancePoint(m_instance))
+		boost::any temp;
+
 		if (propName.npos == propName.find_first_of(".") )
-			return m_metaclass.getProperty<PropT>(propName).get( m_instance );
+		{
+			temp = m_metaclass->getGenericProperty(propName)->getVariant( m_instance );
+			return boost::any_cast< PropT >( temp );
+		}
+
 		PropertyBase * 	p;
 		void * 				instance		= m_instance;
-		MetaclassBase * 	pMetaclass 	= &m_metaclass;
+		MetaclassBase * 	pMetaclass 	= m_metaclass;
 		size_t				pos;
 		std::string 		name			= propName;
 
@@ -51,9 +56,7 @@ public:
 			pMetaclass = p->parentMetaclass();
 		}
 
-		typedef typename boost::remove_reference< typename PropT >::type PropNoRefT;
-
-		boost::any temp = p->getVariant( instance );
+		temp = p->getVariant( instance );
 		return boost::any_cast< PropT >( temp );
 	}
 
@@ -61,7 +64,7 @@ public:
 	void
 	setValue(std::string propName, PropT value)
 	{
-		m_metaclass.getProperty<PropT>(propName).set(m_instance,value);
+		m_metaclass->getGenericProperty(propName)->setVariant(m_instance,value);
 	}
 
 	template <typename ReturnT, typename Param1, typename Param2>
@@ -86,8 +89,8 @@ public:
 	}
 
  private:
-	Metaclass<ClassT> m_metaclass;
-	ClassT * m_instance;
+	MetaclassBase * m_metaclass;
+	void * m_instance;
 };
 
 //------------------------------------------------------------------------------

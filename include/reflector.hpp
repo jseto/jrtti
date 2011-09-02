@@ -70,14 +70,14 @@ public:
 	}
 
 	template < typename C >
-	Metaobject< C >&
+	Metaobject&
 	getMetaobject(std::string className, C * instance)
 	{
 		return getMetaclass< C >( className ).getMetaobject( instance );
 	}
 
 	template < typename C >
-	Metaobject< C >&
+	Metaobject&
 	getMetaobject(C * instance)
 	{
 		return getMetaclass< C >().getMetaobject( instance );
@@ -87,14 +87,14 @@ public:
 	PropT
 	getValue( ClassT * instance, std::string propName )
 	{
-		return getMetaobject< ClassT >(instance).getValue<PropT>( propName );
+		return getMetaobject(instance).getValue<PropT>( propName );
 	}
 
 	template < typename PropT, typename ClassT >
 	void
 	setValue( ClassT * instance, std::string propName, const PropT & value )
 	{
-		return getMetaobject< ClassT >(instance).setValue<PropT>( propName, value );
+		return getMetaobject(instance).setValue<PropT>( propName, value );
 	}
 
 private:
