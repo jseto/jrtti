@@ -18,6 +18,7 @@ public:
 		: 	m_isReadOnly(true),
 			m_isWriteOnly(true)
 	{
+    //root_path
 	}
 
 	void
@@ -38,18 +39,6 @@ public:
 		return m_typeName;
 	}
 
-	void
-	parentMetaclass( MetaclassBase * metaclass )
-	{
-		m_parentMetaclass = metaclass;
-	}
-
-	MetaclassBase *
-	parentMetaclass()
-	{
-		return m_parentMetaclass;
-	}
-
 	bool
 	isReadOnly()
 	{
@@ -65,7 +54,7 @@ public:
 	bool
 	isReadWrite()
 	{
-      return ! ( m_isReadOnly || m_isWriteOnly );
+			return ! ( m_isReadOnly || m_isWriteOnly );
 	}
 
 	virtual
@@ -85,7 +74,6 @@ protected:
 	bool					m_isWriteOnly;
 	std::string			m_name;
 	std::string			m_typeName;
-	MetaclassBase *	m_parentMetaclass;
 };
 
 template <class ClassT, class PropT >

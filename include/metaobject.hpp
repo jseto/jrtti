@@ -53,7 +53,6 @@ public:
 			name = name.substr(pos+1);
 			p = pMetaclass->getGenericProperty(parentName);
 			instance = p->getReference( instance );
-			pMetaclass = p->parentMetaclass();
 		}
 
 		temp = p->getVariant( instance );
@@ -71,21 +70,21 @@ public:
 	ReturnT
 	call(std::string name, Param1 p1, Param2 p2)
 	{
-		return m_metaclass.getMethod<ReturnT,Param1,Param2>(name).call(m_instance,p1,p2);
+		return m_metaclass->getMethod<ReturnT,Param1,Param2>(name).call(m_instance,p1,p2);
 	}
 
 	template <typename ReturnT, typename Param1>
 	ReturnT
 	call(std::string name, Param1 p1)
 	{
-		return m_metaclass.getMethod<ReturnT,Param1,void>(name).call(m_instance,p1);
+		return m_metaclass->getMethod<ReturnT,Param1,void>(name).call(m_instance,p1);
 	}
 
 	template <typename ReturnT>
 	ReturnT
 	call(std::string name)
 	{
-		return m_metaclass.getMethod<ReturnT,void,void>(name).call(m_instance);
+		return m_metaclass->getMethod(name)->call(m_instance);
 	}
 
  private:

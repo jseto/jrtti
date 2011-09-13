@@ -12,6 +12,8 @@ public:
 	{
 		return m_name;
 	}
+	// AnyValue invoke(TValue[] args)
+
 protected:
 	std::string m_name;
 };
@@ -20,7 +22,7 @@ template <class ClassT, class ReturnT, class Param1=void, class Param2=void>
 class Method : public MethodBase
 {
 	typedef boost::function<ReturnT (ClassT*, Param1, Param2)> 	FunctionType;
-	typedef Method<ClassT, ReturnT, Param1, Param2 >				MethodType;
+	typedef Method<ClassT, ReturnT, Param1, Param2>				MethodType;
 
 public:
 	MethodType&

@@ -15,12 +15,34 @@
 
 namespace jrtti {
 
+class Metatype
+{
+public:
+	Metatype(std::string name)
+	{
+		m_typeName = name;
+	}
+
+	std::string
+	typeName()
+	{
+		return m_typeName;
+	}
+
+private:
+	std::string	 m_typeName;
+};
+
 class Metaobject;
 
 //------------------------------------------------------------------------------
-class MetaclassBase
+class MetaclassBase: public Metatype
 {
 public:
+	MetaclassBase(std::string name): Metatype(name)
+	{
+	}
+
 	std::vector< PropertyBase * >
 	getProperties()
 	{
@@ -44,18 +66,15 @@ public:
 		return m_name;
 	}
 
-	std::string
-	typeName()
-	{
-		return m_typeName;
+	MethodBase * getMethod(std::string name){
+		return m_methods[name];
 	}
-
+	
 protected:
 	typedef std::map< std::string, PropertyBase * > PropertyMap;
 	typedef std::map< std::string, MethodBase * >	MethodMap;
 
 	std::string 	m_name;
-	std::string		m_typeName;
 	PropertyMap		m_properties;
 	MethodMap		m_methods;
 };
@@ -64,16 +83,14 @@ template <class ClassT>
 class Metaclass : public MetaclassBase
 {
 public:
-	Metaclass()
+	Metaclass(): MetaclassBase(typeid(ClassT).name())
 	{
-		m_typeName = typeid(ClassT).name();
 		m_name = typeName();
 	}
 
-	Metaclass(std::string name)
+	Metaclass(std::string name): MetaclassBase(typeid(ClassT).name())
 	{
-		m_typeName = typeid(ClassT).name();
-		m_name=name;
+		m_name = name;
 	}
 
 	struct detail
@@ -134,7 +151,7 @@ public:
 
 	template <typename ReturnType>
 	Metaclass&
-	method(std::string name,boost::function<ReturnType (ClassT*)> f)
+	method(std::string name, boost::function<ReturnType (ClassT*)> f)
 	{
 		typedef Method<ClassT,ReturnType> MethodType;
 		typedef typename boost::function<ReturnType (ClassT*)> FunctionType;
@@ -197,7 +214,6 @@ private:
 		p->setter(setter);
 		p->getter(getter);
 		p->name(name);
-		p->parentMetaclass(this);
 		m_properties[name]=p;
 //		addSubProperties(p);
 		return *this;
