@@ -145,6 +145,7 @@ class MetaclassTest : public testing::Test {
 	// Otherwise, this can be skipped.
 	virtual void SetUp() {
 		//declare();
+		mc = Reflector::instance().getGenericMetaclass("SampleClass");
 	}
 
 	// virtual void TearDown() will be called after each test is run.
@@ -155,11 +156,12 @@ class MetaclassTest : public testing::Test {
 		//cleanReflector();
 	}
 	// Declares the variables your tests want to use.
+		SampleClass aClass;
+		MetaclassBase *mc;
 };
 
 TEST_F(MetaclassTest, GetDoubleAccessor) {
-	SampleClass aClass;
-	MetaclassBase *mc = Reflector::instance().getGenericMetaclass("SampleClass");
+
 	aClass.setTest(65.0);
 	double result = boost::any_cast<double>(mc->getGenericProperty("testDouble")->getVariant(&aClass));
 
@@ -167,17 +169,12 @@ TEST_F(MetaclassTest, GetDoubleAccessor) {
 }
 
 TEST_F(MetaclassTest, SetDoubleMutator) {
-	SampleClass aClass;
-	Metaclass<SampleClass> *mc = &Reflector::instance().getMetaclass<SampleClass>("SampleClass");
-	Metaobject *mo = &mc->getMetaobject(&aClass);
 
-	mo->setValue<double>("testDouble", 56);
+	mc->getGenericProperty("testDouble")->setVariant(&aClass, 56.0);
 	EXPECT_EQ(56, aClass.getTest());
 }
 
 TEST_F(MetaclassTest, GetIntMemmber) {
-	SampleClass aClass;
-	MetaclassBase *mc = Reflector::instance().getGenericMetaclass("SampleClass");
 
 	aClass.testInt = 123;
 	int result = boost::any_cast<int>(mc->getGenericProperty("testInt")->getVariant(&aClass));
@@ -185,8 +182,6 @@ TEST_F(MetaclassTest, GetIntMemmber) {
 }
 
 TEST_F(MetaclassTest, SetIntMemmber) {
-	SampleClass aClass;
-	MetaclassBase *mc = Reflector::instance().getGenericMetaclass("SampleClass");
 	mc->getGenericProperty("testInt")->setVariant(&aClass, 321);
 	EXPECT_EQ(321, aClass.testInt);
 }
@@ -194,43 +189,31 @@ TEST_F(MetaclassTest, SetIntMemmber) {
 const std::string kHelloString = "Hello, world!";
 
 TEST_F(MetaclassTest, GetStdStrinAccessor) {
-	SampleClass aClass;
-	Metaclass<SampleClass> *mc = &Reflector::instance().getMetaclass<SampleClass>("SampleClass");
-	Metaobject *mo = &mc->getMetaobject(&aClass);
-
 	aClass.setStr(kHelloString);
-	EXPECT_EQ(kHelloString, mo->getValue<std::string>("testStr"));
+	std::string result = boost::any_cast<std::string>(mc->getGenericProperty("testStr")->getVariant(&aClass));
+
+	EXPECT_EQ(kHelloString, result);
 }
 
 TEST_F(MetaclassTest, SetStdStringMutator) {
-	SampleClass aClass;
-	Metaclass<SampleClass> *mc = &Reflector::instance().getMetaclass<SampleClass>("SampleClass");
-	Metaobject *mo = &mc->getMetaobject(&aClass);
+	mc->getGenericProperty("testStr")->setVariant(&aClass, kHelloString);
 
-	mo->setValue<std::string>("testStr", "Hello");
-	EXPECT_EQ("Hello", aClass.getStr());
+	EXPECT_EQ(kHelloString, aClass.getStr());
 }
 
 TEST_F(MetaclassTest, testPointAccessor) {
-	SampleClass aClass;
-	Metaclass<SampleClass> *mc = &Reflector::instance().getMetaclass<SampleClass>("SampleClass");
-	Metaobject *mo = &mc->getMetaobject(&aClass);
-
 	Point p;
 	p.x = 45;
 	p.y = 80;
 	aClass.setPoint(p);
 
-	Point result = mo->getValue<Point&>("point");  //	assert(pr->x == 45 && pr->y == 80);
+	Point result = boost::any_cast<Point>(mc->getGenericProperty("point")->getVariant(&aClass));
 
 	EXPECT_EQ(p.x, result.x);
 	EXPECT_EQ(p.y, result.y);
 }
 
 TEST_F(MetaclassTest, testPointMutator) {
-	SampleClass aClass;
-	MetaclassBase *mc = Reflector::instance().getGenericMetaclass("SampleClass");
-
 	Point p;
 	p.x = 45;
 	p.y = 80;
@@ -240,22 +223,19 @@ TEST_F(MetaclassTest, testPointMutator) {
 }
 
 TEST_F(MetaclassTest, testNestedPointReference) {
-	SampleClass aClass;
 	Point p;
 	p.x = 45;
 	p.y = 80;
 	aClass.setPoint(p);
 
-	MetaclassBase *mc = Reflector::instance().getGenericMetaclass("SampleClass");
 	Point * result = static_cast<Point *>(mc->getGenericProperty("point")->getReference(&aClass));
 	EXPECT_EQ(result->x, aClass.getPoint().x);
 	EXPECT_EQ(result->y, aClass.getPoint().y);
 }
 
 TEST_F(MetaclassTest, testNestedPointMutator) {
-	SampleClass aClass;
-	MetaclassBase *mc = Reflector::instance().getGenericMetaclass("SampleClass");
 	MetaclassBase *mc2 = Reflector::instance().getGenericMetaclass(mc->getGenericProperty("point")->typeName());
+
 	PropertyBase * prop = mc2->getGenericProperty("x");
 
 	Point * result = static_cast<Point *>(mc->getGenericProperty("point")->getReference(&aClass));
@@ -267,14 +247,21 @@ TEST_F(MetaclassTest, testNestedPointMutator) {
 	EXPECT_EQ(74.0, aClass.getPoint().x);
 }
 
+
 /*
+
 TEST_F(MetaclassTest, testIntMethodCall) {
 	SampleClass aClass;
-	Metaclass<SampleClass> *mc = &Reflector::instance().getMetaclass<SampleClass>("SampleClass");
-	Metaobject *mo = &mc->getMetaobject(&aClass);
+
+	MetaclassBase *mc = &Reflector::instance().getMetaclass<SampleClass>("SampleClass");
+	//Metaobject *mo = &mc->getMetaobject(&aClass);
+
+	mc->getMethod("testIntMethod")->call(&aClass);
+	return m_metaclass->getMethod(name)->call(m_instance);
 
 	EXPECT_EQ(23, mo->call<int>("testIntMethod"));
 }
+
 
 TEST_F(MetaclassTest, testSquareMethodCall) {
 	SampleClass aClass;
