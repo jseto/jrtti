@@ -1,20 +1,16 @@
 #ifndef propertyH
 #define propertyH
 
-#include <boost/type_traits/remove_reference.hpp>
-#include <boost/type_traits/is_same.hpp>
 #include <boost/any.hpp>
 
 namespace jrtti {
 
 //------------------------------------------------------------------------------
 
-class MetaclassBase;
-
-class PropertyBase
+class Property
 {
 public:
-	PropertyBase()
+	Property()
 		: 	m_isReadOnly(true),
 			m_isWriteOnly(true)
 	{
@@ -23,7 +19,7 @@ public:
 	void
 	name(std::string aName)
 	{
-		m_name=aName;
+		m_name = aName;
 	}
 
 	std::string
@@ -73,17 +69,17 @@ protected:
 
 
 template <class ClassT, class PropT >
-class Property : public PropertyBase
+class TypedProperty : public Property
 {
 public:
 	typedef typename boost::remove_reference< typename PropT >::type PropNoRefT;
 
-	Property()
+	TypedProperty()
 	{
 		m_typeName = typeid(PropT).name();
 	}
 
-	Property&
+	TypedProperty&
 	setter( boost::function<void ( ClassT*, PropNoRefT ) > functor)
 	{
 		m_isReadOnly = functor.empty();
@@ -92,7 +88,7 @@ public:
 		return *this;
 	}
 
-	Property&
+	TypedProperty&
 	setter(PropNoRefT ClassT::* dataMember)
 	{
 		m_isReadOnly = false;
@@ -101,7 +97,7 @@ public:
 		return *this;
 	}
 
-	Property&
+	TypedProperty&
 	getter(boost::function< PropT (ClassT*) > functor)
 	{
 		m_isWriteOnly = functor.empty();

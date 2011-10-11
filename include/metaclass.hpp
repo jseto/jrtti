@@ -7,8 +7,6 @@
 #include <string>
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
-#include <boost/type_traits/is_fundamental.hpp>
-#include <boost/utility/enable_if.hpp>
 
 #include "property.hpp"
 #include "method.hpp"
@@ -34,17 +32,17 @@ private:
 };
 
 //------------------------------------------------------------------------------
-class MetaclassBase: public Metatype
+class Metaclass: public Metatype
 {
 public:
-	MetaclassBase(std::string name): Metatype(name)
+	Metaclass(std::string name): Metatype(name)
 	{
 	}
 
-	std::vector< PropertyBase * >
+	std::vector< Property* >
 	getProperties()
 	{
-		std::vector< PropertyBase * > v;
+		std::vector< Property* > v;
 
 		for (PropertyMap::iterator it = m_properties.begin(); it != m_properties.end(); ++it )
 			v.push_back( (*it).second );
@@ -52,14 +50,14 @@ public:
 		return v;
 	}
 
-	PropertyBase *
+	Property&
 	get( std::string name )
 	{
-		return m_properties[name];
+		return *m_properties[name];
 	}
 
-	PropertyBase & operator [](std::string name){
-		return *get(name);
+	Property& operator [](std::string name){
+		return get(name);
 	}
 
 	std::string
@@ -73,7 +71,7 @@ public:
 	}
 
 protected:
-	typedef std::map< std::string, PropertyBase * > PropertyMap;
+	typedef std::map< std::string, Property* > PropertyMap;
 	typedef std::map< std::string, MethodBase * >	MethodMap;
 
 	std::string 	m_name;
@@ -81,18 +79,16 @@ protected:
 	MethodMap		m_methods;
 };
 
-class Metaobject;
-
 template <class ClassT>
-class Metaclass : public MetaclassBase
+class TypedMetaclass : public Metaclass
 {
 public:
-	Metaclass(): MetaclassBase(typeid(ClassT).name())
+	TypedMetaclass(): Metaclass(typeid(ClassT).name())
 	{
 		m_name = typeName();
 	}
 
-	Metaclass(std::string name): MetaclassBase(typeid(ClassT).name())
+	TypedMetaclass(std::string name): Metaclass(typeid(ClassT).name())
 	{
 		m_name = name;
 	}
@@ -111,7 +107,7 @@ public:
 	};
 
 	template < typename SetterT, typename GetterT >
-	Metaclass&
+	TypedMetaclass&
 	property(std::string name, SetterT setter, GetterT getter)
 	{
 		typedef typename detail::FunctionTypes< GetterT >::result_type								PropT;
@@ -123,11 +119,10 @@ public:
 	}
 
 	template < typename PropT >
-	Metaclass&
+	TypedMetaclass&
 	property(std::string name,  PropT (ClassT::*getter)() )
 	{
-		//typedef typename detail::FunctionTypes< GetterT >::result_type								PropT;
-		typedef typename boost::remove_reference< PropT >::type										PropNoRefT;
+		typedef typename boost::remove_reference< PropT >::type								 PropNoRefT;
 		typedef typename boost::function< void (typename ClassT*, typename PropNoRefT ) >	BoostSetter;
 		typedef typename boost::function< typename PropT ( typename ClassT * ) >				BoostGetter;
 
@@ -136,7 +131,7 @@ public:
 	}
 
 	template <typename PropT>
-	Metaclass&
+	TypedMetaclass&
 	property(std::string name, PropT ClassT::* member)
 	{
 		typedef typename PropT ClassT::* 	MemberType;
@@ -144,17 +139,8 @@ public:
 		return fillProperty< PropT, MemberType, MemberType >(name, member, member);
 	}
 
-	/*
-	template <typename PropT>
-	Property<ClassT, PropT >&
-	getProperty_(std::string name)
-	{
-		return * static_cast< Property<ClassT, PropT > * >(m_properties[name]);
-	}
-	*/
-	
 	template <typename ReturnType>
-	Metaclass&
+	TypedMetaclass&
 	method(std::string name, boost::function<ReturnType (ClassT*)> f)
 	{
 		typedef Method<ClassT,ReturnType> MethodType;
@@ -164,7 +150,7 @@ public:
 	}
 
 	template <typename ReturnType, typename Param1>
-	Metaclass&
+	TypedMetaclass&
 	method(std::string name,boost::function<ReturnType (ClassT*, Param1)> f)
 	{
 		typedef typename Method<ClassT,ReturnType, Param1> MethodType;
@@ -174,7 +160,7 @@ public:
 	}
 
 	template <typename ReturnType, typename Param1, typename Param2>
-	Metaclass&
+	TypedMetaclass&
 	method(std::string name,boost::function<ReturnType (ClassT*, Param1, Param2)> f)
 	{
 		typedef typename Method<ClassT,ReturnType, Param1, Param2> MethodType;
@@ -191,16 +177,9 @@ public:
 		return * static_cast< ElementType * >( m_methods[name] );
 	}
 
-	Metaobject&
-	getMetaobject(ClassT * instance)
-	{
-		static Metaobject mo(this,instance);
-		return mo;
-	}
-
 private:
 	template <typename MethodType, typename FunctionType>
-	Metaclass&
+	TypedMetaclass&
 	fillMethod(std::string name, FunctionType function)
 	{
 		MethodType * m = new MethodType();
@@ -211,48 +190,16 @@ private:
 	}
 
 	template <typename PropT, typename SetterType, typename GetterType >
-	Metaclass&
+	TypedMetaclass&
 	fillProperty(std::string name, SetterType setter, GetterType getter)
 	{
-		Property< ClassT, PropT > * p = new Property< ClassT, PropT >;
+		TypedProperty< ClassT, PropT > * p = new TypedProperty< ClassT, PropT >;
 		p->setter(setter);
 		p->getter(getter);
 		p->name(name);
 		m_properties[name] = p;
 		return *this;
 	}
-
-/*
-
-	//SFINAE for fundamental types as they do not have Metaclass
-	template <typename PropT>
-	typename boost::enable_if< boost::is_fundamental< PropT >, void >::type
-	addSubProperties( Property< ClassT, PropT > * p )
-	{}
-
-	template <typename PropT>
-	typename boost::disable_if< boost::is_fundamental< PropT >, void >::type
-	addSubProperties( Property< ClassT, PropT > * p )
-	{
-		try
-		{
-			Metaclass<PropT>
-			mc = Reflector::instance().getMetaclass< PropT >();
-
-			std::vector< PropertyBase * >
-			subProperties = mc.getProperties<PropT>();
-
-			for (std::vector< PropertyBase * >::iterator it = subProperties.begin(); it!=subProperties.end(); ++it)
-			{
-				PropertyBase * subProp = *it;
-//				subProp->parent(p);
-				m_properties[ p->name() + "." + subProp->name() ] = subProp;
-			}
-		}
-		catch (exception){}
-	}
-
-	*/
 
 };
 
