@@ -14,14 +14,22 @@ struct Point
 	double y;
 };
 
+struct Date
+{
+	int d,m,y;
+};
+
 class SampleClass
 {
 public:
 	void setTest(double d) { test = d; }
 	double getTest() { return test; }
 
-	void setPoint(Point p) { _point = p; }
-	Point& getPoint() { return _point; }
+	void setPoint(Point * p) { _point = p; }
+	Point * getPoint() { return _point; }
+
+	void setDate(Date  d) { _date = d; }
+	Date getDate() { return _date; }
 
 	std::string getStr(){return s; }
 	void	setStr(std::string ps) { s=ps; }
@@ -35,7 +43,8 @@ public:
 
 private:	// User declarations
 	double test;
-	Point _point;
+	Point * _point;
+	Date	_date;
 	std::string	s;
 };
 
@@ -48,6 +57,7 @@ void declare()
 	Reflector::instance().declare<SampleClass>("SampleClass")				//exlicit metaclass name
 						.property("testDouble", &SampleClass::setTest, &SampleClass::getTest)
 						.property("point", &SampleClass::setPoint, &SampleClass::getPoint)
+						.property("date", &SampleClass::setDate, &SampleClass::getDate)
 						.property("testInt", &SampleClass::testInt)
 						.property("testStr", &SampleClass::setStr,&SampleClass::getStr)
 						.property("testRO", &SampleClass::testIntFunc)
@@ -125,50 +135,52 @@ TEST_F(MetaclassTest, SetStdStringMutator) {
 	EXPECT_EQ(kHelloString, aClass.getStr());
 }
 
+TEST_F(MetaclassTest, DateAccessor) {
+	Date d;
+	d.d = 1;
+	d.m = 4;
+	d.y = 2011;
+
+	aClass.setDate(d);
+	Date result = boost::any_cast<Date>((*mc)["date"].getVariant(&aClass));
+
+	EXPECT_EQ(d.d, result.d);
+	EXPECT_EQ(d.m, result.m);
+	EXPECT_EQ(d.y, result.y);
+}
+
+TEST_F(MetaclassTest, DateMutator) {
+	Date d;
+	d.d = 1;
+	d.m = 4;
+	d.y = 2011;
+
+	(*mc)["date"].setVariant(&aClass, d);
+
+	EXPECT_EQ(d.d, aClass.getDate().d);
+	EXPECT_EQ(d.m, aClass.getDate().m);
+	EXPECT_EQ(d.y, aClass.getDate().y);
+}
+
 TEST_F(MetaclassTest, testPointAccessor) {
-	Point p;
-	p.x = 45;
-	p.y = 80;
+	Point * p = new Point();
+	p->x = 45;
+	p->y = 80;
 	aClass.setPoint(p);
 
-	Point result = boost::any_cast<Point>((*mc)["point"].getVariant(&aClass));
+	Point * result = boost::any_cast<Point *>((*mc)["point"].getVariant(&aClass));
 
-	EXPECT_EQ(p.x, result.x);
-	EXPECT_EQ(p.y, result.y);
+	EXPECT_TRUE(p == result);
 }
 
 TEST_F(MetaclassTest, testPointMutator) {
-	Point p;
-	p.x = 45;
-	p.y = 80;
+	Point * p = new Point();
+	p->x = 45;
+	p->y = 80;
+
 	(*mc)["point"].setVariant(&aClass, p);
-	EXPECT_EQ(p.x, aClass.getPoint().x);
-	EXPECT_EQ(p.y, aClass.getPoint().y);
-}
 
-TEST_F(MetaclassTest, testNestedPointReference) {
-	Point p;
-	p.x = 45;
-	p.y = 80;
-	aClass.setPoint(p);
-
-	Point * result = static_cast<Point *>((*mc)["point"].getReference(&aClass));
-	EXPECT_EQ(result->x, aClass.getPoint().x);
-	EXPECT_EQ(result->y, aClass.getPoint().y);
-}
-
-TEST_F(MetaclassTest, testNestedPointMutator) {
-	MetaclassBase *mc2 = Reflector::instance().getGenericMetaclass((*mc)["point"].typeName());
-
-	PropertyBase & prop = (*mc2)["x"];
-
-	Point * result = static_cast<Point *>((*mc)["point"].getReference(&aClass));
-
-	prop.setVariant(result, 74.0);
-
-	//mc->getGenericProperty("point","x").setVariant(&aClass, 74);
-
-	EXPECT_EQ(74.0, aClass.getPoint().x);
+	EXPECT_TRUE(p==aClass.getPoint());
 }
 
 TEST_F(MetaclassTest, testPropsRO) {
@@ -224,7 +236,9 @@ GTEST_API_ int main(int argc, char **argv) {
 	declare();
 
 	testing::InitGoogleTest(&argc, argv);
-	return RUN_ALL_TESTS();
+	int test_result = RUN_ALL_TESTS();
+	getc(stdin);
+	return test_result;
 }
 
 
