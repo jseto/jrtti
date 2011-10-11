@@ -76,6 +76,7 @@ protected:
 	std::string			m_typeName;
 };
 
+
 template <class ClassT, class PropT >
 class Property : public PropertyBase
 {
@@ -84,7 +85,7 @@ public:
 
 	Property()
 	{
-		m_typeName=typeid(PropT).name();
+		m_typeName = typeid(PropT).name();
 	}
 
 	Property&
@@ -101,7 +102,7 @@ public:
 	{
 		m_isReadOnly = false;
 		m_dataMember = dataMember;
-		m_setter=NULL;
+		m_setter = NULL;
 		return *this;
 	}
 
@@ -109,7 +110,7 @@ public:
 	getter(boost::function< PropT (ClassT*) > functor)
 	{
 		m_isWriteOnly = functor.empty();
-		m_getter=functor;
+		m_getter = functor;
 		return *this;
 	}
 
@@ -125,7 +126,7 @@ public:
 		if (m_dataMember)
 		{
 			ClassT * p = static_cast<ClassT *>(instance);
-			p->*m_dataMember=value;
+			p->*m_dataMember = value;
 		}
 		else
 			m_setter((ClassT *)instance,(PropT)value);
@@ -135,7 +136,8 @@ public:
 	boost::any
 	getVariant( void * instance )
 	{
-		return get( instance );
+
+			return get( instance );
 	}
 
 	virtual
@@ -173,6 +175,7 @@ private:
 	boost::function< PropT (ClassT*)>				m_getter;
 	PropNoRefT	ClassT::*								m_dataMember;
 };
+
 
 //------------------------------------------------------------------------------
 }; //namespace jrtti

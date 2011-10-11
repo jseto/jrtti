@@ -33,8 +33,6 @@ private:
 	std::string	 m_typeName;
 };
 
-class Metaobject;
-
 //------------------------------------------------------------------------------
 class MetaclassBase: public Metatype
 {
@@ -55,9 +53,13 @@ public:
 	}
 
 	PropertyBase *
-	getGenericProperty( std::string name )
+	get( std::string name )
 	{
 		return m_properties[name];
+	}
+
+	PropertyBase & operator [](std::string name){
+		return *get(name);
 	}
 
 	std::string
@@ -69,7 +71,7 @@ public:
 	MethodBase * getMethod(std::string name){
 		return m_methods[name];
 	}
-	
+
 protected:
 	typedef std::map< std::string, PropertyBase * > PropertyMap;
 	typedef std::map< std::string, MethodBase * >	MethodMap;
@@ -78,6 +80,8 @@ protected:
 	PropertyMap		m_properties;
 	MethodMap		m_methods;
 };
+
+class Metaobject;
 
 template <class ClassT>
 class Metaclass : public MetaclassBase
@@ -118,6 +122,19 @@ public:
 		return fillProperty< typename PropT, BoostSetter, BoostGetter >(name,boost::bind(setter,_1,_2),boost::bind(getter,_1));
 	}
 
+	template < typename PropT >
+	Metaclass&
+	property(std::string name,  PropT (ClassT::*getter)() )
+	{
+		//typedef typename detail::FunctionTypes< GetterT >::result_type								PropT;
+		typedef typename boost::remove_reference< PropT >::type										PropNoRefT;
+		typedef typename boost::function< void (typename ClassT*, typename PropNoRefT ) >	BoostSetter;
+		typedef typename boost::function< typename PropT ( typename ClassT * ) >				BoostGetter;
+
+		BoostSetter setter;       //setter empty is used by Property<>::isReadOnly()
+		return fillProperty< typename PropT, BoostSetter, BoostGetter >(name, setter, getter);
+	}
+
 	template <typename PropT>
 	Metaclass&
 	property(std::string name, PropT ClassT::* member)
@@ -127,28 +144,15 @@ public:
 		return fillProperty< PropT, MemberType, MemberType >(name, member, member);
 	}
 
-	template < typename GetterT >
-	Metaclass&
-	property_RO(std::string name, GetterT getter)
-	{
-		typedef typename detail::FunctionTypes< GetterT >::result_type								PropT;
-		typedef typename boost::remove_reference< PropT >::type										PropNoRefT;
-		typedef typename boost::function< void (typename ClassT*, typename PropNoRefT ) >	BoostSetter;
-		typedef typename boost::function< typename PropT ( typename ClassT * ) >				BoostGetter;
-
-		BoostSetter s;       //s empty is used by Property<>::isReadOnly()
-
-		return fillProperty< typename PropT, BoostSetter, BoostGetter >(name,s,getter);
-	}
-
-
+	/*
 	template <typename PropT>
 	Property<ClassT, PropT >&
-	getProperty(std::string name)
+	getProperty_(std::string name)
 	{
 		return * static_cast< Property<ClassT, PropT > * >(m_properties[name]);
 	}
-
+	*/
+	
 	template <typename ReturnType>
 	Metaclass&
 	method(std::string name, boost::function<ReturnType (ClassT*)> f)
@@ -202,7 +206,7 @@ private:
 		MethodType * m = new MethodType();
 		m->name(name);
 		m->function(function);
-		m_methods[name]=m;
+		m_methods[name] = m;
 		return *this;
 	}
 
@@ -214,10 +218,11 @@ private:
 		p->setter(setter);
 		p->getter(getter);
 		p->name(name);
-		m_properties[name]=p;
-//		addSubProperties(p);
+		m_properties[name] = p;
 		return *this;
 	}
+
+/*
 
 	//SFINAE for fundamental types as they do not have Metaclass
 	template <typename PropT>
@@ -246,6 +251,9 @@ private:
 		}
 		catch (exception){}
 	}
+
+	*/
+
 };
 
 //------------------------------------------------------------------------------
