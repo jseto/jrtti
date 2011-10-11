@@ -18,7 +18,6 @@ public:
 		: 	m_isReadOnly(true),
 			m_isWriteOnly(true)
 	{
-    //root_path
 	}
 
 	void
@@ -59,15 +58,11 @@ public:
 
 	virtual
 	void
-	setVariant(	void * instance, boost::any val ) = 0;
+	set(	void * instance, boost::any val ) = 0;
 
 	virtual
 	boost::any
-	getVariant(void * instance) = 0;
-
-	virtual
-	void *
-	getReference( void * instance ) = 0;
+	get(void * instance) = 0;
 
 protected:
 	bool					m_isReadOnly;
@@ -114,14 +109,29 @@ public:
 		return *this;
 	}
 
+	virtual
+	boost::any
+	get( void * instance )
+	{
+		return internal_get( instance );
+	}
+
+	virtual
+	void
+	set( void * instance, boost::any val)
+	{
+		internal_set( (ClassT *)instance, boost::any_cast< PropT >( val ) );
+	}
+
+private:
 	PropT
-	get(void * instance)
+	internal_get(void * instance)
 	{
 		return (PropT) m_getter( (ClassT *)instance );
 	}
 
 	void
-	set(ClassT * instance, PropT value)
+	internal_set(ClassT * instance, PropT value)
 	{
 		if (m_dataMember)
 		{
@@ -131,45 +141,6 @@ public:
 		else
 			m_setter((ClassT *)instance,(PropT)value);
 	}
-
-	virtual
-	boost::any
-	getVariant( void * instance )
-	{
-
-			return get( instance );
-	}
-
-	virtual
-	void
-	setVariant( void * instance, boost::any val)
-	{
-		set( (ClassT *)instance, boost::any_cast< PropT >( val ) );
-	}
-
-	virtual
-	void *
-	getReference( void * instance )
-	{
-		return getReference_<PropT>(instance);
-	}
-
-private:
-	//SFINAE to discriminate types by reference
-	template < typename PropT>
-	typename boost::enable_if< typename boost::is_same< typename PropT, typename PropNoRefT >::type, void * >::type
-	getReference_(void * instance)
-	{
-		return NULL;
-	}
-
-	template < typename PropT >
-	typename boost::disable_if< typename boost::is_same< typename PropT, typename PropNoRefT >::type, void * >::type
-	getReference_(void * instance)
-	{
-		return &m_getter( (ClassT *)instance );
-	}
-	//SFINAE end
 
 	boost::function<void (ClassT*, PropNoRefT)>	m_setter;
 	boost::function< PropT (ClassT*)>				m_getter;

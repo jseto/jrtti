@@ -20,6 +20,12 @@ public:
 		return instance;
 	}
 
+	void
+	clear()
+	{
+		m_metaclasses.clear();
+	}
+
 	template <typename C>
 	Metaclass<C>&
 	declare()
@@ -42,6 +48,7 @@ public:
 	MetaclassBase *
 	getGenericMetaclass( std::string name )
 	{
+
 		return m_metaclasses[name];
 	}
 

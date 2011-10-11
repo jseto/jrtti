@@ -11,6 +11,13 @@ template < typename Index1T, typename Index2T, typename ElemT >
 class BiIndexMap
 {
 public:
+
+ void
+ clear() {
+	firstMap.clear();
+	secondMap.clear();
+ }
+
 	void
 	add( const Index1T& idx1, const Index2T& idx2, ElemT item )
 	{
