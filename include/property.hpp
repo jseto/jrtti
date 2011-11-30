@@ -2,6 +2,7 @@
 #define propertyH
 
 #include <boost/any.hpp>
+#include <boost/type_traits/is_pointer.hpp>
 
 namespace jrtti {
 
@@ -11,10 +12,9 @@ class Property
 {
 public:
 	Property()
-		: 	m_isReadOnly(true),
+		: m_isReadOnly(true),
 			m_isWriteOnly(true)
-	{
-	}
+	{}
 
 	void
 	name(std::string aName)
@@ -34,6 +34,14 @@ public:
 		return m_typeName;
 	}
 
+	MetaType *	getType()
+	{
+		MetaType*	type = jrtti::Registry(typeName());
+		if (type)
+			return type;
+		else throw jrtti::error("property " + name() + ": type " + typeName() +  " no registered");
+	}
+
 	bool
 	isReadOnly()
 	{
@@ -49,7 +57,7 @@ public:
 	bool
 	isReadWrite()
 	{
-			return ! ( m_isReadOnly || m_isWriteOnly );
+		return ! ( m_isReadOnly || m_isWriteOnly );
 	}
 
 	virtual
@@ -63,8 +71,8 @@ public:
 protected:
 	bool					m_isReadOnly;
 	bool					m_isWriteOnly;
-	std::string			m_name;
-	std::string			m_typeName;
+	std::string		m_name;
+	std::string		m_typeName;
 };
 
 
@@ -76,7 +84,7 @@ public:
 
 	TypedProperty()
 	{
-		m_typeName = typeid(PropT).name();
+		m_typeName = Reflector::instance().name_of<PropT>();
 	}
 
 	TypedProperty&
@@ -109,7 +117,7 @@ public:
 	boost::any
 	get( void * instance )
 	{
-		return internal_get( instance );
+		return internal_get<PropT>( instance );
 	}
 
 	virtual
@@ -119,11 +127,23 @@ public:
 		internal_set( (ClassT *)instance, boost::any_cast< PropT >( val ) );
 	}
 
+
 private:
-	PropT
+
+	//SFINAE to discriminate types by reference
+	template < typename PropT>
+	typename boost::enable_if< typename boost::is_pointer< typename PropT >::type, boost::any >::type
 	internal_get(void * instance)
 	{
-		return (PropT) m_getter( (ClassT *)instance );
+		return  (void *)m_getter( (ClassT *)instance );
+	}
+
+	//SFINAE to discriminate types by reference
+	template < typename PropT>
+	typename boost::disable_if< typename boost::is_pointer< typename PropT >::type, boost::any >::type
+	internal_get(void * instance)
+	{
+		return  m_getter( (ClassT *)instance );
 	}
 
 	void

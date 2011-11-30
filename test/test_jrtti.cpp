@@ -1,5 +1,8 @@
 #include <string>
+
 #include <iostream>
+#include <sstream>
+
 #include "../include/jrtti.hpp"
 #include "test_jrtti.h"
 
@@ -10,30 +13,54 @@ using namespace jrtti;
 
 struct Point
 {
+	static Point* from(const boost::any & value) {
+			void * result = static_cast<boost::any::holder<void*> *>(value.content)->held;
+			return (Point*)result;
+
+	}
 	double x;
 	double y;
 
 	bool operator == (const Point & other) const
 	{
-		(x == other.x) &&
+		return (x == other.x) &&
 		(y == other.y);
 	}
 };
 
 struct Date
 {
-	int d,m,y;
+	int d, m, y;
 	bool operator == (const Date & other) const
 	{
-		(d == other.d) &&
+		return (d == other.d) &&
 		(m == other.m) &&
 		(y == other.y);
+	}
+
+	static Date& from(const boost::any & value) {
+			Date &held = static_cast<boost::any::holder<Date> *>(value.content)->held;
+			return held;
+
 	}
 };
 
 class Sample
 {
 public:
+	Sample(){}
+
+	Sample(const Sample & other):
+		intMember(other.intMember),
+		test(other.test),
+		_point(other._point),
+		_date(other._date),
+		_s(other._s)
+	{}
+
+	virtual
+	~Sample()
+	{};
 
 	int intMember;
 
@@ -43,7 +70,9 @@ public:
 	std::string getStdStringProp(){ return _s; }
 	void	setStdStringProp(std::string str) { _s = str; }
 
-	Point * getByRefProp() { return _point; }
+	Point * getByRefProp() {
+		return _point;
+	}
 	void setByRefProp(Point * p) { _point = p; }
 
 	Date getByValProp() { return _date; }
@@ -64,12 +93,17 @@ private:	// User declarations
 
 void declare()
 {
-	Reflector::instance().declare<Point>()								
+									
+	Reflector::instance().declare<Point>()
 						.property("x", &Point::x)
 						.property("y", &Point::y);
 
-	Reflector::instance().declare<Sample>()
+	Reflector::instance().declare<Date>()
+						.property("d", &Date::d)
+						.property("m", &Date::m)
+						.property("y", &Date::y);
 
+	Reflector::instance().declare<Sample>()
 						.property("intMember", &Sample::intMember)
 						.property("testDouble", &Sample::setDoubleProp, &Sample::getDoubleProp)
 						.property("point", &Sample::setByRefProp, &Sample::getByRefProp)
@@ -84,7 +118,7 @@ void declare()
 }
 
 // To use a test fixture, derive a class from testing::Test.
-class MetaclassTest : public testing::Test {
+class MetaTypeTest : public testing::Test {
  protected:  // You should make the members protected s.t. they can be
 						 // accessed from sub-classes.
 
@@ -103,21 +137,21 @@ class MetaclassTest : public testing::Test {
 		Reflector::instance().clear();
 	}
 
-	Metaclass & mClass(){
-		return *Reflector::instance().get("Sample");
+	MetaType & mClass(){
+		return *dynamic_cast<MetaType*>(Reflector::instance().get("Sample"));
 	}
 
 	// Declares the variables your tests want to use.
 		Sample sample;
 };
 
-TEST_F(MetaclassTest, DoubleType) {
+TEST_F(MetaTypeTest, DoubleType) {
 
 	EXPECT_EQ("double", mClass()["testDouble"].typeName());
 
 }
 
-TEST_F(MetaclassTest, DoubleAccessor) {
+TEST_F(MetaTypeTest, DoubleAccessor) {
 
 	sample.setDoubleProp(65.0);
 	double result = boost::any_cast<double>(mClass()["testDouble"].get(&sample));
@@ -125,25 +159,25 @@ TEST_F(MetaclassTest, DoubleAccessor) {
 	EXPECT_EQ(65.0, result);
 }
 
-TEST_F(MetaclassTest, DoubleMutator) {
+TEST_F(MetaTypeTest, DoubleMutator) {
 
 	mClass()["testDouble"].set(&sample, 56.0);
 	EXPECT_EQ(56, sample.getDoubleProp());
 }
 
-TEST_F(MetaclassTest, IntMemberType) {
+TEST_F(MetaTypeTest, IntMemberType) {
 
 	EXPECT_EQ("int", mClass()["intMember"].typeName());
 }
 
-TEST_F(MetaclassTest, IntMemberAccessor) {
+TEST_F(MetaTypeTest, IntMemberAccessor) {
 
 	sample.intMember = 123;
 	int result = boost::any_cast<int>(mClass()["intMember"].get(&sample));
 	EXPECT_EQ(123, result);
 }
 
-TEST_F(MetaclassTest, IntMemberMutator) {
+TEST_F(MetaTypeTest, IntMemberMutator) {
 	sample.intMember = 123;
 	mClass()["intMember"].set(&sample, 321);
 	EXPECT_EQ(321, sample.intMember);
@@ -151,30 +185,30 @@ TEST_F(MetaclassTest, IntMemberMutator) {
 
 const std::string kHelloString = "Hello, world!";
 
-TEST_F(MetaclassTest, StdStringType) {
+TEST_F(MetaTypeTest, StdStringType) {
 
 	EXPECT_EQ("std::string", mClass()["testStr"].typeName());
 }
 
-TEST_F(MetaclassTest, StdStringAccessor) {
+TEST_F(MetaTypeTest, StdStringAccessor) {
 	sample.setStdStringProp(kHelloString);
 	std::string result = boost::any_cast<std::string>(mClass()["testStr"].get(&sample));
 
 	EXPECT_EQ(kHelloString, result);
 }
 
-TEST_F(MetaclassTest, StdStringMutator) {
+TEST_F(MetaTypeTest, StdStringMutator) {
 	mClass()["testStr"].set(&sample, kHelloString);
 
 	EXPECT_EQ(kHelloString, sample.getStdStringProp());
 }
 
-TEST_F(MetaclassTest, ByValType) {
+TEST_F(MetaTypeTest, ByValType) {
 
 	EXPECT_EQ("Date", mClass()["date"].typeName());
 }
 
-TEST_F(MetaclassTest, ByValAccessor) {
+TEST_F(MetaTypeTest, ByValAccessor) {
 	Date d;
 	d.d = 1;
 	d.m = 4;
@@ -187,7 +221,7 @@ TEST_F(MetaclassTest, ByValAccessor) {
 	EXPECT_TRUE(d == result);
 }
 
-TEST_F(MetaclassTest, ByValMutator) {
+TEST_F(MetaTypeTest, ByValMutator) {
 	Date d;
 	d.d = 1;
 	d.m = 4;
@@ -198,18 +232,18 @@ TEST_F(MetaclassTest, ByValMutator) {
 	EXPECT_TRUE(d == sample.getByValProp());
 }
 
-TEST_F(MetaclassTest, ByRefAccessor) {
+TEST_F(MetaTypeTest, ByRefAccessor) {
 	Point * p = new Point();
 	p->x = 45;
 	p->y = 80;
 	sample.setByRefProp(p);
 
-	Point * result = boost::any_cast<Point *>(mClass()["point"].get(&sample));
+	Point * result = static_cast<Point*>(boost::any_cast<void *>(mClass()["point"].get(&sample)));
 
 	EXPECT_TRUE(p == result);
 }
 
-TEST_F(MetaclassTest, ByRefMutator) {
+TEST_F(MetaTypeTest, ByRefMutator) {
 	Point * p = new Point();
 	p->x = 45;
 	p->y = 80;
@@ -219,7 +253,46 @@ TEST_F(MetaclassTest, ByRefMutator) {
 	EXPECT_TRUE(p == sample.getByRefProp());
 }
 
-TEST_F(MetaclassTest, testPropsRO) {
+TEST_F(MetaTypeTest, NestedByRefAccessor) {
+	Point * p = new Point();
+	p->x = 45;
+	p->y = 80;
+	sample.setByRefProp(p);
+
+	double result = boost::any_cast<double>(mClass().eval(sample, "point.x"));
+
+	EXPECT_EQ(p->x, result);
+}
+
+
+TEST_F(MetaTypeTest, Serialize) {
+	Point * point = new Point();
+	point->x = 45;
+	point->y = 80;
+
+	Date date;
+	date.d = 1;
+	date.m = 4;
+	date.y = 2011;
+
+
+	sample.intMember = 128;
+	sample.setDoubleProp(65.0);
+	sample.setStdStringProp(kHelloString);
+	//sample.setByValProp(Date::from(date));
+	sample.setByValProp(date);
+	//sample.setByRefProp(Point::from(point));
+	sample.setByRefProp(point);
+
+	std::string ss = mClass().to_str(sample);
+
+	std::string serialized = "Sample{date: Date{d: 1, m: 4, y: 2011}, intMember: 128, point: Point *{x: 45, y: 80}, testDouble: 65, testRO: 23, testStr: \"Hello, world!\"}";
+	EXPECT_EQ(serialized, ss);
+}
+
+
+
+TEST_F(MetaTypeTest, testPropsRO) {
 
 	EXPECT_EQ(true, mClass()["testDouble"].isReadWrite());
 	EXPECT_EQ(true, mClass()["testRO"].isReadOnly());
@@ -234,10 +307,10 @@ TEST_F(MetaclassTest, testPropsRO) {
 
 /*
 
-TEST_F(MetaclassTest, testIntMethodCall) {
+TEST_F(MetaTypeTest, testIntMethodCall) {
 	Sample sample;
 
-	Metaclass *mc = &Reflector::instance().getMetaclass<Sample>("Sample");
+	MetaType *mc = &Reflector::instance().getMetaclass<Sample>("Sample");
 	//Metaobject *mo = &mc->getMetaobject(&sample);
 
 	mc->getMethod("testIntMethod")->call(&sample);
@@ -247,18 +320,18 @@ TEST_F(MetaclassTest, testIntMethodCall) {
 }
 
 
-TEST_F(MetaclassTest, testSquareMethodCall) {
+TEST_F(MetaTypeTest, testSquareMethodCall) {
 	Sample sample;
-	Metaclass<Sample> *mc = &Reflector::instance().getMetaclass<Sample>("Sample");
+	MetaType<Sample> *mc = &Reflector::instance().getMetaclass<Sample>("Sample");
 	Metaobject *mo = &mc->getMetaobject(&sample);
 
 	double result = mo->call<double,double>("testSquare", 4);
 	EXPECT_EQ(16.0, result );
 }
 
-TEST_F(MetaclassTest, testSumMethodCall) {
+TEST_F(MetaTypeTest, testSumMethodCall) {
 	Sample sample;
-	Metaclass<Sample> *mc = &Reflector::instance().getMetaclass<Sample>("Sample");
+	MetaType<Sample> *mc = &Reflector::instance().getMetaclass<Sample>("Sample");
 	Metaobject *mo = &mc->getMetaobject(&sample);
 
 	double result = mo->call<double,int,double>("testSum",9,6);
