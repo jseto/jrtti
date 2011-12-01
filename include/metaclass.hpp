@@ -23,16 +23,14 @@ namespace jrtti {
 	class MetaType	{
 	public:
 		typedef std::map< std::string, Property * > PropertyMap;
-		typedef std::map< std::string, MethodBase * >	MethodMap;
+		typedef std::map< std::string, Method * >	MethodMap;
 
-		MetaType(std::string name) {
-			m_typeName = name;
+		MetaType(std::string name): _type_name(name) {
 		}
 
 		std::string
-		type_name()
-		{
-			return m_typeName;
+		type_name()	{
+			return _type_name;
 		}
 
 		virtual
@@ -47,22 +45,32 @@ namespace jrtti {
 			return false;
 		}
 
+		Property& operator [](std::string name) {
+			return get(name);
+		}
+
 		virtual
 		Property&
-		get( std::string name)
-		{
+		get( std::string name) {
 			return * properties()[name];
 		}
 
 		void
-		set( std::string name, Property& prop)
-		{
+		set( std::string name, Property& prop) {
 			properties()[name] = &prop;
 		}
-		
+
+		Method * getMethod(std::string name) {
+			return _methods[name];
+		}
+
+		void
+		set_method( std::string name, Method& meth) {
+			_methods[name] = &meth;
+		}
+
 		boost::any
-		eval( boost::any value, std::string path)
-		{
+		eval( boost::any value, std::string path) {
 			size_t pos = path.find_first_of(".");
 			std::string name = path.substr( 0, pos );
 			Property& prop = get(name);
@@ -71,19 +79,18 @@ namespace jrtti {
 			if (pos == std::string::npos)
 				return prop.get(instance);
 			else {
-				return prop.getType()->eval(prop.get(instance), path.substr( pos + 1 ));
+				return prop.get_type()->eval(prop.get(instance), path.substr( pos + 1 ));
 			}
 		}
 
 		virtual
-		std::string
-		to_str(const boost::any & value){
+		std::string to_str(const boost::any & value) {
 			void * instance = get_instance_ptr(value.content);
 			std::string result = type_name() + "{";
 			bool need_comma = false;
 			for( PropertyMap::iterator it = properties().begin(); it != properties().end(); it++) {
 				Property& prop = * it->second;
-				MetaType * t = prop.getType();
+				MetaType * t = prop.get_type();
 				const boost::any &pv = prop.get(instance);
 				if (need_comma)	result += ", ";
 				need_comma = true;
@@ -93,42 +100,29 @@ namespace jrtti {
 		}
 
 		virtual
-		void
-		write( void * instance, ostream & os)
-		{
+		void write( void * instance, ostream & os) {
 			std::string &held = *(std::string*)instance;
 			os << to_str(held) << std::endl;
 		}
 
-		Property& operator [](std::string name){
-			return get(name);
-		}
-
-		MethodBase * getMethod(std::string name){
-			return m_methods[name];
-		}
-
 		virtual
-		void *
-		get_instance_ptr(boost::any::placeholder * content){
+		void * get_instance_ptr(boost::any::placeholder * content) {
 			return NULL;
 		}
 
 		virtual
-		void *
-		get_pointer_instance_ptr(boost::any::placeholder * content){
+		void * get_pointer_instance_ptr(boost::any::placeholder * content) {
 			return NULL;
 		}
 
 		virtual
-		PropertyMap & properties(){
+		PropertyMap & properties() {
     	return _properties;
 		}
-		
-	protected:
-		MethodMap		m_methods;
+
 	private:
-		std::string	 m_typeName;
+		MethodMap		_methods;
+		std::string	 _type_name;
 		PropertyMap	_properties;
 	};
 
@@ -142,10 +136,10 @@ namespace jrtti {
 		}
 
 	protected:
-			MetaType & m_baseType;
+		MetaType & m_baseType;
 	};
 
-	class MetaPointerType: public MetaIndirectedType	{
+	class MetaPointerType: public MetaIndirectedType {
 	public:
 		MetaPointerType (MetaType & baseType): MetaIndirectedType(baseType, "*")
 		{}
@@ -154,12 +148,12 @@ namespace jrtti {
 		is_pointer() { return true;}
 
 		void
-		write( void * instance, ostream & os){
+		write( void * instance, ostream & os) {
 			m_baseType.write(instance, os);
 		}
 
 		void *
-		get_instance_ptr(boost::any::placeholder * content){
+		get_instance_ptr(boost::any::placeholder * content) {
 			void * result = m_baseType.get_pointer_instance_ptr(content);
 			return result;
 		}
@@ -261,7 +255,6 @@ namespace jrtti {
 		property(std::string name, PropT ClassT::* member)
 		{
 			typedef typename PropT ClassT::* 	MemberType;
-
 			return fillProperty< PropT, MemberType, MemberType >(name, member, member);
 		}
 
@@ -269,7 +262,7 @@ namespace jrtti {
 		DeclaringMetaClass&
 		method(std::string name, boost::function<ReturnType (ClassT*)> f)
 		{
-			typedef Method<ClassT,ReturnType> MethodType;
+			typedef DeclaredMethod<ClassT,ReturnType> MethodType;
 			typedef typename boost::function<ReturnType (ClassT*)> FunctionType;
 
 			return fillMethod<MethodType, FunctionType>(name,f);
@@ -279,7 +272,7 @@ namespace jrtti {
 		DeclaringMetaClass&
 		method(std::string name,boost::function<ReturnType (ClassT*, Param1)> f)
 		{
-			typedef typename Method<ClassT,ReturnType, Param1> MethodType;
+			typedef typename DeclaredMethod<ClassT,ReturnType, Param1> MethodType;
 			typedef typename boost::function<ReturnType (ClassT*, Param1)> FunctionType;
 
 			return fillMethod<MethodType, FunctionType>(name,f);
@@ -289,14 +282,14 @@ namespace jrtti {
 		DeclaringMetaClass&
 		method(std::string name,boost::function<ReturnType (ClassT*, Param1, Param2)> f)
 		{
-			typedef typename Method<ClassT,ReturnType, Param1, Param2> MethodType;
+			typedef typename DeclaredMethod<ClassT,ReturnType, Param1, Param2> MethodType;
 			typedef typename boost::function<ReturnType (ClassT*, Param1, Param2)> FunctionType;
 
 			return fillMethod<MethodType, FunctionType>(name,f);
 		}
 
 		template <typename ReturnType, typename Param1, typename Param2>
-		Method<ClassT,ReturnType, Param1, Param2>&
+		DeclaredMethod<ClassT,ReturnType, Param1, Param2>&
 		getMethod(std::string name)
 		{
 			typedef Method<ClassT,ReturnType, Param1, Param2> ElementType;
@@ -319,10 +312,10 @@ namespace jrtti {
 		DeclaringMetaClass&
 		fillMethod(std::string name, FunctionType function)
 		{
-			MethodType * m = new MethodType();
-			m->name(name);
-			m->function(function);
-			m_methods[name] = m;
+			MethodType& m = MethodType();
+			m.name(name);
+			m.function(function);
+			set_method(name, m);
 			return *this;
 		}
 

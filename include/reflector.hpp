@@ -4,23 +4,21 @@
 #include <string>
 #include <map>
 
-
 namespace jrtti {
-typedef std::map<std::string, MetaType * > TypeMap;
-class Reflector
+class Registry
 {
 public:
-	static Reflector &
-	instance()
+	typedef std::map<std::string, MetaType * > TypeMap;
+
+	Registry()
 	{
-		static Reflector instance;
-		return instance;
-	}
+		clear();
+	};
 
 	void
 	clear()
 	{
-		m_metaclasses.clear();
+		_meta_types.clear();
 		register_defaults();
 	}
 
@@ -35,7 +33,7 @@ public:
 	void
 	inspect(){
 		std::cout << "\nReflector<";
-		for( TypeMap::iterator it = m_metaclasses.begin(); it != m_metaclasses.end(); it++) {
+		for( TypeMap::iterator it = _meta_types.begin(); it != _meta_types.end(); it++) {
 			std::cout << "{" << it->first << " => " << it->second->type_name() << "}>\n";
 		}
 	}
@@ -55,7 +53,7 @@ public:
 	void
 	alias(std::string new_name)
 	{
-		m_alias[typeid(C).name()] = new_name;
+		_alias[typeid(C).name()] = new_name;
 	}
 
 	template <typename C>
@@ -63,36 +61,33 @@ public:
 	name_of()
 	{
 		std::string name = typeid(C).name();
-		if (m_alias.count(name) > 0)
-			return m_alias[name];
+		if (_alias.count(name) > 0)
+			return _alias[name];
 		return name;
 	}
 
 	MetaType *
-	get( std::string name )
+	get_type( std::string name )
 	{
-		return m_metaclasses[name];
+		return _meta_types[name];
 	}
 
 private:
-  void
+
+	void
 	internal_declare(std::string name, MetaType * mc)
 	{
 		MetaType * ptr_mc = new MetaPointerType(*mc);
 		MetaType * ref_mc = new MetaReferenceType(*mc);
 
-		m_metaclasses[name] = mc;
-		m_metaclasses[ptr_mc->type_name()] = ptr_mc;
-		m_metaclasses[ref_mc->type_name()] = ref_mc;
+		_meta_types[name] = mc;
+		_meta_types[ptr_mc->type_name()] = ptr_mc;
+		_meta_types[ref_mc->type_name()] = ref_mc;
 	}
 
-	Reflector()
-	{
-		clear();
-	};
 
-	TypeMap m_metaclasses;
-	std::map<std::string, std::string> m_alias;
+	TypeMap _meta_types;
+	std::map<std::string, std::string> _alias;
 };
 
 //------------------------------------------------------------------------------

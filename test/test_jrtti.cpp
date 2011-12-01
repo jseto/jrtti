@@ -4,118 +4,13 @@
 #include <sstream>
 
 #include "../include/jrtti.hpp"
+#include "sample.h"
 #include "test_jrtti.h"
 
 #include "gtest/gtest.h"
 #pragma link "lib/gtest.lib"
 
 using namespace jrtti;
-
-struct Point
-{
-	static Point* from(const boost::any & value) {
-			void * result = static_cast<boost::any::holder<void*> *>(value.content)->held;
-			return (Point*)result;
-
-	}
-	double x;
-	double y;
-
-	bool operator == (const Point & other) const
-	{
-		return (x == other.x) &&
-		(y == other.y);
-	}
-};
-
-struct Date
-{
-	int d, m, y;
-	bool operator == (const Date & other) const
-	{
-		return (d == other.d) &&
-		(m == other.m) &&
-		(y == other.y);
-	}
-
-	static Date& from(const boost::any & value) {
-			Date &held = static_cast<boost::any::holder<Date> *>(value.content)->held;
-			return held;
-
-	}
-};
-
-class Sample
-{
-public:
-	Sample(){}
-
-	Sample(const Sample & other):
-		intMember(other.intMember),
-		test(other.test),
-		_point(other._point),
-		_date(other._date),
-		_s(other._s)
-	{}
-
-	virtual
-	~Sample()
-	{};
-
-	int intMember;
-
-	void setDoubleProp(double d) { test = d; }
-	double getDoubleProp() { return test; }
-
-	std::string getStdStringProp(){ return _s; }
-	void	setStdStringProp(std::string str) { _s = str; }
-
-	Point * getByRefProp() {
-		return _point;
-	}
-	void setByRefProp(Point * p) { _point = p; }
-
-	Date getByValProp() { return _date; }
-	void setByValProp(Date  d) { _date = d; }
-
-	// exposed methods
-	void testFunc(){ std::cout << "Test works ok" << std::endl;}
-	int testIntFunc(){return 23;}
-	double testSquare(double val){return val*val;}
-	double testSum(int a, double b){return (double)a+b;}
-
-private:	// User declarations
-	double test;
-	Point * _point;
-	Date	_date;
-	std::string	_s;
-};
-
-void declare()
-{
-									
-	Reflector::instance().declare<Point>()
-						.property("x", &Point::x)
-						.property("y", &Point::y);
-
-	Reflector::instance().declare<Date>()
-						.property("d", &Date::d)
-						.property("m", &Date::m)
-						.property("y", &Date::y);
-
-	Reflector::instance().declare<Sample>()
-						.property("intMember", &Sample::intMember)
-						.property("testDouble", &Sample::setDoubleProp, &Sample::getDoubleProp)
-						.property("point", &Sample::setByRefProp, &Sample::getByRefProp)
-						.property("date", &Sample::setByValProp, &Sample::getByValProp)
-						.property("testStr", &Sample::setStdStringProp,&Sample::getStdStringProp)
-						.property("testRO", &Sample::testIntFunc)
-
-						.method<void>("testMethod", &Sample::testFunc)
-						.method<int>("testIntMethod", &Sample::testIntFunc)
-						.method<double,double>("testSquare", &Sample::testSquare)
-						.method<double,int,double>("testSum", &Sample::testSum);
-}
 
 // To use a test fixture, derive a class from testing::Test.
 class MetaTypeTest : public testing::Test {
@@ -134,11 +29,11 @@ class MetaTypeTest : public testing::Test {
 	// you don't have to provide it.
 	//
 	virtual void TearDown() {
-		Reflector::instance().clear();
+		jrtti::clear();
 	}
 
 	MetaType & mClass(){
-		return *dynamic_cast<MetaType*>(Reflector::instance().get("Sample"));
+		return *dynamic_cast<MetaType*>(jrtti::get_type("Sample"));
 	}
 
 	// Declares the variables your tests want to use.
@@ -147,7 +42,7 @@ class MetaTypeTest : public testing::Test {
 
 TEST_F(MetaTypeTest, DoubleType) {
 
-	EXPECT_EQ("double", mClass()["testDouble"].typeName());
+	EXPECT_EQ("double", mClass()["testDouble"].type_name());
 
 }
 
@@ -167,7 +62,7 @@ TEST_F(MetaTypeTest, DoubleMutator) {
 
 TEST_F(MetaTypeTest, IntMemberType) {
 
-	EXPECT_EQ("int", mClass()["intMember"].typeName());
+	EXPECT_EQ("int", mClass()["intMember"].type_name());
 }
 
 TEST_F(MetaTypeTest, IntMemberAccessor) {
@@ -187,7 +82,7 @@ const std::string kHelloString = "Hello, world!";
 
 TEST_F(MetaTypeTest, StdStringType) {
 
-	EXPECT_EQ("std::string", mClass()["testStr"].typeName());
+	EXPECT_EQ("std::string", mClass()["testStr"].type_name());
 }
 
 TEST_F(MetaTypeTest, StdStringAccessor) {
@@ -205,7 +100,7 @@ TEST_F(MetaTypeTest, StdStringMutator) {
 
 TEST_F(MetaTypeTest, ByValType) {
 
-	EXPECT_EQ("Date", mClass()["date"].typeName());
+	EXPECT_EQ("Date", mClass()["date"].type_name());
 }
 
 TEST_F(MetaTypeTest, ByValAccessor) {
@@ -264,7 +159,6 @@ TEST_F(MetaTypeTest, NestedByRefAccessor) {
 	EXPECT_EQ(p->x, result);
 }
 
-
 TEST_F(MetaTypeTest, Serialize) {
 	Point * point = new Point();
 	point->x = 45;
@@ -274,7 +168,6 @@ TEST_F(MetaTypeTest, Serialize) {
 	date.d = 1;
 	date.m = 4;
 	date.y = 2011;
-
 
 	sample.intMember = 128;
 	sample.setDoubleProp(65.0);
@@ -290,12 +183,10 @@ TEST_F(MetaTypeTest, Serialize) {
 	EXPECT_EQ(serialized, ss);
 }
 
-
-
 TEST_F(MetaTypeTest, testPropsRO) {
 
-	EXPECT_EQ(true, mClass()["testDouble"].isReadWrite());
-	EXPECT_EQ(true, mClass()["testRO"].isReadOnly());
+	EXPECT_TRUE(mClass()["testDouble"].is_read_write());
+	EXPECT_FALSE(mClass()["testRO"].is_writable());
 
 	int result = boost::any_cast<int>(mClass()["testRO"].get(&sample));
 	EXPECT_EQ(23, result);
