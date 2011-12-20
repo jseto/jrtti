@@ -1,5 +1,6 @@
 
 /*.local
-/__history
+__history
 /Debug
 *.dsk
+out/

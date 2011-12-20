@@ -2,108 +2,96 @@
 #define reflectorH
 
 #include <string>
-#include "biIndexMap.hpp"
-
-#include "exception.hpp"
+#include <map>
 
 namespace jrtti {
-
-//------------------------------------------------------------------------------
-
-class Reflector
+class Registry
 {
 public:
-	static Reflector &
-	instance()
+	typedef std::map<std::string, MetaType * > TypeMap;
+
+	Registry()
 	{
-		static Reflector instance;
-		return instance;
+		clear();
+	};
+
+	void
+	clear()
+	{
+		_meta_types.clear();
+		register_defaults();
+	}
+
+	void
+	register_defaults(){
+		alias<std::string>("std::string");
+		internal_declare("std::string", new MetaString());
+		internal_declare("int", new MetaInt());
+		internal_declare("double", new MetaDouble());
+	}
+
+	void
+	inspect(){
+		std::cout << "\nReflector<";
+		for( TypeMap::iterator it = _meta_types.begin(); it != _meta_types.end(); it++) {
+			std::cout << "{" << it->first << " => " << it->second->type_name() << "}>\n";
+		}
 	}
 
 	template <typename C>
-	Metaclass<C>&
+	DeclaringMetaClass<C>&
 	declare()
 	{
-		Metaclass<C> * mc = new Metaclass<C>();
-		std::string name = typeid(C).name();
-		m_metaclasses.add( name, name, mc );
-		return *mc;
+		std::string name = name_of<C>();
+		DeclaringMetaClass<C> * mc = new DeclaringMetaClass<C>(name);
+		internal_declare(name, mc);
+
+		return * mc;
 	}
 
 	template <typename C>
-	Metaclass<C>&
-	declare(std::string name)
-	{
-		Metaclass<C> * mc = new Metaclass<C>(name);
-		m_metaclasses.add( name, typeid(C).name(), mc );
-		return *mc;
-	}
-
-	MetaclassBase *
-	getGenericMetaclass( std::string name )
-	{
-		return m_metaclasses[name];
-	}
-
-	template < typename C >
-	Metaclass< C >&
-	getMetaclass(std::string name)
-	{
-		typedef typename Metaclass<C> MetaclassType;
-
-		Metaclass<C> * mc;
-
-		if (!name.empty())
-			mc = static_cast < MetaclassType * >( m_metaclasses[ name ] );
-		else
-	      	mc = static_cast < MetaclassType * >( m_metaclasses.find2( typeid( C ).name() ) );
-		if ( !mc )
-			throw exception( BAD_CLASS + ": "  + name );
-		return *mc;
-	}
-
-	template < typename C >
-	Metaclass< C >&
-	getMetaclass()
-	{ 
-		return getMetaclass<C>("");
-	}
-
-	template < typename C >
-	Metaobject< C >&
-	getMetaobject(std::string className, C * instance)
-	{
-		return getMetaclass< C >( className ).getMetaobject( instance );
-	}
-
-	template < typename C >
-	Metaobject< C >&
-	getMetaobject(C * instance)
-	{
-		return getMetaclass< C >().getMetaobject( instance );
-	}
-
-	template < typename PropT, typename ClassT >
-	PropT
-	getValue( ClassT * instance, std::string propName )
-	{
-		return getMetaobject< ClassT >(instance).getValue<PropT>( propName );
-	}
-
-	template < typename PropT, typename ClassT >
 	void
-	setValue( ClassT * instance, std::string propName, const PropT & value )
+	alias(std::string new_name)
 	{
-		return getMetaobject< ClassT >(instance).setValue<PropT>( propName, value );
+		_alias[typeid(C).name()] = new_name;
+	}
+
+	template <typename C>
+	std::string
+	name_of()
+	{
+		std::string name = typeid(C).name();
+		if (_alias.count(name) > 0)
+			return _alias[name];
+		return name;
+	}
+
+	MetaType *
+	get_type( std::string name )
+	{
+		return _meta_types[name];
 	}
 
 private:
-	Reflector(){};
-//	std::map< std::string, MetaclassBase * > m_metaclasses;
-	BiIndexMap< std::string, std::string, MetaclassBase * >	m_metaclasses;
+
+	void
+	internal_declare(std::string name, MetaType * mc)
+	{
+		MetaType * ptr_mc = new MetaPointerType(*mc);
+		MetaType * ref_mc = new MetaReferenceType(*mc);
+
+		_meta_types[name] = mc;
+		_meta_types[ptr_mc->type_name()] = ptr_mc;
+		_meta_types[ref_mc->type_name()] = ref_mc;
+	}
+
+
+	TypeMap _meta_types;
+	std::map<std::string, std::string> _alias;
 };
 
 //------------------------------------------------------------------------------
 }; //namespace jrtti
+
 #endif //	reflectorH
 

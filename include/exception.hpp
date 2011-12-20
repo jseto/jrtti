@@ -6,26 +6,13 @@
 namespace jrtti
 {
 
-static const std::string BAD_CLASS = "Class name not found";
-
-
-class exception : public std::exception
-{
-public:
-	exception(std::string message)
-		: std::exception()
-		, m_message(message)
-	{}
-
-	std::string
-	message()
+	class Error : public std::logic_error
 	{
-		return m_message;
-	}
-
-private:
-	std::string m_message;
-};
+	public:
+		Error(std::string message)
+			: std::logic_error(message)
+		{}
+	};
 
 }; //namespace jrtti
 #endif //jrtti_exceptionH

@@ -1,167 +1,155 @@
 #ifndef propertyH
 #define propertyH
 
-#include <boost/type_traits/remove_reference.hpp>
-#include <boost/type_traits/is_same.hpp>
+#include <boost/any.hpp>
+#include <boost/type_traits/is_pointer.hpp>
 
 namespace jrtti {
 
 //------------------------------------------------------------------------------
 
-class MetaclassBase;
-
-class PropertyBase
+class Property
 {
 public:
-	PropertyBase()
-		: 	m_isReadOnly(true),
-			m_isWriteOnly(true)
-	{
+	enum Mode {Readable=1, Writable=2};
+	
+	Property() {
 	}
 
-	void
-	name(std::string aName)
-	{
-		m_name=aName;
+	std::string	name() {
+		return _name;
 	}
 
-	std::string
-	name()
-	{
-		return m_name;
+	void name(std::string value)	{
+		_name = value;
 	}
 
 	std::string
-	typeName()
-	{
-		return m_typeName;
+	type_name() {
+		return _type_name;
 	}
 
 	void
-	parentMetaclass( MetaclassBase * metaclass )
-	{
-		m_parentMetaclass = metaclass;
+	type_name(std::string value) {
+		_type_name = value;
 	}
 
-	MetaclassBase *
-	parentMetaclass()
-	{
-		return m_parentMetaclass;
-	}
-
-	bool
-	isReadOnly()
-	{
-		return m_isReadOnly;
+	MetaType * get_type() {
+		MetaType * type = jrtti::get_type(type_name());
+		if (!type)
+			throw jrtti::error("property " + name() + ": type " + type_name() +  " no registered");
+		return type;
 	}
 
 	bool
-	isWriteOnly()
-	{
-		return m_isWriteOnly;
+	is_readable() {
+		return (_mode & Readable);
 	}
 
 	bool
-	isReadWrite()
-	{
-      return ! ( m_isReadOnly || m_isWriteOnly );
-   }
+	is_writable()	{
+		return (_mode & Writable);
+	}
+
+	bool
+	is_read_write()	{
+		return is_readable() & is_writable();
+	}
+
+	void set_mode(Mode mode){
+			_mode = _mode | mode;
+	}
 
 	virtual
-	void *
-	getReference( void * instance ) = 0;
+	void set(	void * instance, boost::any val ) = 0;
 
-protected:
-	bool					m_isReadOnly;
-	bool					m_isWriteOnly;
-	std::string			m_name;
-	std::string			m_typeName;
-	MetaclassBase *	m_parentMetaclass;
+	virtual
+	boost::any get(void * instance) = 0;
+
+private:
+	std::string		_type_name;
+	std::string		_name;
+	Mode _mode;
 };
 
 template <class ClassT, class PropT >
-class Property : public PropertyBase
+class TypedProperty : public Property
 {
 public:
 	typedef typename boost::remove_reference< typename PropT >::type PropNoRefT;
 
-	Property()
+	TypedProperty()
 	{
-		m_typeName=typeid(PropT).name();
+		type_name(jrtti::name_of<PropT>());
 	}
 
-	Property&
+	TypedProperty&
 	setter( boost::function<void ( ClassT*, PropNoRefT ) > functor)
 	{
-		m_isReadOnly = functor.empty();
+		if (!functor.empty()) set_mode(Writable);
 		m_dataMember = NULL;
 		m_setter = functor;
 		return *this;
 	}
 
-	Property&
+	TypedProperty&
 	setter(PropNoRefT ClassT::* dataMember)
 	{
-		m_isReadOnly = false;
 		m_dataMember = dataMember;
-		m_setter=NULL;
+		m_setter = NULL;
 		return *this;
 	}
 
-	Property&
-	getter(boost::function< PropT (ClassT*) > functor)
-	{
-		m_isWriteOnly = functor.empty();
-		m_getter=functor;
+	TypedProperty&
+	getter(boost::function< PropT (ClassT*) > functor)	{
+		if (!functor.empty()) set_mode(Readable);
+		m_getter = functor;
 		return *this;
-	}
-
-	PropT
-	get(void * instance)
-	{
-		return (PropT) m_getter( (ClassT *)instance );
-	}
-
-	void
-	set(ClassT * instance, PropT value)
-	{
-		if (m_dataMember)
-		{
-			ClassT * p = static_cast<ClassT *>(instance);
-			p->*m_dataMember=value;
-		}
-		else
-			m_setter((ClassT *)instance,(PropT)value);
 	}
 
 	virtual
-	void *
-	getReference( void * instance )
-	{
-		return getReference_<PropT>(instance);
+	boost::any
+	get( void * instance )	{
+		return internal_get<PropT>( instance );
+	}
+
+	virtual
+	void
+	set( void * instance, boost::any val)	{
+		internal_set( (ClassT *)instance, boost::any_cast< PropT >( val ) );
 	}
 
 private:
 	//SFINAE to discriminate types by reference
 	template < typename PropT>
-	typename boost::enable_if< typename boost::is_same< typename PropT, typename PropNoRefT >::type, void * >::type
-	getReference_(void * instance)
-	{
-		return NULL;
+	typename boost::enable_if< typename boost::is_pointer< typename PropT >::type, boost::any >::type
+	internal_get(void * instance)	{
+		return  (void *)m_getter( (ClassT *)instance );
 	}
 
-	template < typename PropT >
-	typename boost::disable_if< typename boost::is_same< typename PropT, typename PropNoRefT >::type, void * >::type
-	getReference_(void * instance)
-	{
-		return &m_getter( (ClassT *)instance );
+	//SFINAE to discriminate types by reference
+	template < typename PropT>
+	typename boost::disable_if< typename boost::is_pointer< typename PropT >::type, boost::any >::type
+	internal_get(void * instance)	{
+		return  m_getter( (ClassT *)instance );
 	}
-	//SFINAE end
+
+	void
+	internal_set(ClassT * instance, PropT value) {
+		if (m_dataMember)
+		{
+			ClassT * p = static_cast<ClassT *>(instance);
+			p->*m_dataMember = value;
+		}
+		else
+			m_setter((ClassT *)instance,(PropT)value);
+	}
 
 	boost::function<void (ClassT*, PropNoRefT)>	m_setter;
 	boost::function< PropT (ClassT*)>				m_getter;
 	PropNoRefT	ClassT::*								m_dataMember;
 };
+
 
 //------------------------------------------------------------------------------
 }; //namespace jrtti
