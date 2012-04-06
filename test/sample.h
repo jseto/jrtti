@@ -47,6 +47,7 @@ class SampleBase
 {
 public:
 	virtual int getIntAbstract() = 0;
+	virtual int getIntOverloaded() {return 99;}
 };
 
 class Sample : public SampleBase
@@ -56,7 +57,8 @@ public:
 
 	int intMember;
 
-	virtual int getIntAbstract() { return 34; };
+	virtual int getIntAbstract() { return 34; }
+	virtual int getIntOverloaded() {return 87;}
 
 	void setDoubleProp(double d) { test = d; }
 	double getDoubleProp() { return test; }
@@ -98,7 +100,8 @@ void declare()
 						.property("y", &Date::y);
 
 	jrtti::declareAbstract<SampleBase>()
-						.property("intAbstract", &SampleBase::getIntAbstract);
+						.property("intAbstract", &SampleBase::getIntAbstract)
+						.property("intOverloaded", &SampleBase::getIntOverloaded);
 
 	jrtti::declare<Sample>()
                	.inheritsFrom("SampleBase")

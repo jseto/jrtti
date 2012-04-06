@@ -60,6 +60,12 @@ TEST_F(MetaTypeTest, AbstractAccessor) {
 	EXPECT_EQ(34, result);
 }
 
+TEST_F(MetaTypeTest, OverloadedAccessor) {
+	int result = boost::any_cast<int>(mClass()["intOverloaded"].get(&sample));
+
+	EXPECT_EQ(87, result);
+}
+
 TEST_F(MetaTypeTest, DoubleMutator) {
 
 	mClass()["testDouble"].set(&sample, 56.0);
@@ -185,7 +191,7 @@ TEST_F(MetaTypeTest, Serialize) {
 
 	std::string ss = mClass().to_str(sample);
 
-	std::string serialized = "Sample{date: Date{d: 1, m: 4, y: 2011}, intAbstract: 34, intMember: 128, point: Point *{x: 45, y: 80}, testDouble: 65, testRO: 23, testStr: \"Hello, world!\"}";
+	std::string serialized = "Sample{date: Date{d: 1, m: 4, y: 2011}, intAbstract: 34, intMember: 128, intOverloaded: 87, point: Point *{x: 45, y: 80}, testDouble: 65, testRO: 23, testStr: \"Hello, world!\"}";
 	EXPECT_EQ(serialized, ss);
 }
 
