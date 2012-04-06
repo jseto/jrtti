@@ -3,7 +3,6 @@
 #include <iostream>
 #include <sstream>
 
-#include "../include/jrtti.hpp"
 #include "sample.h"
 #include "test_jrtti.h"
 
