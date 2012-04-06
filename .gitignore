@@ -4,3 +4,7 @@ __history
 /Debug
 *.dsk
 out/
+
+*.sdf
+*.suo
+*.user

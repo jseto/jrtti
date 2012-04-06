@@ -226,6 +226,21 @@ namespace jrtti {
 			};
 		};
 
+		DeclaringMetaClass&
+		inheritsFrom( MetaType& parent )
+		{
+			PropertyMap& parentProps = parent.properties();
+			properties().insert( parentProps.begin(), parentProps.end() );
+			return *this;
+		}
+
+		DeclaringMetaClass&
+		inheritsFrom( const std::string& parentName )
+		{
+			inheritsFrom( * jrtti::get_type( parentName ) );
+			return *this;
+		}
+
 		template < typename SetterT, typename GetterT >
 		DeclaringMetaClass&
 		property(std::string name, SetterT setter, GetterT getter)
@@ -365,7 +380,6 @@ namespace jrtti {
 			return NULL;
 		}
 #endif
-
 	};
 
 //------------------------------------------------------------------------------

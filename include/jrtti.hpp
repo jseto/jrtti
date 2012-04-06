@@ -30,36 +30,43 @@ namespace jrtti {
 		Registry _reflector;
 	}
 
-	inline Error error(std::string message)	{
+	inline Error
+	error(std::string message)	{
 		return Error(message);
 	}
 
-	inline MetaType * get_type(std::string name) {
+	inline MetaType *
+	get_type(std::string name) {
 		return _reflector.get_type(name);
 	}
 
 
 	inline template <typename C>
-	std::string	name_of(){
+	std::string
+	name_of(){
 		return _reflector.name_of<C>();
 	}
 
 	inline template <typename C>
-	void	alias(std::string new_name) {
+	void
+	alias(std::string new_name) {
 		_reflector.alias<C>(new_name);
 	}
 
 	inline template <typename C>
-	DeclaringMetaClass<C>& declare() {
+	DeclaringMetaClass<C>&
+	declare() {
 		return _reflector.declare<C>();
 	}
 
 	inline template <typename C>
-	DeclaringMetaClass<C, boost::true_type>& declareAbstract() {
+	DeclaringMetaClass<C, boost::true_type>&
+	declareAbstract() {
 		return _reflector.declareAbstract<C>();
 	}
 
-	inline void	clear() {
+	inline void
+	clear() {
 		_reflector.clear();
 	}
 

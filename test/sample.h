@@ -101,6 +101,7 @@ void declare()
 						.property("intAbstract", &SampleBase::getIntAbstract);
 
 	jrtti::declare<Sample>()
+               	.inheritsFrom("SampleBase")
 						.property("intMember", &Sample::intMember)
 						.property("testDouble", &Sample::setDoubleProp, &Sample::getDoubleProp)
 						.property("point", &Sample::setByRefProp, &Sample::getByRefProp)
