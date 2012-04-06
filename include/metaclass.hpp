@@ -4,6 +4,7 @@
 #include <memory>
 #include <map>
 #include <string>
+#include <sstream>
 
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
