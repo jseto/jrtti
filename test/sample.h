@@ -87,6 +87,11 @@ private:	// User declarations
 	std::string	_s;
 };
 
+class SampleDerived : public Sample
+{
+	virtual int getIntOverloaded() {return 43;}
+};
+
 void declare()
 {
 
@@ -116,6 +121,9 @@ void declare()
 						.method<int>("testIntMethod", &Sample::testIntFunc)
 						.method<double,double>("testSquare", &Sample::testSquare)
 						.method<double,int,double>("testSum", &Sample::testSum);
+
+	jrtti::declare<SampleDerived>()
+               	.inheritsFrom("Sample");
 }
 
 #endif

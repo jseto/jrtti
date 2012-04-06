@@ -36,8 +36,13 @@ class MetaTypeTest : public testing::Test {
 		return *dynamic_cast<MetaType*>(jrtti::get_type("Sample"));
 	}
 
+	MetaType & derivedClass(){
+		return *dynamic_cast<MetaType*>(jrtti::get_type("SampleDerived"));
+	}
+
 	// Declares the variables your tests want to use.
 		Sample sample;
+		SampleDerived sampleDerived;
 };
 
 TEST_F(MetaTypeTest, DoubleType) {
@@ -64,6 +69,12 @@ TEST_F(MetaTypeTest, OverloadedAccessor) {
 	int result = boost::any_cast<int>(mClass()["intOverloaded"].get(&sample));
 
 	EXPECT_EQ(87, result);
+}
+
+TEST_F(MetaTypeTest, DerivedOverloadedAccessor) {
+	int result = boost::any_cast<int>(derivedClass()["intOverloaded"].get(&sampleDerived));
+
+	EXPECT_EQ(43, result);
 }
 
 TEST_F(MetaTypeTest, DoubleMutator) {
