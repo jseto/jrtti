@@ -43,12 +43,20 @@ struct Date
 	}
 };
 
-class Sample
+class SampleBase
+{
+public:
+	virtual int getIntAbstract() = 0;
+};
+
+class Sample : public SampleBase
 {
 public:
 	Sample(){}
 
 	int intMember;
+
+	virtual int getIntAbstract() { return 34; };
 
 	void setDoubleProp(double d) { test = d; }
 	double getDoubleProp() { return test; }
@@ -88,6 +96,9 @@ void declare()
 						.property("d", &Date::d)
 						.property("m", &Date::m)
 						.property("y", &Date::y);
+
+	jrtti::declareAbstract<SampleBase>()
+						.property("intAbstract", &SampleBase::getIntAbstract);
 
 	jrtti::declare<Sample>()
 						.property("intMember", &Sample::intMember)

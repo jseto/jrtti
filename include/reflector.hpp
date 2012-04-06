@@ -3,6 +3,7 @@
 
 #include <string>
 #include <map>
+#include <boost/type_traits/is_abstract.hpp>
 
 namespace jrtti {
 class Registry
@@ -44,6 +45,17 @@ public:
 	{
 		std::string name = name_of<C>();
 		DeclaringMetaClass<C> * mc = new DeclaringMetaClass<C>(name);
+		internal_declare(name, mc);
+
+		return * mc;
+	}
+
+	template <typename C>
+	DeclaringMetaClass<C, boost::true_type>&
+	declareAbstract()
+	{
+		std::string name = name_of<C>();
+		DeclaringMetaClass<C, boost::true_type> * mc = new DeclaringMetaClass<C, boost::true_type>(name);
 		internal_declare(name, mc);
 
 		return * mc;

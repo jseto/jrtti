@@ -57,7 +57,7 @@ public:
 	}
 
 	void set_mode(Mode mode){
-			_mode = _mode | mode;
+			_mode = (Mode) (_mode | mode);
 	}
 
 	virtual

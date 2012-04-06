@@ -208,7 +208,7 @@ namespace jrtti {
 	};
 
 	/// Internal class used only when declaring
-	template <class ClassT>
+	template <class ClassT, class IsAbstractT = boost::false_type>
 	class DeclaringMetaClass : public MetaType
 	{
 	public:
@@ -299,8 +299,11 @@ namespace jrtti {
 	protected:
 		void *
 		get_instance_ptr(boost::any::placeholder * content){
-			ClassT &held = static_cast<boost::any::holder<ClassT> *>(content)->held;
-			return (void*)&held;
+#ifdef BOOST_NO_IS_ABSTRACT
+			_get_instance_ptr< IsAbstractT >( content );
+#else
+			_get_instance_ptr< ClassT >( content );
+#endif
 		}
 		void *
 		get_pointer_instance_ptr(boost::any::placeholder * content){
@@ -330,6 +333,38 @@ namespace jrtti {
 			set(name, *p);
 			return *this;
 		}
+
+#ifdef BOOST_NO_IS_ABSTRACT
+	//SFINAE
+		template< typename AbstT >
+		typename boost::disable_if< typename AbstT, void * >::type
+		_get_instance_ptr(boost::any::placeholder * content){
+			ClassT &held = static_cast<boost::any::holder<ClassT> *>(content)->held;
+			return (void*)&held;
+		}
+
+	//SFINAE
+		template< typename AbstT >
+		typename boost::enable_if< typename AbstT, void * >::type
+		_get_instance_ptr(boost::any::placeholder * content){
+			return NULL;
+		}
+#else
+	//SFINAE
+		template< typename T >
+		typename boost::disable_if< typename boost::is_abstract< typename T >::type, void * >::type
+		_get_instance_ptr(boost::any::placeholder * content){
+			ClassT &held = static_cast<boost::any::holder<ClassT> *>(content)->held;
+			return (void*)&held;
+		}
+
+	//SFINAE
+		template< typename T >
+		typename boost::enable_if< typename boost::is_abstract< typename T >::type, void * >::type
+		_get_instance_ptr(boost::any::placeholder * content){
+			return NULL;
+		}
+#endif
 
 	};
 

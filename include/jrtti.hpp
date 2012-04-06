@@ -54,6 +54,11 @@ namespace jrtti {
 		return _reflector.declare<C>();
 	}
 
+	inline template <typename C>
+	DeclaringMetaClass<C, boost::true_type>& declareAbstract() {
+		return _reflector.declareAbstract<C>();
+	}
+
 	inline void	clear() {
 		_reflector.clear();
 	}
