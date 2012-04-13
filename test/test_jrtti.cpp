@@ -218,6 +218,11 @@ TEST_F(MetaTypeTest, testPropsRO) {
 
 }
 
+TEST_F(MetaTypeTest, testTag) {
+	int tag = mClass()["testDouble"].tag();
+	EXPECT_EQ(658, tag);
+}
+
 /*
 
 TEST_F(MetaTypeTest, testIntMethodCall) {

@@ -244,34 +244,34 @@ namespace jrtti {
 
 		template < typename SetterT, typename GetterT >
 		DeclaringMetaClass&
-		property(std::string name, SetterT setter, GetterT getter)
+		property( std::string name, SetterT setter, GetterT getter, int tag = 0 )
 		{
 			typedef typename detail::FunctionTypes< GetterT >::result_type	PropT;
 			typedef typename boost::remove_reference< PropT >::type					PropNoRefT;
 			typedef typename boost::function< void (typename ClassT*, typename PropNoRefT ) >	BoostSetter;
 			typedef typename boost::function< typename PropT ( typename ClassT * ) >				BoostGetter;
 
-			return fillProperty< typename PropT, BoostSetter, BoostGetter >(name, boost::bind(setter,_1,_2), boost::bind(getter,_1));
+			return fillProperty< typename PropT, BoostSetter, BoostGetter >(name, boost::bind(setter,_1,_2), boost::bind(getter,_1), tag);
 		}
 
 		template < typename PropT >
 		DeclaringMetaClass&
-		property(std::string name,  PropT (ClassT::*getter)() )
+		property(std::string name,  PropT (ClassT::*getter)(), int tag = 0 )
 		{
 			typedef typename boost::remove_reference< PropT >::type		PropNoRefT;
 			typedef typename boost::function< void (typename ClassT*, typename PropNoRefT ) >	BoostSetter;
 			typedef typename boost::function< typename PropT ( typename ClassT * ) >				BoostGetter;
 
 			BoostSetter setter;       //setter empty is used by Property<>::isReadOnly()
-			return fillProperty< typename PropT, BoostSetter, BoostGetter >(name, setter, getter);
+			return fillProperty< typename PropT, BoostSetter, BoostGetter >(name, setter, getter, tag);
 		}
 
 		template <typename PropT>
 		DeclaringMetaClass&
-		property(std::string name, PropT ClassT::* member)
+		property(std::string name, PropT ClassT::* member, int tag = 0 )
 		{
 			typedef typename PropT ClassT::* 	MemberType;
-			return fillProperty< PropT, MemberType, MemberType >(name, member, member);
+			return fillProperty< PropT, MemberType, MemberType >(name, member, member, tag);
 		}
 
 		template <typename ReturnType>
@@ -340,12 +340,13 @@ namespace jrtti {
 
 		template <typename PropT, typename SetterType, typename GetterType >
 		DeclaringMetaClass&
-		fillProperty(std::string name, SetterType setter, GetterType getter)
+		fillProperty(std::string name, SetterType setter, GetterType getter, int tag)
 		{
 			TypedProperty< ClassT, PropT > * p = new TypedProperty< ClassT, PropT >;
 			p->setter(setter);
 			p->getter(getter);
 			p->name(name);
+			p->tag( tag );
 			set(name, *p);
 			return *this;
 		}

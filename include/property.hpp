@@ -16,12 +16,26 @@ public:
 	Property() {
 	}
 
-	std::string	name() {
+	std::string
+	name() {
 		return _name;
 	}
 
-	void name(std::string value)	{
+	void
+	name(std::string value)	{
 		_name = value;
+	}
+
+	void
+	tag( int t )
+	{
+		_tag = t;
+	}
+
+	int
+	tag()
+	{
+		return _tag;
 	}
 
 	std::string
@@ -67,12 +81,13 @@ public:
 	boost::any get(void * instance) = 0;
 
 private:
+	int				_tag;
 	std::string		_type_name;
 	std::string		_name;
 	Mode _mode;
 };
 
-template <class ClassT, class PropT >
+template <class ClassT, class PropT>
 class TypedProperty : public Property
 {
 public:
