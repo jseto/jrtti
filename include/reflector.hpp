@@ -3,24 +3,36 @@
 
 #include <string>
 #include <map>
+#include <iostream>
 #include <boost/type_traits/is_abstract.hpp>
 
 namespace jrtti {
-class Registry
+class Reflector
 {
 public:
 	typedef std::map<std::string, MetaType * > TypeMap;
 
-	Registry()
+	~Reflector()
 	{
-		clear();
-	};
-
+		for ( TypeMap::iterator it = _meta_types.begin(); it != _meta_types.end(); ++it) {
+            delete it->second;
+		}
+    }
 	void
 	clear()
 	{
 		_meta_types.clear();
 		register_defaults();
+	}
+
+	static Reflector&
+	instance() {
+		static Reflector inst;
+		return inst;
+	}
+
+	Reflector& operator() () {
+		return instance();
 	}
 
 	void
@@ -44,6 +56,11 @@ public:
 	declare()
 	{
 		std::string name = name_of<C>();
+		MetaType * declared = get_type( name );
+		if ( declared) {
+			return *( dynamic_cast< DeclaringMetaClass<C> * >( declared ) );
+		}
+
 		DeclaringMetaClass<C> * mc = new DeclaringMetaClass<C>(name);
 		internal_declare(name, mc);
 
@@ -55,6 +72,11 @@ public:
 	declareAbstract()
 	{
 		std::string name = name_of<C>();
+		MetaType * declared = get_type( name );
+		if ( declared) {
+			return *( dynamic_cast< DeclaringMetaClass<C, boost::true_type> * >( declared ) );
+		}
+
 		DeclaringMetaClass<C, boost::true_type> * mc = new DeclaringMetaClass<C, boost::true_type>(name);
 		internal_declare(name, mc);
 
@@ -85,6 +107,10 @@ public:
 	}
 
 private:
+	Reflector()
+	{
+		clear();
+	};
 
 	void
 	internal_declare(std::string name, MetaType * mc)

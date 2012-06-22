@@ -1,7 +1,7 @@
 #ifndef jrtti_exceptionH
 #define jrtti_exceptionH
 
-#include <exception>
+#include <stdexcept>
 
 namespace jrtti
 {

@@ -29,6 +29,16 @@ namespace jrtti {
 		MetaType(std::string name): _type_name(name) {
 		}
 
+		~MetaType() {
+			for (PropertyMap::iterator it = properties().begin(); it != properties().end(); ++it) {
+				delete it->second;
+			}
+
+			for (MethodMap::iterator it = methods().begin(); it != methods().end(); ++it) {
+				delete it->second;
+			}
+		}
+
 		std::string
 		type_name()	{
 			return _type_name;
@@ -119,6 +129,11 @@ namespace jrtti {
 		virtual
 		PropertyMap & properties() {
     	return _properties;
+		}
+
+		virtual
+		MethodMap & methods() {
+		return _methods;
 		}
 
 	private:
@@ -342,12 +357,15 @@ namespace jrtti {
 		DeclaringMetaClass&
 		fillProperty(std::string name, SetterType setter, GetterType getter, int tag)
 		{
-			TypedProperty< ClassT, PropT > * p = new TypedProperty< ClassT, PropT >;
-			p->setter(setter);
-			p->getter(getter);
-			p->name(name);
-			p->tag( tag );
-			set(name, *p);
+			if (  properties().find( name ) == properties().end() )
+			{
+				TypedProperty< ClassT, PropT > * p = new TypedProperty< ClassT, PropT >;
+				p->setter(setter);
+				p->getter(getter);
+				p->name(name);
+				p->tag( tag );  
+				set(name, *p);
+			}
 			return *this;
 		}
 
