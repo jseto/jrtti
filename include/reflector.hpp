@@ -41,6 +41,7 @@ public:
 		internal_declare("std::string", new MetaString());
 		internal_declare("int", new MetaInt());
 		internal_declare("double", new MetaDouble());
+		internal_declare("bool", new MetaBool());
 	}
 
 	void

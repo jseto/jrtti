@@ -203,6 +203,16 @@ namespace jrtti {
 		}
 	};
 
+	class MetaBool: public MetaType {
+	public:
+		MetaBool(): MetaType("bool") {}
+
+		std::string
+		to_str(const boost::any & value){
+			return boost::any_cast<bool>(value) ? "true" : "false";
+		}
+	};
+
 	class MetaDouble: public MetaType {
 	public:
 		MetaDouble(): MetaType("double") {}

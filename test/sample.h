@@ -77,6 +77,9 @@ public:
 	Date getByValProp() { return _date; }
 	void setByValProp(Date  d) { _date = d; }
 
+	bool getBool() { return boolVal; }
+	void setBool( bool val ) { boolVal = val; }
+
 	// exposed methods
 	void testFunc(){ std::cout << "Test works ok" << std::endl;}
 	int testIntFunc(){return 23;}
@@ -88,6 +91,7 @@ private:	// User declarations
 	Point * _point;
 	Date	_date;
 	std::string	_s;
+	bool boolVal;
 };
 
 class SampleDerived : public Sample
@@ -119,6 +123,7 @@ void declare()
 						.property("date", &Sample::setByValProp, &Sample::getByValProp)
 						.property("testStr", &Sample::setStdStringProp,&Sample::getStdStringProp)
 						.property("testRO", &Sample::testIntFunc)
+						.property("testBool", &Sample::setBool, &Sample::getBool)
 
 						.method<void>("testMethod", &Sample::testFunc)
 						.method<int>("testIntMethod", &Sample::testIntFunc)

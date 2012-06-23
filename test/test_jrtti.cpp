@@ -87,6 +87,12 @@ TEST_F(MetaTypeTest, IntMemberType) {
 	EXPECT_EQ("int", mClass()["intMember"].type_name());
 }
 
+TEST_F(MetaTypeTest, BoolMutator) {
+
+	mClass()["testBool"].set(&sample, true);
+	EXPECT_EQ(true, boost::any_cast<bool>(mClass()["testBool"].get(&sample)));
+}
+
 TEST_F(MetaTypeTest, IntMemberAccessor) {
 
 	sample.intMember = 123;
@@ -201,7 +207,7 @@ TEST_F(MetaTypeTest, Serialize) {
 
 	std::string ss = mClass().to_str(sample);
 
-	std::string serialized = "Sample{date: Date{d: 1, m: 4, y: 2011}, intAbstract: 34, intMember: 128, intOverloaded: 87, point: Point *{x: 45, y: 80}, testDouble: 65, testRO: 23, testStr: \"Hello, world!\"}";
+	std::string serialized = "Sample{date: Date{d: 1, m: 4, y: 2011}, intAbstract: 34, intMember: 128, intOverloaded: 87, point: Point *{x: 45, y: 80}, testBool: true, testDouble: 65, testRO: 23, testStr: \"Hello, world!\"}";
 	EXPECT_EQ(serialized, ss);
 }
 
