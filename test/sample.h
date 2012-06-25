@@ -116,7 +116,7 @@ void declare()
 						.property("intOverloaded", &SampleBase::getIntOverloaded);
 
 	jrtti::declare<Sample>()
-               	.inheritsFrom("SampleBase")
+               	.inheritsFrom<SampleBase>()
 						.property("intMember", &Sample::intMember)
 						.property("testDouble", &Sample::setDoubleProp, &Sample::getDoubleProp, 658)
 						.property("point", &Sample::setByRefProp, &Sample::getByRefProp)

@@ -267,6 +267,13 @@ namespace jrtti {
 			return *this;
 		}
 
+		template < typename C >
+		DeclaringMetaClass&
+		inheritsFrom()
+		{
+			return inheritsFrom( name_of< C >() );
+		}
+
 		template < typename SetterT, typename GetterT >
 		DeclaringMetaClass&
 		property( std::string name, SetterT setter, GetterT getter, int tag = 0 )
