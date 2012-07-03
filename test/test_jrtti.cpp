@@ -88,7 +88,7 @@ TEST_F(MetaTypeTest, IntMemberType) {
 }
 
 TEST_F(MetaTypeTest, BoolMutator) {
-
+	sample.setBool( false );
 	mClass()["testBool"].set(&sample, true);
 	EXPECT_EQ(true, boost::any_cast<bool>(mClass()["testBool"].get(&sample)));
 }
@@ -204,6 +204,7 @@ TEST_F(MetaTypeTest, Serialize) {
 	sample.setByValProp(date);
 	//sample.setByRefProp(Point::from(point));
 	sample.setByRefProp(point);
+	sample.setBool( true );
 
 	std::string ss = mClass().to_str(sample);
 

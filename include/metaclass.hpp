@@ -30,11 +30,11 @@ namespace jrtti {
 		}
 
 		~MetaType() {
-			for (PropertyMap::iterator it = properties().begin(); it != properties().end(); ++it) {
+			for (PropertyMap::iterator it = _ownedProperties.begin(); it != _ownedProperties.end(); ++it) {
 				delete it->second;
 			}
 
-			for (MethodMap::iterator it = methods().begin(); it != methods().end(); ++it) {
+			for (MethodMap::iterator it = _ownedMethods.begin(); it != _ownedMethods.end(); ++it) {
 				delete it->second;
 			}
 		}
@@ -66,18 +66,8 @@ namespace jrtti {
 			return * properties()[name];
 		}
 
-		void
-		set( std::string name, Property& prop) {
-			properties()[name] = &prop;
-		}
-
 		Method * getMethod(std::string name) {
 			return _methods[name];
-		}
-
-		void
-		set_method( std::string name, Method& meth) {
-			_methods[name] = &meth;
 		}
 
 		boost::any
@@ -128,18 +118,34 @@ namespace jrtti {
 
 		virtual
 		PropertyMap & properties() {
-    	return _properties;
+			return _properties;
 		}
 
 		virtual
 		MethodMap & methods() {
-		return _methods;
+			return _methods;
 		}
 
+	protected:
+		void
+		set_property( std::string name, Property& prop) {
+			properties()[name] = &prop;
+			_ownedProperties[ name ] = &prop;
+		}
+
+		void
+		set_method( std::string name, Method& meth) {
+			_methods[name] = &meth;
+			_ownedMethods[ name ] = &meth;
+		}
+
+
 	private:
-		MethodMap		_methods;
-		std::string	 _type_name;
+		std::string	_type_name;
+		MethodMap	_methods;
+		MethodMap	_ownedMethods;
 		PropertyMap	_properties;
+		PropertyMap _ownedProperties;
 	};
 
 	class MetaIndirectedType: public MetaType	{
@@ -381,7 +387,7 @@ namespace jrtti {
 				p->getter(getter);
 				p->name(name);
 				p->tag( tag );  
-				set(name, *p);
+				set_property(name, *p);
 			}
 			return *this;
 		}
