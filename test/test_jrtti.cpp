@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <fstream>
 
 #include "sample.h"
 #include "test_jrtti.h"
@@ -208,8 +209,11 @@ TEST_F(MetaTypeTest, Serialize) {
 
 	std::string ss = mClass().to_str(sample);
 
-	std::string serialized = "Sample{date: Date{d: 1, m: 4, y: 2011}, intAbstract: 34, intMember: 128, intOverloaded: 87, point: Point *{x: 45, y: 80}, testBool: true, testDouble: 65, testRO: 23, testStr: \"Hello, world!\"}";
+	std::string serialized = "{\n\t\"date\": {\n\t\t\"d\": 1,\n\t\t\"m\": 4,\n\t\t\"y\": 2011\n\t},\n\t\"intAbstract\": 34,\n\t\"intMember\": 128,\n\t\"intOverloaded\": 87,\n\t\"point\": {\n\t\t\"x\": 45,\n\t\t\"y\": 80\n\t},\n\t\"testBool\": true,\n\t\"testDouble\": 65,\n\t\"testRO\": 23,\n\t\"testStr\": \"Hello, world!\"\n}";
 	EXPECT_EQ(serialized, ss);
+	ofstream f("test");
+	f << ss;
+//	f.write( ss.c_str(), ss.length() );
 }
 
 TEST_F(MetaTypeTest, testPropsRO) {

@@ -87,17 +87,17 @@ namespace jrtti {
 		virtual
 		std::string to_str(const boost::any & value) {
 			void * instance = get_instance_ptr(value.content);
-			std::string result = type_name() + "{";
-			bool need_comma = false;
+			std::string result = "{\n";
+			bool need_nl = false;
 			for( PropertyMap::iterator it = properties().begin(); it != properties().end(); it++) {
 				Property& prop = * it->second;
 				MetaType * t = prop.get_type();
 				const boost::any &pv = prop.get(instance);
-				if (need_comma)	result += ", ";
-				need_comma = true;
-				result += prop.name() + ": " + t->to_str(pv);
+				if (need_nl) result += ",\n";
+				need_nl = true;
+				result += ident( "\"" + prop.name() + "\"" + ": " + t->to_str(pv) );
 			}
-			return result += "}";
+			return result += "\n}";
 		}
 
 		virtual
@@ -105,6 +105,12 @@ namespace jrtti {
 			std::string &held = *(std::string*)instance;
 			os << to_str(held) << std::endl;
 		}
+
+		virtual
+		void
+		from_str( void * instance, std::string str ) {
+
+        }
 
 		virtual
 		void * get_instance_ptr(boost::any::placeholder * content) {
@@ -141,6 +147,20 @@ namespace jrtti {
 
 
 	private:
+		std::string
+		ident( std::string str ) {
+			std::string result = "\t";
+
+			for (std::string::iterator it = str.begin(); it !=str.end() ; ++it) {
+				if ( *it == '\n' ) {
+					result += "\n\t";
+				}
+				else
+					result += *it;
+			}
+			return result;
+		}
+		
 		std::string	_type_name;
 		MethodMap	_methods;
 		MethodMap	_ownedMethods;
