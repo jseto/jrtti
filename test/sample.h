@@ -14,13 +14,14 @@
 
 struct Point
 {
-	static Point* from(const boost::any & value) {
-			void * result = static_cast<boost::any::holder<void*> *>(value.content)->held;
-			return (Point*)result;
-
-	}
 	double x;
 	double y;
+
+	Point()
+	{
+		x = -1;
+		y = -1;
+	}
 
 	bool operator == (const Point & other) const
 	{
@@ -37,12 +38,6 @@ struct Date
 		return (d == other.d) &&
 		(m == other.m) &&
 		(y == other.y);
-	}
-
-	static Date& from(const boost::any & value) {
-			Date &held = static_cast<boost::any::holder<Date> *>(value.content)->held;
-			return held;
-
 	}
 };
 

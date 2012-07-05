@@ -234,6 +234,11 @@ TEST_F(MetaTypeTest, testTag) {
 	EXPECT_EQ(658, tag);
 }
 
+TEST_F(MetaTypeTest, testCreate) {
+	Point * p = (Point *)mClass()[ "point" ].get_type()->create();
+	EXPECT_TRUE( (p->x == -1) && (p->y == -1) );
+}
+
 /*
 
 TEST_F(MetaTypeTest, testIntMethodCall) {

@@ -39,6 +39,10 @@ namespace jrtti {
 			}
 		}
 
+		virtual
+		void *
+		create() = 0;
+
 		std::string
 		type_name()	{
 			return _type_name;
@@ -85,7 +89,8 @@ namespace jrtti {
 		}
 
 		virtual
-		std::string to_str(const boost::any & value) {
+		std::string
+		to_str(const boost::any & value) {
 			void * instance = get_instance_ptr(value.content);
 			std::string result = "{\n";
 			bool need_nl = false;
@@ -101,7 +106,8 @@ namespace jrtti {
 		}
 
 		virtual
-		void write( void * instance, ostream & os) {
+		void
+		write( void * instance, ostream & os) {
 			std::string &held = *(std::string*)instance;
 			os << to_str(held) << std::endl;
 		}
@@ -113,22 +119,26 @@ namespace jrtti {
         }
 
 		virtual
-		void * get_instance_ptr(boost::any::placeholder * content) {
+		void *
+		get_instance_ptr(boost::any::placeholder * content) {
 			return NULL;
 		}
 
 		virtual
-		void * get_pointer_instance_ptr(boost::any::placeholder * content) {
+		void *
+		get_pointer_instance_ptr(boost::any::placeholder * content) {
 			return NULL;
 		}
 
 		virtual
-		PropertyMap & properties() {
+		PropertyMap &
+		properties() {
 			return _properties;
 		}
 
 		virtual
-		MethodMap & methods() {
+		MethodMap &
+		methods() {
 			return _methods;
 		}
 
@@ -172,6 +182,13 @@ namespace jrtti {
 	public:
 		MetaIndirectedType(MetaType & baseType, std::string name_sufix): m_baseType(baseType), MetaType(baseType.type_name() + " " + name_sufix)
 		{}
+        
+		virtual
+		void *
+		create()
+		{
+			return m_baseType.create();
+		}
 
 		PropertyMap & properties(){
 			return m_baseType.properties();
@@ -227,6 +244,13 @@ namespace jrtti {
 		to_str(const boost::any & value){
 			return IntToStr(boost::any_cast<int>(value));
 		}
+
+		virtual
+		void *
+		create()
+		{
+			return new int;
+		}
 	};
 
 	class MetaBool: public MetaType {
@@ -236,6 +260,13 @@ namespace jrtti {
 		std::string
 		to_str(const boost::any & value){
 			return boost::any_cast<bool>(value) ? "true" : "false";
+		}
+
+		virtual
+		void *
+		create()
+		{
+			return new bool;
 		}
 	};
 
@@ -247,6 +278,13 @@ namespace jrtti {
 		to_str(const boost::any & value){
 			return DoubleToStr(boost::any_cast<double>(value));
 		}
+
+		virtual
+		void *
+		create()
+		{
+			return new double;
+		}
 	};
 
 	class MetaString: public MetaType {
@@ -257,6 +295,13 @@ namespace jrtti {
 		to_str(const boost::any & value){
 			return '"' + boost::any_cast<std::string>(value) + '"';
 		}
+
+		virtual
+		void *
+		create()
+		{
+			return new std::string();
+		}
 	};
 
 	/// Internal class used only when declaring
@@ -265,6 +310,18 @@ namespace jrtti {
 	{
 	public:
 		DeclaringMetaClass(std::string name): MetaType(name) {}
+
+		virtual
+		void *
+		create()
+		{
+#ifdef BOOST_NO_IS_ABSTRACT
+			return _create< IsAbstractT >();
+#else
+			return _create< ClassT >();
+#endif
+		}
+
 		struct detail
 		{
 			template <typename >
@@ -374,9 +431,9 @@ namespace jrtti {
 		void *
 		get_instance_ptr(boost::any::placeholder * content){
 #ifdef BOOST_NO_IS_ABSTRACT
-			_get_instance_ptr< IsAbstractT >( content );
+			return _get_instance_ptr< IsAbstractT >( content );
 #else
-			_get_instance_ptr< ClassT >( content );
+			return _get_instance_ptr< ClassT >( content );
 #endif
 		}
 		void *
@@ -427,8 +484,24 @@ namespace jrtti {
 		_get_instance_ptr(boost::any::placeholder * content){
 			return NULL;
 		}
-#else
+
 	//SFINAE
+		template< typename AbstT >
+		typename boost::disable_if< typename AbstT, void * >::type
+		_create()
+		{
+			return new ClassT();
+		}
+
+	//SFINAE
+		template< typename AbstT >
+		typename boost::enable_if< typename AbstT, void * >::type
+		_create()
+		{
+			return NULL;
+		}
+#else
+ 	//SFINAE
 		template< typename T >
 		typename boost::disable_if< typename boost::is_abstract< typename T >::type, void * >::type
 		_get_instance_ptr(boost::any::placeholder * content){
@@ -440,6 +513,22 @@ namespace jrtti {
 		template< typename T >
 		typename boost::enable_if< typename boost::is_abstract< typename T >::type, void * >::type
 		_get_instance_ptr(boost::any::placeholder * content){
+			return NULL;
+		}
+
+	//SFINAE
+		template< typename T >
+		typename boost::disable_if< typename boost::is_abstract< typename T >::type, void * >::type
+		_create()
+		{
+			return new ClassT();
+		}
+
+	//SFINAE
+		template< typename T >
+		typename boost::enable_if< typename boost::is_abstract< typename T >::type, void * >::type
+		_create()
+		{
 			return NULL;
 		}
 #endif
