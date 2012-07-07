@@ -12,12 +12,12 @@ namespace jrtti {
 	Error	error(std::string message);
 
 	template <typename C>
-	std::string name_of();
+	std::string nameOf();
 
 	template <typename C>
 	void	alias(std::string new_name);
 
-	MetaType *	get_type(std::string name);
+	MetaType *	findType(std::string name);
 
 	void clear();
 }
@@ -36,15 +36,15 @@ namespace jrtti {
 	}
 
 	inline MetaType *
-	get_type(std::string name) {
-		return Reflector::instance().get_type(name);
+	findType(std::string name) {
+		return Reflector::instance().findType(name);
 	}
 
 
 	inline template <typename C>
 	std::string
-	name_of(){
-		return Reflector::instance().name_of<C>();
+	nameOf(){
+		return Reflector::instance().nameOf<C>();
 	}
 
 	inline template <typename C>

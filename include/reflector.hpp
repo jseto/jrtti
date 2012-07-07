@@ -48,7 +48,7 @@ public:
 	inspect(){
 		std::cout << "\nReflector<";
 		for( TypeMap::iterator it = _meta_types.begin(); it != _meta_types.end(); it++) {
-			std::cout << "{" << it->first << " => " << it->second->type_name() << "}>\n";
+			std::cout << "{" << it->first << " => " << it->second->typeName() << "}>\n";
 		}
 	}
 
@@ -56,8 +56,8 @@ public:
 	DeclaringMetaClass<C>&
 	declare()
 	{
-		std::string name = name_of<C>();
-		MetaType * declared = get_type( name );
+		std::string name = nameOf<C>();
+		MetaType * declared = findType( name );
 		if ( declared) {
 			return *( dynamic_cast< DeclaringMetaClass<C> * >( declared ) );
 		}
@@ -72,8 +72,8 @@ public:
 	DeclaringMetaClass<C, boost::true_type>&
 	declareAbstract()
 	{
-		std::string name = name_of<C>();
-		MetaType * declared = get_type( name );
+		std::string name = nameOf<C>();
+		MetaType * declared = findType( name );
 		if ( declared) {
 			return *( dynamic_cast< DeclaringMetaClass<C, boost::true_type> * >( declared ) );
 		}
@@ -93,7 +93,7 @@ public:
 
 	template <typename C>
 	std::string
-	name_of()
+	nameOf()
 	{
 		std::string name = typeid(C).name();
 		if (_alias.count(name) > 0)
@@ -102,7 +102,7 @@ public:
 	}
 
 	MetaType *
-	get_type( std::string name )
+	findType( std::string name )
 	{
 		return _meta_types[name];
 	}
@@ -120,8 +120,8 @@ private:
 		MetaType * ref_mc = new MetaReferenceType(*mc);
 
 		_meta_types[name] = mc;
-		_meta_types[ptr_mc->type_name()] = ptr_mc;
-		_meta_types[ref_mc->type_name()] = ref_mc;
+		_meta_types[ptr_mc->typeName()] = ptr_mc;
+		_meta_types[ref_mc->typeName()] = ref_mc;
 	}
 
 

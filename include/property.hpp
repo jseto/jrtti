@@ -4,6 +4,8 @@
 #include <boost/any.hpp>
 #include <boost/type_traits/is_pointer.hpp>
 
+#include "metaclass.hpp"
+
 namespace jrtti {
 
 //------------------------------------------------------------------------------
@@ -12,7 +14,7 @@ class Property
 {
 public:
 	enum Mode {Readable=1, Writable=2};
-	
+
 	Property() {
 	}
 
@@ -39,52 +41,55 @@ public:
 	}
 
 	std::string
-	type_name() {
+	typeName() {
 		return _type_name;
 	}
 
 	void
-	type_name(std::string value) {
+	typeName(std::string value) {
 		_type_name = value;
 	}
 
-	MetaType * get_type() {
-		MetaType * type = jrtti::get_type(type_name());
+	MetaType *
+	type() {
+		MetaType * type = jrtti::findType( typeName() );
 		if (!type)
-			throw jrtti::error("property " + name() + ": type " + type_name() +  " no registered");
+			throw jrtti::error("property " + name() + ": type " + typeName() +  " no registered");
 		return type;
 	}
 
 	bool
-	is_readable() {
+	isReadable() {
 		return (_mode & Readable);
 	}
 
 	bool
-	is_writable()	{
+	isWritable()	{
 		return (_mode & Writable);
 	}
 
 	bool
-	is_read_write()	{
-		return is_readable() & is_writable();
+	isReadWrite()	{
+		return isReadable() & isWritable();
 	}
 
-	void set_mode(Mode mode){
+	void setMode(Mode mode){
 			_mode = (Mode) (_mode | mode);
 	}
 
 	virtual
-	void set(	void * instance, boost::any val ) = 0;
+	void
+	set( void * instance, boost::any val ) = 0;
 
 	virtual
-	boost::any get(void * instance) = 0;
+	boost::any
+	get(void * instance) = 0;
 
 private:
-	int				_tag;
-	std::string		_type_name;
-	std::string		_name;
-	Mode _mode;
+	int			_tag;
+	std::string	_type_name;
+	std::string	_name;
+	Mode 	   	_mode;
 };
 
 template <class ClassT, class PropT>
@@ -95,13 +100,13 @@ public:
 
 	TypedProperty()
 	{
-		type_name(jrtti::name_of<PropT>());
+		typeName( jrtti::nameOf<PropT>());
 	}
 
 	TypedProperty&
 	setter( boost::function<void ( ClassT*, PropNoRefT ) > functor)
 	{
-		if (!functor.empty()) set_mode(Writable);
+		if (!functor.empty()) setMode( Writable );
 		m_dataMember = NULL;
 		m_setter = functor;
 		return *this;
@@ -110,14 +115,16 @@ public:
 	TypedProperty&
 	setter(PropNoRefT ClassT::* dataMember)
 	{
+		setMode( Writable );
+		setMode( Readable );
 		m_dataMember = dataMember;
 		m_setter = NULL;
 		return *this;
 	}
 
 	TypedProperty&
-	getter(boost::function< PropT (ClassT*) > functor)	{
-		if (!functor.empty()) set_mode(Readable);
+	getter( boost::function< PropT (ClassT*) > functor )	{
+		if ( !functor.empty() ) setMode( Readable );
 		m_getter = functor;
 		return *this;
 	}
@@ -161,8 +168,8 @@ private:
 	}
 
 	boost::function<void (ClassT*, PropNoRefT)>	m_setter;
-	boost::function< PropT (ClassT*)>				m_getter;
-	PropNoRefT	ClassT::*								m_dataMember;
+	boost::function< PropT (ClassT*)>			m_getter;
+	PropNoRefT	ClassT::*						m_dataMember;
 };
 
 

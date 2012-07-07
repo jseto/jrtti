@@ -33,11 +33,11 @@ class MetaTypeTest : public testing::Test {
 	}
 
 	MetaType & mClass(){
-		return *dynamic_cast<MetaType*>(jrtti::get_type("Sample"));
+		return *dynamic_cast<MetaType*>(jrtti::findType("Sample"));
 	}
 
 	MetaType & derivedClass(){
-		return *dynamic_cast<MetaType*>(jrtti::get_type("SampleDerived"));
+		return *dynamic_cast<MetaType*>(jrtti::findType("SampleDerived"));
 	}
 
 	// Declares the variables your tests want to use.
@@ -47,7 +47,7 @@ class MetaTypeTest : public testing::Test {
 
 TEST_F(MetaTypeTest, DoubleType) {
 
-	EXPECT_EQ("double", mClass()["testDouble"].type_name());
+	EXPECT_EQ("double", mClass()["testDouble"].typeName());
 
 }
 
@@ -85,7 +85,7 @@ TEST_F(MetaTypeTest, DoubleMutator) {
 
 TEST_F(MetaTypeTest, IntMemberType) {
 
-	EXPECT_EQ("int", mClass()["intMember"].type_name());
+	EXPECT_EQ("int", mClass()["intMember"].typeName());
 }
 
 TEST_F(MetaTypeTest, BoolMutator) {
@@ -111,7 +111,7 @@ const std::string kHelloString = "Hello, world!";
 
 TEST_F(MetaTypeTest, StdStringType) {
 
-	EXPECT_EQ("std::string", mClass()["testStr"].type_name());
+	EXPECT_EQ("std::string", mClass()["testStr"].typeName());
 }
 
 TEST_F(MetaTypeTest, StdStringAccessor) {
@@ -129,7 +129,7 @@ TEST_F(MetaTypeTest, StdStringMutator) {
 
 TEST_F(MetaTypeTest, ByValType) {
 
-	EXPECT_EQ("Date", mClass()["date"].type_name());
+	EXPECT_EQ("Date", mClass()["date"].typeName());
 }
 
 TEST_F(MetaTypeTest, ByValAccessor) {
@@ -188,6 +188,19 @@ TEST_F(MetaTypeTest, NestedByRefAccessor) {
 	EXPECT_EQ(p->x, result);
 }
 
+TEST_F(MetaTypeTest, testPropsRO) {
+
+	EXPECT_TRUE(mClass()["testDouble"].isReadWrite());
+	EXPECT_FALSE(mClass()["testRO"].isWritable());
+	EXPECT_TRUE( jrtti::findType("Date")->getProperty("d").isWritable() );
+
+	int result = boost::any_cast<int>(mClass()["testRO"].get(&sample));
+	EXPECT_EQ(23, result);
+
+	//assert(mc.getGenericProperty("intMember")->isWriteOnly() == false);
+	//assert(mc.getGenericProperty("testRO")->isReadWrite() == false);
+}
+
 TEST_F(MetaTypeTest, Serialize) {
 	Point * point = new Point();
 	point->x = 45;
@@ -207,26 +220,19 @@ TEST_F(MetaTypeTest, Serialize) {
 	sample.setByRefProp(point);
 	sample.setBool( true );
 
-	std::string ss = mClass().to_str(sample);
+	std::string ss = mClass().toStr(sample);
 
 	std::string serialized = "{\n\t\"date\": {\n\t\t\"d\": 1,\n\t\t\"m\": 4,\n\t\t\"y\": 2011\n\t},\n\t\"intAbstract\": 34,\n\t\"intMember\": 128,\n\t\"intOverloaded\": 87,\n\t\"point\": {\n\t\t\"x\": 45,\n\t\t\"y\": 80\n\t},\n\t\"testBool\": true,\n\t\"testDouble\": 65,\n\t\"testRO\": 23,\n\t\"testStr\": \"Hello, world!\"\n}";
 	EXPECT_EQ(serialized, ss);
 	ofstream f("test");
 	f << ss;
-//	f.write( ss.c_str(), ss.length() );
 }
 
-TEST_F(MetaTypeTest, testPropsRO) {
-
-	EXPECT_TRUE(mClass()["testDouble"].is_read_write());
-	EXPECT_FALSE(mClass()["testRO"].is_writable());
-
-	int result = boost::any_cast<int>(mClass()["testRO"].get(&sample));
-	EXPECT_EQ(23, result);
-
-	//assert(mc.getGenericProperty("intMember")->isWriteOnly() == false);
-	//assert(mc.getGenericProperty("testRO")->isReadWrite() == false);
-
+TEST_F(MetaTypeTest, Deserialize) {
+	std::string serialized = "{\n\t\"date\": {\n\t\t\"d\": 1,\n\t\t\"m\": 4,\n\t\t\"y\": 2011\n\t},\n\t\"intAbstract\": 34,\n\t\"intMember\": 128,\n\t\"intOverloaded\": 87,\n\t\"point\": {\n\t\t\"x\": 45,\n\t\t\"y\": 80\n\t},\n\t\"testBool\": true,\n\t\"testDouble\": 65,\n\t\"testRO\": 23,\n\t\"testStr\": \"Hello, world!\"\n}";
+	mClass().fromStr( sample, serialized );
+	std::string ss = mClass().toStr(sample);
+	EXPECT_EQ(serialized, ss);
 }
 
 TEST_F(MetaTypeTest, testTag) {
@@ -235,7 +241,7 @@ TEST_F(MetaTypeTest, testTag) {
 }
 
 TEST_F(MetaTypeTest, testCreate) {
-	Point * p = (Point *)mClass()[ "point" ].get_type()->create();
+	Point * p = boost::any_cast< Point * >( mClass()[ "point" ].type()->create() );
 	EXPECT_TRUE( (p->x == -1) && (p->y == -1) );
 }
 
