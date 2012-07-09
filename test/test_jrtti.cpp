@@ -188,6 +188,17 @@ TEST_F(MetaTypeTest, NestedByRefAccessor) {
 	EXPECT_EQ(p->x, result);
 }
 
+TEST_F(MetaTypeTest, NestedByRefMutator) {
+	Point * p = new Point();
+	p->x = -1;
+	p->y = -1;
+	sample.setByRefProp(p);
+
+	mClass().apply(sample, "point.x", 47 );
+
+	EXPECT_EQ(47,p->x);
+}
+
 TEST_F(MetaTypeTest, testPropsRO) {
 
 	EXPECT_TRUE(mClass()["testDouble"].isReadWrite());
@@ -227,14 +238,17 @@ TEST_F(MetaTypeTest, Serialize) {
 	ofstream f("test");
 	f << ss;
 }
-/*
+
 TEST_F(MetaTypeTest, Deserialize) {
-	std::string serialized = "{\n\t\"date\": {\n\t\t\"d\": 1,\n\t\t\"m\": 4,\n\t\t\"y\": 2011\n\t},\n\t\"intAbstract\": 34,\n\t\"intMember\": 128,\n\t\"intOverloaded\": 87,\n\t\"point\": {\n\t\t\"x\": 45,\n\t\t\"y\": 80\n\t},\n\t\"testBool\": true,\n\t\"testDouble\": 65,\n\t\"testRO\": 23,\n\t\"testStr\": \"Hello, world!\"\n}";
+//	std::string serialized = "{\n\t\"date\": {\n\t\t\"d\": 1,\n\t\t\"m\": 4,\n\t\t\"y\": 2011\n\t},\n\t\"intAbstract\": 34,\n\t\"intMember\": 128,\n\t\"intOverloaded\": 87,\n\t\"point\": {\n\t\t\"x\": 45,\n\t\t\"y\": 80\n\t},\n\t\"testBool\": true,\n\t\"testDouble\": 65,\n\t\"testRO\": 23,\n\t\"testStr\": \"Hello, world!\"\n}";
+//	std::string serialized = "{\n\t\"intAbstract\": 34,\n\t\"intMember\": 128,\n\t\"intOverloaded\": 87,\n\t\"testBool\": true,\n\t\"testDouble\": 65,\n\t\"testRO\": 23,\n\t\"testStr\": \"Hello, world!\"\n}";
+	std::string serialized = "{\n\t\"intMember\": 34}";
 	mClass().fromStr( sample, serialized );
-	std::string ss = mClass().toStr(sample);
-	EXPECT_EQ(serialized, ss);
+	EXPECT_EQ( 34, sample.intMember );
+//	std::string ss = mClass().toStr(sample);
+//	EXPECT_EQ(serialized, ss);
 }
-  */
+
 TEST_F(MetaTypeTest, testTag) {
 	int tag = mClass()["testDouble"].tag();
 	EXPECT_EQ(658, tag);

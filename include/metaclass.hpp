@@ -98,6 +98,21 @@ namespace jrtti {
 			}
 		}
 
+		void
+		apply( boost::any _instance, std::string path, boost::any value ) {
+			size_t pos = path.find_first_of(".");
+			std::string name = path.substr( 0, pos );
+			Property& prop = getProperty(name);
+
+			void * inst = get_pointer_instance_ptr(_instance.content);
+			if (pos == std::string::npos)
+				prop.set( inst, value );
+			else {
+				prop.type()->apply(prop.get(inst), path.substr( pos + 1 ), value );
+			}
+
+        }
+
 		virtual
 		std::string
 		toStr(const boost::any & value) {
@@ -133,7 +148,7 @@ namespace jrtti {
 				if ( prop.isWritable() ) {
 					MetaType * t = prop.type();
 					const boost::any &propInstance = prop.get( inst );
-					prop.set( inst, t->fromStr( propInstance, parser[ it->first ] ) );
+					prop.set( inst, t->fromStr( propInstance.content, parser[ it->first ] ) );
 				}
 			}
 			return instance;
@@ -226,6 +241,7 @@ namespace jrtti {
 		bool
 		isPointer() { return true;}
 
+		virtual
 		boost::any
 		fromStr( const boost::any& instance, const std::string& str ) {
 			boost::any ptr = create();
