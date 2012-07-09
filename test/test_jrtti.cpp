@@ -183,7 +183,7 @@ TEST_F(MetaTypeTest, NestedByRefAccessor) {
 	p->y = 80;
 	sample.setByRefProp(p);
 
-	double result = boost::any_cast<double>(mClass().eval(sample, "point.x"));
+	double result = boost::any_cast<double>(mClass().eval(&sample, "point.x"));
 
 	EXPECT_EQ(p->x, result);
 }
@@ -194,7 +194,7 @@ TEST_F(MetaTypeTest, NestedByRefMutator) {
 	p->y = -1;
 	sample.setByRefProp(p);
 
-	mClass().apply(sample, "point.x", 47 );
+	mClass().apply(&sample, "point.x", 47.0 );
 
 	EXPECT_EQ(47,p->x);
 }
