@@ -185,7 +185,7 @@ TEST_F(MetaTypeTest, NestedByRefAccessor) {
 	p->y = 80;
 	sample.setByRefProp(p);
 
-	double result = boost::any_cast<double>(mClass().eval(&sample, "point.x"));
+	double result = mClass().eval<double>(&sample, "point.x");
 
 	EXPECT_EQ(p->x, result);
 }
@@ -204,10 +204,11 @@ TEST_F(MetaTypeTest, NestedByValAccessor) {
 	d.y = 3056;
 	sample.setByValProp(d);
 
-	result = boost::any_cast<int>(mClass().eval(&sample, "date.y"));
+	// this way is shorter and clearer
+	result = mClass().eval<int>(&sample, "date.y");
 	EXPECT_EQ(d.y, result);
 
-	result = boost::any_cast<double>(mClass().eval(&sample, "date.p.x"));
+	result = mClass().eval<double>(&sample, "date.p.x");
 	EXPECT_EQ(d.p.x, result);
 }
 

@@ -100,6 +100,11 @@ namespace jrtti {
 			}
 		}
 
+		template < typename PropT >
+		eval( const boost::any & instance, std::string path) {
+			return boost::any_cast< PropT >( eval( instance, path ) );
+		}
+
 		boost::any
 		apply( const boost::any& instance, std::string path, const boost::any& value ) {
 			size_t pos = path.find_first_of(".");
@@ -134,13 +139,6 @@ namespace jrtti {
 				}
 			}
 			return result += "\n}";
-		}
-
-		virtual
-		void
-		write( void * instance, ostream & os) {
-			std::string &held = *(std::string*)instance;
-			os << toStr(held) << std::endl;
 		}
 
 		virtual
@@ -255,11 +253,6 @@ namespace jrtti {
 			return ptr;
 		}
 
-		void
-		write( void * instance, ostream & os) {
-			m_baseType.write(instance, os);
-		}
-
 		virtual
 		void *
 		get_instance_ptr( const boost::any & value ) {
@@ -280,11 +273,6 @@ namespace jrtti {
 		std::string
 		toStr(const boost::any & value){
 			return m_baseType.toStr(value);
-		}
-
-		void
-		write( void * instance, ostream & os){
-			m_baseType.write(instance, os);
 		}
 
 		virtual
