@@ -16,7 +16,7 @@ namespace jrtti {
 		template <typename T>
 		std::string
 		numToStr ( T number ) {
-			std::stringstream ss;
+			std::ostringstream ss;
 			ss << number;
 			return ss.str();
 		}
@@ -24,7 +24,7 @@ namespace jrtti {
 		template <typename T>
 		T
 		strToNum ( const std::string &str ) {
-			std::stringstream ss( str );
+			std::istringstream ss( str );
 			T result;
 			return ss >> result ? result : 0;
 		}
