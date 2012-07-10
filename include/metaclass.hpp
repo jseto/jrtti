@@ -109,15 +109,14 @@ namespace jrtti {
 			void * inst = get_instance_ptr(instance);
 			if (pos == std::string::npos) {
 				prop.set( inst, value );
-				return copyFromInstance( inst );
 			}
 			else {
 				const boost::any &mod = prop.type()->apply( prop.get(inst), path.substr( pos + 1 ), value );
 				if ( !prop.type()->isPointer() ) {
 					prop.set( inst, mod );
 				}
-				return copyFromInstance( inst );
 			}
+			return copyFromInstance( inst );
 		}
 
 		virtual
