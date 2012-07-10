@@ -545,9 +545,13 @@ namespace jrtti {
 		}
 
 #ifdef BOOST_NO_IS_ABSTRACT
+	#define _IS_ABSTRACT( type ) type
+#else
+	#define _IS_ABSTRACT( type ) boost::is_abstract< typename type >::type
+#endif
 	//SFINAE _get_instance_ptr
 		template< typename AbstT >
-		typename boost::disable_if< typename AbstT, void * >::type
+		typename boost::disable_if< typename _IS_ABSTRACT( AbstT ), void * >::type
 		_get_instance_ptr(const boost::any& content){
 			if ( content.type() == typeid( ClassT ) ) {
 				static ClassT dummy = ClassT();
@@ -559,72 +563,41 @@ namespace jrtti {
 
 	//SFINAE _get_instance_ptr
 		template< typename AbstT >
-		typename boost::enable_if< typename AbstT, void * >::type
+		typename boost::enable_if< typename _IS_ABSTRACT( AbstT ), void * >::type
 		_get_instance_ptr(const boost::any & content){
 			return NULL;
 		}
 
-	//SFINAE _get_instance_ptr
+	//SFINAE _copyFromInstance
 		template< typename AbstT >
-		typename boost::disable_if< typename AbstT, boost::any >::type
+		typename boost::disable_if< typename _IS_ABSTRACT( AbstT ), boost::any >::type
 		_copyFromInstance( void * inst ){
 			ClassT obj = *(ClassT *) inst;
 			return obj;
 		}
 
-	//SFINAE _get_instance_ptr
+	//SFINAE _copyFromInstance
 		template< typename AbstT >
-		typename boost::enable_if< typename AbstT, boost::any >::type
+		typename boost::enable_if< typename _IS_ABSTRACT( AbstT ), boost::any >::type
 		_copyFromInstance( void * inst ){
 			return boost::any();
 		}
 
-	//SFINAE
+	//SFINAE _create
 		template< typename AbstT >
-		typename boost::disable_if< typename AbstT, boost::any >::type
+		typename boost::disable_if< typename _IS_ABSTRACT( AbstT ), boost::any >::type
 		_create()
 		{
 			return new ClassT();
 		}
 
-	//SFINAE
+	//SFINAE _create
 		template< typename AbstT >
-		typename boost::enable_if< typename AbstT, boost::any >::type
+		typename boost::enable_if< typename _IS_ABSTRACT( AbstT ), boost::any >::type
 		_create()
 		{
 			return NULL;
 		}
-#else
-	//SFINAE
-		template< typename T >
-		typename boost::disable_if< typename boost::is_abstract< typename T >::type, void * >::type
-		_get_instance_ptr(const boost::any& content){
-			return boost::any_cast< ClassT * >(content);
-		}
-
-	//SFINAE
-		template< typename T >
-		typename boost::enable_if< typename boost::is_abstract< typename T >::type, void * >::type
-		_get_instance_ptr( const boost::any & content){
-			return NULL;
-		}
-
-	//SFINAE
-		template< typename T >
-		typename boost::disable_if< typename boost::is_abstract< typename T >::type, boost::any >::type
-		_create()
-		{
-			return new ClassT();
-		}
-
-	//SFINAE
-		template< typename T >
-		typename boost::enable_if< typename boost::is_abstract< typename T >::type, boost::any >::type
-		_create()
-		{
-			return NULL;
-		}
-#endif
 	};
 
 //------------------------------------------------------------------------------
