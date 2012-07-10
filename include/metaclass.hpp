@@ -8,7 +8,7 @@
 
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
-#include <boost/type_traits/remove_pointer.hpp>
+#include <boost/type_traits/remove_reference.hpp>
 
 #include "property.hpp"
 #include "method.hpp"
@@ -96,38 +96,41 @@ namespace jrtti {
 			if (pos == std::string::npos)
 				return prop.get(inst);
 			else {
-				return prop.type()->eval(prop.get(inst), path.substr( pos + 1 ));
+				return prop.type()->eval( prop.get( inst ), path.substr( pos + 1 ));
 			}
 		}
 
 		void
-		apply( const boost::any& _instance, std::string path, const boost::any& value ) {
+		apply( const boost::any& instance, std::string path, const boost::any& value ) {
 			size_t pos = path.find_first_of(".");
 			std::string name = path.substr( 0, pos );
 			Property& prop = getProperty(name);
 
-			void * inst = get_instance_ptr(_instance);
+			void * inst = get_instance_ptr(instance);
 			if (pos == std::string::npos)
 				prop.set( inst, value );
 			else {
-				prop.type()->apply(prop.get(inst), path.substr( pos + 1 ), value );
-			}
+				boost::any pv = prop.get(inst);
+				prop.type()->apply( pv, path.substr( pos + 1 ), value );
+				if ( !prop.type()->isPointer() ) {
+					prop.set( inst, pv );
+				}
+			}
 
         }
 
 		virtual
 		std::string
-		toStr(const boost::any & value) {
-			void * instance = get_instance_ptr(value.content);
+		toStr(const boost::any & instance) {
+			void * inst = get_instance_ptr(instance);
 			std::string result = "{\n";
 			bool need_nl = false;
 			for( PropertyMap::iterator it = properties().begin(); it != properties().end(); it++) {
 				Property& prop = * it->second;
 				MetaType * t = prop.type();
-				boost::any pv = prop.get(instance);
 				if (need_nl) result += ",\n";
 				need_nl = true;
-				result += ident( "\"" + prop.name() + "\"" + ": " + t->toStr(pv) );
+				result += ident( "\"" + prop.name() + "\"" + ": " + t->toStr( prop.get(inst) ) );
 			}
 			return result += "\n}";
 		}
@@ -142,7 +145,7 @@ namespace jrtti {
 		virtual
 		boost::any
 		fromStr( const boost::any & instance, const std::string& str ) {
-			void * inst = get_instance_ptr(instance.content);
+			void * inst = get_instance_ptr(instance);
 			JSONParser parser( str );
 
 			for( JSONParser::iterator it = parser().begin(); it != parser().end(); it++) {
@@ -170,9 +173,9 @@ namespace jrtti {
 
 		virtual
 		void *
-		get_instance_ptr(const boost::any& content) = 0;/* {
+		get_instance_ptr(const boost::any& content) {
 			return NULL;
-		}                                                 */
+		}                                                 
 
 	protected:
 		void
@@ -224,12 +227,6 @@ namespace jrtti {
 			return m_baseType.properties();
 		}
 
-		virtual
-		void *
-		get_instance_ptr( const boost::any & value ) {
-			return boost::any_cast< void * >( value );
-		}
-
 	protected:
 		MetaType & m_baseType;
 	};
@@ -241,13 +238,7 @@ namespace jrtti {
 
 		bool
 		isPointer() { return true;}
- /*
-		boost::any
-		eval( const boost::any & value, std::string path) {
-			void * instance = m_baseType.get_instance_ptr( value );
-			MetaIndirectedType::eval( instance, path );
-		}
-   */
+
 		virtual
 		boost::any
 		fromStr( const boost::any& instance, const std::string& str ) {
@@ -261,11 +252,11 @@ namespace jrtti {
 			m_baseType.write(instance, os);
 		}
 
-	protected:
-/*		void *
+		virtual
+		void *
 		get_instance_ptr( const boost::any & value ) {
-			return m_baseType.get_instance_ptr( value );
-		} */
+			return boost::any_cast< void * >( value );
+		}
 	};
 
 	class MetaReferenceType: public MetaIndirectedType {
@@ -281,6 +272,12 @@ namespace jrtti {
 		void
 		write( void * instance, ostream & os){
 			m_baseType.write(instance, os);
+		}
+
+		virtual
+		void *
+		get_instance_ptr( const boost::any & value ) {
+			return boost::any_cast< void * >( value.content );
 		}
 	};
 
@@ -306,12 +303,6 @@ namespace jrtti {
 		{
 			return new int;
 		}
-
-	protected:
-		void *
-		get_instance_ptr( const boost::any & value ) {
-			return boost::any_cast< int * >( value );
-		}
 	};
 
 	class MetaBool: public MetaType {
@@ -332,12 +323,6 @@ namespace jrtti {
 		boost::any
 		create() {
 			return new bool;
-		}
-
-	protected:
-		void *
-		get_instance_ptr( const boost::any & value ) {
-			return boost::any_cast< bool * >( value );
 		}
 	};
 
@@ -360,12 +345,6 @@ namespace jrtti {
 		create() {
 			return new double;
 		}
-
-	protected:
-		void *
-		get_instance_ptr( const boost::any & value ) {
-			return boost::any_cast< double * >( value );
-		}
 	};
 
 	class MetaString: public MetaType {
@@ -386,12 +365,6 @@ namespace jrtti {
 		boost::any
 		create() {
 			return new std::string();
-		}
-
-	protected:
-		void *
-		get_instance_ptr( const boost::any & value ) {
-			return boost::any_cast< std::string * >( value );
 		}
 	};
 
@@ -560,6 +533,10 @@ namespace jrtti {
 		template< typename AbstT >
 		typename boost::disable_if< typename AbstT, void * >::type
 		_get_instance_ptr(const boost::any& content){
+			if ( content.type() == typeid( ClassT ) ) {
+				static ClassT dummy = boost::any_cast< ClassT >(content);
+				return &dummy;
+			}
 			return (void *) boost::any_cast< ClassT * >(content);
 		}
 

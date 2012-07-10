@@ -79,7 +79,7 @@ public:
 
 	virtual
 	void
-	set( void * instance, boost::any val ) = 0;
+	set( void * instance, const boost::any& val ) = 0;
 
 	virtual
 	boost::any
@@ -137,7 +137,7 @@ public:
 
 	virtual
 	void
-	set( void * instance, boost::any val)	{
+	set( void * instance, const boost::any& val)	{
 		internal_set( (ClassT *)instance, boost::any_cast< PropT >( val ) );
 	}
 
@@ -153,7 +153,8 @@ private:
 	template < typename PropT>
 	typename boost::disable_if< typename boost::is_pointer< typename PropT >::type, boost::any >::type
 	internal_get(void * instance)	{
-		return  m_getter( (ClassT *)instance );
+		PropT res = m_getter( (ClassT *)instance );
+		return res; 
 	}
 
 	void

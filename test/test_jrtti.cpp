@@ -147,7 +147,7 @@ TEST_F(MetaTypeTest, ByValAccessor) {
 
 TEST_F(MetaTypeTest, ByValMutator) {
 	Date d;
-	d.d = 1;
+	d.d = 9;
 	d.m = 4;
 	d.y = 2011;
 
@@ -188,6 +188,23 @@ TEST_F(MetaTypeTest, NestedByRefAccessor) {
 	EXPECT_EQ(p->x, result);
 }
 
+TEST_F(MetaTypeTest, NestedByValAccessor) {
+	Date d;
+	d.d = 9;
+	d.m = 4;
+	d.y = 2011;
+	sample.setByValProp(d);
+
+	int result = boost::any_cast<int>(mClass().eval(&sample, "date.y"));
+	EXPECT_EQ(d.y, result);
+
+	d.y = 3056;
+	sample.setByValProp(d);
+
+	result = boost::any_cast<int>(mClass().eval(&sample, "date.y"));
+	EXPECT_EQ(d.y, result);
+}
+
 TEST_F(MetaTypeTest, NestedByRefMutator) {
 	Point * p = new Point();
 	p->x = -1;
@@ -197,6 +214,17 @@ TEST_F(MetaTypeTest, NestedByRefMutator) {
 	mClass().apply(&sample, "point.x", 47.0 );
 
 	EXPECT_EQ(47,p->x);
+}
+
+TEST_F(MetaTypeTest, NestedByValMutator) {
+	Date d;
+	d.d = 1;
+	d.m = 1;
+	d.y = 1;
+	sample.setByValProp(d);
+	mClass().apply(&sample, "date.y", 2089);
+
+	EXPECT_EQ(2089, sample.getByValProp().y);
 }
 
 TEST_F(MetaTypeTest, testPropsRO) {
@@ -231,7 +259,7 @@ TEST_F(MetaTypeTest, Serialize) {
 	sample.setByRefProp(point);
 	sample.setBool( true );
 
-	std::string ss = mClass().toStr(sample);
+	std::string ss = mClass().toStr(&sample);
 
 	std::string serialized = "{\n\t\"date\": {\n\t\t\"d\": 1,\n\t\t\"m\": 4,\n\t\t\"y\": 2011\n\t},\n\t\"intAbstract\": 34,\n\t\"intMember\": 128,\n\t\"intOverloaded\": 87,\n\t\"point\": {\n\t\t\"x\": 45,\n\t\t\"y\": 80\n\t},\n\t\"testBool\": true,\n\t\"testDouble\": 65,\n\t\"testRO\": 23,\n\t\"testStr\": \"Hello, world!\"\n}";
 	EXPECT_EQ(serialized, ss);
