@@ -55,24 +55,26 @@ TEST_F(MetaTypeTest, DoubleAccessor) {
 
 	sample.setDoubleProp(65.0);
 	double result = boost::any_cast<double>(mClass()["testDouble"].get(&sample));
-
 	EXPECT_EQ(65.0, result);
+	// or use this shorter form
+	double result2 = (mClass()["testDouble"].get<double>(&sample));
+	EXPECT_EQ(65.0, result2);
 }
 
 TEST_F(MetaTypeTest, AbstractAccessor) {
-	int result = boost::any_cast<int>(mClass()["intAbstract"].get(&sample));
+	int result = mClass()["intAbstract"].get<int>(&sample);
 
 	EXPECT_EQ(34, result);
 }
 
 TEST_F(MetaTypeTest, OverloadedAccessor) {
-	int result = boost::any_cast<int>(mClass()["intOverloaded"].get(&sample));
+	int result = mClass()["intOverloaded"].get<int>(&sample);
 
 	EXPECT_EQ(87, result);
 }
 
 TEST_F(MetaTypeTest, DerivedOverloadedAccessor) {
-	int result = boost::any_cast<int>(derivedClass()["intOverloaded"].get(&sampleDerived));
+	int result = derivedClass()["intOverloaded"].get<int>(&sampleDerived);
 
 	EXPECT_EQ(43, result);
 }
@@ -91,13 +93,13 @@ TEST_F(MetaTypeTest, IntMemberType) {
 TEST_F(MetaTypeTest, BoolMutator) {
 	sample.setBool( false );
 	mClass()["testBool"].set(&sample, true);
-	EXPECT_EQ(true, boost::any_cast<bool>(mClass()["testBool"].get(&sample)));
+	EXPECT_EQ(true, mClass()["testBool"].get<bool>(&sample));
 }
 
 TEST_F(MetaTypeTest, IntMemberAccessor) {
 
 	sample.intMember = 123;
-	int result = boost::any_cast<int>(mClass()["intMember"].get(&sample));
+	int result = mClass()["intMember"].get<int>(&sample);
 	EXPECT_EQ(123, result);
 }
 
@@ -116,7 +118,7 @@ TEST_F(MetaTypeTest, StdStringType) {
 
 TEST_F(MetaTypeTest, StdStringAccessor) {
 	sample.setStdStringProp(kHelloString);
-	std::string result = boost::any_cast<std::string>(mClass()["testStr"].get(&sample));
+	std::string result = mClass()["testStr"].get<std::string>(&sample);
 
 	EXPECT_EQ(kHelloString, result);
 }
@@ -140,7 +142,7 @@ TEST_F(MetaTypeTest, ByValAccessor) {
 
 	sample.setByValProp(d);
 
-	Date result = boost::any_cast<Date>(mClass()["date"].get(&sample));
+	Date result = mClass()["date"].get<Date>(&sample);
 
 	EXPECT_TRUE(d == result);
 }
@@ -161,8 +163,8 @@ TEST_F(MetaTypeTest, ByRefAccessor) {
 	p->x = 45;
 	p->y = 80;
 	sample.setByRefProp(p);
-
-	Point * result = static_cast<Point*>(boost::any_cast<void *>(mClass()["point"].get(&sample)));
+//TODO: improve access by proper type instead void *
+	Point * result = static_cast<Point*>(mClass()["point"].get<void *>(&sample));
 
 	EXPECT_TRUE(p == result);
 }
@@ -239,7 +241,7 @@ TEST_F(MetaTypeTest, testPropsRO) {
 	EXPECT_FALSE(mClass()["testRO"].isWritable());
 	EXPECT_TRUE( jrtti::findType("Date")->getProperty("d").isWritable() );
 
-	int result = boost::any_cast<int>(mClass()["testRO"].get(&sample));
+	int result = (mClass()["testRO"].get<int>(&sample));
 	EXPECT_EQ(23, result);
 
 	//assert(mc.getGenericProperty("intMember")->isWriteOnly() == false);
