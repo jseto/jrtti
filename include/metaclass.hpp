@@ -116,7 +116,7 @@ namespace jrtti {
 				if ( !prop.type()->isPointer() ) {
 					prop.set( inst, mod );
 				}
-				return mod;
+				return copyFromInstance( inst );
 			}
 		}
 

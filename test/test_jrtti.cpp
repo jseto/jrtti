@@ -193,6 +193,7 @@ TEST_F(MetaTypeTest, NestedByValAccessor) {
 	d.d = 9;
 	d.m = 4;
 	d.y = 2011;
+	d.p.x = 40;
 	sample.setByValProp(d);
 
 	int result = boost::any_cast<int>(mClass().eval(&sample, "date.y"));
@@ -203,6 +204,9 @@ TEST_F(MetaTypeTest, NestedByValAccessor) {
 
 	result = boost::any_cast<int>(mClass().eval(&sample, "date.y"));
 	EXPECT_EQ(d.y, result);
+
+	result = boost::any_cast<double>(mClass().eval(&sample, "date.p.x"));
+	EXPECT_EQ(d.p.x, result);
 }
 
 TEST_F(MetaTypeTest, NestedByRefMutator) {
@@ -223,8 +227,10 @@ TEST_F(MetaTypeTest, NestedByValMutator) {
 	d.y = 1;
 	sample.setByValProp(d);
 	mClass().apply(&sample, "date.y", 2089);
-
 	EXPECT_EQ(2089, sample.getByValProp().y);
+
+	mClass().apply(&sample, "date.p.x", 3.0);
+	EXPECT_EQ(3.0, sample.getByValProp().p.x);
 }
 
 TEST_F(MetaTypeTest, testPropsRO) {

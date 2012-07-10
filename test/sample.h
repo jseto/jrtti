@@ -33,6 +33,7 @@ struct Point
 struct Date
 {
 	int d, m, y;
+	Point p;
 	bool operator == (const Date & other) const
 	{
 		return (d == other.d) &&
@@ -104,7 +105,8 @@ void declare()
 	jrtti::declare<Date>()
 						.property("d", &Date::d)
 						.property("m", &Date::m)
-						.property("y", &Date::y);
+						.property("y", &Date::y)
+						.property("p", &Date::p);
 
 	jrtti::declareAbstract<SampleBase>()
 						.property("intAbstract", &SampleBase::getIntAbstract)
