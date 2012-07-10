@@ -100,24 +100,25 @@ namespace jrtti {
 			}
 		}
 
-		void
+		boost::any
 		apply( const boost::any& instance, std::string path, const boost::any& value ) {
 			size_t pos = path.find_first_of(".");
 			std::string name = path.substr( 0, pos );
 			Property& prop = getProperty(name);
 
 			void * inst = get_instance_ptr(instance);
-			if (pos == std::string::npos)
+			if (pos == std::string::npos) {
 				prop.set( inst, value );
+				return copyFromInstance( inst );
+			}
 			else {
-				boost::any pv = prop.get(inst);
-				prop.type()->apply( pv, path.substr( pos + 1 ), value );
+				const boost::any &mod = prop.type()->apply( prop.get(inst), path.substr( pos + 1 ), value );
 				if ( !prop.type()->isPointer() ) {
-					prop.set( inst, pv );
+					prop.set( inst, mod );
 				}
-			}
-
-        }
+				return mod;
+			}
+		}
 
 		virtual
 		std::string
@@ -175,7 +176,13 @@ namespace jrtti {
 		void *
 		get_instance_ptr(const boost::any& content) {
 			return NULL;
-		}                                                 
+		}
+
+		virtual
+		boost::any
+		copyFromInstance( void * inst ) {
+			return boost::any();
+		}
 
 	protected:
 		void
@@ -500,6 +507,16 @@ namespace jrtti {
 #endif
 		}
 
+		boost::any
+		copyFromInstance( void * inst )
+		{
+#ifdef BOOST_NO_IS_ABSTRACT
+			return _copyFromInstance< IsAbstractT >( inst );
+#else
+			return _copyFromInstance< ClassT >( inst );
+#endif
+		}
+
 	private:
 		template <typename MethodType, typename FunctionType>
 		DeclaringMetaClass&
@@ -546,6 +563,21 @@ namespace jrtti {
 		typename boost::enable_if< typename AbstT, void * >::type
 		_get_instance_ptr(const boost::any & content){
 			return NULL;
+		}
+
+	//SFINAE _get_instance_ptr
+		template< typename AbstT >
+		typename boost::disable_if< typename AbstT, boost::any >::type
+		_copyFromInstance( void * inst ){
+			ClassT obj = *(ClassT *) inst;
+			return obj;
+		}
+
+	//SFINAE _get_instance_ptr
+		template< typename AbstT >
+		typename boost::enable_if< typename AbstT, boost::any >::type
+		_copyFromInstance( void * inst ){
+			return boost::any();
 		}
 
 	//SFINAE
