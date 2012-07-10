@@ -1,9 +1,7 @@
 #ifndef metaclassH
 #define metaclassH
 
-#include <memory>
 #include <map>
-#include <string>
 #include <sstream>
 
 #include <boost/function.hpp>

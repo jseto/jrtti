@@ -1,10 +1,6 @@
-#include <string>
-
-#include <iostream>
-#include <sstream>
-#include <fstream>
 
 #include "sample.h"
+#include <fstream>
 #include "test_jrtti.h"
 
 #include "gtest/gtest.h"

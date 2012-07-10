@@ -4,13 +4,12 @@
 #define sampleH
 //---------------------------------------------------------------------------
 
-#include <string>
-#include <iostream>
-#include <sstream>
-
 #define BOOST_MEM_FN_ENABLE_FASTCALL    	//Enables __fastcall calling convention. See boost::bind documentaion
 														//use this macro before including jrtti.hpp
 #include "../include/jrtti.hpp"
+
+#include <iostream>
+
 
 struct Point
 {

@@ -1,10 +1,12 @@
 #ifndef reflectorH
 #define reflectorH
 
-#include <string>
-#include <map>
-#include <iostream>
+//#include <string>
+//#include <map>
+//#include <iostream>
 #include <boost/type_traits/is_abstract.hpp>
+
+#include "metaclass.hpp"
 
 namespace jrtti {
 class Reflector
@@ -42,14 +44,6 @@ public:
 		internal_declare("bool", new MetaBool());
 		internal_declare("double", new MetaDouble());
 		internal_declare("std::string", new MetaString());
-	}
-
-	void
-	inspect(){
-		std::cout << "\nReflector<";
-		for( TypeMap::iterator it = _meta_types.begin(); it != _meta_types.end(); it++) {
-			std::cout << "{" << it->first << " => " << it->second->typeName() << "}>\n";
-		}
 	}
 
 	template <typename C>

@@ -2,9 +2,7 @@
 #define propertyH
 
 #include <boost/any.hpp>
-#include <boost/type_traits/is_pointer.hpp>
-
-#include "metaclass.hpp"
+//#include <boost/type_traits/is_pointer.hpp>
 
 namespace jrtti {
 

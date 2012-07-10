@@ -1,28 +1,15 @@
 #ifndef jrttiH
 #define jrttiH
 
-//#include <boost/any.hpp>
 #include "exception.hpp"
 
 namespace jrtti {
 	class Error;
-	class Reflector;
 	class MetaType;
-
-	Error	error(std::string message);
-
-	template <typename C>
-	std::string nameOf();
-
-	template <typename C>
-	void	alias(std::string new_name);
-
 	MetaType *	findType(std::string name);
-
-	void clear();
+	Error	error(std::string message);
 }
 
-#include "metaclass.hpp"
 #include "reflector.hpp"
 
 namespace jrtti {
