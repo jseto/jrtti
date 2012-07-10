@@ -85,6 +85,12 @@ public:
 	boost::any
 	get(void * instance) = 0;
 
+	template < typename PropT >
+	PropT
+	get( void * instance ) {
+        return boost::any_cast< PropT >( get( instance ) );
+    }
+
 private:
 	int			_tag;
 	std::string	_type_name;
