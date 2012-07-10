@@ -1,8 +1,6 @@
 #ifndef jsonparserH
 #define jsonparserH
 
-#include <string>
-
 namespace jrtti {
 
 class JSONParser : public std::map< std::string, std::string > {

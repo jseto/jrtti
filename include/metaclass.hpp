@@ -8,7 +8,6 @@
 
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
-#include <boost/type_traits/remove_reference.hpp>
 
 #include "property.hpp"
 #include "method.hpp"
