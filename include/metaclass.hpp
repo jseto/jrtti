@@ -153,7 +153,7 @@ namespace jrtti {
 				if ( prop.isWritable() ) {
 					MetaType * t = prop.type();
 					boost::any propInstance = prop.get( inst );
-					prop.set( inst, t->fromStr( propInstance.content, parser[ it->first ] ) );
+					prop.set( inst, t->fromStr( propInstance, parser[ it->first ] ) );
 				}
 			}
 			return instance;
