@@ -8,6 +8,7 @@
 
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
+#include <boost/type_traits/remove_reference.hpp>
 
 #include "property.hpp"
 #include "method.hpp"
@@ -84,33 +85,53 @@ namespace jrtti {
 			return m_methods[name];
 		}
 
+		virtual
 		boost::any
-		eval( boost::any value, std::string path) {
+		eval( const boost::any & instance, std::string path) {
 			size_t pos = path.find_first_of(".");
 			std::string name = path.substr( 0, pos );
 			Property& prop = getProperty(name);
 
-			void * instance = get_instance_ptr(value.content);
+			void * inst = get_instance_ptr(instance);
 			if (pos == std::string::npos)
-				return prop.get(instance);
+				return prop.get(inst);
 			else {
-				return prop.type()->eval(prop.get(instance), path.substr( pos + 1 ));
+				return prop.type()->eval( prop.get( inst ), path.substr( pos + 1 ));
 			}
+		}
+
+		boost::any
+		apply( const boost::any& instance, std::string path, const boost::any& value ) {
+			size_t pos = path.find_first_of(".");
+			std::string name = path.substr( 0, pos );
+			Property& prop = getProperty(name);
+
+			void * inst = get_instance_ptr(instance);
+			if (pos == std::string::npos) {
+				prop.set( inst, value );
+			}
+			else {
+				const boost::any &mod = prop.type()->apply( prop.get(inst), path.substr( pos + 1 ), value );
+				if ( !prop.type()->isPointer() ) {
+					prop.set( inst, mod );
+				}
+			}
+			return copyFromInstance( inst );
 		}
 
 		virtual
 		std::string
-		toStr(const boost::any & value) {
-			void * instance = get_instance_ptr(value.content);
+		toStr(const boost::any & instance) {
+			void * inst = get_instance_ptr(instance);
 			std::string result = "{\n";
 			bool need_nl = false;
-			for( PropertyMap::iterator it = properties().begin(); it != properties().end(); it++) {
-				Property& prop = * it->second;
-				MetaType * t = prop.type();
-				const boost::any &pv = prop.get(instance);
-				if (need_nl) result += ",\n";
-				need_nl = true;
-				result += ident( "\"" + prop.name() + "\"" + ": " + t->toStr(pv) );
+			for( PropertyMap::iterator it = properties().begin(); it != properties().end(); ++it) {
+				Property * prop = it->second;
+				if ( prop ) {
+					if (need_nl) result += ",\n";
+					need_nl = true;
+					result += ident( "\"" + prop->name() + "\"" + ": " + prop->type()->toStr( prop->get(inst) ) );
+				}
 			}
 			return result += "\n}";
 		}
@@ -125,18 +146,19 @@ namespace jrtti {
 		virtual
 		boost::any
 		fromStr( const boost::any & instance, const std::string& str ) {
-			void * inst = get_instance_ptr(instance.content);
+			void * inst = get_instance_ptr(instance);
 			JSONParser parser( str );
 
-			for( JSONParser::iterator it = parser().begin(); it != parser().end(); it++) {
-				Property& prop = * properties()[ it->first ];
-				if ( prop.isWritable() ) {
-					MetaType * t = prop.type();
-					const boost::any &propInstance = prop.get( inst );
-					prop.set( inst, t->fromStr( propInstance, parser[ it->first ] ) );
+			for( JSONParser::iterator it = parser.begin(); it != parser.end(); ++it) {
+				Property * prop = properties()[ it->first ];
+				if ( prop ) {
+					if ( prop->isWritable() ) {
+						const boost::any &mod = prop->type()->fromStr( prop->get( inst ), parser[ it->first ] );
+						prop->set( inst, mod );
+					}
 				}
 			}
-			return instance;
+			return copyFromInstance( inst );
 		}
 
 		virtual
@@ -153,14 +175,14 @@ namespace jrtti {
 
 		virtual
 		void *
-		get_instance_ptr(boost::any::placeholder * content) {
+		get_instance_ptr(const boost::any& content) {
 			return NULL;
 		}
 
 		virtual
-		void *
-		get_pointer_instance_ptr(boost::any::placeholder * content) {
-			return NULL;
+		boost::any
+		copyFromInstance( void * inst ) {
+			return boost::any();
 		}
 
 	protected:
@@ -175,7 +197,6 @@ namespace jrtti {
 			m_methods[name] = &meth;
 			m_ownedMethods[ name ] = &meth;
 		}
-
 
 	private:
 		std::string
@@ -226,6 +247,7 @@ namespace jrtti {
 		bool
 		isPointer() { return true;}
 
+		virtual
 		boost::any
 		fromStr( const boost::any& instance, const std::string& str ) {
 			boost::any ptr = create();
@@ -238,11 +260,15 @@ namespace jrtti {
 			m_baseType.write(instance, os);
 		}
 
-	protected:
+		virtual
 		void *
-		get_instance_ptr(boost::any::placeholder * content) {
-			void * result = m_baseType.get_pointer_instance_ptr(content);
-			return result;
+		get_instance_ptr( const boost::any & value ) {
+			if ( value.type() == typeid( void * ) ) {
+				return boost::any_cast< void * >( value );
+			}
+			else {
+            	return m_baseType.get_instance_ptr( value );
+			}
 		}
 	};
 
@@ -259,6 +285,12 @@ namespace jrtti {
 		void
 		write( void * instance, ostream & os){
 			m_baseType.write(instance, os);
+		}
+
+		virtual
+		void *
+		get_instance_ptr( const boost::any & value ) {
+			return boost::any_cast< void * >( value.content );
 		}
 	};
 
@@ -473,18 +505,24 @@ namespace jrtti {
 
 	protected:
 		void *
-		get_instance_ptr(boost::any::placeholder * content){
+		get_instance_ptr(const boost::any& content){
 #ifdef BOOST_NO_IS_ABSTRACT
 			return _get_instance_ptr< IsAbstractT >( content );
 #else
 			return _get_instance_ptr< ClassT >( content );
 #endif
 		}
-		void *
-		get_pointer_instance_ptr(boost::any::placeholder * content){
-			ClassT * held = static_cast<boost::any::holder<ClassT*> *>(content)->held;
-			return (void*)held;
+
+		boost::any
+		copyFromInstance( void * inst )
+		{
+#ifdef BOOST_NO_IS_ABSTRACT
+			return _copyFromInstance< IsAbstractT >( inst );
+#else
+			return _copyFromInstance< ClassT >( inst );
+#endif
 		}
+
 	private:
 		template <typename MethodType, typename FunctionType>
 		DeclaringMetaClass&
@@ -514,68 +552,59 @@ namespace jrtti {
 		}
 
 #ifdef BOOST_NO_IS_ABSTRACT
-	//SFINAE
-		template< typename AbstT >
-		typename boost::disable_if< typename AbstT, void * >::type
-		_get_instance_ptr(boost::any::placeholder * content){
-			ClassT &held = static_cast<boost::any::holder<ClassT> *>(content)->held;
-			return (void*)&held;
-		}
-
-	//SFINAE
-		template< typename AbstT >
-		typename boost::enable_if< typename AbstT, void * >::type
-		_get_instance_ptr(boost::any::placeholder * content){
-			return NULL;
-		}
-
-	//SFINAE
-		template< typename AbstT >
-		typename boost::disable_if< typename AbstT, boost::any >::type
-		_create()
-		{
-			return new ClassT();
-		}
-
-	//SFINAE
-		template< typename AbstT >
-		typename boost::enable_if< typename AbstT, boost::any >::type
-		_create()
-		{
-			return NULL;
-		}
+	#define _IS_ABSTRACT( type ) type
 #else
-	//SFINAE
-		template< typename T >
-		typename boost::disable_if< typename boost::is_abstract< typename T >::type, void * >::type
-		_get_instance_ptr(boost::any::placeholder * content){
-			ClassT &held = static_cast<boost::any::holder<ClassT> *>(content)->held;
-			return (void*)&held;
+	#define _IS_ABSTRACT( type ) boost::is_abstract< typename type >::type
+#endif
+	//SFINAE _get_instance_ptr
+		template< typename AbstT >
+		typename boost::disable_if< typename _IS_ABSTRACT( AbstT ), void * >::type
+		_get_instance_ptr(const boost::any& content){
+			if ( content.type() == typeid( ClassT ) ) {
+				static ClassT dummy = ClassT();
+				dummy = boost::any_cast< ClassT >(content);
+				return &dummy;
+			}
+			return (void *) boost::any_cast< ClassT * >(content);
 		}
 
-	//SFINAE
-		template< typename T >
-		typename boost::enable_if< typename boost::is_abstract< typename T >::type, void * >::type
-		_get_instance_ptr(boost::any::placeholder * content){
+	//SFINAE _get_instance_ptr
+		template< typename AbstT >
+		typename boost::enable_if< typename _IS_ABSTRACT( AbstT ), void * >::type
+		_get_instance_ptr(const boost::any & content){
 			return NULL;
 		}
 
-	//SFINAE
-		template< typename T >
-		typename boost::disable_if< typename boost::is_abstract< typename T >::type, boost::any >::type
+	//SFINAE _copyFromInstance
+		template< typename AbstT >
+		typename boost::disable_if< typename _IS_ABSTRACT( AbstT ), boost::any >::type
+		_copyFromInstance( void * inst ){
+			ClassT obj = *(ClassT *) inst;
+			return obj;
+		}
+
+	//SFINAE _copyFromInstance
+		template< typename AbstT >
+		typename boost::enable_if< typename _IS_ABSTRACT( AbstT ), boost::any >::type
+		_copyFromInstance( void * inst ){
+			return boost::any();
+		}
+
+	//SFINAE _create
+		template< typename AbstT >
+		typename boost::disable_if< typename _IS_ABSTRACT( AbstT ), boost::any >::type
 		_create()
 		{
 			return new ClassT();
 		}
 
-	//SFINAE
-		template< typename T >
-		typename boost::enable_if< typename boost::is_abstract< typename T >::type, boost::any >::type
+	//SFINAE _create
+		template< typename AbstT >
+		typename boost::enable_if< typename _IS_ABSTRACT( AbstT ), boost::any >::type
 		_create()
 		{
 			return NULL;
 		}
-#endif
 	};
 
 //------------------------------------------------------------------------------
