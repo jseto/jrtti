@@ -125,12 +125,13 @@ namespace jrtti {
 			void * inst = get_instance_ptr(instance);
 			std::string result = "{\n";
 			bool need_nl = false;
-			for( PropertyMap::iterator it = properties().begin(); it != properties().end(); it++) {
-				Property& prop = * it->second;
-				MetaType * t = prop.type();
-				if (need_nl) result += ",\n";
-				need_nl = true;
-				result += ident( "\"" + prop.name() + "\"" + ": " + t->toStr( prop.get(inst) ) );
+			for( PropertyMap::iterator it = properties().begin(); it != properties().end(); ++it) {
+				Property * prop = it->second;
+				if ( prop ) {
+					if (need_nl) result += ",\n";
+					need_nl = true;
+					result += ident( "\"" + prop->name() + "\"" + ": " + prop->type()->toStr( prop->get(inst) ) );
+				}
 			}
 			return result += "\n}";
 		}
@@ -148,15 +149,16 @@ namespace jrtti {
 			void * inst = get_instance_ptr(instance);
 			JSONParser parser( str );
 
-			for( JSONParser::iterator it = parser().begin(); it != parser().end(); it++) {
-				Property& prop = * properties()[ it->first ];
-				if ( prop.isWritable() ) {
-					MetaType * t = prop.type();
-					boost::any propInstance = prop.get( inst );
-					prop.set( inst, t->fromStr( propInstance, parser[ it->first ] ) );
+			for( JSONParser::iterator it = parser.begin(); it != parser.end(); ++it) {
+				Property * prop = properties()[ it->first ];
+				if ( prop ) {
+					if ( prop->isWritable() ) {
+						const boost::any &mod = prop->type()->fromStr( prop->get( inst ), parser[ it->first ] );
+						prop->set( inst, mod );
+					}
 				}
 			}
-			return instance;
+			return copyFromInstance( inst );
 		}
 
 		virtual
@@ -261,7 +263,12 @@ namespace jrtti {
 		virtual
 		void *
 		get_instance_ptr( const boost::any & value ) {
-			return boost::any_cast< void * >( value );
+			if ( value.type() == typeid( void * ) ) {
+				return boost::any_cast< void * >( value );
+			}
+			else {
+            	return m_baseType.get_instance_ptr( value );
+			}
 		}
 	};
 

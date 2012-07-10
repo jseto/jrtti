@@ -273,16 +273,17 @@ TEST_F(MetaTypeTest, Serialize) {
 	EXPECT_EQ(serialized, ss);
 	ofstream f("test");
 	f << ss;
+	delete point;
 }
 
 TEST_F(MetaTypeTest, Deserialize) {
-//	std::string serialized = "{\n\t\"date\": {\n\t\t\"d\": 1,\n\t\t\"m\": 4,\n\t\t\"y\": 2011\n\t},\n\t\"intAbstract\": 34,\n\t\"intMember\": 128,\n\t\"intOverloaded\": 87,\n\t\"point\": {\n\t\t\"x\": 45,\n\t\t\"y\": 80\n\t},\n\t\"testBool\": true,\n\t\"testDouble\": 65,\n\t\"testRO\": 23,\n\t\"testStr\": \"Hello, world!\"\n}";
-//	std::string serialized = "{\n\t\"intAbstract\": 34,\n\t\"intMember\": 128,\n\t\"intOverloaded\": 87,\n\t\"testBool\": true,\n\t\"testDouble\": 65,\n\t\"testRO\": 23,\n\t\"testStr\": \"Hello, world!\"\n}";
-	std::string serialized = "{\n\t\"intMember\": 34}";
+	std::string serialized = "{\n\t\"date\": {\n\t\t\"d\": 1,\n\t\t\"m\": 4,\n\t\t\"p\": {\n\t\t\t\"x\": 98,\n\t\t\t\"y\": 93\n\t\t},\n\t\t\"y\": 2011\n\t},\n\t\"intAbstract\": 34,\n\t\"intMember\": 128,\n\t\"intOverloaded\": 87,\n\t\"point\": {\n\t\t\"x\": 45,\n\t\t\"y\": 80\n\t},\n\t\"testBool\": true,\n\t\"testDouble\": 65,\n\t\"testRO\": 23,\n\t\"testStr\": \"Hello, world!\"\n}";
 	mClass().fromStr( &sample, serialized );
-	EXPECT_EQ( 34, sample.intMember );
-//	std::string ss = mClass().toStr(sample);
-//	EXPECT_EQ(serialized, ss);
+	std::string ss = mClass().toStr(&sample);
+	EXPECT_EQ(serialized, ss);
+	ofstream f("test1");
+	f << ss;
+	delete sample.getByRefProp();
 }
 
 TEST_F(MetaTypeTest, testTag) {
