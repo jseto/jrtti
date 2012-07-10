@@ -534,7 +534,8 @@ namespace jrtti {
 		typename boost::disable_if< typename AbstT, void * >::type
 		_get_instance_ptr(const boost::any& content){
 			if ( content.type() == typeid( ClassT ) ) {
-				static ClassT dummy = boost::any_cast< ClassT >(content);
+				static ClassT dummy = ClassT();
+				dummy = boost::any_cast< ClassT >(content);
 				return &dummy;
 			}
 			return (void *) boost::any_cast< ClassT * >(content);
