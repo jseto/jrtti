@@ -130,4 +130,19 @@ void declare()
                	.inheritsFrom("Sample");
 }
 
+void useCase() {
+	Sample s;
+
+	//set the property intMember of s object to 15
+	jrtti::findType( "Sample" ).property( "intMember" ).set( &s, 15 );
+
+	//retrieve the value of intMember from s object
+	int i = jrtti::findType( "Sample" ).property( "intMember" ).get<int>( &s );
+
+	//same as above using braket operator
+	jrtti::Metatype & mt = jrtti::findType("Sample");
+	i = mt[ "intMember" ].get<int>( &s );
+
+}
+
 #endif

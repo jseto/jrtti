@@ -28,12 +28,12 @@ class MetaTypeTest : public testing::Test {
 		jrtti::clear();
 	}
 
-	MetaType & mClass(){
-		return *dynamic_cast<MetaType*>(jrtti::findType("Sample"));
+	Metatype & mClass(){
+		return jrtti::findType("Sample");
 	}
 
-	MetaType & derivedClass(){
-		return *dynamic_cast<MetaType*>(jrtti::findType("SampleDerived"));
+	Metatype & derivedClass(){
+		return jrtti::findType("SampleDerived");
 	}
 
 	// Declares the variables your tests want to use.
@@ -53,7 +53,7 @@ TEST_F(MetaTypeTest, DoubleAccessor) {
 	double result = boost::any_cast<double>(mClass()["testDouble"].get(&sample));
 	EXPECT_EQ(65.0, result);
 	// or use this shorter form
-	double result2 = (mClass()["testDouble"].get<double>(&sample));
+	double result2 = mClass()["testDouble"].get<double>(&sample);
 	EXPECT_EQ(65.0, result2);
 }
 
@@ -236,7 +236,7 @@ TEST_F(MetaTypeTest, testPropsRO) {
 
 	EXPECT_TRUE(mClass()["testDouble"].isReadWrite());
 	EXPECT_FALSE(mClass()["testRO"].isWritable());
-	EXPECT_TRUE( jrtti::findType("Date")->getProperty("d").isWritable() );
+	EXPECT_TRUE( jrtti::findType("Date").property("d").isWritable() );
 
 	int result = (mClass()["testRO"].get<int>(&sample));
 	EXPECT_EQ(23, result);
@@ -291,7 +291,7 @@ TEST_F(MetaTypeTest, testTag) {
 }
 
 TEST_F(MetaTypeTest, testCreate) {
-	Point * p = boost::any_cast< Point * >( mClass()[ "point" ].type()->create() );
+	Point * p = boost::any_cast< Point * >( mClass()[ "point" ].type().create() );
 	EXPECT_TRUE( (p->x == -1) && (p->y == -1) );
 }
 

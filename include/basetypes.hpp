@@ -5,9 +5,9 @@
 
 namespace jrtti {
 
-class MetaIndirectedType: public MetaType	{
+class MetaIndirectedType: public Metatype	{
 public:
-	MetaIndirectedType(MetaType & baseType, std::string name_sufix): m_baseType(baseType), MetaType(baseType.typeName() + " " + name_sufix)
+	MetaIndirectedType(Metatype & baseType, std::string name_sufix): m_baseType(baseType), Metatype(baseType.typeName() + " " + name_sufix)
 	{}
 
 	virtual
@@ -22,12 +22,12 @@ public:
 	}
 
 protected:
-	MetaType & m_baseType;
+	Metatype & m_baseType;
 };
 
 class MetaPointerType: public MetaIndirectedType {
 public:
-	MetaPointerType (MetaType & baseType): MetaIndirectedType(baseType, "*")
+	MetaPointerType (Metatype & baseType): MetaIndirectedType(baseType, "*")
 	{}
 
 	bool
@@ -55,7 +55,7 @@ public:
 
 class MetaReferenceType: public MetaIndirectedType {
 public:
-	MetaReferenceType(MetaType & baseType): MetaIndirectedType(baseType, "&")
+	MetaReferenceType(Metatype & baseType): MetaIndirectedType(baseType, "&")
 	{}
 
 	std::string
@@ -72,9 +72,9 @@ public:
 
 
 // predefined std types
-class MetaInt: public MetaType {
+class MetaInt: public Metatype {
 public:
-	MetaInt(): MetaType("int") {}
+	MetaInt(): Metatype("int") {}
 
 	std::string
 	toStr( const boost::any & value ){
@@ -95,9 +95,9 @@ public:
 };
 
 
-class MetaBool: public MetaType {
+class MetaBool: public Metatype {
 public:
-	MetaBool(): MetaType("bool") {}
+	MetaBool(): Metatype("bool") {}
 
 	std::string
 	toStr(const boost::any & value){
@@ -116,9 +116,9 @@ public:
 	}
 };
 
-class MetaDouble: public MetaType {
+class MetaDouble: public Metatype {
 public:
-	MetaDouble(): MetaType("double") {}
+	MetaDouble(): Metatype("double") {}
 
 	std::string
 	toStr(const boost::any & value){
@@ -137,9 +137,9 @@ public:
 	}
 };
 
-class MetaString: public MetaType {
+class MetaString: public Metatype {
 public:
-	MetaString(): MetaType("std::string") {}
+	MetaString(): Metatype("std::string") {}
 
 	std::string
 	toStr(const boost::any & value){

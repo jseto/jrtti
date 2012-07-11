@@ -12,7 +12,7 @@ namespace jrtti {
 class Reflector
 {
 public:
-	typedef std::map<std::string, MetaType * > TypeMap;
+	typedef std::map<std::string, Metatype * > TypeMap;
 
 	~Reflector()
 	{
@@ -33,7 +33,8 @@ public:
 		return inst;
 	}
 
-	Reflector& operator() () {
+	Reflector&
+	operator() () {
 		return instance();
 	}
 
@@ -47,32 +48,30 @@ public:
 	}
 
 	template <typename C>
-	CustomMetaClass<C>&
+	CustomMetaclass<C>&
 	declare()
 	{
 		std::string name = nameOf<C>();
-		MetaType * declared = findType( name );
-		if ( declared) {
-			return *( dynamic_cast< CustomMetaClass<C> * >( declared ) );
+		if ( _meta_types.count( name ) ) {
+			return *( dynamic_cast< CustomMetaclass<C> * >( &findType( name ) ) );
 		}
 
-		CustomMetaClass<C> * mc = new CustomMetaClass<C>(name);
+		CustomMetaclass<C> * mc = new CustomMetaclass<C>(name);
 		internal_declare(name, mc);
 
 		return * mc;
 	}
 
 	template <typename C>
-	CustomMetaClass<C, boost::true_type>&
+	CustomMetaclass<C, boost::true_type>&
 	declareAbstract()
 	{
 		std::string name = nameOf<C>();
-		MetaType * declared = findType( name );
-		if ( declared) {
-			return *( dynamic_cast< CustomMetaClass<C, boost::true_type> * >( declared ) );
+		if ( _meta_types.count( name ) ) {
+			return *( dynamic_cast< CustomMetaclass<C, boost::true_type> * >( &findType( name ) ) );
 		}
 
-		CustomMetaClass<C, boost::true_type> * mc = new CustomMetaClass<C, boost::true_type>(name);
+		CustomMetaclass<C, boost::true_type> * mc = new CustomMetaclass<C, boost::true_type>(name);
 		internal_declare(name, mc);
 
 		return * mc;
@@ -95,10 +94,14 @@ public:
 		return name;
 	}
 
-	MetaType *
+	Metatype &
 	findType( std::string name )
 	{
-		return _meta_types[name];
+		TypeMap::iterator it = _meta_types.find(name);
+		if ( it == _meta_types.end() ) {
+			error( "Metatype '" + name + "' not declared" );
+		}
+		return *it->second;
 	}
 
 private:
@@ -108,10 +111,10 @@ private:
 	};
 
 	void
-	internal_declare(std::string name, MetaType * mc)
+	internal_declare(std::string name, Metatype * mc)
 	{
-		MetaType * ptr_mc = new MetaPointerType(*mc);
-		MetaType * ref_mc = new MetaReferenceType(*mc);
+		Metatype * ptr_mc = new MetaPointerType(*mc);
+		Metatype * ref_mc = new MetaReferenceType(*mc);
 
 		_meta_types[name] = mc;
 		_meta_types[ptr_mc->typeName()] = ptr_mc;
