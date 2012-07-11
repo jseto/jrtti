@@ -12,7 +12,9 @@ namespace jrtti {
 }
 
 #include "reflector.hpp"
-
+/**
+ * \brief jrtti top level functions
+ */
 namespace jrtti {
 	inline Error
 	error(std::string message)	{
@@ -31,7 +33,7 @@ namespace jrtti {
 	}
 
 	/**
-	 * Get the name of class C
+	 * \brief Get the name of class C
 	 * \return the name of class C
 	 */
 	inline template <typename C>

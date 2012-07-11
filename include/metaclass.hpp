@@ -63,11 +63,11 @@ namespace jrtti {
 		create() = 0;
 
 		/**
-		 * Return the type name of the Metatype
+		 * Return the type name of this Metatype
 		 * \return the type name
 		 */
 		std::string
-		typeName()	{
+		name()	{
 			return m_type_name;
 		}
 
@@ -118,7 +118,11 @@ namespace jrtti {
 		virtual
 		Property&
 		property( std::string name) {
-			return * properties()[name];
+			PropertyMap::iterator it = properties().find(name);
+			if ( it == properties().end() ) {
+				error( "Property '" + name + "' not declared in '" + Metatype::name() + "' metaclass" );
+			}
+			return *it->second;
 		}
 
 		/**
@@ -128,8 +132,9 @@ namespace jrtti {
 		 * \param name the name of the method to look for
 		 * \return the found method abstraction
 		 */
-		Method * getMethod(std::string name) {
-			return m_methods[name];
+		Method *
+		getMethod(std::string name) {
+			return methods()[name];
 		}
 
 		/**
@@ -150,7 +155,7 @@ namespace jrtti {
 
 			MethodType * ptr = static_cast< MethodType * >( m_methods[methodName] );
 			if (!ptr) {
-				error("Method '" + methodName + "' not found");
+				error("Method '" + methodName + "' not found in '" + name() + "' metaclass");
 			}
 			return ptr->call(instance);
 		}
@@ -175,7 +180,7 @@ namespace jrtti {
 
 			MethodType * ptr = static_cast< MethodType * >( m_methods[methodName] );
 			if (!ptr) {
-				error("Method '" + methodName + "' not found");
+				error("Method '" + methodName + "' not found in '" + name() + "' metaclass");
 			}
 			return ptr->call(instance,p1);
 		}
@@ -202,7 +207,7 @@ namespace jrtti {
 
 			MethodType * ptr = static_cast< MethodType * >( m_methods[methodName] );
 			if (!ptr) {
-				error("Method '" + methodName + "' not found");
+				error("Method '" + methodName + "' not found in '" + name() + "' metaclass");
 			}
 			return ptr->call(instance,p1,p2);
 		}
@@ -250,6 +255,7 @@ namespace jrtti {
 		 * Sets the value of a full categorized property.
 		 * \param instance the object instance from where to set the property value
 		 * \param path full categorized property name dotted separated. ex: "pont.x"
+		 * \param value property value to set
 		 * \return used internally
 		 */
 		boost::any

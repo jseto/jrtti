@@ -32,7 +32,7 @@ struct Point
 struct Date
 {
 	int d, m, y;
-	Point p;
+	Point place;
 	bool operator == (const Date & other) const
 	{
 		return (d == other.d) &&
@@ -105,7 +105,7 @@ void declare()
 						.property("d", &Date::d)
 						.property("m", &Date::m)
 						.property("y", &Date::y)
-						.property("p", &Date::p);
+						.property("place", &Date::place);
 
 	jrtti::declareAbstract<SampleBase>()
 						.property("intAbstract", &SampleBase::getIntAbstract)
@@ -151,6 +151,16 @@ void useCase() {
 	double d = mt.call<double,Sample,int,double>( "testSum", &s, 3, 8 );
 	//or
 	d = mt.call<double>( "testSum", &s, 3, 8.0 );
+
+	//set value from a fully qualified path
+	mt.apply( &s, "date.place.x", 25.0 );
+	//get value from a fully qualified path
+	d = mt.eval<double>( &s, "date.place.x" );
+
+	//get a string representation of s object
+	std::string contens = mt.toStr( &s );
+	//and set the s object from a string representation
+	mt.fromStr( &s, contens );
 }
 
 #endif

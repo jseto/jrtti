@@ -7,17 +7,20 @@
 namespace jrtti {
 
 //------------------------------------------------------------------------------
-
+/**
+ * \brief Property abstraction
+ */
 class Property
 {
 public:
 	enum Mode {Readable=1, Writable=2};
 
 	Property() {
+    	_mode = 0;
 	}
 
 	/**
-	 * Retrieves the name of this property
+	 * \brief Retrieves the name of this property
 	 * \return the property name
 	 */
 	std::string
@@ -26,7 +29,7 @@ public:
 	}
 
 	/**
-	 * Sets the name of this property
+	 * \brief Sets the name of this property
 	 * \param name the property name
 	 */
 	void
@@ -35,7 +38,7 @@ public:
 	}
 
 	/**
-	 * Sets a user defined tag to this property
+	 * \brief Sets a user defined tag to this property
 	 * \param t the tag
 	 */
 	void
@@ -45,7 +48,7 @@ public:
 	}
 
 	/**
-	 * Retrieve the associated tag
+	 * \brief Retrieve the associated tag
 	 * \return the tag associated to this property
 	 */
 	int
@@ -55,7 +58,7 @@ public:
 	}
 
 	/**
-	 * Gets the type name of this property
+	 * \brief Gets the type name of this property
 	 * \return the type name
 	 */
 	std::string
@@ -63,13 +66,8 @@ public:
 		return _type_name;
 	}
 
-	void
-	typeName(std::string value) {
-		_type_name = value;
-	}
-
 	/**
-	 * Retrieves the Metatype of this property
+	 * \brief Retrieves the Metatype of this property
 	 * \return the meta type
 	 */
 	Metatype &
@@ -100,7 +98,7 @@ public:
 	}
 
 	/**
-	 * Check if property is read-write
+	 * \brief Check if property is read-write
 	 * \return true if property is writable and readable
 	 */
 	bool
@@ -113,16 +111,16 @@ public:
 	}
 
 	/**
-	 * Set the property value
+	 * \brief Set the property value
 	 * \param instance the object address where to set the property value
-	 * \param the value to be set
+	 * \param value the value to be set
 	 */
 	virtual
 	void
-	set( void * instance, const boost::any& val ) = 0;
+	set( void * instance, const boost::any& value ) = 0;
 
 	/**
-	 * Get the property value
+	 * \brief Get the property value
 	 * \param instance the object address from where to retrieve the property value
 	 * \return the property value in a boost::any container
 	 */
@@ -142,6 +140,12 @@ public:
 	PropT
 	get( void * instance ) {
 		return boost::any_cast< PropT >( get( instance ) );
+	}
+
+protected:
+	void
+	typeName(std::string value) {
+		_type_name = value;
 	}
 
 private:
@@ -197,7 +201,9 @@ public:
 	virtual
 	void
 	set( void * instance, const boost::any& val)	{
-		internal_set( (ClassT *)instance, boost::any_cast< PropT >( val ) );
+		if (isWritable()) {
+			internal_set( (ClassT *)instance, boost::any_cast< PropT >( val ) );
+		}
 	}
 
 private:

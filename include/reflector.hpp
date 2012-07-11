@@ -117,8 +117,8 @@ private:
 		Metatype * ref_mc = new MetaReferenceType(*mc);
 
 		_meta_types[name] = mc;
-		_meta_types[ptr_mc->typeName()] = ptr_mc;
-		_meta_types[ref_mc->typeName()] = ref_mc;
+		_meta_types[ptr_mc->name()] = ptr_mc;
+		_meta_types[ref_mc->name()] = ref_mc;
 	}
 
 
