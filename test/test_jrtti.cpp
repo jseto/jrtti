@@ -298,21 +298,21 @@ TEST_F(MetaTypeTest, testCreate) {
 TEST_F(MetaTypeTest, testIntMethodCall) {
 	Sample sample;
 
-	mClass().call< Sample, void >("testMethod", &sample);
-	int i = mClass().call< Sample, int >("testIntMethod", &sample);
+	mClass().call< void >("testMethod", &sample);
+	int i = mClass().call< int >("testIntMethod", &sample);
 
 	EXPECT_EQ(23, i);
 }
 
 TEST_F(MetaTypeTest, testSquareMethodCall) {
 	Sample sample;
-	double result = mClass().call<Sample, double, double>("testSquare", &sample, 4);
+	double result = mClass().call< double >("testSquare", &sample, 4.0);
 	EXPECT_EQ(16.0, result );
 }
 
 TEST_F(MetaTypeTest, testSumMethodCall) {
 	Sample sample;
-	double result = mClass().call<Sample,double,int,double>("testSum",&sample,9,6);
+	double result = mClass().call<double>("testSum",&sample,9,6.0);
 	EXPECT_EQ(15.0, result);
 }
 

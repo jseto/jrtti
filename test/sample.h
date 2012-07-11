@@ -140,9 +140,17 @@ void useCase() {
 	int i = jrtti::findType( "Sample" ).property( "intMember" ).get<int>( &s );
 
 	//same as above using braket operator
-	jrtti::Metatype & mt = jrtti::findType("Sample");
-	i = mt[ "intMember" ].get<int>( &s );
+	i = jrtti::findType("Sample")[ "intMember" ].get<int>( &s );
 
+	//getting a Metatype object
+	jrtti::Metatype & mt = jrtti::findType("Sample");
+	//and working with it
+	mt[ "intMember" ].set( &s, 23 );
+
+	//call a method returning int and having two parameters
+	double d = mt.call<double,Sample,int,double>( "testSum", &s, 3, 8 );
+	//or
+	d = mt.call<double>( "testSum", &s, 3, 8.0 );
 }
 
 #endif

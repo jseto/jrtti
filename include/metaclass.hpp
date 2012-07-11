@@ -143,7 +143,7 @@ namespace jrtti {
 		 * \param instance the object instance where the method will be invoked
 		 * \return the call result
 		 */
-		template <class ClassT, class ReturnT>
+		template < class ReturnT, class ClassT >
 		ReturnT
 		call ( std::string methodName, ClassT * instance ) {
 			typedef typename TypedMethod< ClassT, ReturnT > MethodType;
@@ -168,7 +168,7 @@ namespace jrtti {
 		 * \param p1 method parameter
 		 * \return the call result
 		 */
-		template <class ClassT, class ReturnT, class Param1>
+		template <class ReturnT, class ClassT, class Param1>
 		ReturnT
 		call ( std::string methodName, ClassT * instance, Param1 p1 ) {
 			typedef typename TypedMethod< ClassT, ReturnT, Param1 > MethodType;
@@ -195,7 +195,7 @@ namespace jrtti {
 		 * \param p2 second method parameter
 		 * \return the call result
 		 */
-		template <class ClassT, class ReturnT, class Param1, class Param2>
+		template <class ReturnT, class ClassT, class Param1, class Param2>
 		ReturnT
 		call ( std::string methodName, ClassT * instance, Param1 p1, Param2 p2 ) {
 			typedef typename TypedMethod< ClassT, ReturnT, Param1, Param2 > MethodType;
