@@ -18,9 +18,9 @@ private:
 };
 
 template <class ClassT, class ReturnT, class Param1=void, class Param2=void>
-class DeclaredMethod : public Method {
+class TypedMethod : public Method {
 	typedef boost::function<ReturnT (ClassT*, Param1, Param2)> 	FunctionType;
-	typedef DeclaredMethod<ClassT, ReturnT, Param1, Param2>			MethodType;
+	typedef TypedMethod<ClassT, ReturnT, Param1, Param2>			MethodType;
 
 public:
 	MethodType& name(std::string name) {
@@ -42,9 +42,9 @@ private:
 };
 
 template <class ClassT, class ReturnT>
-class DeclaredMethod<ClassT, ReturnT, void, void>  : public Method {
+class TypedMethod<ClassT, ReturnT, void, void>  : public Method {
 	typedef boost::function<ReturnT (ClassT*)> 	FunctionType;
-	typedef DeclaredMethod<ClassT, ReturnT, void, void >	MethodType;
+	typedef TypedMethod<ClassT, ReturnT, void, void >	MethodType;
 
 public:
 	MethodType&
@@ -69,10 +69,10 @@ private:
 };
 
 template <class ClassT, class ReturnT, class Param1>
-class DeclaredMethod<ClassT, ReturnT, Param1, void> : public Method
+class TypedMethod<ClassT, ReturnT, Param1, void> : public Method
 {
 	typedef boost::function<ReturnT (ClassT*, Param1)> FunctionType;
-	typedef DeclaredMethod<ClassT, ReturnT, Param1, void>	MethodType;
+	typedef TypedMethod<ClassT, ReturnT, Param1, void>	MethodType;
 
 public:
 	MethodType&

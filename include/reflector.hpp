@@ -6,7 +6,7 @@
 //#include <iostream>
 #include <boost/type_traits/is_abstract.hpp>
 
-#include "metaclass.hpp"
+#include "basetypes.hpp"
 
 namespace jrtti {
 class Reflector
@@ -47,32 +47,32 @@ public:
 	}
 
 	template <typename C>
-	DeclaringMetaClass<C>&
+	CustomMetaClass<C>&
 	declare()
 	{
 		std::string name = nameOf<C>();
 		MetaType * declared = findType( name );
 		if ( declared) {
-			return *( dynamic_cast< DeclaringMetaClass<C> * >( declared ) );
+			return *( dynamic_cast< CustomMetaClass<C> * >( declared ) );
 		}
 
-		DeclaringMetaClass<C> * mc = new DeclaringMetaClass<C>(name);
+		CustomMetaClass<C> * mc = new CustomMetaClass<C>(name);
 		internal_declare(name, mc);
 
 		return * mc;
 	}
 
 	template <typename C>
-	DeclaringMetaClass<C, boost::true_type>&
+	CustomMetaClass<C, boost::true_type>&
 	declareAbstract()
 	{
 		std::string name = nameOf<C>();
 		MetaType * declared = findType( name );
 		if ( declared) {
-			return *( dynamic_cast< DeclaringMetaClass<C, boost::true_type> * >( declared ) );
+			return *( dynamic_cast< CustomMetaClass<C, boost::true_type> * >( declared ) );
 		}
 
-		DeclaringMetaClass<C, boost::true_type> * mc = new DeclaringMetaClass<C, boost::true_type>(name);
+		CustomMetaClass<C, boost::true_type> * mc = new CustomMetaClass<C, boost::true_type>(name);
 		internal_declare(name, mc);
 
 		return * mc;

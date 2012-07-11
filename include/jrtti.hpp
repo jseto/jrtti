@@ -41,14 +41,14 @@ namespace jrtti {
 	}
 
 	template <typename C>
-	DeclaringMetaClass<C>&
+	CustomMetaClass<C>&
 	declare() {
 
 		return Reflector::instance().declare<C>();
 	}
 
 	template <typename C>
-	DeclaringMetaClass<C, boost::true_type>&
+	CustomMetaClass<C, boost::true_type>&
 	declareAbstract() {
 		return Reflector::instance().declareAbstract<C>();
 	}

@@ -1,5 +1,5 @@
-#ifndef metaclassH
-#define metaclassH
+#ifndef jrttimetaclassH
+#define jrttimetaclassH
 
 #include <map>
 #include <sstream>
@@ -80,6 +80,42 @@ namespace jrtti {
 
 		Method * getMethod(std::string name) {
 			return m_methods[name];
+		}
+
+		template <class ClassT, class ReturnT>
+		ReturnT
+		call ( std::string methodName, ClassT * instance ) {
+			typedef typename TypedMethod< ClassT, ReturnT > MethodType;
+
+			MethodType * ptr = static_cast< MethodType * >( m_methods[methodName] );
+			if (!ptr) {
+				error("Method '" + methodName + "' not found");
+			}
+			return ptr->call(instance);
+		}
+
+		template <class ClassT, class ReturnT, class Param1, class Param2>
+		ReturnT
+		call ( std::string methodName, ClassT * instance, Param1 p1, Param2 p2 ) {
+			typedef typename TypedMethod< ClassT, ReturnT, Param1, Param2 > MethodType;
+
+			MethodType * ptr = static_cast< MethodType * >( m_methods[methodName] );
+			if (!ptr) {
+				error("Method '" + methodName + "' not found");
+			}
+			return ptr->call(instance,p1,p2);
+		}
+
+		template <class ClassT, class ReturnT, class Param1>
+		ReturnT
+		call ( std::string methodName, ClassT * instance, Param1 p1 ) {
+			typedef typename TypedMethod< ClassT, ReturnT, Param1 > MethodType;
+
+			MethodType * ptr = static_cast< MethodType * >( m_methods[methodName] );
+			if (!ptr) {
+				error("Method '" + methodName + "' not found");
+			}
+			return ptr->call(instance,p1);
 		}
 
 		virtual
@@ -182,15 +218,15 @@ namespace jrtti {
 
 	protected:
 		void
-		set_property( std::string name, Property& prop) {
-			properties()[name] = &prop;
-			m_ownedProperties[ name ] = &prop;
+		set_property( std::string name, Property * prop) {
+			properties()[name] = prop;
+			m_ownedProperties[ name ] = prop;
 		}
 
 		void
-		set_method( std::string name, Method& meth) {
-			m_methods[name] = &meth;
-			m_ownedMethods[ name ] = &meth;
+		set_method( std::string name, Method * meth) {
+			m_methods[name] = meth;
+			m_ownedMethods[ name ] = meth;
 		}
 
 	private:
@@ -214,164 +250,11 @@ namespace jrtti {
 		PropertyMap m_ownedProperties;
 	};
 
-	class MetaIndirectedType: public MetaType	{
-	public:
-		MetaIndirectedType(MetaType & baseType, std::string name_sufix): m_baseType(baseType), MetaType(baseType.typeName() + " " + name_sufix)
-		{}
-
-		virtual
-		boost::any
-		create() {
-			return m_baseType.create();
-		}
-
-		PropertyMap &
-		properties(){
-			return m_baseType.properties();
-		}
-
-	protected:
-		MetaType & m_baseType;
-	};
-
-	class MetaPointerType: public MetaIndirectedType {
-	public:
-		MetaPointerType (MetaType & baseType): MetaIndirectedType(baseType, "*")
-		{}
-
-		bool
-		isPointer() { return true;}
-
-		virtual
-		boost::any
-		fromStr( const boost::any& instance, const std::string& str ) {
-			boost::any ptr = create();
-			MetaIndirectedType::fromStr( ptr, str );
-			return ptr;
-		}
-
-		virtual
-		void *
-		get_instance_ptr( const boost::any & value ) {
-			if ( value.type() == typeid( void * ) ) {
-				return boost::any_cast< void * >( value );
-			}
-			else {
-            	return m_baseType.get_instance_ptr( value );
-			}
-		}
-	};
-
-	class MetaReferenceType: public MetaIndirectedType {
-	public:
-		MetaReferenceType(MetaType & baseType): MetaIndirectedType(baseType, "&")
-		{}
-
-		std::string
-		toStr(const boost::any & value){
-			return m_baseType.toStr(value);
-		}
-
-		virtual
-		void *
-		get_instance_ptr( const boost::any & value ) {
-			return boost::any_cast< void * >( value.content );
-		}
-	};
-
-
-	// predefined std types
-	class MetaInt: public MetaType {
-	public:
-		MetaInt(): MetaType("int") {}
-
-		std::string
-		toStr( const boost::any & value ){
-			return numToStr(boost::any_cast<int>(value));
-		}
-
-		boost::any
-		fromStr( const boost::any& instance, const std::string& str ) {
-			return strToNum<int>( str );
-		}
-
-		virtual
-		boost::any
-		create()
-		{
-			return new int;
-		}
-	};
-
-	class MetaBool: public MetaType {
-	public:
-		MetaBool(): MetaType("bool") {}
-
-		std::string
-		toStr(const boost::any & value){
-			return boost::any_cast<bool>(value) ? "true" : "false";
-		}
-
-		boost::any
-		fromStr( const boost::any& instance, const std::string& str ) {
-			return str == "true";
-		}
-
-		virtual
-		boost::any
-		create() {
-			return new bool;
-		}
-	};
-
-	class MetaDouble: public MetaType {
-	public:
-		MetaDouble(): MetaType("double") {}
-
-		std::string
-		toStr(const boost::any & value){
-			return numToStr(boost::any_cast<double>(value));
-		}
-
-		boost::any
-		fromStr( const boost::any& instance, const std::string& str ) {
-			return strToNum<double>( str );
-		}
-
-		virtual
-		boost::any
-		create() {
-			return new double;
-		}
-	};
-
-	class MetaString: public MetaType {
-	public:
-		MetaString(): MetaType("std::string") {}
-
-		std::string
-		toStr(const boost::any & value){
-			return '"' + boost::any_cast<std::string>(value) + '"';
-		}
-
-		boost::any
-		fromStr( const boost::any& instance, const std::string& str ) {
-			return str;
-		}
-
-		virtual
-		boost::any
-		create() {
-			return new std::string();
-		}
-	};
-
-	/// Internal class used only when declaring
 	template <class ClassT, class IsAbstractT = boost::false_type>
-	class DeclaringMetaClass : public MetaType
+	class CustomMetaClass : public MetaType
 	{
 	public:
-		DeclaringMetaClass(std::string name): MetaType(name) {}
+		CustomMetaClass(std::string name): MetaType(name) {}
 
 		virtual
 		boost::any
@@ -396,7 +279,7 @@ namespace jrtti {
 			};
 		};
 
-		DeclaringMetaClass&
+		CustomMetaClass&
 		inheritsFrom( MetaType& parent )
 		{
 			PropertyMap& parentProps = parent.properties();
@@ -404,7 +287,7 @@ namespace jrtti {
 			return *this;
 		}
 
-		DeclaringMetaClass&
+		CustomMetaClass&
 		inheritsFrom( const std::string& parentName )
 		{
 			inheritsFrom( * jrtti::findType( parentName ) );
@@ -412,14 +295,14 @@ namespace jrtti {
 		}
 
 		template < typename C >
-		DeclaringMetaClass&
+		CustomMetaClass&
 		inheritsFrom()
 		{
 			return inheritsFrom( nameOf< C >() );
 		}
 
 		template < typename SetterT, typename GetterT >
-		DeclaringMetaClass&
+		CustomMetaClass&
 		property( std::string name, SetterT setter, GetterT getter, int tag = 0 )
 		{
 			typedef typename detail::FunctionTypes< GetterT >::result_type	PropT;
@@ -431,7 +314,7 @@ namespace jrtti {
 		}
 
 		template < typename PropT >
-		DeclaringMetaClass&
+		CustomMetaClass&
 		property(std::string name,  PropT (ClassT::*getter)(), int tag = 0 )
 		{
 			typedef typename boost::remove_reference< PropT >::type		PropNoRefT;
@@ -443,7 +326,7 @@ namespace jrtti {
 		}
 
 		template <typename PropT>
-		DeclaringMetaClass&
+		CustomMetaClass&
 		property(std::string name, PropT ClassT::* member, int tag = 0 )
 		{
 			typedef typename PropT ClassT::* 	MemberType;
@@ -451,37 +334,37 @@ namespace jrtti {
 		}
 
 		template <typename ReturnType>
-		DeclaringMetaClass&
+		CustomMetaClass&
 		method(std::string name, boost::function<ReturnType (ClassT*)> f)
 		{
-			typedef DeclaredMethod<ClassT,ReturnType> MethodType;
+			typedef TypedMethod<ClassT,ReturnType> MethodType;
 			typedef typename boost::function<ReturnType (ClassT*)> FunctionType;
 
 			return fillMethod<MethodType, FunctionType>(name,f);
 		}
 
 		template <typename ReturnType, typename Param1>
-		DeclaringMetaClass&
+		CustomMetaClass&
 		method(std::string name,boost::function<ReturnType (ClassT*, Param1)> f)
 		{
-			typedef typename DeclaredMethod<ClassT,ReturnType, Param1> MethodType;
+			typedef typename TypedMethod<ClassT,ReturnType, Param1> MethodType;
 			typedef typename boost::function<ReturnType (ClassT*, Param1)> FunctionType;
 
 			return fillMethod<MethodType, FunctionType>(name,f);
 		}
 
 		template <typename ReturnType, typename Param1, typename Param2>
-		DeclaringMetaClass&
+		CustomMetaClass&
 		method(std::string name,boost::function<ReturnType (ClassT*, Param1, Param2)> f)
 		{
-			typedef typename DeclaredMethod<ClassT,ReturnType, Param1, Param2> MethodType;
+			typedef typename TypedMethod<ClassT,ReturnType, Param1, Param2> MethodType;
 			typedef typename boost::function<ReturnType (ClassT*, Param1, Param2)> FunctionType;
 
 			return fillMethod<MethodType, FunctionType>(name,f);
 		}
 
 		template <typename ReturnType, typename Param1, typename Param2>
-		DeclaredMethod<ClassT,ReturnType, Param1, Param2>&
+		TypedMethod<ClassT,ReturnType, Param1, Param2>&
 		getMethod(std::string name)
 		{
 			typedef Method<ClassT,ReturnType, Param1, Param2> ElementType;
@@ -510,18 +393,18 @@ namespace jrtti {
 
 	private:
 		template <typename MethodType, typename FunctionType>
-		DeclaringMetaClass&
+		CustomMetaClass&
 		fillMethod(std::string name, FunctionType function)
 		{
-			MethodType& m = MethodType();
-			m.name(name);
-			m.function(function);
+			MethodType * m = new MethodType();
+			m->name(name);
+			m->function(function);
 			set_method(name, m);
 			return *this;
 		}
 
 		template <typename PropT, typename SetterType, typename GetterType >
-		DeclaringMetaClass&
+		CustomMetaClass&
 		fillProperty(std::string name, SetterType setter, GetterType getter, int tag)
 		{
 			if (  properties().find( name ) == properties().end() )
@@ -531,7 +414,7 @@ namespace jrtti {
 				p->getter(getter);
 				p->name(name);
 				p->tag( tag );
-				set_property(name, *p);
+				set_property(name, p);
 			}
 			return *this;
 		}
@@ -594,5 +477,5 @@ namespace jrtti {
 
 //------------------------------------------------------------------------------
 }; //namespace jrtti
-#endif  //metaclassH
+#endif  //jrttimetaclassH
 

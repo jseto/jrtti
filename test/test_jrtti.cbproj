@@ -2,7 +2,7 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <ProjectGuid>{bf71fb2c-1285-4e7b-b918-5b87708c8b1b}</ProjectGuid>
-    <Config Condition="'$(Config)'==''">Release</Config>
+    <Config Condition="'$(Config)'==''">Debug</Config>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
     <Base>true</Base>
@@ -86,12 +86,15 @@
   <ItemGroup>
     <CppCompile Include="sample.cpp">
       <DependentOn>sample.h</DependentOn>
-      <BuildOrder>8</BuildOrder>
+      <BuildOrder>9</BuildOrder>
     </CppCompile>
     <CppCompile Include="test_jrtti.cpp">
       <DependentOn>test_jrtti.h</DependentOn>
       <BuildOrder>0</BuildOrder>
     </CppCompile>
+    <None Include="..\include\basetypes.hpp">
+      <BuildOrder>8</BuildOrder>
+    </None>
     <None Include="..\include\exception.hpp">
       <BuildOrder>2</BuildOrder>
     </None>
