@@ -53,7 +53,7 @@ public:
 	{
 		std::string name = nameOf<C>();
 		if ( _meta_types.count( name ) ) {
-			return *( dynamic_cast< CustomMetaclass<C> * >( &findType( name ) ) );
+			return *( dynamic_cast< CustomMetaclass<C> * >( &getType( name ) ) );
 		}
 
 		CustomMetaclass<C> * mc = new CustomMetaclass<C>(name);
@@ -68,7 +68,7 @@ public:
 	{
 		std::string name = nameOf<C>();
 		if ( _meta_types.count( name ) ) {
-			return *( dynamic_cast< CustomMetaclass<C, boost::true_type> * >( &findType( name ) ) );
+			return *( dynamic_cast< CustomMetaclass<C, boost::true_type> * >( &getType( name ) ) );
 		}
 
 		CustomMetaclass<C, boost::true_type> * mc = new CustomMetaclass<C, boost::true_type>(name);
@@ -95,7 +95,7 @@ public:
 	}
 
 	Metatype &
-	findType( std::string name )
+	getType( std::string name )
 	{
 		TypeMap::iterator it = _meta_types.find(name);
 		if ( it == _meta_types.end() ) {

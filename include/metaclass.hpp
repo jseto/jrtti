@@ -442,7 +442,7 @@ namespace jrtti {
 		CustomMetaclass&
 		inheritsFrom( const std::string& parentName )
 		{
-			inheritsFrom( jrtti::findType( parentName ) );
+			inheritsFrom( jrtti::getType( parentName ) );
 			return *this;
 		}
 

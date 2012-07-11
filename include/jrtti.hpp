@@ -7,7 +7,7 @@ namespace jrtti {
 	class Error;
 	class Metatype;
 	class Reflector;
-	Metatype &	findType(std::string name);
+	Metatype &	getType(std::string name);
 	Error	error(std::string message);
 }
 
@@ -28,8 +28,8 @@ namespace jrtti {
 	 * \return the found Metatype. NULL if not found
 	 */
 	inline Metatype &
-	findType(std::string name) {
-		return Reflector::instance().findType(name);
+	getType(std::string name) {
+		return Reflector::instance().getType(name);
 	}
 
 	/**

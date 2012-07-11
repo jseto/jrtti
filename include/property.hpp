@@ -72,7 +72,7 @@ public:
 	 */
 	Metatype &
 	type() {
-		return jrtti::findType( typeName() );
+		return jrtti::getType( typeName() );
 	}
 
 	/**

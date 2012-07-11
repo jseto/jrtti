@@ -2,7 +2,9 @@
 #define methodH
 
 namespace jrtti {
-
+/**
+ * \brief Method abstraction
+ */
 class Method {
 public:
 	std::string name() {

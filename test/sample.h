@@ -134,16 +134,16 @@ void useCase() {
 	Sample s;
 
 	//set the property intMember of s object to 15
-	jrtti::findType( "Sample" ).property( "intMember" ).set( &s, 15 );
+	jrtti::getType( "Sample" ).property( "intMember" ).set( &s, 15 );
 
 	//retrieve the value of intMember from s object
-	int i = jrtti::findType( "Sample" ).property( "intMember" ).get<int>( &s );
+	int i = jrtti::getType( "Sample" ).property( "intMember" ).get<int>( &s );
 
 	//same as above using braket operator
-	i = jrtti::findType("Sample")[ "intMember" ].get<int>( &s );
+	i = jrtti::getType("Sample")[ "intMember" ].get<int>( &s );
 
 	//getting a Metatype object
-	jrtti::Metatype & mt = jrtti::findType("Sample");
+	jrtti::Metatype & mt = jrtti::getType("Sample");
 	//and working with it
 	mt[ "intMember" ].set( &s, 23 );
 

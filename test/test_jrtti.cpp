@@ -29,11 +29,11 @@ class MetaTypeTest : public testing::Test {
 	}
 
 	Metatype & mClass(){
-		return jrtti::findType("Sample");
+		return jrtti::getType("Sample");
 	}
 
 	Metatype & derivedClass(){
-		return jrtti::findType("SampleDerived");
+		return jrtti::getType("SampleDerived");
 	}
 
 	// Declares the variables your tests want to use.
@@ -236,7 +236,7 @@ TEST_F(MetaTypeTest, testPropsRO) {
 
 	EXPECT_TRUE(mClass()["testDouble"].isReadWrite());
 	EXPECT_FALSE(mClass()["testRO"].isWritable());
-	EXPECT_TRUE( jrtti::findType("Date").property("d").isWritable() );
+	EXPECT_TRUE( jrtti::getType("Date").property("d").isWritable() );
 
 	int result = (mClass()["testRO"].get<int>(&sample));
 	EXPECT_EQ(23, result);
