@@ -1,9 +1,7 @@
-#ifndef metaclassH
-#define metaclassH
+#ifndef jrttimetaclassH
+#define jrttimetaclassH
 
-#include <memory>
 #include <map>
-#include <string>
 #include <sstream>
 
 #include <boost/function.hpp>
@@ -18,7 +16,7 @@ namespace jrtti {
 		template <typename T>
 		std::string
 		numToStr ( T number ) {
-			std::stringstream ss;
+			std::ostringstream ss;
 			ss << number;
 			return ss.str();
 		}
@@ -26,20 +24,27 @@ namespace jrtti {
 		template <typename T>
 		T
 		strToNum ( const std::string &str ) {
-			std::stringstream ss( str );
+			std::istringstream ss( str );
 			T result;
 			return ss >> result ? result : 0;
 		}
 
-	class MetaType	{
+	/**
+	 * \brief Abstraction for classes
+	 *
+	 * This is the base class for the abstraction of C++ classes. It provides a
+	 * generic untyped Metatype and services to manipulate the members of the
+	 * associated class.
+	 */
+	class Metatype	{
 	public:
 		typedef std::map< std::string, Property * > PropertyMap;
 		typedef std::map< std::string, Method * >	MethodMap;
 
-		MetaType(std::string name): m_type_name(name) {
+		Metatype(std::string name): m_type_name(name) {
 		}
 
-		~MetaType() {
+		~Metatype() {
 			for (PropertyMap::iterator it = m_ownedProperties.begin(); it != m_ownedProperties.end(); ++it) {
 				delete it->second;
 			}
@@ -49,94 +54,278 @@ namespace jrtti {
 			}
 		}
 
+		/**
+		 * Creates a new instance of the associated class
+		 * \return a pointer to the created object in a boost::any container
+		 */
 		virtual
 		boost::any
 		create() = 0;
 
+		/**
+		 * Return the type name of this Metatype
+		 * \return the type name
+		 */
 		std::string
-		typeName()	{
+		name()	{
 			return m_type_name;
 		}
 
+		/**
+		 * \brief Check for pointer type
+		 *
+		 * Check if the associated type is a pointer. ex: declare< Class * >
+		 * \return true if pointer
+		 */
 		virtual
 		bool
 		isPointer() {
 			return false;
 		}
 
+		/**
+		 * \brief Check for reference type
+		 *
+		 * Check if the associated type is a reference. ex: declare< Class & >
+		 * \return true if reference
+		 */
 		virtual
 		bool
 		isReference() {
 			return false;
 		}
 
+		/**
+		 * \brief Returns a property abstraction
+		 *
+		 * Looks for a property of this class by name
+		 * \param name the name of the property to look for
+		 * \return the found property abstraction
+		 * \sa getProperty
+		 */
 		Property& operator [](std::string name) {
-			return getProperty(name);
+			return property(name);
 		}
 
+		/**
+		 * \brief Returns a property abstraction
+		 *
+		 * Looks for a property of this class by name
+		 * \param name the name of the property to look for
+		 * \return the found property abstraction
+		 * \sa operator []
+		 */
 		virtual
 		Property&
-		getProperty( std::string name) {
-			return * properties()[name];
+		property( std::string name) {
+			PropertyMap::iterator it = properties().find(name);
+			if ( it == properties().end() ) {
+				error( "Property '" + name + "' not declared in '" + Metatype::name() + "' metaclass" );
+			}
+			return *it->second;
 		}
 
-		Method * getMethod(std::string name) {
-			return m_methods[name];
+		/**
+		 * \brief Returns a method abstraction
+		 *
+		 * Looks for a method of this class by name
+		 * \param name the name of the method to look for
+		 * \return the found method abstraction
+		 */
+		Method *
+		getMethod(std::string name) {
+			return methods()[name];
 		}
 
+		/**
+		 * \brief Invoke a method without parameters
+		 *
+		 * Invokes a method without parameters from class ClassT by name.
+		 * ClassT template parameter is the class type of this Metatype.
+		 * ReturnT template parameter is the return type of the method.
+		 * Throws error if method not found
+		 * \param methodName the name of the method to invoke
+		 * \param instance the object instance where the method will be invoked
+		 * \return the call result
+		 */
+		template < class ReturnT, class ClassT >
+		ReturnT
+		call ( std::string methodName, ClassT * instance ) {
+			typedef typename TypedMethod< ClassT, ReturnT > MethodType;
+
+			MethodType * ptr = static_cast< MethodType * >( m_methods[methodName] );
+			if (!ptr) {
+				error("Method '" + methodName + "' not found in '" + name() + "' metaclass");
+			}
+			return ptr->call(instance);
+		}
+
+		/**
+		 * \brief Invoke a method with one parameter
+		 *
+		 * Invokes a method with one parameter from class ClassT by name.
+		 * ClassT template parameter is the class type of this Metatype.
+		 * ReturnT template parameter is the return type of the method.
+		 * Param1 template parameter is the parameter type of the method.
+		 * Throws error if method not found
+		 * \param methodName the name of the method to invoke
+		 * \param instance the object instance where the method will be invoked
+		 * \param p1 method parameter
+		 * \return the call result
+		 */
+		template <class ReturnT, class ClassT, class Param1>
+		ReturnT
+		call ( std::string methodName, ClassT * instance, Param1 p1 ) {
+			typedef typename TypedMethod< ClassT, ReturnT, Param1 > MethodType;
+
+			MethodType * ptr = static_cast< MethodType * >( m_methods[methodName] );
+			if (!ptr) {
+				error("Method '" + methodName + "' not found in '" + name() + "' metaclass");
+			}
+			return ptr->call(instance,p1);
+		}
+
+		/**
+		 * \brief Invoke a method without parameters
+		 *
+		 * Invokes a method without parameters from class ClassT by name.
+		 * ClassT template parameter is the class type of this Metatype.
+		 * ReturnT template parameter is the return type of the method.
+		 * Param1 template parameter is the first parameter type of the method.
+		 * Param2 template parameter is the second parameter type of the method.
+		 * Throws error if method not found
+		 * \param methodName the name of the method to invoke
+		 * \param instance the object instance where the method will be invoked
+		 * \param p1 first method parameter
+		 * \param p2 second method parameter
+		 * \return the call result
+		 */
+		template <class ReturnT, class ClassT, class Param1, class Param2>
+		ReturnT
+		call ( std::string methodName, ClassT * instance, Param1 p1, Param2 p2 ) {
+			typedef typename TypedMethod< ClassT, ReturnT, Param1, Param2 > MethodType;
+
+			MethodType * ptr = static_cast< MethodType * >( m_methods[methodName] );
+			if (!ptr) {
+				error("Method '" + methodName + "' not found in '" + name() + "' metaclass");
+			}
+			return ptr->call(instance,p1,p2);
+		}
+
+		/**
+		 * \brief Evaluates a full categorized property
+		 *
+		 * Returns the value of a full categorized property in a boost::any
+		 * container.
+		 * \param instance the object instance from where to retrieve the property value
+		 * \param path full categorized property name dotted separated. ex: "pont.x"
+		 * \return the property value
+		 */
 		boost::any
-		eval( boost::any value, std::string path) {
+		eval( const boost::any & instance, std::string path) {
 			size_t pos = path.find_first_of(".");
 			std::string name = path.substr( 0, pos );
-			Property& prop = getProperty(name);
+			Property& prop = property(name);
 
-			void * instance = get_instance_ptr(value.content);
+			void * inst = get_instance_ptr(instance);
 			if (pos == std::string::npos)
-				return prop.get(instance);
+				return prop.get(inst);
 			else {
-				return prop.type()->eval(prop.get(instance), path.substr( pos + 1 ));
+				return prop.type().eval( prop.get( inst ), path.substr( pos + 1 ));
 			}
 		}
 
+		/**
+		 * \brief Evaluates a full categorized property
+		 *
+		 * Returns the value of a full categorized property as type PropT.
+		 * Template parameter PropT is the expected type of the property
+		 * \param instance the object instance from where to retrieve the property value
+		 * \param path full categorized property name dotted separated. ex: "pont.x"
+		 * \return the property value
+		 */
+		template < typename PropT >
+		eval( const boost::any & instance, std::string path) {
+			return boost::any_cast< PropT >( eval( instance, path ) );
+		}
+
+		/**
+		 * \brief Set the value of a full categorized property
+		 *
+		 * Sets the value of a full categorized property.
+		 * \param instance the object instance from where to set the property value
+		 * \param path full categorized property name dotted separated. ex: "pont.x"
+		 * \param value property value to set
+		 * \return used internally
+		 */
+		boost::any
+		apply( const boost::any& instance, std::string path, const boost::any& value ) {
+			size_t pos = path.find_first_of(".");
+			std::string name = path.substr( 0, pos );
+			Property& prop = property(name);
+
+			void * inst = get_instance_ptr(instance);
+			if (pos == std::string::npos) {
+				prop.set( inst, value );
+			}
+			else {
+				const boost::any &mod = prop.type().apply( prop.get(inst), path.substr( pos + 1 ), value );
+				if ( !prop.type().isPointer() ) {
+					prop.set( inst, mod );
+				}
+			}
+			return copyFromInstance( inst );
+		}
+
+		/**
+		 * \brief Retrieves a string representation of object contens
+		 *
+		 * Retrieves a string representation of the object contens in a JSON format.
+		 * \param instance the object instance to retrieve
+		 * \return the string representation
+		 */
 		virtual
 		std::string
-		toStr(const boost::any & value) {
-			void * instance = get_instance_ptr(value.content);
+		toStr(const boost::any & instance) {
+			void * inst = get_instance_ptr(instance);
 			std::string result = "{\n";
 			bool need_nl = false;
-			for( PropertyMap::iterator it = properties().begin(); it != properties().end(); it++) {
-				Property& prop = * it->second;
-				MetaType * t = prop.type();
-				const boost::any &pv = prop.get(instance);
-				if (need_nl) result += ",\n";
-				need_nl = true;
-				result += ident( "\"" + prop.name() + "\"" + ": " + t->toStr(pv) );
+			for( PropertyMap::iterator it = properties().begin(); it != properties().end(); ++it) {
+				Property * prop = it->second;
+				if ( prop ) {
+					if (need_nl) result += ",\n";
+					need_nl = true;
+					result += ident( "\"" + prop->name() + "\"" + ": " + prop->type().toStr( prop->get(inst) ) );
+				}
 			}
 			return result += "\n}";
 		}
 
-		virtual
-		void
-		write( void * instance, ostream & os) {
-			std::string &held = *(std::string*)instance;
-			os << toStr(held) << std::endl;
-		}
-
+		/**
+		 * \brief Fills an object from a string representation
+		 *
+		 * Fills the object pointer by instance from a JSON string representation
+		 *  of the object.
+		 * \param instance the object instance to fill
+		 * \param str a JSON formated string with data to fill the object
+		 * \return used internally
+		 */
 		virtual
 		boost::any
 		fromStr( const boost::any & instance, const std::string& str ) {
-			void * inst = get_instance_ptr(instance.content);
+			void * inst = get_instance_ptr(instance);
 			JSONParser parser( str );
 
-			for( JSONParser::iterator it = parser().begin(); it != parser().end(); it++) {
-				Property& prop = * properties()[ it->first ];
-				if ( prop.isWritable() ) {
-					MetaType * t = prop.type();
-					const boost::any &propInstance = prop.get( inst );
-					prop.set( inst, t->fromStr( propInstance, parser[ it->first ] ) );
+			for( JSONParser::iterator it = parser.begin(); it != parser.end(); ++it) {
+				Property * prop = properties()[ it->first ];
+				if ( prop ) {
+					if ( prop->isWritable() ) {
+						const boost::any &mod = prop->type().fromStr( prop->get( inst ), parser[ it->first ] );
+						prop->set( inst, mod );
+					}
 				}
 			}
-			return instance;
+			return copyFromInstance( inst );
 		}
 
 		virtual
@@ -153,29 +342,28 @@ namespace jrtti {
 
 		virtual
 		void *
-		get_instance_ptr(boost::any::placeholder * content) {
+		get_instance_ptr(const boost::any& content) {
 			return NULL;
 		}
 
 		virtual
-		void *
-		get_pointer_instance_ptr(boost::any::placeholder * content) {
-			return NULL;
+		boost::any
+		copyFromInstance( void * inst ) {
+			return boost::any();
 		}
 
 	protected:
 		void
-		set_property( std::string name, Property& prop) {
-			properties()[name] = &prop;
-			m_ownedProperties[ name ] = &prop;
+		set_property( std::string name, Property * prop) {
+			properties()[name] = prop;
+			m_ownedProperties[ name ] = prop;
 		}
 
 		void
-		set_method( std::string name, Method& meth) {
-			m_methods[name] = &meth;
-			m_ownedMethods[ name ] = &meth;
+		set_method( std::string name, Method * meth) {
+			m_methods[name] = meth;
+			m_ownedMethods[ name ] = meth;
 		}
-
 
 	private:
 		std::string
@@ -198,163 +386,11 @@ namespace jrtti {
 		PropertyMap m_ownedProperties;
 	};
 
-	class MetaIndirectedType: public MetaType	{
-	public:
-		MetaIndirectedType(MetaType & baseType, std::string name_sufix): m_baseType(baseType), MetaType(baseType.typeName() + " " + name_sufix)
-		{}
-
-		virtual
-		boost::any
-		create() {
-			return m_baseType.create();
-		}
-
-		PropertyMap &
-		properties(){
-			return m_baseType.properties();
-		}
-
-	protected:
-		MetaType & m_baseType;
-	};
-
-	class MetaPointerType: public MetaIndirectedType {
-	public:
-		MetaPointerType (MetaType & baseType): MetaIndirectedType(baseType, "*")
-		{}
-
-		bool
-		isPointer() { return true;}
-
-		boost::any
-		fromStr( const boost::any& instance, const std::string& str ) {
-			boost::any ptr = create();
-			MetaIndirectedType::fromStr( ptr, str );
-			return ptr;
-		}
-
-		void
-		write( void * instance, ostream & os) {
-			m_baseType.write(instance, os);
-		}
-
-	protected:
-		void *
-		get_instance_ptr(boost::any::placeholder * content) {
-			void * result = m_baseType.get_pointer_instance_ptr(content);
-			return result;
-		}
-	};
-
-	class MetaReferenceType: public MetaIndirectedType {
-	public:
-		MetaReferenceType(MetaType & baseType): MetaIndirectedType(baseType, "&")
-		{}
-
-		std::string
-		toStr(const boost::any & value){
-			return m_baseType.toStr(value);
-		}
-
-		void
-		write( void * instance, ostream & os){
-			m_baseType.write(instance, os);
-		}
-	};
-
-
-	// predefined std types
-	class MetaInt: public MetaType {
-	public:
-		MetaInt(): MetaType("int") {}
-
-		std::string
-		toStr( const boost::any & value ){
-			return numToStr(boost::any_cast<int>(value));
-		}
-
-		boost::any
-		fromStr( const boost::any& instance, const std::string& str ) {
-			return strToNum<int>( str );
-		}
-
-		virtual
-		boost::any
-		create()
-		{
-			return new int;
-		}
-	};
-
-	class MetaBool: public MetaType {
-	public:
-		MetaBool(): MetaType("bool") {}
-
-		std::string
-		toStr(const boost::any & value){
-			return boost::any_cast<bool>(value) ? "true" : "false";
-		}
-
-		boost::any
-		fromStr( const boost::any& instance, const std::string& str ) {
-			return str == "true";
-		}
-
-		virtual
-		boost::any
-		create() {
-			return new bool;
-		}
-	};
-
-	class MetaDouble: public MetaType {
-	public:
-		MetaDouble(): MetaType("double") {}
-
-		std::string
-		toStr(const boost::any & value){
-			return numToStr(boost::any_cast<double>(value));
-		}
-
-		boost::any
-		fromStr( const boost::any& instance, const std::string& str ) {
-			return strToNum<double>( str );
-		}
-
-		virtual
-		boost::any
-		create() {
-			return new double;
-		}
-	};
-
-	class MetaString: public MetaType {
-	public:
-		MetaString(): MetaType("std::string") {}
-
-		std::string
-		toStr(const boost::any & value){
-			return '"' + boost::any_cast<std::string>(value) + '"';
-		}
-
-		boost::any
-		fromStr( const boost::any& instance, const std::string& str ) {
-			return str;
-		}
-
-		virtual
-		boost::any
-		create() {
-			return new std::string();
-		}
-	};
-
-	/// Internal class used only when declaring
 	template <class ClassT, class IsAbstractT = boost::false_type>
-	class DeclaringMetaClass : public MetaType
+	class CustomMetaclass : public Metatype
 	{
 	public:
-		DeclaringMetaClass(std::string name): MetaType(name) {}
+		CustomMetaclass(std::string name): Metatype(name) {}
 
 		virtual
 		boost::any
@@ -379,30 +415,65 @@ namespace jrtti {
 			};
 		};
 
-		DeclaringMetaClass&
-		inheritsFrom( MetaType& parent )
+		/**
+		 * \brief Sets the parent class
+		 *
+		 * Use this method to denote the parent class from where this class
+		 * inherits from. Parent class should be previously declared
+		 * \param parent the parent metatype
+		 * \return this for chain calls
+		 */
+		CustomMetaclass&
+		inheritsFrom( Metatype& parent )
 		{
 			PropertyMap& parentProps = parent.properties();
 			properties().insert( parentProps.begin(), parentProps.end() );
 			return *this;
 		}
 
-		DeclaringMetaClass&
+		/**
+		 * \brief Sets the parent class
+		 *
+		 * Use this method to denote the parent class from where this class
+		 * inherits from. Parent class should be previously declared
+		 * \param parentName the parent name representation
+		 * \return this for chain calls
+		 */
+		CustomMetaclass&
 		inheritsFrom( const std::string& parentName )
 		{
-			inheritsFrom( * jrtti::findType( parentName ) );
+			inheritsFrom( jrtti::getType( parentName ) );
 			return *this;
 		}
 
+		/**
+		 * \brief Sets the parent class
+		 *
+		 * Use this method to denote the parent class from where this class
+		 * inherits from. Parent class should be previously declared
+		 * Template parameter C is the parent class
+		 * \return this for chain calls
+		 */
 		template < typename C >
-		DeclaringMetaClass&
+		CustomMetaclass&
 		inheritsFrom()
 		{
 			return inheritsFrom( nameOf< C >() );
 		}
 
+		/**
+		 * \brief Declares a property with both accessor methods
+		 *
+		 * Declares a property with a setter and a getter method.
+		 * A property is an abstraction of class members.
+		 * \param name property name
+		 * \param setter the address of the setter method
+		 * \param getter the address of the getter method
+		 * \param tag a custom user tag
+		 * \return this for chain calls
+		 */
 		template < typename SetterT, typename GetterT >
-		DeclaringMetaClass&
+		CustomMetaclass&
 		property( std::string name, SetterT setter, GetterT getter, int tag = 0 )
 		{
 			typedef typename detail::FunctionTypes< GetterT >::result_type	PropT;
@@ -413,8 +484,18 @@ namespace jrtti {
 			return fillProperty< typename PropT, BoostSetter, BoostGetter >(name, boost::bind(setter,_1,_2), boost::bind(getter,_1), tag);
 		}
 
+		/**
+		 * \brief Declares a property with only getter accessor method
+		 *
+		 * Declares a property with only a getter method.
+		 * A property is an abstraction of class members.
+		 * \param name property name
+		 * \param getter the address of the getter method
+		 * \param tag a custom user tag
+		 * \return this for chain calls
+		 */
 		template < typename PropT >
-		DeclaringMetaClass&
+		CustomMetaclass&
 		property(std::string name,  PropT (ClassT::*getter)(), int tag = 0 )
 		{
 			typedef typename boost::remove_reference< PropT >::type		PropNoRefT;
@@ -425,46 +506,94 @@ namespace jrtti {
 			return fillProperty< typename PropT, BoostSetter, BoostGetter >(name, setter, getter, tag);
 		}
 
+		/**
+		 * \brief Declares a property from a class member
+		 *
+		 * Declares a property from a class member of type PropT.
+		 * A property is an abstraction of class members.
+		 * \param name property name
+		 * \param member the address of the method member
+		 * \param tag a custom user tag
+		 * \return this for chain calls
+		 */
 		template <typename PropT>
-		DeclaringMetaClass&
+		CustomMetaclass&
 		property(std::string name, PropT ClassT::* member, int tag = 0 )
 		{
 			typedef typename PropT ClassT::* 	MemberType;
 			return fillProperty< PropT, MemberType, MemberType >(name, member, member, tag);
 		}
 
+		/**
+		 * \brief Declares a method without parameters
+		 *
+		 * Declares a method without parameters.
+		 * Template parameter ReturnType is the return type of the declared method.
+		 * If method returns void, simply note void in template speciallization.
+		 * \param name the method name
+		 * \param f address of the method
+		 * \return this for chain call
+		 */
 		template <typename ReturnType>
-		DeclaringMetaClass&
+		CustomMetaclass&
 		method(std::string name, boost::function<ReturnType (ClassT*)> f)
 		{
-			typedef DeclaredMethod<ClassT,ReturnType> MethodType;
+			typedef TypedMethod<ClassT,ReturnType> MethodType;
 			typedef typename boost::function<ReturnType (ClassT*)> FunctionType;
 
 			return fillMethod<MethodType, FunctionType>(name,f);
 		}
 
+		/**
+		 * \brief Declares a method with one parameter
+		 *
+		 * Declares a method with one parameter.
+		 * Template parameter ReturnType is the return type of the declared method.
+		 * If method returns void, simply note void in template speciallization.
+		 * Template parameter Param1 is the type of the parameter
+		 * \param name the method name
+		 * \param f address of the method
+		 * \return this for chain call
+		 */
 		template <typename ReturnType, typename Param1>
-		DeclaringMetaClass&
+		CustomMetaclass&
 		method(std::string name,boost::function<ReturnType (ClassT*, Param1)> f)
 		{
-			typedef typename DeclaredMethod<ClassT,ReturnType, Param1> MethodType;
+			typedef typename TypedMethod<ClassT,ReturnType, Param1> MethodType;
 			typedef typename boost::function<ReturnType (ClassT*, Param1)> FunctionType;
 
 			return fillMethod<MethodType, FunctionType>(name,f);
 		}
 
+		/**
+		 * \brief Declares a method with two parameters
+		 *
+		 * Declares a method with two parameters.
+		 * Template parameter ReturnType is the return type of the declared method.
+		 * If method returns void, simply note void in template speciallization.
+		 * Template parameter Param1 is the type of the first parameter
+		 * Template parameter Param2 is the type of the second parameter
+		 * \param name the method name
+		 * \param f address of the method
+		 * \return this for chain call
+		 */
 		template <typename ReturnType, typename Param1, typename Param2>
-		DeclaringMetaClass&
+		CustomMetaclass&
 		method(std::string name,boost::function<ReturnType (ClassT*, Param1, Param2)> f)
 		{
-			typedef typename DeclaredMethod<ClassT,ReturnType, Param1, Param2> MethodType;
+			typedef typename TypedMethod<ClassT,ReturnType, Param1, Param2> MethodType;
 			typedef typename boost::function<ReturnType (ClassT*, Param1, Param2)> FunctionType;
 
 			return fillMethod<MethodType, FunctionType>(name,f);
 		}
 
+		/**
+		 * Returns the typed method
+		 * \param name the method name to look for
+		 * \return the typed method abstraction
+		 */
 		template <typename ReturnType, typename Param1, typename Param2>
-		DeclaredMethod<ClassT,ReturnType, Param1, Param2>&
+		TypedMethod<ClassT,ReturnType, Param1, Param2>&
 		getMethod(std::string name)
 		{
 			typedef Method<ClassT,ReturnType, Param1, Param2> ElementType;
@@ -473,32 +602,38 @@ namespace jrtti {
 
 	protected:
 		void *
-		get_instance_ptr(boost::any::placeholder * content){
+		get_instance_ptr(const boost::any& content){
 #ifdef BOOST_NO_IS_ABSTRACT
 			return _get_instance_ptr< IsAbstractT >( content );
 #else
 			return _get_instance_ptr< ClassT >( content );
 #endif
 		}
-		void *
-		get_pointer_instance_ptr(boost::any::placeholder * content){
-			ClassT * held = static_cast<boost::any::holder<ClassT*> *>(content)->held;
-			return (void*)held;
+
+		boost::any
+		copyFromInstance( void * inst )
+		{
+#ifdef BOOST_NO_IS_ABSTRACT
+			return _copyFromInstance< IsAbstractT >( inst );
+#else
+			return _copyFromInstance< ClassT >( inst );
+#endif
 		}
+
 	private:
 		template <typename MethodType, typename FunctionType>
-		DeclaringMetaClass&
+		CustomMetaclass&
 		fillMethod(std::string name, FunctionType function)
 		{
-			MethodType& m = MethodType();
-			m.name(name);
-			m.function(function);
+			MethodType * m = new MethodType();
+			m->name(name);
+			m->function(function);
 			set_method(name, m);
 			return *this;
 		}
 
 		template <typename PropT, typename SetterType, typename GetterType >
-		DeclaringMetaClass&
+		CustomMetaclass&
 		fillProperty(std::string name, SetterType setter, GetterType getter, int tag)
 		{
 			if (  properties().find( name ) == properties().end() )
@@ -508,77 +643,68 @@ namespace jrtti {
 				p->getter(getter);
 				p->name(name);
 				p->tag( tag );
-				set_property(name, *p);
+				set_property(name, p);
 			}
 			return *this;
 		}
 
 #ifdef BOOST_NO_IS_ABSTRACT
-	//SFINAE
-		template< typename AbstT >
-		typename boost::disable_if< typename AbstT, void * >::type
-		_get_instance_ptr(boost::any::placeholder * content){
-			ClassT &held = static_cast<boost::any::holder<ClassT> *>(content)->held;
-			return (void*)&held;
-		}
-
-	//SFINAE
-		template< typename AbstT >
-		typename boost::enable_if< typename AbstT, void * >::type
-		_get_instance_ptr(boost::any::placeholder * content){
-			return NULL;
-		}
-
-	//SFINAE
-		template< typename AbstT >
-		typename boost::disable_if< typename AbstT, boost::any >::type
-		_create()
-		{
-			return new ClassT();
-		}
-
-	//SFINAE
-		template< typename AbstT >
-		typename boost::enable_if< typename AbstT, boost::any >::type
-		_create()
-		{
-			return NULL;
-		}
+	#define _IS_ABSTRACT( type ) type
 #else
-	//SFINAE
-		template< typename T >
-		typename boost::disable_if< typename boost::is_abstract< typename T >::type, void * >::type
-		_get_instance_ptr(boost::any::placeholder * content){
-			ClassT &held = static_cast<boost::any::holder<ClassT> *>(content)->held;
-			return (void*)&held;
+	#define _IS_ABSTRACT( type ) boost::is_abstract< typename type >::type
+#endif
+	//SFINAE _get_instance_ptr
+		template< typename AbstT >
+		typename boost::disable_if< typename _IS_ABSTRACT( AbstT ), void * >::type
+		_get_instance_ptr(const boost::any& content){
+			if ( content.type() == typeid( ClassT ) ) {
+				static ClassT dummy = ClassT();
+				dummy = boost::any_cast< ClassT >(content);
+				return &dummy;
+			}
+			return (void *) boost::any_cast< ClassT * >(content);
 		}
 
-	//SFINAE
-		template< typename T >
-		typename boost::enable_if< typename boost::is_abstract< typename T >::type, void * >::type
-		_get_instance_ptr(boost::any::placeholder * content){
+	//SFINAE _get_instance_ptr
+		template< typename AbstT >
+		typename boost::enable_if< typename _IS_ABSTRACT( AbstT ), void * >::type
+		_get_instance_ptr(const boost::any & content){
 			return NULL;
 		}
 
-	//SFINAE
-		template< typename T >
-		typename boost::disable_if< typename boost::is_abstract< typename T >::type, boost::any >::type
+	//SFINAE _copyFromInstance
+		template< typename AbstT >
+		typename boost::disable_if< typename _IS_ABSTRACT( AbstT ), boost::any >::type
+		_copyFromInstance( void * inst ){
+			ClassT obj = *(ClassT *) inst;
+			return obj;
+		}
+
+	//SFINAE _copyFromInstance
+		template< typename AbstT >
+		typename boost::enable_if< typename _IS_ABSTRACT( AbstT ), boost::any >::type
+		_copyFromInstance( void * inst ){
+			return boost::any();
+		}
+
+	//SFINAE _create
+		template< typename AbstT >
+		typename boost::disable_if< typename _IS_ABSTRACT( AbstT ), boost::any >::type
 		_create()
 		{
 			return new ClassT();
 		}
 
-	//SFINAE
-		template< typename T >
-		typename boost::enable_if< typename boost::is_abstract< typename T >::type, boost::any >::type
+	//SFINAE _create
+		template< typename AbstT >
+		typename boost::enable_if< typename _IS_ABSTRACT( AbstT ), boost::any >::type
 		_create()
 		{
 			return NULL;
 		}
-#endif
 	};
 
 //------------------------------------------------------------------------------
 }; //namespace jrtti
-#endif  //metaclassH
+#endif  //jrttimetaclassH
 

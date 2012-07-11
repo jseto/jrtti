@@ -1,16 +1,18 @@
 #ifndef reflectorH
 #define reflectorH
 
-#include <string>
-#include <map>
-#include <iostream>
+//#include <string>
+//#include <map>
+//#include <iostream>
 #include <boost/type_traits/is_abstract.hpp>
+
+#include "basetypes.hpp"
 
 namespace jrtti {
 class Reflector
 {
 public:
-	typedef std::map<std::string, MetaType * > TypeMap;
+	typedef std::map<std::string, Metatype * > TypeMap;
 
 	~Reflector()
 	{
@@ -31,7 +33,8 @@ public:
 		return inst;
 	}
 
-	Reflector& operator() () {
+	Reflector&
+	operator() () {
 		return instance();
 	}
 
@@ -44,41 +47,31 @@ public:
 		internal_declare("std::string", new MetaString());
 	}
 
-	void
-	inspect(){
-		std::cout << "\nReflector<";
-		for( TypeMap::iterator it = _meta_types.begin(); it != _meta_types.end(); it++) {
-			std::cout << "{" << it->first << " => " << it->second->typeName() << "}>\n";
-		}
-	}
-
 	template <typename C>
-	DeclaringMetaClass<C>&
+	CustomMetaclass<C>&
 	declare()
 	{
 		std::string name = nameOf<C>();
-		MetaType * declared = findType( name );
-		if ( declared) {
-			return *( dynamic_cast< DeclaringMetaClass<C> * >( declared ) );
+		if ( _meta_types.count( name ) ) {
+			return *( dynamic_cast< CustomMetaclass<C> * >( &getType( name ) ) );
 		}
 
-		DeclaringMetaClass<C> * mc = new DeclaringMetaClass<C>(name);
+		CustomMetaclass<C> * mc = new CustomMetaclass<C>(name);
 		internal_declare(name, mc);
 
 		return * mc;
 	}
 
 	template <typename C>
-	DeclaringMetaClass<C, boost::true_type>&
+	CustomMetaclass<C, boost::true_type>&
 	declareAbstract()
 	{
 		std::string name = nameOf<C>();
-		MetaType * declared = findType( name );
-		if ( declared) {
-			return *( dynamic_cast< DeclaringMetaClass<C, boost::true_type> * >( declared ) );
+		if ( _meta_types.count( name ) ) {
+			return *( dynamic_cast< CustomMetaclass<C, boost::true_type> * >( &getType( name ) ) );
 		}
 
-		DeclaringMetaClass<C, boost::true_type> * mc = new DeclaringMetaClass<C, boost::true_type>(name);
+		CustomMetaclass<C, boost::true_type> * mc = new CustomMetaclass<C, boost::true_type>(name);
 		internal_declare(name, mc);
 
 		return * mc;
@@ -101,10 +94,14 @@ public:
 		return name;
 	}
 
-	MetaType *
-	findType( std::string name )
+	Metatype &
+	getType( std::string name )
 	{
-		return _meta_types[name];
+		TypeMap::iterator it = _meta_types.find(name);
+		if ( it == _meta_types.end() ) {
+			error( "Metatype '" + name + "' not declared" );
+		}
+		return *it->second;
 	}
 
 private:
@@ -114,14 +111,14 @@ private:
 	};
 
 	void
-	internal_declare(std::string name, MetaType * mc)
+	internal_declare(std::string name, Metatype * mc)
 	{
-		MetaType * ptr_mc = new MetaPointerType(*mc);
-		MetaType * ref_mc = new MetaReferenceType(*mc);
+		Metatype * ptr_mc = new MetaPointerType(*mc);
+		Metatype * ref_mc = new MetaReferenceType(*mc);
 
 		_meta_types[name] = mc;
-		_meta_types[ptr_mc->typeName()] = ptr_mc;
-		_meta_types[ref_mc->typeName()] = ref_mc;
+		_meta_types[ptr_mc->name()] = ptr_mc;
+		_meta_types[ref_mc->name()] = ref_mc;
 	}
 
 

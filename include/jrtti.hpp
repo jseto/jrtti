@@ -1,67 +1,81 @@
 #ifndef jrttiH
 #define jrttiH
 
-//#include <boost/any.hpp>
 #include "exception.hpp"
 
 namespace jrtti {
 	class Error;
+	class Metatype;
 	class Reflector;
-	class MetaType;
-
+	Metatype &	getType(std::string name);
 	Error	error(std::string message);
-
-	template <typename C>
-	std::string nameOf();
-
-	template <typename C>
-	void	alias(std::string new_name);
-
-	MetaType *	findType(std::string name);
-
-	void clear();
 }
 
-#include "metaclass.hpp"
 #include "reflector.hpp"
-
+/**
+ * \brief jrtti top level functions
+ */
 namespace jrtti {
-	namespace {
-//		Registry _reflector = Registry();
-	}
-
 	inline Error
 	error(std::string message)	{
 		return Error(message);
 	}
 
-	inline MetaType *
-	findType(std::string name) {
-		return Reflector::instance().findType(name);
+	/**
+	 * \brief Retrieve Metatype
+	 * Looks for a Metatype by name in the reflection database
+	 * \param name the Metatype name to look for
+	 * \return the found Metatype. NULL if not found
+	 */
+	inline Metatype &
+	getType(std::string name) {
+		return Reflector::instance().getType(name);
 	}
 
-
+	/**
+	 * \brief Get the name of class C
+	 * \return the name of class C
+	 */
 	inline template <typename C>
 	std::string
 	nameOf(){
 		return Reflector::instance().nameOf<C>();
 	}
 
+	/**
+	 * \brief Gives an alias name
+	 *
+	 * Set an alias name for class C
+	 * \param new_name the alias name for class C
+	 */
 	inline template <typename C>
 	void
 	alias(std::string new_name) {
 		Reflector::instance().alias<C>(new_name);
 	}
 
+	/**
+	 * \brief Declare a user metaclass
+	 *
+	 * Declares a new user metaclass based on class C
+	 *
+	 * \return this to chain calls
+	 */
 	template <typename C>
-	DeclaringMetaClass<C>&
+	CustomMetaclass<C>&
 	declare() {
-
 		return Reflector::instance().declare<C>();
 	}
 
+	/**
+	 * \brief Declare an abstract user metaclass
+	 *
+	 * Declares a new abstract user metaclass based on class C
+	 *
+	 * \return this to chain calls
+	 */
 	template <typename C>
-	DeclaringMetaClass<C, boost::true_type>&
+	CustomMetaclass<C, boost::true_type>&
 	declareAbstract() {
 		return Reflector::instance().declareAbstract<C>();
 	}
@@ -70,7 +84,6 @@ namespace jrtti {
 	clear() {
 		Reflector::instance().clear();
 	}
-
 }
 
 #endif       // jrttiH

@@ -1,16 +1,11 @@
 #ifndef jsonparserH
 #define jsonparserH
 
-#include <string>
-
 namespace jrtti {
 
-class JSONParser {
-	typedef std::map< std::string, std::string > ParserMap;
+class JSONParser : public std::map< std::string, std::string > {
 public:
-	typedef ParserMap::iterator iterator;
-
-	JSONParser( const std::string& jsonStr ) {
+	JSONParser( const std::string& jsonStr ) : std::map< std::string, std::string >() {
 		m_jsonStr = jsonStr;
 		pos = 1;
 		while ( pos < m_jsonStr.length() ) {
@@ -19,18 +14,8 @@ public:
 				return;
 			}
 			std::string value = findValue();
-			m_entries[ key ] = value;
+			insert( std::pair< std::string, std::string >( key, value ) );
 		}
-	}
-
-	const std::string&
-	operator [] ( const std::string& key ) {
-		return m_entries[ key ];
-	}
-
-	ParserMap&
-	operator () () {
-        return m_entries;
 	}
 
 private:
@@ -60,17 +45,14 @@ private:
 		size_t start = pos;
 		// is string
 		if ( m_jsonStr[ pos ] == '"' ) {
-			++pos;
+			start = ++pos;
 			moveToNextQuote();
 		}
 		else
 		{
 			// is object
 			if ( m_jsonStr[ pos ] == '{' ) {
-				while ( ( m_jsonStr[ pos ] != '}' ) && ( pos < m_jsonStr.length() ) ) {
-					++pos;
-				}
-				++pos;
+				moveToClosingBrace();
 			}
 			else {
 				// is number
@@ -91,8 +73,24 @@ private:
 		}
 	}
 
+	inline
+	void
+	moveToClosingBrace() {
+		int count = 0;
+		while ( ( ( m_jsonStr[ pos ] != '}' ) || ( count != 0) ) && ( pos < m_jsonStr.length() ) ) {
+			if (m_jsonStr[ pos + 1 ] == '{') {
+				++count;
+			}
+			if ( count && ( m_jsonStr[ pos ] == '}') ) {
+				--count;
+			}
+			++pos;
+		}
+		++pos;
+	}
+
 	std::string	m_jsonStr;
-	ParserMap 	m_entries;
+//	ParserMap 	m_entries;
 	size_t	 	pos;
 };
 

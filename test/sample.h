@@ -4,13 +4,12 @@
 #define sampleH
 //---------------------------------------------------------------------------
 
-#include <string>
-#include <iostream>
-#include <sstream>
-
 #define BOOST_MEM_FN_ENABLE_FASTCALL    	//Enables __fastcall calling convention. See boost::bind documentaion
 														//use this macro before including jrtti.hpp
 #include "../include/jrtti.hpp"
+
+#include <iostream>
+
 
 struct Point
 {
@@ -33,6 +32,7 @@ struct Point
 struct Date
 {
 	int d, m, y;
+	Point place;
 	bool operator == (const Date & other) const
 	{
 		return (d == other.d) &&
@@ -104,7 +104,8 @@ void declare()
 	jrtti::declare<Date>()
 						.property("d", &Date::d)
 						.property("m", &Date::m)
-						.property("y", &Date::y);
+						.property("y", &Date::y)
+						.property("place", &Date::place);
 
 	jrtti::declareAbstract<SampleBase>()
 						.property("intAbstract", &SampleBase::getIntAbstract)
@@ -127,6 +128,39 @@ void declare()
 
 	jrtti::declare<SampleDerived>()
                	.inheritsFrom("Sample");
+}
+
+void useCase() {
+	Sample s;
+
+	//set the property intMember of s object to 15
+	jrtti::getType( "Sample" ).property( "intMember" ).set( &s, 15 );
+
+	//retrieve the value of intMember from s object
+	int i = jrtti::getType( "Sample" ).property( "intMember" ).get<int>( &s );
+
+	//same as above using braket operator
+	i = jrtti::getType("Sample")[ "intMember" ].get<int>( &s );
+
+	//getting a Metatype object
+	jrtti::Metatype & mt = jrtti::getType("Sample");
+	//and working with it
+	mt[ "intMember" ].set( &s, 23 );
+
+	//call a method returning int and having two parameters
+	double d = mt.call<double,Sample,int,double>( "testSum", &s, 3, 8 );
+	//or
+	d = mt.call<double>( "testSum", &s, 3, 8.0 );
+
+	//set value from a fully qualified path
+	mt.apply( &s, "date.place.x", 25.0 );
+	//get value from a fully qualified path
+	d = mt.eval<double>( &s, "date.place.x" );
+
+	//get a string representation of s object
+	std::string contens = mt.toStr( &s );
+	//and set the s object from a string representation
+	mt.fromStr( &s, contens );
 }
 
 #endif
