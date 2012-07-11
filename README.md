@@ -5,8 +5,18 @@ Overview
 --------
 
 jrtti is a C++ template library providing reflection capabilities for such programing language
+
 jrtti provides abstraction for standard and custom C++ types and classes. This abstraction exposes class members at run time, wich can be accessed by its string name.
+
 It also provides a string representation of class members that can be used for object serialization and deserialization.
+
+Main Classes
+------------
+
+ * jrtti
+ * CustomMetaclass
+ * Property
+ * Method
 
 Download
 --------
@@ -16,7 +26,7 @@ You can get jrtti from GitHub at https://github.com/jseto/jrtti
 Dependencies
 ------------
 
-boost library http://www.boost.org/
+boost http://www.boost.org/
 
 Install
 -------
@@ -31,7 +41,7 @@ This example shows the main capabilities and usage of jrtti.
 See also:
 sample.h and tests.
 
-'''C++
+```c++
    #include <jrtti.hpp>
    #include <string>
    
@@ -112,7 +122,7 @@ sample.h and tests.
        cout << mt.toStr( &ball );
        return 0;
    }
-'''
+```
 
 License
 -------
