@@ -1,5 +1,5 @@
-jrtti documentation Documentation
-=================================
+jrtti Documentation
+===================
 
 Overview
 --------
