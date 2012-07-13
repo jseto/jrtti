@@ -16,7 +16,7 @@ public:
 	enum Mode {Readable=1, Writable=2};
 
 	Property() {
-    	_mode = 0;
+    	_mode = (Mode)0;
 	}
 
 	/**
