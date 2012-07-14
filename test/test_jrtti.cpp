@@ -264,9 +264,16 @@ TEST_F(MetaTypeTest, Serialize) {
 	sample.setByRefProp(point);
 	sample.setBool( true );
 
+	std::vector< int >& col = sample.getCollection();
+	for (int i = 0; i < 10; i++) {
+		col.push_back( i );
+	}
+//	boost::any a( col );
+//	col = boost::any_cast< std::vector< int > >( a );
+
 	std::string ss = mClass().toStr(&sample);
 
-	std::string serialized = "{\n\t\"date\": {\n\t\t\"d\": 1,\n\t\t\"m\": 4,\n\t\t\"place\": {\n\t\t\t\"x\": 98,\n\t\t\t\"y\": 93\n\t\t},\n\t\t\"y\": 2011\n\t},\n\t\"intAbstract\": 34,\n\t\"intMember\": 128,\n\t\"intOverloaded\": 87,\n\t\"point\": {\n\t\t\"x\": 45,\n\t\t\"y\": 80\n\t},\n\t\"testBool\": true,\n\t\"testDouble\": 65,\n\t\"testRO\": 23,\n\t\"testStr\": \"Hello, world!\"\n}";
+	std::string serialized = "{\n\t\"collection\": [\n\t\t0,\n\t\t1,\n\t\t2,\n\t\t3,\n\t\t4,\n\t\t5,\n\t\t6,\n\t\t7,\n\t\t8,\n\t\t9\n\t],\n\t\"date\": {\n\t\t\"d\": 1,\n\t\t\"m\": 4,\n\t\t\"place\": {\n\t\t\t\"x\": 98,\n\t\t\t\"y\": 93\n\t\t},\n\t\t\"y\": 2011\n\t},\n\t\"intAbstract\": 34,\n\t\"intMember\": 128,\n\t\"intOverloaded\": 87,\n\t\"point\": {\n\t\t\"x\": 45,\n\t\t\"y\": 80\n\t},\n\t\"testBool\": true,\n\t\"testDouble\": 65,\n\t\"testRO\": 23,\n\t\"testStr\": \"Hello, world!\"\n}";
 	EXPECT_EQ(serialized, ss);
 	ofstream f("test");
 	f << ss;

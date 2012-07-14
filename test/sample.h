@@ -9,6 +9,7 @@
 #include "../include/jrtti.hpp"
 
 #include <iostream>
+#include <vector>
 
 
 struct Point
@@ -81,12 +82,18 @@ public:
 	double testSquare(double val){return val*val;}
 	double testSum(int a, double b){return (double)a+b;}
 
+	typedef std::vector< int > Collection;
+	Collection& getCollection(){ return _collection; }
+	void setCollection( Collection& col ){ _collection = col; }
+
 private:	// User declarations
 	double test;
 	Point * _point;
 	Date	_date;
 	std::string	_s;
 	bool boolVal;
+public:
+	std::vector< int > _collection;
 };
 
 class SampleDerived : public Sample
@@ -120,6 +127,7 @@ void declare()
 						.property("testStr", &Sample::setStdStringProp,&Sample::getStdStringProp)
 						.property("testRO", &Sample::testIntFunc)
 						.property("testBool", &Sample::setBool, &Sample::getBool)
+						.property("collection", &Sample::_collection)
 
 						.method<void>("testMethod", &Sample::testFunc)
 						.method<int>("testIntMethod", &Sample::testIntFunc)
@@ -127,7 +135,9 @@ void declare()
 						.method<double,int,double>("testSum", &Sample::testSum);
 
 	jrtti::declare<SampleDerived>()
-               	.inheritsFrom("Sample");
+				.inheritsFrom("Sample");
+
+	jrtti::declareCollection< std::vector< int > >();
 }
 
 void useCase() {

@@ -365,7 +365,6 @@ namespace jrtti {
 			m_ownedMethods[ name ] = meth;
 		}
 
-	private:
 		std::string
 		ident( std::string str ) {
 			std::string result = "\t";
@@ -379,12 +378,18 @@ namespace jrtti {
 			return result;
 		}
 
+	private:
 		std::string	m_type_name;
 		MethodMap	m_methods;
 		MethodMap	m_ownedMethods;
 		PropertyMap	m_properties;
 		PropertyMap m_ownedProperties;
 	};
+
+
+	/**
+	*/
+
 
 	template <class ClassT, class IsAbstractT = boost::false_type>
 	class CustomMetaclass : public Metatype
@@ -672,7 +677,7 @@ namespace jrtti {
 			return NULL;
 		}
 
-	//SFINAE _copyFromInstance
+	//SFINAE _copyFromInstance for NON ABSTRACT
 		template< typename AbstT >
 		typename boost::disable_if< typename _IS_ABSTRACT( AbstT ), boost::any >::type
 		_copyFromInstance( void * inst ){
@@ -680,7 +685,7 @@ namespace jrtti {
 			return obj;
 		}
 
-	//SFINAE _copyFromInstance
+	//SFINAE _copyFromInstance for ABSTRACT
 		template< typename AbstT >
 		typename boost::enable_if< typename _IS_ABSTRACT( AbstT ), boost::any >::type
 		_copyFromInstance( void * inst ){
@@ -703,6 +708,41 @@ namespace jrtti {
 			return NULL;
 		}
 	};
+
+	template< typename ClassT >
+	class MetaCollection: public Metatype {
+	public:
+		MetaCollection(std::string name): Metatype(name) {}
+
+		std::string
+		toStr( const boost::any & value ){
+			Metatype& mt = jrtti::getType< ClassT::value_type >();
+			std::string str = "[\n";
+
+			ClassT _collection = boost::any_cast< ClassT >( value );
+			bool need_nl = false;
+			for ( ClassT::iterator it = _collection.begin() ; it != _collection.end(); ++it ) {
+				if (need_nl) str += ",\n";
+				need_nl = true;
+				str += ident( mt.toStr( *it ) );
+			}
+			return str += "\n]";
+		}
+
+		boost::any
+		fromStr( const boost::any& instance, const std::string& str ) {
+//			return strToNum<int>( str );
+		}
+
+		virtual
+		boost::any
+		create()
+		{
+			return new ClassT();
+		}
+	};
+
+
 
 //------------------------------------------------------------------------------
 }; //namespace jrtti
