@@ -245,6 +245,7 @@ namespace jrtti {
 		 * \return the property value
 		 */
 		template < typename PropT >
+		PropT
 		eval( const boost::any & instance, std::string path) {
 			return boost::any_cast< PropT >( eval( instance, path ) );
 		}
