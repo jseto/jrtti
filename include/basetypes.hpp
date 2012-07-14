@@ -62,12 +62,6 @@ public:
 	toStr(const boost::any & value){
 		return m_baseType.toStr(value);
 	}
-
-	virtual
-	void *
-	get_instance_ptr( const boost::any & value ) {
-		return boost::any_cast< void * >( value.content );
-	}
 };
 
 

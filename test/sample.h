@@ -65,13 +65,16 @@ public:
 	std::string getStdStringProp(){ return _s; }
 	void	setStdStringProp(std::string str) { _s = str; }
 
-	Point * getByRefProp() {
+	Point * getByPtrProp() {
 		return _point;
 	}
-	void setByRefProp(Point * p) { _point = p; }
+	void setByPtrProp(Point * p) { _point = p; }
 
 	Date getByValProp() { return _date; }
-	void setByValProp(Date  d) { _date = d; }
+	void setByValProp( const Date&  d) { _date = d; }     // Although property is defined as Value, seter can be reference
+
+	Date& getByRefProp(){ return _date; }
+//	void setByRefProp(Date& d) { _date = d; }
 
 	bool getBool() { return boolVal; }
 	void setBool( bool val ) { boolVal = val; }
@@ -122,8 +125,9 @@ void declare()
                	.inheritsFrom<SampleBase>()
 						.property("intMember", &Sample::intMember)
 						.property("testDouble", &Sample::setDoubleProp, &Sample::getDoubleProp, 658)
-						.property("point", &Sample::setByRefProp, &Sample::getByRefProp)
+						.property("point", &Sample::setByPtrProp, &Sample::getByPtrProp)
 						.property("date", &Sample::setByValProp, &Sample::getByValProp)
+						.property("refToDate", &Sample::getByRefProp)
 						.property("testStr", &Sample::setStdStringProp,&Sample::getStdStringProp)
 						.property("testRO", &Sample::testIntFunc)
 						.property("testBool", &Sample::setBool, &Sample::getBool)
@@ -171,6 +175,8 @@ void useCase() {
 	std::string contens = mt.toStr( &s );
 	//and set the s object from a string representation
 	mt.fromStr( &s, contens );
+
+	d=i+d;
 }
 
 #endif

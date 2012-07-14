@@ -2,7 +2,6 @@
 #define propertyH
 
 #include <boost/any.hpp>
-//#include <boost/type_traits/is_pointer.hpp>
 
 namespace jrtti {
 
@@ -159,15 +158,13 @@ template <class ClassT, class PropT>
 class TypedProperty : public Property
 {
 public:
-	typedef typename boost::remove_reference< typename PropT >::type PropNoRefT;
-
 	TypedProperty()
 	{
 		typeName( jrtti::nameOf<PropT>());
 	}
 
 	TypedProperty&
-	setter( boost::function<void ( ClassT*, PropNoRefT ) > functor)
+	setter( boost::function<void ( ClassT*, PropT ) > functor)
 	{
 		if (!functor.empty()) setMode( Writable );
 		m_dataMember = NULL;
@@ -176,7 +173,7 @@ public:
 	}
 
 	TypedProperty&
-	setter(PropNoRefT ClassT::* dataMember)
+	setter(PropT ClassT::* dataMember)
 	{
 		setMode( Writable );
 		setMode( Readable );
@@ -202,21 +199,32 @@ public:
 	void
 	set( void * instance, const boost::any& val)	{
 		if (isWritable()) {
-			internal_set( (ClassT *)instance, boost::any_cast< PropT >( val ) );
+			typedef boost::remove_reference< PropT >::type PropTNoRef;
+			PropTNoRef p = boost::any_cast< PropTNoRef >( val );
+			internal_set( (ClassT *)instance, p );
 		}
 	}
 
 private:
-	//SFINAE to discriminate types by reference
+	//SFINAE for pointers
 	template < typename PropT>
 	typename boost::enable_if< typename boost::is_pointer< typename PropT >::type, boost::any >::type
 	internal_get(void * instance)	{
 		return  (void *)m_getter( (ClassT *)instance );
 	}
 
-	//SFINAE to discriminate types by reference
+	//SFINAE for references
 	template < typename PropT>
-	typename boost::disable_if< typename boost::is_pointer< typename PropT >::type, boost::any >::type
+	typename boost::enable_if< typename boost::is_reference< typename PropT >::type, boost::any >::type
+	internal_get(void * instance)	{
+		return boost::ref( (PropT)m_getter( (ClassT *)instance ) );
+	}
+
+	//SFINAE for values
+	template < typename PropT>
+	typename boost::disable_if< boost::type_traits::ice_or<
+										boost::is_pointer< PropT >::value,
+										boost::is_reference< PropT >::value >, boost::any >::type
 	internal_get(void * instance)	{
 		PropT res = m_getter( (ClassT *)instance );
 		return res;
@@ -233,9 +241,9 @@ private:
 			m_setter((ClassT *)instance,(PropT)value);
 	}
 
-	boost::function<void (ClassT*, PropNoRefT)>	m_setter;
-	boost::function< PropT (ClassT*)>			m_getter;
-	PropNoRefT	ClassT::*						m_dataMember;
+	boost::function<void (ClassT*, PropT)>	m_setter;
+	boost::function< PropT (ClassT*)>		m_getter;
+	PropT ClassT::*							m_dataMember;
 };
 
 

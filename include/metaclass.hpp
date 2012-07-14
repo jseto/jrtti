@@ -482,10 +482,9 @@ namespace jrtti {
 		CustomMetaclass&
 		property( std::string name, SetterT setter, GetterT getter, int tag = 0 )
 		{
-			typedef typename detail::FunctionTypes< GetterT >::result_type	PropT;
-			typedef typename boost::remove_reference< PropT >::type					PropNoRefT;
-			typedef typename boost::function< void (typename ClassT*, typename PropNoRefT ) >	BoostSetter;
-			typedef typename boost::function< typename PropT ( typename ClassT * ) >				BoostGetter;
+			typedef typename detail::FunctionTypes< GetterT >::result_type					PropT;
+			typedef typename boost::function< void (typename ClassT*, typename PropT ) >	BoostSetter;
+			typedef typename boost::function< typename PropT ( typename ClassT * ) >		BoostGetter;
 
 			return fillProperty< typename PropT, BoostSetter, BoostGetter >(name, boost::bind(setter,_1,_2), boost::bind(getter,_1), tag);
 		}
@@ -504,9 +503,8 @@ namespace jrtti {
 		CustomMetaclass&
 		property(std::string name,  PropT (ClassT::*getter)(), int tag = 0 )
 		{
-			typedef typename boost::remove_reference< PropT >::type		PropNoRefT;
-			typedef typename boost::function< void (typename ClassT*, typename PropNoRefT ) >	BoostSetter;
-			typedef typename boost::function< typename PropT ( typename ClassT * ) >				BoostGetter;
+			typedef typename boost::function< void (typename ClassT*, typename PropT ) >	BoostSetter;
+			typedef typename boost::function< typename PropT ( typename ClassT * ) >		BoostGetter;
 
 			BoostSetter setter;       //setter empty is used by Property<>::isReadOnly()
 			return fillProperty< typename PropT, BoostSetter, BoostGetter >(name, setter, getter, tag);
@@ -659,7 +657,7 @@ namespace jrtti {
 #else
 	#define _IS_ABSTRACT( type ) boost::is_abstract< typename type >::type
 #endif
-	//SFINAE _get_instance_ptr
+	//SFINAE _get_instance_ptr for NON ABSTRACT
 		template< typename AbstT >
 		typename boost::disable_if< typename _IS_ABSTRACT( AbstT ), void * >::type
 		_get_instance_ptr(const boost::any& content){
@@ -668,10 +666,13 @@ namespace jrtti {
 				dummy = boost::any_cast< ClassT >(content);
 				return &dummy;
 			}
+			if ( content.type() == typeid( boost::reference_wrapper< ClassT > ) ) {
+				return boost::any_cast< boost::reference_wrapper< ClassT > >( content ).get_pointer();
+			}
 			return (void *) boost::any_cast< ClassT * >(content);
 		}
 
-	//SFINAE _get_instance_ptr
+	//SFINAE _get_instance_ptr for ABSTRACT
 		template< typename AbstT >
 		typename boost::enable_if< typename _IS_ABSTRACT( AbstT ), void * >::type
 		_get_instance_ptr(const boost::any & content){

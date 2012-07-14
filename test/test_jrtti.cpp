@@ -155,31 +155,45 @@ TEST_F(MetaTypeTest, ByValMutator) {
 }
 
 TEST_F(MetaTypeTest, ByRefAccessor) {
+	Date d;
+	d.d = 1;
+	d.m = 4;
+	d.y = 2011;
+
+	sample.setByValProp(d);
+
+	Date& result = boost::any_cast<  boost::reference_wrapper<Date> >( mClass()["refToDate"].get(&sample) ).get();
+	result.d = 31;
+
+	EXPECT_EQ(sample.getByRefProp().d, result.d);
+}
+
+TEST_F(MetaTypeTest, ByPtrAccessor) {
 	Point * p = new Point();
 	p->x = 45;
 	p->y = 80;
-	sample.setByRefProp(p);
+	sample.setByPtrProp(p);
 //TODO: improve access by proper type instead void *
 	Point * result = static_cast<Point*>(mClass()["point"].get<void *>(&sample));
 
 	EXPECT_TRUE(p == result);
 }
 
-TEST_F(MetaTypeTest, ByRefMutator) {
+TEST_F(MetaTypeTest, ByPtrMutator) {
 	Point * p = new Point();
 	p->x = 45;
 	p->y = 80;
 
 	mClass()["point"].set(&sample, p);
 
-	EXPECT_TRUE(p == sample.getByRefProp());
+	EXPECT_TRUE(p == sample.getByPtrProp());
 }
 
 TEST_F(MetaTypeTest, NestedByRefAccessor) {
 	Point * p = new Point();
 	p->x = 45;
 	p->y = 80;
-	sample.setByRefProp(p);
+	sample.setByPtrProp(p);
 
 	double result = mClass().eval<double>(&sample, "point.x");
 
@@ -208,11 +222,11 @@ TEST_F(MetaTypeTest, NestedByValAccessor) {
 	EXPECT_EQ(d.place.x, result);
 }
 
-TEST_F(MetaTypeTest, NestedByRefMutator) {
+TEST_F(MetaTypeTest, NestedByPtrMutator) {
 	Point * p = new Point();
 	p->x = -1;
 	p->y = -1;
-	sample.setByRefProp(p);
+	sample.setByPtrProp(p);
 
 	mClass().apply(&sample, "point.x", 47.0 );
 
@@ -261,7 +275,7 @@ TEST_F(MetaTypeTest, Serialize) {
 	sample.setDoubleProp(65.0);
 	sample.setStdStringProp(kHelloString);
 	sample.setByValProp(date);
-	sample.setByRefProp(point);
+	sample.setByPtrProp(point);
 	sample.setBool( true );
 
 	std::vector< int >& col = sample.getCollection();
@@ -273,7 +287,7 @@ TEST_F(MetaTypeTest, Serialize) {
 
 	std::string ss = mClass().toStr(&sample);
 
-	std::string serialized = "{\n\t\"collection\": [\n\t\t0,\n\t\t1,\n\t\t2,\n\t\t3,\n\t\t4,\n\t\t5,\n\t\t6,\n\t\t7,\n\t\t8,\n\t\t9\n\t],\n\t\"date\": {\n\t\t\"d\": 1,\n\t\t\"m\": 4,\n\t\t\"place\": {\n\t\t\t\"x\": 98,\n\t\t\t\"y\": 93\n\t\t},\n\t\t\"y\": 2011\n\t},\n\t\"intAbstract\": 34,\n\t\"intMember\": 128,\n\t\"intOverloaded\": 87,\n\t\"point\": {\n\t\t\"x\": 45,\n\t\t\"y\": 80\n\t},\n\t\"testBool\": true,\n\t\"testDouble\": 65,\n\t\"testRO\": 23,\n\t\"testStr\": \"Hello, world!\"\n}";
+	std::string serialized = "{\n\t\"collection\": [\n\t\t0,\n\t\t1,\n\t\t2,\n\t\t3,\n\t\t4,\n\t\t5,\n\t\t6,\n\t\t7,\n\t\t8,\n\t\t9\n\t],\n\t\"date\": {\n\t\t\"d\": 1,\n\t\t\"m\": 4,\n\t\t\"place\": {\n\t\t\t\"x\": 98,\n\t\t\t\"y\": 93\n\t\t},\n\t\t\"y\": 2011\n\t},\n\t\"intAbstract\": 34,\n\t\"intMember\": 128,\n\t\"intOverloaded\": 87,\n\t\"point\": {\n\t\t\"x\": 45,\n\t\t\"y\": 80\n\t},\n\t\"refToDate\": {\n\t\t\"d\": 1,\n\t\t\"m\": 4,\n\t\t\"place\": {\n\t\t\t\"x\": 98,\n\t\t\t\"y\": 93\n\t\t},\n\t\t\"y\": 2011\n\t},\n\t\"testBool\": true,\n\t\"testDouble\": 65,\n\t\"testRO\": 23,\n\t\"testStr\": \"Hello, world!\"\n}";
 	EXPECT_EQ(serialized, ss);
 	ofstream f("test");
 	f << ss;
@@ -287,7 +301,7 @@ TEST_F(MetaTypeTest, Deserialize) {
 	EXPECT_EQ(serialized, ss);
 	ofstream f("test1");
 	f << ss;
-	delete sample.getByRefProp();
+	delete sample.getByPtrProp();
 }
 
 TEST_F(MetaTypeTest, testTag) {
