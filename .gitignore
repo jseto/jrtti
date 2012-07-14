@@ -10,3 +10,5 @@ out/
 *.~*
 /icph
 /ipch
+html/
+latex/
