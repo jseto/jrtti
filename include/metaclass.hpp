@@ -2,33 +2,15 @@
 #define jrttimetaclassH
 
 #include <map>
-#include <sstream>
-
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
 
+#include "helpers.hpp"
 #include "property.hpp"
 #include "method.hpp"
 #include "jsonparser.hpp"
 
 namespace jrtti {
-		//Helpers
-		template <typename T>
-		std::string
-		numToStr ( T number ) {
-			std::ostringstream ss;
-			ss << number;
-			return ss.str();
-		}
-
-		template <typename T>
-		T
-		strToNum ( const std::string &str ) {
-			std::istringstream ss( str );
-			T result;
-			return ss >> result ? result : 0;
-		}
-
 	/**
 	 * \brief Abstraction for classes
 	 *
@@ -511,9 +493,10 @@ namespace jrtti {
 		}
 
 		/**
-		 * \brief Declares a property from a class member
+		 * \brief Declares a property from a class attribute
 		 *
-		 * Declares a property from a class member of type PropT.
+		 * Declares a property from a class attribute of type PropT. Accesing
+		 * class attributes is done by value
 		 * A property is an abstraction of class members.
 		 * \param name property name
 		 * \param member the address of the method member
@@ -718,10 +701,9 @@ namespace jrtti {
 
 		std::string
 		toStr( const boost::any & value ){
+			ClassT& _collection = getReference( value );
 			Metatype& mt = jrtti::getType< ClassT::value_type >();
 			std::string str = "[\n";
-
-			ClassT _collection = boost::any_cast< ClassT >( value );
 			bool need_nl = false;
 			for ( ClassT::iterator it = _collection.begin() ; it != _collection.end(); ++it ) {
 				if (need_nl) str += ",\n";
@@ -733,6 +715,22 @@ namespace jrtti {
 
 		boost::any
 		fromStr( const boost::any& instance, const std::string& str ) {
+			void * inst = get_instance_ptr(instance);
+
+			ClassT& _collection =  boost::any_cast< boost::reference_wrapper< ClassT > >( inst ).get();
+			_collection.clear();
+   /*
+			for( JSONParser::iterator it = parser.begin(); it != parser.end(); ++it) {
+				Property * prop = properties()[ it->first ];
+				if ( prop ) {
+					if ( prop->isWritable() ) {
+						const boost::any &mod = prop->type().fromStr( prop->get( inst ), parser[ it->first ] );
+						prop->set( inst, mod );
+					}
+				}
+			}
+			return copyFromInstance( inst );
+ */
 //			return strToNum<int>( str );
 		}
 
@@ -741,6 +739,24 @@ namespace jrtti {
 		create()
 		{
 			return new ClassT();
+		}
+
+	protected:
+		virtual
+		void *
+		get_instance_ptr( const boost::any & value ) {
+			return boost::any_cast< boost::reference_wrapper< boost::remove_reference< ClassT > > >( value ).get_pointer();
+		}
+
+		ClassT&
+		getReference( const boost::any value ) {
+			if ( value.type() == typeid( ClassT ) ) {
+				static ClassT ref = boost::any_cast< ClassT >( value );
+				return ref;
+			}
+			else {
+				return boost::any_cast< boost::reference_wrapper< ClassT > >( value ).get();
+			}
 		}
 	};
 

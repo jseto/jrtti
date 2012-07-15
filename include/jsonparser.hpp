@@ -1,6 +1,8 @@
 #ifndef jsonparserH
 #define jsonparserH
 
+#include "helpers.hpp"
+
 namespace jrtti {
 
 class JSONParser : public std::map< std::string, std::string > {
@@ -8,8 +10,17 @@ public:
 	JSONParser( const std::string& jsonStr ) : std::map< std::string, std::string >() {
 		m_jsonStr = jsonStr;
 		pos = 1;
+		skipSpaces();
+
+		long keyCount = 0;
+		std::string key;
 		while ( pos < m_jsonStr.length() ) {
-			std::string key = findKey();
+			if ( ( m_jsonStr[ pos ] == '[' ) || keyCount ) {
+				key = numToStr( keyCount++ );
+			}
+			else {
+				key = findKey();
+            }
 			if ( pos >= m_jsonStr.length() ) {
 				return;
 			}
@@ -34,13 +45,8 @@ private:
 	inline
 	std::string
 	findValue() {
-		while ( ( m_jsonStr[ pos ] != ':' ) && ( pos < m_jsonStr.length() ) ) {
-			++pos;
-		}
-		++pos;
-		while ( ( std::isspace( m_jsonStr[ pos ] ) ) && ( pos < m_jsonStr.length() ) ) {
-			++pos;
-		}
+		moveToValue();
+		skipSpaces();
 
 		size_t start = pos;
 		// is string
@@ -50,9 +56,9 @@ private:
 		}
 		else
 		{
-			// is object
-			if ( m_jsonStr[ pos ] == '{' ) {
-				moveToClosingBrace();
+			// is object or array
+			if ( m_jsonStr[ pos ] == '{' || m_jsonStr[ pos ] == '[' ) {
+				moveToClosingSymbolOf( m_jsonStr[ pos ] );
 			}
 			else {
 				// is number
@@ -62,6 +68,14 @@ private:
 			}
 		}
 		return m_jsonStr.substr( start, pos - start );
+	}
+
+	void
+	moveToValue() {
+		while ( ( m_jsonStr[ pos ] != ':' ) && ( pos < m_jsonStr.length() ) ) {
+			++pos;
+		}
+		++pos;
 	}
 
 	inline
@@ -75,13 +89,26 @@ private:
 
 	inline
 	void
-	moveToClosingBrace() {
+	moveToClosingSymbolOf( char openSymbol ) {
+		char closeSymbol;
+		if ( openSymbol == '{' ) {
+			closeSymbol = '}';
+		}
+		else {
+			if ( openSymbol == '[' ) {
+				closeSymbol = ']';
+			}
+			else {
+				error( "Unknown closing symbol" );
+			}
+		}
 		int count = 0;
-		while ( ( ( m_jsonStr[ pos ] != '}' ) || ( count != 0) ) && ( pos < m_jsonStr.length() ) ) {
-			if (m_jsonStr[ pos + 1 ] == '{') {
+//		++pos;
+		while ( ( ( m_jsonStr[ pos ] != closeSymbol ) || ( count != 0) ) && ( pos < m_jsonStr.length() ) ) {
+			if ( m_jsonStr[ pos + 1 ] == openSymbol ) {
 				++count;
 			}
-			if ( count && ( m_jsonStr[ pos ] == '}') ) {
+			if ( count && ( m_jsonStr[ pos ] == closeSymbol) ) {
 				--count;
 			}
 			++pos;
@@ -89,8 +116,15 @@ private:
 		++pos;
 	}
 
+	inline
+	void
+	skipSpaces() {
+		while ( ( std::isspace( m_jsonStr[ pos ] ) ) && ( pos < m_jsonStr.length() ) ) {
+			++pos;
+		}
+	}
+
 	std::string	m_jsonStr;
-//	ParserMap 	m_entries;
 	size_t	 	pos;
 };
 

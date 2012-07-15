@@ -162,7 +162,7 @@ TEST_F(MetaTypeTest, ByRefAccessor) {
 
 	sample.setByValProp(d);
 
-	Date& result = boost::any_cast<  boost::reference_wrapper<Date> >( mClass()["refToDate"].get(&sample) ).get();
+	Date& result = boost::any_cast<  boost::reference_wrapper< Date > >( mClass()["refToDate"].get(&sample) ).get();
 	result.d = 31;
 
 	EXPECT_EQ(sample.getByRefProp().d, result.d);
@@ -282,8 +282,6 @@ TEST_F(MetaTypeTest, Serialize) {
 	for (int i = 0; i < 10; i++) {
 		col.push_back( i );
 	}
-//	boost::any a( col );
-//	col = boost::any_cast< std::vector< int > >( a );
 
 	std::string ss = mClass().toStr(&sample);
 
@@ -295,7 +293,7 @@ TEST_F(MetaTypeTest, Serialize) {
 }
 
 TEST_F(MetaTypeTest, Deserialize) {
-	std::string serialized = "{\n\t\"date\": {\n\t\t\"d\": 1,\n\t\t\"m\": 4,\n\t\t\"place\": {\n\t\t\t\"x\": 98,\n\t\t\t\"y\": 93\n\t\t},\n\t\t\"y\": 2011\n\t},\n\t\"intAbstract\": 34,\n\t\"intMember\": 128,\n\t\"intOverloaded\": 87,\n\t\"point\": {\n\t\t\"x\": 45,\n\t\t\"y\": 80\n\t},\n\t\"testBool\": true,\n\t\"testDouble\": 65,\n\t\"testRO\": 23,\n\t\"testStr\": \"Hello, world!\"\n}";
+	std::string serialized = "{\"collection\": [0,1,2,3,4,5,6,7,8,9],\"date\": {\"d\": 1,\"m\": 4,\"place\": {\"x\": 98,\"y\": 93},\"y\": 2011},\"intAbstract\": 34,\"intMember\": 128,\"intOverloaded\": 87,\"point\": {\"x\": 45,\"y\": 80},\"refToDate\": {\"d\": 1,\"m\": 4,\"place\": {\"x\": 98,\"y\": 93},\"y\": 2011},\"testBool\": true,\"testDouble\": 65,\"testRO\": 23,\"testStr\": \"Hello, world!\"}";
 	mClass().fromStr( &sample, serialized );
 	std::string ss = mClass().toStr(&sample);
 	EXPECT_EQ(serialized, ss);

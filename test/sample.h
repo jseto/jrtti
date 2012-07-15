@@ -87,7 +87,7 @@ public:
 
 	typedef std::vector< int > Collection;
 	Collection& getCollection(){ return _collection; }
-	void setCollection( Collection& col ){ _collection = col; }
+//	void setCollection( Collection& col ){ _collection = col; }
 
 private:	// User declarations
 	double test;
@@ -131,7 +131,7 @@ void declare()
 						.property("testStr", &Sample::setStdStringProp,&Sample::getStdStringProp)
 						.property("testRO", &Sample::testIntFunc)
 						.property("testBool", &Sample::setBool, &Sample::getBool)
-						.property("collection", &Sample::_collection)
+						.property("collection", &Sample::getCollection)
 
 						.method<void>("testMethod", &Sample::testFunc)
 						.method<int>("testIntMethod", &Sample::testIntFunc)
