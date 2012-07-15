@@ -1,5 +1,6 @@
 
 #include "sample.h"
+#include <algorithm>
 #include <fstream>
 #include "test_jrtti.h"
 
@@ -293,9 +294,11 @@ TEST_F(MetaTypeTest, Serialize) {
 }
 
 TEST_F(MetaTypeTest, Deserialize) {
-	std::string serialized = "{\"collection\": [0,1,2,3,4,5,6,7,8,9],\"date\": {\"d\": 1,\"m\": 4,\"place\": {\"x\": 98,\"y\": 93},\"y\": 2011},\"intAbstract\": 34,\"intMember\": 128,\"intOverloaded\": 87,\"point\": {\"x\": 45,\"y\": 80},\"refToDate\": {\"d\": 1,\"m\": 4,\"place\": {\"x\": 98,\"y\": 93},\"y\": 2011},\"testBool\": true,\"testDouble\": 65,\"testRO\": 23,\"testStr\": \"Hello, world!\"}";
+	std::string serialized = "{\"collection\":[0,1,2,3,4,5,6,7,8,9],\"date\":{\"d\":1,\"m\":4,\"place\":{\"x\":98,\"y\":93},\"y\":2011},\"intAbstract\":34,\"intMember\":128,\"intOverloaded\":87,\"point\":{\"x\":45,\"y\":80},\"refToDate\":{\"d\":1,\"m\":4,\"place\":{\"x\":98,\"y\":93},\"y\":2011},\"testBool\":true,\"testDouble\":65,\"testRO\":23,\"testStr\":\"Hello,world!\"}";
 	mClass().fromStr( &sample, serialized );
 	std::string ss = mClass().toStr(&sample);
+	ss.erase( std::remove_if( ss.begin(), ss.end(), ::isspace ), ss.end() );
+
 	EXPECT_EQ(serialized, ss);
 	ofstream f("test1");
 	f << ss;

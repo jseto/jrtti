@@ -304,7 +304,9 @@ namespace jrtti {
 				if ( prop ) {
 					if ( prop->isWritable() ) {
 						const boost::any &mod = prop->type().fromStr( prop->get( inst ), parser[ it->first ] );
-						prop->set( inst, mod );
+						if ( !mod.empty() ) {
+							prop->set( inst, mod );
+						}
 					}
 				}
 			}
@@ -464,6 +466,7 @@ namespace jrtti {
 		CustomMetaclass&
 		property( std::string name, SetterT setter, GetterT getter, int tag = 0 )
 		{
+        	////////// COMPILER ERROR   //// Setter or Getter are not proper accesor methods signatures.
 			typedef typename detail::FunctionTypes< GetterT >::result_type					PropT;
 			typedef typename boost::function< void (typename ClassT*, typename PropT ) >	BoostSetter;
 			typedef typename boost::function< typename PropT ( typename ClassT * ) >		BoostGetter;
@@ -699,6 +702,7 @@ namespace jrtti {
 	public:
 		MetaCollection(std::string name): Metatype(name) {}
 
+		virtual
 		std::string
 		toStr( const boost::any & value ){
 			ClassT& _collection = getReference( value );
@@ -713,25 +717,20 @@ namespace jrtti {
 			return str += "\n]";
 		}
 
+		virtual
 		boost::any
 		fromStr( const boost::any& instance, const std::string& str ) {
-			void * inst = get_instance_ptr(instance);
-
-			ClassT& _collection =  boost::any_cast< boost::reference_wrapper< ClassT > >( inst ).get();
+			ClassT& _collection =  getReference( instance );
 			_collection.clear();
-   /*
+
+			JSONParser parser( str );
+			Metatype& elemType = jrtti::getType< ClassT::value_type >();
 			for( JSONParser::iterator it = parser.begin(); it != parser.end(); ++it) {
-				Property * prop = properties()[ it->first ];
-				if ( prop ) {
-					if ( prop->isWritable() ) {
-						const boost::any &mod = prop->type().fromStr( prop->get( inst ), parser[ it->first ] );
-						prop->set( inst, mod );
-					}
-				}
+				ClassT::value_type elem;
+				const boost::any &mod = elemType.fromStr( &elem, parser[ it->second ] );
+				_collection.insert( _collection.end(), boost::any_cast< ClassT::value_type >( mod ) );
 			}
-			return copyFromInstance( inst );
- */
-//			return strToNum<int>( str );
+			return boost::any();
 		}
 
 		virtual

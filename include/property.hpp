@@ -184,7 +184,9 @@ public:
 
 	TypedProperty&
 	getter( boost::function< PropT (ClassT*) > functor )	{
-		if ( !functor.empty() ) setMode( Readable );
+		if ( !functor.empty() ) {
+			setMode( Readable );
+		}
 		m_getter = functor;
 		return *this;
 	}

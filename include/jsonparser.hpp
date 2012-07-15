@@ -15,16 +15,19 @@ public:
 		long keyCount = 0;
 		std::string key;
 		while ( pos < m_jsonStr.length() ) {
-			if ( ( m_jsonStr[ pos ] == '[' ) || keyCount ) {
+			if ( ( m_jsonStr[ pos - 1 ] == '[' ) || keyCount ) {
 				key = numToStr( keyCount++ );
 			}
 			else {
 				key = findKey();
-            }
+			}
 			if ( pos >= m_jsonStr.length() ) {
 				return;
 			}
-			std::string value = findValue();
+			std::string value = findValue( keyCount );
+			if ( keyCount ) {
+				++pos;
+			}
 			insert( std::pair< std::string, std::string >( key, value ) );
 		}
 	}
@@ -44,8 +47,9 @@ private:
 
 	inline
 	std::string
-	findValue() {
-		moveToValue();
+	findValue( bool isInsideArray ) {
+		if ( !isInsideArray )
+			moveToValue();
 		skipSpaces();
 
 		size_t start = pos;
@@ -62,7 +66,7 @@ private:
 			}
 			else {
 				// is number
-				while ( ( ( m_jsonStr[ pos ] != '}' && m_jsonStr[ pos ] != ',' ) ) && ( pos < m_jsonStr.length() ) ) {
+				while ( ( ( m_jsonStr[ pos ] != '}' && m_jsonStr[ pos ] != ',' && m_jsonStr[ pos ] != ']' ) ) && ( pos < m_jsonStr.length() ) ) {
 					++pos;
 				}
 			}
