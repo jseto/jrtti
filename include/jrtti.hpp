@@ -12,6 +12,7 @@ namespace jrtti {
 }
 
 #include "reflector.hpp"
+
 /**
  * \brief jrtti top level functions
  */

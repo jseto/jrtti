@@ -303,7 +303,7 @@ namespace jrtti {
 				Property * prop = properties()[ it->first ];
 				if ( prop ) {
 					if ( prop->isWritable() ) {
-						const boost::any &mod = prop->type().fromStr( prop->get( inst ), parser[ it->first ] );
+						const boost::any &mod = prop->type().fromStr( prop->get( inst ), it->second );
 						if ( !mod.empty() ) {
 							prop->set( inst, mod );
 						}
@@ -727,7 +727,8 @@ namespace jrtti {
 			Metatype& elemType = jrtti::getType< ClassT::value_type >();
 			for( JSONParser::iterator it = parser.begin(); it != parser.end(); ++it) {
 				ClassT::value_type elem;
-				const boost::any &mod = elemType.fromStr( &elem, parser[ it->second ] );
+				std::string a =  it->second;
+				const boost::any &mod = elemType.fromStr( &elem, it->second );
 				_collection.insert( _collection.end(), boost::any_cast< ClassT::value_type >( mod ) );
 			}
 			return boost::any();

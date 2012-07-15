@@ -85,7 +85,7 @@ public:
 	double testSquare(double val){return val*val;}
 	double testSum(int a, double b){return (double)a+b;}
 
-	typedef std::vector< int > Collection;
+	typedef std::vector< Date > Collection;
 	Collection& getCollection(){ return _collection; }
 	void setCollection( Collection& col ){ _collection = col; }
 
@@ -95,7 +95,7 @@ private:	// User declarations
 	Date	_date;
 	std::string	_s;
 	bool boolVal;
-	std::vector< int > _collection;
+	Collection _collection;
 };
 
 class SampleDerived : public Sample
@@ -140,7 +140,7 @@ void declare()
 	jrtti::declare<SampleDerived>()
 				.inheritsFrom("Sample");
 
-	jrtti::declareCollection< std::vector< int > >();
+	jrtti::declareCollection< Sample::Collection >();
 }
 
 void useCase() {
