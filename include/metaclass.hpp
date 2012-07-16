@@ -459,19 +459,19 @@ namespace jrtti {
 		 * \param name property name
 		 * \param setter the address of the setter method
 		 * \param getter the address of the getter method
-		 * \param tag a custom user tag
+		 * \param categories a container with property categories
 		 * \return this for chain calls
 		 */
 		template < typename SetterT, typename GetterT >
 		CustomMetaclass&
-		property( std::string name, SetterT setter, GetterT getter, int tag = 0 )
+		property( std::string name, SetterT setter, GetterT getter, PropertyCategories categories = PropertyCategories() )
 		{
-        	////////// COMPILER ERROR   //// Setter or Getter are not proper accesor methods signatures.
+			////////// COMPILER ERROR   //// Setter or Getter are not proper accesor methods signatures.
 			typedef typename detail::FunctionTypes< GetterT >::result_type					PropT;
 			typedef typename boost::function< void (typename ClassT*, typename PropT ) >	BoostSetter;
 			typedef typename boost::function< typename PropT ( typename ClassT * ) >		BoostGetter;
 
-			return fillProperty< typename PropT, BoostSetter, BoostGetter >(name, boost::bind(setter,_1,_2), boost::bind(getter,_1), tag);
+			return fillProperty< typename PropT, BoostSetter, BoostGetter >( name, boost::bind(setter,_1,_2), boost::bind(getter,_1), categories );
 		}
 
 		/**
@@ -481,18 +481,18 @@ namespace jrtti {
 		 * A property is an abstraction of class members.
 		 * \param name property name
 		 * \param getter the address of the getter method
-		 * \param tag a custom user tag
+		 * \param categories a container with property categories
 		 * \return this for chain calls
 		 */
 		template < typename PropT >
 		CustomMetaclass&
-		property(std::string name,  PropT (ClassT::*getter)(), int tag = 0 )
+		property(std::string name,  PropT (ClassT::*getter)(), PropertyCategories categories = PropertyCategories() )
 		{
 			typedef typename boost::function< void (typename ClassT*, typename PropT ) >	BoostSetter;
 			typedef typename boost::function< typename PropT ( typename ClassT * ) >		BoostGetter;
 
 			BoostSetter setter;       //setter empty is used by Property<>::isReadOnly()
-			return fillProperty< typename PropT, BoostSetter, BoostGetter >(name, setter, getter, tag);
+			return fillProperty< typename PropT, BoostSetter, BoostGetter >(name, setter, getter, categories);
 		}
 
 		/**
@@ -503,15 +503,15 @@ namespace jrtti {
 		 * A property is an abstraction of class members.
 		 * \param name property name
 		 * \param member the address of the method member
-		 * \param tag a custom user tag
+		 * \param categories a container with property categories
 		 * \return this for chain calls
 		 */
 		template <typename PropT>
 		CustomMetaclass&
-		property(std::string name, PropT ClassT::* member, int tag = 0 )
+		property(std::string name, PropT ClassT::* member, PropertyCategories categories = PropertyCategories() )
 		{
 			typedef typename PropT ClassT::* 	MemberType;
-			return fillProperty< PropT, MemberType, MemberType >(name, member, member, tag);
+			return fillProperty< PropT, MemberType, MemberType >(name, member, member, categories);
 		}
 
 		/**
@@ -624,7 +624,7 @@ namespace jrtti {
 
 		template <typename PropT, typename SetterType, typename GetterType >
 		CustomMetaclass&
-		fillProperty(std::string name, SetterType setter, GetterType getter, int tag)
+		fillProperty(std::string name, SetterType setter, GetterType getter, PropertyCategories categories = PropertyCategories())
 		{
 			if (  properties().find( name ) == properties().end() )
 			{
@@ -632,7 +632,7 @@ namespace jrtti {
 				p->setter(setter);
 				p->getter(getter);
 				p->name(name);
-				p->tag( tag );
+				p->categories( categories );
 				set_property(name, p);
 			}
 			return *this;

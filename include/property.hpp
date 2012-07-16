@@ -5,6 +5,75 @@
 
 namespace jrtti {
 
+/**
+ * \brief Property categories
+ *
+ * Categories can be assigned to properties for special procesing. jrtti implements
+ * the category streamable in this class to note that the property should be
+ * stored in a stream.
+ * You can create your own categories by deriving a class from PropertyCategories
+ * as shown in the example
+ * \code
+ * class CustomPropertyCategories : public jrtti::PropertyCategories {
+ * public:
+ *    static const int inMenu	 		= jrtti::PropertyCategories::lastCategory + 1;
+ *    static const int inToolBar		= jrtti::PropertyCategories::lastCategory + 2;
+ *    static const int lastCategory	= inToolBar;
+ *
+ *    bool
+ *    showInMenu() {
+ *       return categories() & inMenu;
+ *    }
+ *
+ *    bool
+ *    showInToolBar() {
+ *       return categories() & inToolBar;
+ *    }
+ * };
+ * \endcode
+ */
+class PropertyCategories
+{
+public:
+	static const int none 			= 0;
+	static const int streamable 	= 1;
+	static const int lastCategory 	= streamable;
+
+	PropertyCategories() : _categories(0){}
+
+	/**
+	 * \brief Assign a category to this container
+	 * \param category the category to assign
+	 * \return this for chain call
+	 */
+	PropertyCategories & operator << ( const int& category )
+	{
+		_categories |= category;
+		return *this;
+	}
+
+	/**
+	 * \brief Check if streamable
+	 * \return true if this has been assigned to be streamable
+	 */
+	bool
+	isStreamable(){
+		return categories() & streamable;
+	}
+
+	/**
+	 * \brief Get the assigned categories
+	 * \return an int containing the assigned categories binary encoded
+	 */
+	int categories()
+	{
+		return _categories;
+	}
+
+private:
+	int _categories;
+};
+
 //------------------------------------------------------------------------------
 /**
  * \brief Property abstraction
@@ -37,23 +106,23 @@ public:
 	}
 
 	/**
-	 * \brief Sets a user defined tag to this property
-	 * \param t the tag
+	 * \brief Assigns a category container to this property
+	 * \param cats the category container
 	 */
 	void
-	tag( int t )
+	categories( const PropertyCategories& cats )
 	{
-		_tag = t;
+		_categories = cats;
 	}
 
 	/**
-	 * \brief Retrieve the associated tag
-	 * \return the tag associated to this property
+	 * \brief Retrieve the associated property categories
+	 * \return the associated categories of this property
 	 */
-	int
-	tag()
+	PropertyCategories *
+	categories()
 	{
-		return _tag;
+		return &_categories;
 	}
 
 	/**
@@ -156,10 +225,10 @@ protected:
 	}
 
 private:
-	int			_tag;
-	std::string	_type_name;
-	std::string	_name;
-	Mode 	   	_mode;
+	PropertyCategories	_categories;
+	std::string			_type_name;
+	std::string			_name;
+	Mode 	   			_mode;
 };
 
 template <class ClassT, class PropT>
@@ -255,7 +324,6 @@ private:
 	boost::function< PropT (ClassT*)>		m_getter;
 	PropT ClassT::*							m_dataMember;
 };
-
 
 //------------------------------------------------------------------------------
 }; //namespace jrtti

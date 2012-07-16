@@ -309,9 +309,11 @@ TEST_F(MetaTypeTest, Deserialize) {
 	delete sample.getByPtrProp();
 }
 
-TEST_F(MetaTypeTest, testTag) {
-	int tag = mClass()["testDouble"].tag();
-	EXPECT_EQ(658, tag);
+TEST_F(MetaTypeTest, testCategory) {
+	CustomPropertyCategories * cats = (CustomPropertyCategories *) mClass()["testDouble"].categories() ;
+	EXPECT_TRUE( cats->showInMenu() );
+	cats = (CustomPropertyCategories *) mClass()["intMember"].categories();
+	EXPECT_FALSE( cats->showInMenu() );
 }
 
 TEST_F(MetaTypeTest, testCreate) {

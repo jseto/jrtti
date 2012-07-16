@@ -103,6 +103,23 @@ class SampleDerived : public Sample
 	virtual int getIntOverloaded() {return 43;}
 };
 
+class CustomPropertyCategories : public jrtti::PropertyCategories {
+public:
+	static const int inMenu	 		= jrtti::PropertyCategories::lastCategory + 1;
+	static const int inToolBar		= jrtti::PropertyCategories::lastCategory + 2;
+	static const int lastCategory	= inToolBar;
+
+	bool
+	showInMenu() {
+		return categories() & inMenu;
+	}
+
+	bool
+	showInToolBar() {
+		return categories() & inToolBar;
+	}
+};
+
 void declare()
 {
 
@@ -123,7 +140,7 @@ void declare()
 	jrtti::declare<Sample>()
                	.inheritsFrom<SampleBase>()
 						.property("intMember", &Sample::intMember)
-						.property("testDouble", &Sample::setDoubleProp, &Sample::getDoubleProp, 658)
+						.property("testDouble", &Sample::setDoubleProp, &Sample::getDoubleProp, CustomPropertyCategories() << CustomPropertyCategories::inMenu )
 						.property("point", &Sample::setByPtrProp, &Sample::getByPtrProp)
 						.property("date", &Sample::setByValProp, &Sample::getByValProp)
 						.property("refToDate", &Sample::getByRefProp)
