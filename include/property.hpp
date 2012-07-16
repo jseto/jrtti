@@ -105,6 +105,15 @@ public:
 		return isReadable() & isWritable();
 	}
 
+	/**
+	 * \brief Check if property is read-only
+	 * \return true if property is read-only
+	 */
+	bool
+	isReadOnly()	{
+		return isReadable() & !isWritable();
+	}
+
 	void setMode(Mode mode){
 			_mode = (Mode) (_mode | mode);
 	}
@@ -112,14 +121,14 @@ public:
 	/**
 	 * \brief Set the property value
 	 * \param instance the object address where to set the property value
-	 * \param value the value to be set
+	 * \param value the value to be set. Will accept any standart or custom type
 	 */
 	virtual
 	void
 	set( void * instance, const boost::any& value ) = 0;
 
 	/**
-	 * \brief Get the property value
+	 * \brief Get the property value in a boost::any container
 	 * \param instance the object address from where to retrieve the property value
 	 * \return the property value in a boost::any container
 	 */
@@ -130,7 +139,6 @@ public:
 	/**
 	 * \brief Get the property value
 	 *
-	 * Get the property value
 	 * Template parameter PropT is the type of the property value
 	 * \param instance the object address from where to retrieve the property value
 	 * \return the property value as PropT

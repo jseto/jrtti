@@ -697,6 +697,17 @@ namespace jrtti {
 		}
 	};
 
+	/**
+	 * \brief Abstraction for a collection type
+	 *
+	 * A collection is a secuence of objects, as std library containers.
+	 * Collections should implement and iterator type named iterator, the type of
+	 * the elements named value_type and public member functions begin(), end()
+	 * and insert(). In esence, a native collection type should implement the provided
+	 * interface CollectionInterface. Most std library containers implement this
+	 * interface.
+	 *
+	 */
 	template< typename ClassT >
 	class MetaCollection: public Metatype {
 	public:
