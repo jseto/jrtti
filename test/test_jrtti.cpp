@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <fstream>
 #include "test_jrtti.h"
+#include "../include/base64.hpp"
 
 #include "gtest/gtest.h"
 #pragma link "lib/gtest.lib"
@@ -286,7 +287,7 @@ TEST_F(MetaTypeTest, Serialize) {
 	}
 
 	std::string ss = mClass().toStr(&sample);
-	ofstream f("test");
+	std::ofstream f("test");
 	f << ss;
 
 	ss.erase( std::remove_if( ss.begin(), ss.end(), ::isspace ), ss.end() );
@@ -300,7 +301,7 @@ TEST_F(MetaTypeTest, Deserialize) {
 	std::string serialized = "{\"collection\":[{\"d\":1,\"m\":4,\"place\":{\"x\":98,\"y\":93},\"y\":2012},{\"d\":1,\"m\":4,\"place\":{\"x\":98,\"y\":93},\"y\":2013}],\"date\":{\"d\":1,\"m\":4,\"place\":{\"x\":98,\"y\":93},\"y\":2011},\"intAbstract\":34,\"intMember\":128,\"intOverloaded\":87,\"point\":{\"x\":45,\"y\":80},\"refToDate\":{\"d\":1,\"m\":4,\"place\":{\"x\":98,\"y\":93},\"y\":2011},\"testBool\":true,\"testDouble\":65,\"testRO\":23,\"testStr\":\"Hello,world!\"}";
 	mClass().fromStr( &sample, serialized );
 	std::string ss = mClass().toStr(&sample);
-	ofstream f("test1");
+	std::ofstream f("test1");
 	f << ss;
 	ss.erase( std::remove_if( ss.begin(), ss.end(), ::isspace ), ss.end() );
 
@@ -337,6 +338,25 @@ TEST_F(MetaTypeTest, testSumMethodCall) {
 	Sample sample;
 	double result = mClass().call<double>("testSum",&sample,9,6.0);
 	EXPECT_EQ(15.0, result);
+}
+
+TEST_F(MetaTypeTest, base64) {
+	std::ifstream in("test_jrtti.exe", std::ios::binary );
+	in.seekg (0, ios::end);
+	long length = in.tellg();
+	in.seekg (0, ios::beg);
+	char * p = new char[length];
+
+	in.read( p, length );
+
+	std::string encoded = jrtti::base64Encode( p, length );
+	char * decoded = jrtti::base64Decode( encoded );
+
+	int i = memcmp( p, decoded, length );
+
+	EXPECT_FALSE(i);
+	delete p;
+	delete decoded;
 }
 
 GTEST_API_ int main(int argc, char **argv) {
