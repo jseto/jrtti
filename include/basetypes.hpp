@@ -58,17 +58,20 @@ public:
 	MetaReferenceType(Metatype & baseType): MetaIndirectedType(baseType, "&")
 	{}
 
+	bool
+	isReference() { return true;}
+
 	std::string
 	toStr(const boost::any & value){
 		return m_baseType.toStr(value);
 	}
 
 	virtual
-	void *
-	get_instance_ptr( const boost::any & value ) {
-		return boost::any_cast< void * >( value.content );
-	}
-};
+	boost::any
+	fromStr( const boost::any& instance, const std::string& str ) {
+		return m_baseType.fromStr( instance, str );
+	}
+};
 
 
 // predefined std types

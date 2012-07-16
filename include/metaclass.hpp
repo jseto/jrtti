@@ -2,33 +2,15 @@
 #define jrttimetaclassH
 
 #include <map>
-#include <sstream>
-
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
 
+#include "helpers.hpp"
 #include "property.hpp"
 #include "method.hpp"
 #include "jsonparser.hpp"
 
 namespace jrtti {
-		//Helpers
-		template <typename T>
-		std::string
-		numToStr ( T number ) {
-			std::ostringstream ss;
-			ss << number;
-			return ss.str();
-		}
-
-		template <typename T>
-		T
-		strToNum ( const std::string &str ) {
-			std::istringstream ss( str );
-			T result;
-			return ss >> result ? result : 0;
-		}
-
 	/**
 	 * \brief Abstraction for classes
 	 *
@@ -321,8 +303,10 @@ namespace jrtti {
 				Property * prop = properties()[ it->first ];
 				if ( prop ) {
 					if ( prop->isWritable() ) {
-						const boost::any &mod = prop->type().fromStr( prop->get( inst ), parser[ it->first ] );
-						prop->set( inst, mod );
+						const boost::any &mod = prop->type().fromStr( prop->get( inst ), it->second );
+						if ( !mod.empty() ) {
+							prop->set( inst, mod );
+						}
 					}
 				}
 			}
@@ -366,7 +350,6 @@ namespace jrtti {
 			m_ownedMethods[ name ] = meth;
 		}
 
-	private:
 		std::string
 		ident( std::string str ) {
 			std::string result = "\t";
@@ -380,12 +363,18 @@ namespace jrtti {
 			return result;
 		}
 
+	private:
 		std::string	m_type_name;
 		MethodMap	m_methods;
 		MethodMap	m_ownedMethods;
 		PropertyMap	m_properties;
 		PropertyMap m_ownedProperties;
 	};
+
+
+	/**
+	*/
+
 
 	template <class ClassT, class IsAbstractT = boost::false_type>
 	class CustomMetaclass : public Metatype
@@ -477,10 +466,10 @@ namespace jrtti {
 		CustomMetaclass&
 		property( std::string name, SetterT setter, GetterT getter, int tag = 0 )
 		{
-			typedef typename detail::FunctionTypes< GetterT >::result_type	PropT;
-			typedef typename boost::remove_reference< PropT >::type					PropNoRefT;
-			typedef typename boost::function< void (typename ClassT*, typename PropNoRefT ) >	BoostSetter;
-			typedef typename boost::function< typename PropT ( typename ClassT * ) >				BoostGetter;
+        	////////// COMPILER ERROR   //// Setter or Getter are not proper accesor methods signatures.
+			typedef typename detail::FunctionTypes< GetterT >::result_type					PropT;
+			typedef typename boost::function< void (typename ClassT*, typename PropT ) >	BoostSetter;
+			typedef typename boost::function< typename PropT ( typename ClassT * ) >		BoostGetter;
 
 			return fillProperty< typename PropT, BoostSetter, BoostGetter >(name, boost::bind(setter,_1,_2), boost::bind(getter,_1), tag);
 		}
@@ -499,18 +488,18 @@ namespace jrtti {
 		CustomMetaclass&
 		property(std::string name,  PropT (ClassT::*getter)(), int tag = 0 )
 		{
-			typedef typename boost::remove_reference< PropT >::type		PropNoRefT;
-			typedef typename boost::function< void (typename ClassT*, typename PropNoRefT ) >	BoostSetter;
-			typedef typename boost::function< typename PropT ( typename ClassT * ) >				BoostGetter;
+			typedef typename boost::function< void (typename ClassT*, typename PropT ) >	BoostSetter;
+			typedef typename boost::function< typename PropT ( typename ClassT * ) >		BoostGetter;
 
 			BoostSetter setter;       //setter empty is used by Property<>::isReadOnly()
 			return fillProperty< typename PropT, BoostSetter, BoostGetter >(name, setter, getter, tag);
 		}
 
 		/**
-		 * \brief Declares a property from a class member
+		 * \brief Declares a property from a class attribute
 		 *
-		 * Declares a property from a class member of type PropT.
+		 * Declares a property from a class attribute of type PropT. Accesing
+		 * class attributes is done by value
 		 * A property is an abstraction of class members.
 		 * \param name property name
 		 * \param member the address of the method member
@@ -654,7 +643,7 @@ namespace jrtti {
 #else
 	#define _IS_ABSTRACT( type ) boost::is_abstract< typename type >::type
 #endif
-	//SFINAE _get_instance_ptr
+	//SFINAE _get_instance_ptr for NON ABSTRACT
 		template< typename AbstT >
 		typename boost::disable_if< typename _IS_ABSTRACT( AbstT ), void * >::type
 		_get_instance_ptr(const boost::any& content){
@@ -663,17 +652,20 @@ namespace jrtti {
 				dummy = boost::any_cast< ClassT >(content);
 				return &dummy;
 			}
+			if ( content.type() == typeid( boost::reference_wrapper< ClassT > ) ) {
+				return boost::any_cast< boost::reference_wrapper< ClassT > >( content ).get_pointer();
+			}
 			return (void *) boost::any_cast< ClassT * >(content);
 		}
 
-	//SFINAE _get_instance_ptr
+	//SFINAE _get_instance_ptr for ABSTRACT
 		template< typename AbstT >
 		typename boost::enable_if< typename _IS_ABSTRACT( AbstT ), void * >::type
 		_get_instance_ptr(const boost::any & content){
 			return NULL;
 		}
 
-	//SFINAE _copyFromInstance
+	//SFINAE _copyFromInstance for NON ABSTRACT
 		template< typename AbstT >
 		typename boost::disable_if< typename _IS_ABSTRACT( AbstT ), boost::any >::type
 		_copyFromInstance( void * inst ){
@@ -681,7 +673,7 @@ namespace jrtti {
 			return obj;
 		}
 
-	//SFINAE _copyFromInstance
+	//SFINAE _copyFromInstance for ABSTRACT
 		template< typename AbstT >
 		typename boost::enable_if< typename _IS_ABSTRACT( AbstT ), boost::any >::type
 		_copyFromInstance( void * inst ){
@@ -704,6 +696,71 @@ namespace jrtti {
 			return NULL;
 		}
 	};
+
+	template< typename ClassT >
+	class MetaCollection: public Metatype {
+	public:
+		MetaCollection(std::string name): Metatype(name) {}
+
+		virtual
+		std::string
+		toStr( const boost::any & value ){
+			ClassT& _collection = getReference( value );
+			Metatype& mt = jrtti::getType< ClassT::value_type >();
+			std::string str = "[\n";
+			bool need_nl = false;
+			for ( ClassT::iterator it = _collection.begin() ; it != _collection.end(); ++it ) {
+				if (need_nl) str += ",\n";
+				need_nl = true;
+				str += ident( mt.toStr( *it ) );
+			}
+			return str += "\n]";
+		}
+
+		virtual
+		boost::any
+		fromStr( const boost::any& instance, const std::string& str ) {
+			ClassT& _collection =  getReference( instance );
+			_collection.clear();
+
+			JSONParser parser( str );
+			Metatype& elemType = jrtti::getType< ClassT::value_type >();
+			for( JSONParser::iterator it = parser.begin(); it != parser.end(); ++it) {
+				ClassT::value_type elem;
+				std::string a =  it->second;
+				const boost::any &mod = elemType.fromStr( &elem, it->second );
+				_collection.insert( _collection.end(), boost::any_cast< ClassT::value_type >( mod ) );
+			}
+			return boost::any();
+		}
+
+		virtual
+		boost::any
+		create()
+		{
+			return new ClassT();
+		}
+
+	protected:
+		virtual
+		void *
+		get_instance_ptr( const boost::any & value ) {
+			return boost::any_cast< boost::reference_wrapper< boost::remove_reference< ClassT > > >( value ).get_pointer();
+		}
+
+		ClassT&
+		getReference( const boost::any value ) {
+			if ( value.type() == typeid( ClassT ) ) {
+				static ClassT ref = boost::any_cast< ClassT >( value );
+				return ref;
+			}
+			else {
+				return boost::any_cast< boost::reference_wrapper< ClassT > >( value ).get();
+			}
+		}
+	};
+
+
 
 //------------------------------------------------------------------------------
 }; //namespace jrtti

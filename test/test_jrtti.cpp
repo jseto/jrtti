@@ -1,7 +1,9 @@
 
 #include "sample.h"
+#include <algorithm>
 #include <fstream>
 #include "test_jrtti.h"
+#include "../include/base64.hpp"
 
 #include "gtest/gtest.h"
 #pragma link "lib/gtest.lib"
@@ -155,31 +157,45 @@ TEST_F(MetaTypeTest, ByValMutator) {
 }
 
 TEST_F(MetaTypeTest, ByRefAccessor) {
+	Date d;
+	d.d = 1;
+	d.m = 4;
+	d.y = 2011;
+
+	sample.setByValProp(d);
+
+	Date& result = boost::any_cast<  boost::reference_wrapper< Date > >( mClass()["refToDate"].get(&sample) ).get();
+	result.d = 31;
+
+	EXPECT_EQ(sample.getByRefProp().d, result.d);
+}
+
+TEST_F(MetaTypeTest, ByPtrAccessor) {
 	Point * p = new Point();
 	p->x = 45;
 	p->y = 80;
-	sample.setByRefProp(p);
+	sample.setByPtrProp(p);
 //TODO: improve access by proper type instead void *
 	Point * result = static_cast<Point*>(mClass()["point"].get<void *>(&sample));
 
 	EXPECT_TRUE(p == result);
 }
 
-TEST_F(MetaTypeTest, ByRefMutator) {
+TEST_F(MetaTypeTest, ByPtrMutator) {
 	Point * p = new Point();
 	p->x = 45;
 	p->y = 80;
 
 	mClass()["point"].set(&sample, p);
 
-	EXPECT_TRUE(p == sample.getByRefProp());
+	EXPECT_TRUE(p == sample.getByPtrProp());
 }
 
 TEST_F(MetaTypeTest, NestedByRefAccessor) {
 	Point * p = new Point();
 	p->x = 45;
 	p->y = 80;
-	sample.setByRefProp(p);
+	sample.setByPtrProp(p);
 
 	double result = mClass().eval<double>(&sample, "point.x");
 
@@ -208,11 +224,11 @@ TEST_F(MetaTypeTest, NestedByValAccessor) {
 	EXPECT_EQ(d.place.x, result);
 }
 
-TEST_F(MetaTypeTest, NestedByRefMutator) {
+TEST_F(MetaTypeTest, NestedByPtrMutator) {
 	Point * p = new Point();
 	p->x = -1;
 	p->y = -1;
-	sample.setByRefProp(p);
+	sample.setByPtrProp(p);
 
 	mClass().apply(&sample, "point.x", 47.0 );
 
@@ -261,26 +277,36 @@ TEST_F(MetaTypeTest, Serialize) {
 	sample.setDoubleProp(65.0);
 	sample.setStdStringProp(kHelloString);
 	sample.setByValProp(date);
-	sample.setByRefProp(point);
+	sample.setByPtrProp(point);
 	sample.setBool( true );
 
-	std::string ss = mClass().toStr(&sample);
+	std::vector< Date >& col = sample.getCollection();
+	for (int i = 0; i < 2; i++) {
+		++date.y;
+		col.push_back( date );
+	}
 
-	std::string serialized = "{\n\t\"date\": {\n\t\t\"d\": 1,\n\t\t\"m\": 4,\n\t\t\"place\": {\n\t\t\t\"x\": 98,\n\t\t\t\"y\": 93\n\t\t},\n\t\t\"y\": 2011\n\t},\n\t\"intAbstract\": 34,\n\t\"intMember\": 128,\n\t\"intOverloaded\": 87,\n\t\"point\": {\n\t\t\"x\": 45,\n\t\t\"y\": 80\n\t},\n\t\"testBool\": true,\n\t\"testDouble\": 65,\n\t\"testRO\": 23,\n\t\"testStr\": \"Hello, world!\"\n}";
-	EXPECT_EQ(serialized, ss);
-	ofstream f("test");
+	std::string ss = mClass().toStr(&sample);
+	std::ofstream f("test");
 	f << ss;
+
+	ss.erase( std::remove_if( ss.begin(), ss.end(), ::isspace ), ss.end() );
+
+	std::string serialized = "{\"collection\":[{\"d\":1,\"m\":4,\"place\":{\"x\":98,\"y\":93},\"y\":2012},{\"d\":1,\"m\":4,\"place\":{\"x\":98,\"y\":93},\"y\":2013}],\"date\":{\"d\":1,\"m\":4,\"place\":{\"x\":98,\"y\":93},\"y\":2011},\"intAbstract\":34,\"intMember\":128,\"intOverloaded\":87,\"point\":{\"x\":45,\"y\":80},\"refToDate\":{\"d\":1,\"m\":4,\"place\":{\"x\":98,\"y\":93},\"y\":2011},\"testBool\":true,\"testDouble\":65,\"testRO\":23,\"testStr\":\"Hello,world!\"}";
+	EXPECT_EQ(serialized, ss);
 	delete point;
 }
 
 TEST_F(MetaTypeTest, Deserialize) {
-	std::string serialized = "{\n\t\"date\": {\n\t\t\"d\": 1,\n\t\t\"m\": 4,\n\t\t\"place\": {\n\t\t\t\"x\": 98,\n\t\t\t\"y\": 93\n\t\t},\n\t\t\"y\": 2011\n\t},\n\t\"intAbstract\": 34,\n\t\"intMember\": 128,\n\t\"intOverloaded\": 87,\n\t\"point\": {\n\t\t\"x\": 45,\n\t\t\"y\": 80\n\t},\n\t\"testBool\": true,\n\t\"testDouble\": 65,\n\t\"testRO\": 23,\n\t\"testStr\": \"Hello, world!\"\n}";
+	std::string serialized = "{\"collection\":[{\"d\":1,\"m\":4,\"place\":{\"x\":98,\"y\":93},\"y\":2012},{\"d\":1,\"m\":4,\"place\":{\"x\":98,\"y\":93},\"y\":2013}],\"date\":{\"d\":1,\"m\":4,\"place\":{\"x\":98,\"y\":93},\"y\":2011},\"intAbstract\":34,\"intMember\":128,\"intOverloaded\":87,\"point\":{\"x\":45,\"y\":80},\"refToDate\":{\"d\":1,\"m\":4,\"place\":{\"x\":98,\"y\":93},\"y\":2011},\"testBool\":true,\"testDouble\":65,\"testRO\":23,\"testStr\":\"Hello,world!\"}";
 	mClass().fromStr( &sample, serialized );
 	std::string ss = mClass().toStr(&sample);
-	EXPECT_EQ(serialized, ss);
-	ofstream f("test1");
+	std::ofstream f("test1");
 	f << ss;
-	delete sample.getByRefProp();
+	ss.erase( std::remove_if( ss.begin(), ss.end(), ::isspace ), ss.end() );
+
+	EXPECT_EQ(serialized, ss);
+	delete sample.getByPtrProp();
 }
 
 TEST_F(MetaTypeTest, testTag) {
@@ -312,6 +338,25 @@ TEST_F(MetaTypeTest, testSumMethodCall) {
 	Sample sample;
 	double result = mClass().call<double>("testSum",&sample,9,6.0);
 	EXPECT_EQ(15.0, result);
+}
+
+TEST_F(MetaTypeTest, base64) {
+	std::ifstream in("test_jrtti.exe", std::ios::binary );
+	in.seekg (0, ios::end);
+	long length = in.tellg();
+	in.seekg (0, ios::beg);
+	char * p = new char[length];
+
+	in.read( p, length );
+
+	std::string encoded = jrtti::base64Encode( p, length );
+	char * decoded = jrtti::base64Decode( encoded );
+
+	int i = memcmp( p, decoded, length );
+
+	EXPECT_FALSE(i);
+	delete p;
+	delete decoded;
 }
 
 GTEST_API_ int main(int argc, char **argv) {

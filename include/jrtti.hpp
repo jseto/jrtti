@@ -12,6 +12,7 @@ namespace jrtti {
 }
 
 #include "reflector.hpp"
+
 /**
  * \brief jrtti top level functions
  */
@@ -25,11 +26,24 @@ namespace jrtti {
 	 * \brief Retrieve Metatype
 	 * Looks for a Metatype by name in the reflection database
 	 * \param name the Metatype name to look for
-	 * \return the found Metatype. NULL if not found
+	 * \return the found Metatype.
+	 * \throws if not found
 	 */
 	inline Metatype &
 	getType(std::string name) {
 		return Reflector::instance().getType(name);
+	}
+
+	/**
+	 * \brief Retrieve Metatype
+	 * Looks for a Metatype of type T in the reflection database
+	 * \return the found Metatype.
+	 * \throws if not found
+	 */
+	template< typename T >
+	inline Metatype &
+	getType() {
+		return Reflector::instance().getType< T >();
 	}
 
 	/**
@@ -78,6 +92,20 @@ namespace jrtti {
 	CustomMetaclass<C, boost::true_type>&
 	declareAbstract() {
 		return Reflector::instance().declareAbstract<C>();
+	}
+
+	/**
+	 * \brief Declare a collection
+	 *
+	 * Declares a new metacollection based on collection C.
+	 * A collection is a secuence of objects, as std library containers
+	 *
+	 * \return this to chain calls
+	 */
+	template <typename C>
+	MetaCollection<C>&
+	declareCollection() {
+		return Reflector::instance().declareCollection<C>();
 	}
 
 	inline void

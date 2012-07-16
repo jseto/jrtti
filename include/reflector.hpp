@@ -78,6 +78,23 @@ public:
 	}
 
 	template <typename C>
+	MetaCollection<C>&
+	declareCollection()
+	{
+	//////////  COMPILER ERROR: Class C is not a Collection //// Class C should implement type iterator to be a collection
+    	typedef C::iterator iterator;
+		std::string name = nameOf<C>();
+		if ( _meta_types.count( name ) ) {
+			return *( dynamic_cast< MetaCollection<C> * >( &getType( name ) ) );
+		}
+
+		MetaCollection<C> * mc = new MetaCollection<C>(name);
+		internal_declare(name, mc);
+
+		return * mc;
+	}
+
+	template <typename C>
 	void
 	alias(std::string new_name)
 	{
@@ -102,6 +119,13 @@ public:
 			error( "Metatype '" + name + "' not declared" );
 		}
 		return *it->second;
+	}
+
+	template < typename T >
+	Metatype &
+	getType()
+	{
+    	return getType( typeid( T ).name() );
 	}
 
 private:

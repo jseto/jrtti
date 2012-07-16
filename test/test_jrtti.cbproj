@@ -86,17 +86,24 @@
   <ItemGroup>
     <CppCompile Include="sample.cpp">
       <DependentOn>sample.h</DependentOn>
-      <BuildOrder>9</BuildOrder>
+      <BuildOrder>11</BuildOrder>
     </CppCompile>
     <CppCompile Include="test_jrtti.cpp">
       <DependentOn>test_jrtti.h</DependentOn>
       <BuildOrder>0</BuildOrder>
     </CppCompile>
+    <None Include="..\include\base64.hpp">
+      <ModuleName>File1</ModuleName>
+      <BuildOrder>10</BuildOrder>
+    </None>
     <None Include="..\include\basetypes.hpp">
       <BuildOrder>8</BuildOrder>
     </None>
     <None Include="..\include\exception.hpp">
       <BuildOrder>2</BuildOrder>
+    </None>
+    <None Include="..\include\helpers.hpp">
+      <BuildOrder>9</BuildOrder>
     </None>
     <None Include="..\include\jrtti.hpp">
       <BuildOrder>3</BuildOrder>
