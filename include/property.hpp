@@ -36,8 +36,8 @@ class PropertyCategories
 {
 public:
 	static const int none 			= 0;
-	static const int streamable 	= 1;
-	static const int lastCategory 	= streamable;
+	static const int nonstreamable 	= 1;
+	static const int lastCategory 	= nonstreamable;
 
 	PropertyCategories() : _categories(0){}
 
@@ -58,7 +58,7 @@ public:
 	 */
 	bool
 	isStreamable(){
-		return categories() & streamable;
+		return !(categories() & nonstreamable);
 	}
 
 	/**
@@ -72,16 +72,6 @@ public:
 
 private:
 	int _categories;
-};
-
-/**
- * \brief Helper class containing the streamable category
- */
-class Streamable : public PropertyCategories {
-public:
-	Streamable() : PropertyCategories() {
-		*this << PropertyCategories::streamable;
-	}
 };
 
 //------------------------------------------------------------------------------
