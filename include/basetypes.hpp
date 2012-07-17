@@ -62,8 +62,8 @@ public:
 	isReference() { return true;}
 
 	std::string
-	toStr(const boost::any & value){
-		return m_baseType.toStr(value);
+	toStr(const boost::any & value, bool formatForStreaming = false){
+		return m_baseType.toStr( value, formatForStreaming );
 	}
 
 	virtual
@@ -80,7 +80,7 @@ public:
 	MetaInt(): Metatype("int") {}
 
 	std::string
-	toStr( const boost::any & value ){
+	toStr( const boost::any & value, bool formatForStreaming = false ){
 		return numToStr(boost::any_cast<int>(value));
 	}
 
@@ -103,7 +103,7 @@ public:
 	MetaBool(): Metatype("bool") {}
 
 	std::string
-	toStr(const boost::any & value){
+	toStr( const boost::any & value, bool formatForStreaming = false ){
 		return boost::any_cast<bool>(value) ? "true" : "false";
 	}
 
@@ -124,7 +124,7 @@ public:
 	MetaDouble(): Metatype("double") {}
 
 	std::string
-	toStr(const boost::any & value){
+	toStr( const boost::any & value, bool formatForStreaming = false ){
 		return numToStr(boost::any_cast<double>(value));
 	}
 
@@ -145,7 +145,7 @@ public:
 	MetaString(): Metatype("std::string") {}
 
 	std::string
-	toStr(const boost::any & value){
+	toStr( const boost::any & value, bool formatForStreaming = false ) {
 		return '"' + boost::any_cast<std::string>(value) + '"';
 	}
 

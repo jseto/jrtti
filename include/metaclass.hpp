@@ -265,20 +265,24 @@ namespace jrtti {
 		 *
 		 * Retrieves a string representation of the object contens in a JSON format.
 		 * \param instance the object instance to retrieve
+		 * \param formatForStreaming if true, formats the string to be passed to a stream.
+		 * In this case, the property is checked to see if it has the PropertyCategory::streamable
 		 * \return the string representation
 		 */
 		virtual
 		std::string
-		toStr(const boost::any & instance) {
+		toStr(const boost::any & instance, bool formatForStreaming = false ) {
 			void * inst = get_instance_ptr(instance);
 			std::string result = "{\n";
 			bool need_nl = false;
 			for( PropertyMap::iterator it = properties().begin(); it != properties().end(); ++it) {
 				Property * prop = it->second;
 				if ( prop ) {
-					if (need_nl) result += ",\n";
-					need_nl = true;
-					result += ident( "\"" + prop->name() + "\"" + ": " + prop->type().toStr( prop->get(inst) ) );
+					if ( !( formatForStreaming && !prop->categories()->isStreamable() ) ) {
+						if (need_nl) result += ",\n";
+						need_nl = true;
+						result += ident( "\"" + prop->name() + "\"" + ": " + prop->type().toStr( prop->get(inst), formatForStreaming ) );
+                    }
 				}
 			}
 			return result += "\n}";
@@ -715,7 +719,7 @@ namespace jrtti {
 
 		virtual
 		std::string
-		toStr( const boost::any & value ){
+		toStr( const boost::any & value, bool formatForStreaming = false ){
 			ClassT& _collection = getReference( value );
 			Metatype& mt = jrtti::getType< ClassT::value_type >();
 			std::string str = "[\n";
@@ -723,7 +727,7 @@ namespace jrtti {
 			for ( ClassT::iterator it = _collection.begin() ; it != _collection.end(); ++it ) {
 				if (need_nl) str += ",\n";
 				need_nl = true;
-				str += ident( mt.toStr( *it ) );
+				str += ident( mt.toStr( *it, formatForStreaming ) );
 			}
 			return str += "\n]";
 		}

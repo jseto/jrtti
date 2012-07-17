@@ -294,6 +294,11 @@ TEST_F(MetaTypeTest, Serialize) {
 
 	std::string serialized = "{\"collection\":[{\"d\":1,\"m\":4,\"place\":{\"x\":98,\"y\":93},\"y\":2012},{\"d\":1,\"m\":4,\"place\":{\"x\":98,\"y\":93},\"y\":2013}],\"date\":{\"d\":1,\"m\":4,\"place\":{\"x\":98,\"y\":93},\"y\":2011},\"intAbstract\":34,\"intMember\":128,\"intOverloaded\":87,\"point\":{\"x\":45,\"y\":80},\"refToDate\":{\"d\":1,\"m\":4,\"place\":{\"x\":98,\"y\":93},\"y\":2011},\"testBool\":true,\"testDouble\":65,\"testRO\":23,\"testStr\":\"Hello,world!\"}";
 	EXPECT_EQ(serialized, ss);
+
+	//test for streamable
+	ss = mClass().toStr( &sample, true );
+	ss.erase( std::remove_if( ss.begin(), ss.end(), ::isspace ), ss.end() );
+	EXPECT_EQ( "\"date\":{\"d\":1,\"m\":4,\"place\":{\"x\":98,\"y\":93}}", ss );
 	delete point;
 }
 

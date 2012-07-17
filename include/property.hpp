@@ -74,6 +74,16 @@ private:
 	int _categories;
 };
 
+/**
+ * \brief Helper class containing the streamable category
+ */
+class Streamable : public PropertyCategories {
+public:
+	Streamable() : PropertyCategories() {
+		*this << PropertyCategories::streamable;
+	}
+};
+
 //------------------------------------------------------------------------------
 /**
  * \brief Property abstraction
