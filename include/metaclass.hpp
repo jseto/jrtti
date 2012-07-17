@@ -265,20 +265,24 @@ namespace jrtti {
 		 *
 		 * Retrieves a string representation of the object contens in a JSON format.
 		 * \param instance the object instance to retrieve
+		 * \param formatForStreaming if true, formats the string to be passed to a stream.
+		 * In this case, the property is checked to see if it has the PropertyCategory::streamable
 		 * \return the string representation
 		 */
 		virtual
 		std::string
-		toStr(const boost::any & instance) {
+		toStr(const boost::any & instance, bool formatForStreaming = false ) {
 			void * inst = get_instance_ptr(instance);
 			std::string result = "{\n";
 			bool need_nl = false;
 			for( PropertyMap::iterator it = properties().begin(); it != properties().end(); ++it) {
 				Property * prop = it->second;
 				if ( prop ) {
-					if (need_nl) result += ",\n";
-					need_nl = true;
-					result += ident( "\"" + prop->name() + "\"" + ": " + prop->type().toStr( prop->get(inst) ) );
+					if ( !( formatForStreaming && !prop->categories()->isStreamable() ) ) {
+						if (need_nl) result += ",\n";
+						need_nl = true;
+						result += ident( "\"" + prop->name() + "\"" + ": " + prop->type().toStr( prop->get(inst), formatForStreaming ) );
+                    }
 				}
 			}
 			return result += "\n}";
@@ -459,19 +463,19 @@ namespace jrtti {
 		 * \param name property name
 		 * \param setter the address of the setter method
 		 * \param getter the address of the getter method
-		 * \param tag a custom user tag
+		 * \param categories a container with property categories
 		 * \return this for chain calls
 		 */
 		template < typename SetterT, typename GetterT >
 		CustomMetaclass&
-		property( std::string name, SetterT setter, GetterT getter, int tag = 0 )
+		property( std::string name, SetterT setter, GetterT getter, PropertyCategories categories = PropertyCategories() )
 		{
-        	////////// COMPILER ERROR   //// Setter or Getter are not proper accesor methods signatures.
+			////////// COMPILER ERROR   //// Setter or Getter are not proper accesor methods signatures.
 			typedef typename detail::FunctionTypes< GetterT >::result_type					PropT;
 			typedef typename boost::function< void (typename ClassT*, typename PropT ) >	BoostSetter;
 			typedef typename boost::function< typename PropT ( typename ClassT * ) >		BoostGetter;
 
-			return fillProperty< typename PropT, BoostSetter, BoostGetter >(name, boost::bind(setter,_1,_2), boost::bind(getter,_1), tag);
+			return fillProperty< typename PropT, BoostSetter, BoostGetter >( name, boost::bind(setter,_1,_2), boost::bind(getter,_1), categories );
 		}
 
 		/**
@@ -481,18 +485,18 @@ namespace jrtti {
 		 * A property is an abstraction of class members.
 		 * \param name property name
 		 * \param getter the address of the getter method
-		 * \param tag a custom user tag
+		 * \param categories a container with property categories
 		 * \return this for chain calls
 		 */
 		template < typename PropT >
 		CustomMetaclass&
-		property(std::string name,  PropT (ClassT::*getter)(), int tag = 0 )
+		property(std::string name,  PropT (ClassT::*getter)(), PropertyCategories categories = PropertyCategories() )
 		{
 			typedef typename boost::function< void (typename ClassT*, typename PropT ) >	BoostSetter;
 			typedef typename boost::function< typename PropT ( typename ClassT * ) >		BoostGetter;
 
 			BoostSetter setter;       //setter empty is used by Property<>::isReadOnly()
-			return fillProperty< typename PropT, BoostSetter, BoostGetter >(name, setter, getter, tag);
+			return fillProperty< typename PropT, BoostSetter, BoostGetter >(name, setter, getter, categories);
 		}
 
 		/**
@@ -503,15 +507,15 @@ namespace jrtti {
 		 * A property is an abstraction of class members.
 		 * \param name property name
 		 * \param member the address of the method member
-		 * \param tag a custom user tag
+		 * \param categories a container with property categories
 		 * \return this for chain calls
 		 */
 		template <typename PropT>
 		CustomMetaclass&
-		property(std::string name, PropT ClassT::* member, int tag = 0 )
+		property(std::string name, PropT ClassT::* member, PropertyCategories categories = PropertyCategories() )
 		{
 			typedef typename PropT ClassT::* 	MemberType;
-			return fillProperty< PropT, MemberType, MemberType >(name, member, member, tag);
+			return fillProperty< PropT, MemberType, MemberType >(name, member, member, categories);
 		}
 
 		/**
@@ -624,7 +628,7 @@ namespace jrtti {
 
 		template <typename PropT, typename SetterType, typename GetterType >
 		CustomMetaclass&
-		fillProperty(std::string name, SetterType setter, GetterType getter, int tag)
+		fillProperty(std::string name, SetterType setter, GetterType getter, PropertyCategories categories = PropertyCategories())
 		{
 			if (  properties().find( name ) == properties().end() )
 			{
@@ -632,7 +636,7 @@ namespace jrtti {
 				p->setter(setter);
 				p->getter(getter);
 				p->name(name);
-				p->tag( tag );
+				p->categories( categories );
 				set_property(name, p);
 			}
 			return *this;
@@ -697,6 +701,17 @@ namespace jrtti {
 		}
 	};
 
+	/**
+	 * \brief Abstraction for a collection type
+	 *
+	 * A collection is a secuence of objects, as std library containers.
+	 * Collections should implement and iterator type named iterator, the type of
+	 * the elements named value_type and public member functions begin(), end()
+	 * and insert(). In esence, a native collection type should implement the provided
+	 * interface CollectionInterface. Most std library containers implement this
+	 * interface.
+	 *
+	 */
 	template< typename ClassT >
 	class MetaCollection: public Metatype {
 	public:
@@ -704,7 +719,7 @@ namespace jrtti {
 
 		virtual
 		std::string
-		toStr( const boost::any & value ){
+		toStr( const boost::any & value, bool formatForStreaming = false ){
 			ClassT& _collection = getReference( value );
 			Metatype& mt = jrtti::getType< ClassT::value_type >();
 			std::string str = "[\n";
@@ -712,7 +727,7 @@ namespace jrtti {
 			for ( ClassT::iterator it = _collection.begin() ; it != _collection.end(); ++it ) {
 				if (need_nl) str += ",\n";
 				need_nl = true;
-				str += ident( mt.toStr( *it ) );
+				str += ident( mt.toStr( *it, formatForStreaming ) );
 			}
 			return str += "\n]";
 		}

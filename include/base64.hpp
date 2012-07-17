@@ -79,7 +79,7 @@ std::string base64Encode(uint8_t* buf_ptr, size_t buf_size)
     }
 
     // Add padding character for fill the output string
-    for (int pad_count = 0; pad_count < ss_result.str().size() % 4; pad_count++)
+    for (size_t pad_count = 0; pad_count < ss_result.str().size() % 4; pad_count++)
     {
         ss_result << base64pad;
     }
@@ -87,7 +87,7 @@ std::string base64Encode(uint8_t* buf_ptr, size_t buf_size)
     return ss_result.str();
 }
 
-/*!
+/**
  * @brief Compute size of decoded stream
  *
  * @param encoded_size size of the encoded stream
@@ -102,7 +102,7 @@ size_t base64DecodedSize(size_t encoded_size)
  * @brief Decode a string base64 encoded and return a raw buffer
  *
  * The function allocate a buffer with size:
- * @code (text.size() + 3) / 4 * 3
+ * @code (text.size() + 3) / 4 * 3 \endcode
  * and return the pointer. The caller has the ownership of the
  * pointer.
  * The source string lenght must be multiple of 4.

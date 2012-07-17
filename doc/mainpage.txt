@@ -105,8 +105,10 @@
  *
  *     //get a property value by full categorized name
  *	   double xPos = mt.eval( &s, "ball.x" );
+ *
  *     //get property string representation
  *     cout << mt.toStr( &ball );
+ *
  *     return 0;
  * }
  * \endcode
