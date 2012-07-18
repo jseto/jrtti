@@ -317,11 +317,25 @@ TEST_F(MetaTypeTest, Deserialize) {
 	delete sample.getByPtrProp();
 }
 
-TEST_F(MetaTypeTest, testCategory) {
-	CustomPropertyCategories * cats = (CustomPropertyCategories *) mClass()["testDouble"].categories() ;
-	EXPECT_TRUE( cats->showInMenu() );
-	cats = (CustomPropertyCategories *) mClass()["intMember"].categories();
-	EXPECT_FALSE( cats->showInMenu() );
+TEST_F(MetaTypeTest, testAnnotation) {
+	jrtti::Annotations annotations = mClass()["testDouble"].annotations();
+
+	GUIAnnotation * a = annotations.getFirst<GUIAnnotation>();
+
+	EXPECT_EQ( "test.ico", a->icon() );
+	a = mClass()["intMember"].annotations().getFirst< GUIAnnotation >();
+	EXPECT_TRUE( a == NULL );            
+}
+
+TEST_F(MetaTypeTest, testMultipleAnnotation) {
+	jrtti::Annotations annotations = mClass()["point"].annotations();
+
+	std::vector< MenuAnnotation * > a = annotations.getAll<MenuAnnotation>();
+
+	EXPECT_EQ( 3, a.size() );
+
+
+	EXPECT_EQ( "Entry_2", a[1]->submenu() );
 }
 
 TEST_F(MetaTypeTest, testCreate) {

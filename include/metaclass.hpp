@@ -278,7 +278,7 @@ namespace jrtti {
 			for( PropertyMap::iterator it = properties().begin(); it != properties().end(); ++it) {
 				Property * prop = it->second;
 				if ( prop ) {
-					if ( !( formatForStreaming && !prop->categories()->isStreamable() ) ) {
+					if ( !( formatForStreaming && prop->annotations().has< NonStreamable >() ) ) {
 						if (need_nl) result += ",\n";
 						need_nl = true;
 						result += ident( "\"" + prop->name() + "\"" + ": " + prop->type().toStr( prop->get(inst), formatForStreaming ) );
@@ -468,14 +468,14 @@ namespace jrtti {
 		 */
 		template < typename SetterT, typename GetterT >
 		CustomMetaclass&
-		property( std::string name, SetterT setter, GetterT getter, PropertyCategories categories = PropertyCategories() )
+		property( std::string name, SetterT setter, GetterT getter, const Annotations& annotations = Annotations() )
 		{
 			////////// COMPILER ERROR   //// Setter or Getter are not proper accesor methods signatures.
 			typedef typename detail::FunctionTypes< GetterT >::result_type					PropT;
 			typedef typename boost::function< void (typename ClassT*, typename PropT ) >	BoostSetter;
 			typedef typename boost::function< typename PropT ( typename ClassT * ) >		BoostGetter;
 
-			return fillProperty< typename PropT, BoostSetter, BoostGetter >( name, boost::bind(setter,_1,_2), boost::bind(getter,_1), categories );
+			return fillProperty< typename PropT, BoostSetter, BoostGetter >( name, boost::bind(setter,_1,_2), boost::bind(getter,_1), annotations );
 		}
 
 		/**
@@ -490,13 +490,13 @@ namespace jrtti {
 		 */
 		template < typename PropT >
 		CustomMetaclass&
-		property(std::string name,  PropT (ClassT::*getter)(), PropertyCategories categories = PropertyCategories() )
+		property(std::string name,  PropT (ClassT::*getter)(), const Annotations& annotations = Annotations() )
 		{
 			typedef typename boost::function< void (typename ClassT*, typename PropT ) >	BoostSetter;
 			typedef typename boost::function< typename PropT ( typename ClassT * ) >		BoostGetter;
 
 			BoostSetter setter;       //setter empty is used by Property<>::isReadOnly()
-			return fillProperty< typename PropT, BoostSetter, BoostGetter >(name, setter, getter, categories);
+			return fillProperty< typename PropT, BoostSetter, BoostGetter >(name, setter, getter, annotations );
 		}
 
 		/**
@@ -512,10 +512,10 @@ namespace jrtti {
 		 */
 		template <typename PropT>
 		CustomMetaclass&
-		property(std::string name, PropT ClassT::* member, PropertyCategories categories = PropertyCategories() )
+		property(std::string name, PropT ClassT::* member, const Annotations& annotations = Annotations() )
 		{
 			typedef typename PropT ClassT::* 	MemberType;
-			return fillProperty< PropT, MemberType, MemberType >(name, member, member, categories);
+			return fillProperty< PropT, MemberType, MemberType >(name, member, member, annotations );
 		}
 
 		/**
@@ -628,7 +628,7 @@ namespace jrtti {
 
 		template <typename PropT, typename SetterType, typename GetterType >
 		CustomMetaclass&
-		fillProperty(std::string name, SetterType setter, GetterType getter, PropertyCategories categories = PropertyCategories())
+		fillProperty(std::string name, SetterType setter, GetterType getter, const Annotations& annotations )
 		{
 			if (  properties().find( name ) == properties().end() )
 			{
@@ -636,7 +636,7 @@ namespace jrtti {
 				p->setter(setter);
 				p->getter(getter);
 				p->name(name);
-				p->categories( categories );
+				p->annotations( annotations );
 				set_property(name, p);
 			}
 			return *this;

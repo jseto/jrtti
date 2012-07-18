@@ -1,77 +1,64 @@
 #ifndef propertyH
 #define propertyH
 
+#include <vector>
+#include <boost/shared_ptr.hpp>
 #include <boost/any.hpp>
 
 namespace jrtti {
 
-/**
- * \brief Property categories
- *
- * Categories can be assigned to properties for special procesing. jrtti implements
- * the category streamable in this class to note that the property should be
- * stored in a stream.
- * You can create your own categories by deriving a class from PropertyCategories
- * as shown in the example
- * \code
- * class CustomPropertyCategories : public jrtti::PropertyCategories {
- * public:
- *    static const int inMenu	 		= jrtti::PropertyCategories::lastCategory << 1;
- *    static const int inToolBar		= jrtti::PropertyCategories::lastCategory << 2;
- *    static const int lastCategory	= inToolBar;
- *
- *    bool
- *    showInMenu() {
- *       return categories() & inMenu;
- *    }
- *
- *    bool
- *    showInToolBar() {
- *       return categories() & inToolBar;
- *    }
- * };
- * \endcode
- */
-class PropertyCategories
+class Annotation {
+public:
+	virtual ~Annotation(){};
+};
+
+class NonStreamable : public Annotation {
+public:
+//	virtual ~NonStreamable(){};
+};
+
+class Annotations
 {
 public:
-	static const int none 			= 0;
-	static const int nonstreamable 	= 1;
-	static const int lastCategory 	= nonstreamable;
+	typedef std::vector< boost::shared_ptr< Annotation > > Container;
+	typedef Container::const_iterator iterator;
 
-	PropertyCategories() : _categories(0){}
-
-	/**
-	 * \brief Assign a category to this container
-	 * \param category the category to assign
-	 * \return this for chain call
-	 */
-	PropertyCategories & operator << ( const int& category )
-	{
-		_categories |= category;
+	Annotations &
+	operator << ( Annotation * annotation ) {
+		m_annotations.push_back( boost::shared_ptr< Annotation >( annotation ) );
 		return *this;
 	}
 
-	/**
-	 * \brief Check if streamable
-	 * \return true if this has been assigned to be streamable
-	 */
+	template< typename T >
+	T *
+	getFirst() {
+		for ( Container::iterator it = m_annotations.begin(); it != m_annotations.end(); ++it ) {
+			T * p = dynamic_cast< T* >( it->get() );
+			if ( p )
+				return p;
+		}
+		return NULL;
+	}
+
+	template< typename T >
+	std::vector< T * >
+	getAll() {
+		std::vector< T * > v;
+		for ( Container::iterator it = m_annotations.begin(); it != m_annotations.end(); ++it ) {
+			T * p = dynamic_cast< T* >( it->get() );
+			if ( p )
+				v.push_back( p );
+		}
+		return v;
+	}
+
+	template< typename T >
 	bool
-	isStreamable(){
-		return !(categories() & nonstreamable);
+	has() {
+		return getFirst< T >();
 	}
-
-	/**
-	 * \brief Get the assigned categories
-	 * \return an int containing the assigned categories binary encoded
-	 */
-	int categories()
-	{
-		return _categories;
-	}
-
 private:
-	int _categories;
+	Container m_annotations;
 };
 
 //------------------------------------------------------------------------------
@@ -106,23 +93,23 @@ public:
 	}
 
 	/**
-	 * \brief Assigns a category container to this property
-	 * \param cats the category container
+	 * \brief Assigns an annotation container to this property
+	 * \param annotations the annotation container
 	 */
 	void
-	categories( const PropertyCategories& cats )
+	annotations( const Annotations& annotationsContainer )
 	{
-		_categories = cats;
+		_annotations = annotationsContainer;
 	}
 
 	/**
-	 * \brief Retrieve the associated property categories
-	 * \return the associated categories of this property
+	 * \brief Retrieve the associated annotations container
+	 * \return the associated annotations container of this property
 	 */
-	PropertyCategories *
-	categories()
+	Annotations&
+	annotations()
 	{
-		return &_categories;
+		return _annotations;
 	}
 
 	/**
@@ -225,10 +212,10 @@ protected:
 	}
 
 private:
-	PropertyCategories	_categories;
-	std::string			_type_name;
-	std::string			_name;
-	Mode 	   			_mode;
+	Annotations	_annotations;
+	std::string	_type_name;
+	std::string	_name;
+	Mode 	   	_mode;
 };
 
 template <class ClassT, class PropT>

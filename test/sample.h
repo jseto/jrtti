@@ -104,26 +104,51 @@ class SampleDerived : public Sample
 	virtual int getIntOverloaded() {return 43;}
 };
 
-class CustomPropertyCategories : public jrtti::PropertyCategories {
+class MenuAnnotation : public jrtti::Annotation {
 public:
-	static const int inMenu	 		= jrtti::PropertyCategories::lastCategory << 1;
-	static const int inToolBar		= jrtti::PropertyCategories::lastCategory << 2;
-	static const int lastCategory	= inToolBar;
+	MenuAnnotation( const std::string& submenu ) {
+		_submenu = submenu;
+	}
+
+	const std::string&
+	submenu() {
+		return _submenu;
+	}
+
+private:
+	std::string _submenu;
+};
+
+class GUIAnnotation : public jrtti::Annotation {
+public:
+	GUIAnnotation( std::string icon = "", bool showInMenu = true, bool showInToolbar = false )
+		: 	_icon( icon ),
+			_showInMenu( showInMenu ),
+			_showInToolbar( showInToolbar ) {}
+
+	const std::string&
+	icon() {
+		return _icon;
+	}
 
 	bool
 	showInMenu() {
-		return categories() & inMenu;
+		return _showInMenu;
 	}
 
 	bool
 	showInToolBar() {
-		return categories() & inToolBar;
+		return _showInToolbar;
 	}
+
+private:
+	std::string	_icon;
+	bool		_showInMenu;
+	bool		_showInToolbar;
 };
 
 void declare()
 {
-
 	jrtti::declare<Point>()
 						.property("x", &Point::x)
 						.property("y", &Point::y);
@@ -140,9 +165,12 @@ void declare()
 
 	jrtti::declare<Sample>()
 				.inheritsFrom<SampleBase>()
-						.property("intMember", &Sample::intMember, jrtti::PropertyCategories() << jrtti::PropertyCategories::nonstreamable )
-						.property("testDouble", &Sample::setDoubleProp, &Sample::getDoubleProp, CustomPropertyCategories() << CustomPropertyCategories::inMenu )
-						.property("point", &Sample::setByPtrProp, &Sample::getByPtrProp)
+						.property("intMember", &Sample::intMember,
+									jrtti::Annotations() << new jrtti::NonStreamable())
+						.property("testDouble", &Sample::setDoubleProp, &Sample::getDoubleProp,
+									jrtti::Annotations() << new GUIAnnotation( "test.ico", false, true ) )
+						.property("point", &Sample::setByPtrProp, &Sample::getByPtrProp,
+									jrtti::Annotations() << new MenuAnnotation( "Entry_1" ) << new MenuAnnotation( "Entry_2" ) << new MenuAnnotation( "Entry_n" ) )
 						.property("date", &Sample::setByValProp, &Sample::getByValProp )
 						.property("refToDate", &Sample::getByRefProp)
 						.property("testStr", &Sample::setStdStringProp,&Sample::getStdStringProp)
