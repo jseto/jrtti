@@ -56,6 +56,7 @@ public:
 
 	int intMember;
 
+
 	virtual int getIntAbstract() { return 34; }
 	virtual int getIntOverloaded() {return 87;}
 
@@ -105,8 +106,8 @@ class SampleDerived : public Sample
 
 class CustomPropertyCategories : public jrtti::PropertyCategories {
 public:
-	static const int inMenu	 		= jrtti::PropertyCategories::lastCategory + 1;
-	static const int inToolBar		= jrtti::PropertyCategories::lastCategory + 2;
+	static const int inMenu	 		= jrtti::PropertyCategories::lastCategory << 1;
+	static const int inToolBar		= jrtti::PropertyCategories::lastCategory << 2;
 	static const int lastCategory	= inToolBar;
 
 	bool
@@ -138,7 +139,7 @@ void declare()
 						.property("intOverloaded", &SampleBase::getIntOverloaded);
 
 	jrtti::declare<Sample>()
-               	.inheritsFrom<SampleBase>()
+				.inheritsFrom<SampleBase>()
 						.property("intMember", &Sample::intMember, jrtti::PropertyCategories() << jrtti::PropertyCategories::nonstreamable )
 						.property("testDouble", &Sample::setDoubleProp, &Sample::getDoubleProp, CustomPropertyCategories() << CustomPropertyCategories::inMenu )
 						.property("point", &Sample::setByPtrProp, &Sample::getByPtrProp)

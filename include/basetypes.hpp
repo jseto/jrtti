@@ -1,6 +1,8 @@
 #ifndef jrttibasetypesH
 #define jrttibasetypesH
 
+#include <sstream>
+#include <iomanip>
 #include "metaclass.hpp"
 
 namespace jrtti {
@@ -146,12 +148,12 @@ public:
 
 	std::string
 	toStr( const boost::any & value, bool formatForStreaming = false ) {
-		return '"' + boost::any_cast<std::string>(value) + '"';
+		return '"' + addEscapeSeq( boost::any_cast<std::string>(value) ) + '"';
 	}
 
 	boost::any
 	fromStr( const boost::any& instance, const std::string& str ) {
-		return str;
+		return removeEscapeSeq( str );
 	}
 
 	virtual
@@ -159,9 +161,71 @@ public:
 	create() {
 		return new std::string();
 	}
+private:
+	std::string
+	addEscapeSeq( const std::string& s ) {
+		std::ostringstream ss;
+		for (std::string::const_iterator iter = s.begin(); iter != s.end(); ++iter) {
+			switch (*iter) {
+				case '"': ss << "\\\""; break;
+				case '\\': ss << "\\\\"; break;
+				case '/': ss << "\\/"; break;
+				case '\b': ss << "\\b"; break;
+				case '\f': ss << "\\f"; break;
+				case '\n': ss << "\\n"; break;
+				case '\r': ss << "\\r"; break;
+				case '\t': ss << "\\t"; break;
+				default: {
+					if ( *iter < 0x20 ) {
+						ss << "\\u" << std::setfill('0') << std::setw(4) << std::hex << unsigned( *iter );
+					}
+					else {
+						ss << *iter;
+					}
+					break;
+				}
+			}
+		}
+		std::string ret = ss.str();
+		return ss.str();
+	}
+
+	std::string
+	removeEscapeSeq( const std::string& s ) {
+		std::stringstream ss;
+		for (std::string::const_iterator iter = s.begin(); iter != s.end(); ++iter) {
+			if ( *iter == '\\' )
+			{
+				switch ( *( ++iter ) ) {
+					case 'b' : ss << '\b'; break;
+					case 'f' : ss << '\f'; break;
+					case 'n' : ss << '\n'; break;
+					case 'r' : ss << '\r'; break;
+					case 't' : ss << '\t'; break;
+					case 'u' : {
+						std::string num;
+						for ( size_t i = 0; i<4; ++i,iter++ ) {
+							 num+= *(iter + 1);
+						}
+						std::stringstream d;
+						d << std::hex << num;
+						int n;
+						d >> n;
+						ss << char(n);
+						break;
+					}
+					default: ss << *iter; break;
+				}
+			}
+			else {
+				ss << *iter;
+			}
+		}
+		return ss.str();
+    }
 };
 
-//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 }; //namespace jrtti
 #endif  //jrttibasetypesH
 

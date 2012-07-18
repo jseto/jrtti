@@ -266,7 +266,7 @@ namespace jrtti {
 		 * Retrieves a string representation of the object contens in a JSON format.
 		 * \param instance the object instance to retrieve
 		 * \param formatForStreaming if true, formats the string to be passed to a stream.
-		 * In this case, the property is checked to see if it has the PropertyCategory::streamable
+		 * In this case, the property is checked to see if it has the PropertyCategory::nonstreamable
 		 * \return the string representation
 		 */
 		virtual

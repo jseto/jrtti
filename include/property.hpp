@@ -16,8 +16,8 @@ namespace jrtti {
  * \code
  * class CustomPropertyCategories : public jrtti::PropertyCategories {
  * public:
- *    static const int inMenu	 		= jrtti::PropertyCategories::lastCategory + 1;
- *    static const int inToolBar		= jrtti::PropertyCategories::lastCategory + 2;
+ *    static const int inMenu	 		= jrtti::PropertyCategories::lastCategory << 1;
+ *    static const int inToolBar		= jrtti::PropertyCategories::lastCategory << 2;
  *    static const int lastCategory	= inToolBar;
  *
  *    bool
