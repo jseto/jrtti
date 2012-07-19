@@ -386,8 +386,8 @@ namespace jrtti {
 			JSONParser parser( str );
 
 			for( JSONParser::iterator it = parser.begin(); it != parser.end(); ++it) {
-				std::string key = it->first;
-				std::string value = it->second;
+//				std::string key = it->first;
+//				std::string value = it->second;
 				if ( it->first == "$ref" ) {
 					return copyFromInstance( _nameRefMap()[ it->second ] );
 				}
@@ -827,7 +827,7 @@ namespace jrtti {
 			Metatype& elemType = jrtti::getType< ClassT::value_type >();
 			for( JSONParser::iterator it = parser.begin(); it != parser.end(); ++it) {
 				ClassT::value_type elem;
-				std::string a =  it->second;
+//				std::string a =  it->second;
 				const boost::any &mod = elemType._fromStr( &elem, it->second );
 				_collection.insert( _collection.end(), boost::any_cast< ClassT::value_type >( mod ) );
 			}

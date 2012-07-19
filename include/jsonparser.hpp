@@ -25,11 +25,13 @@ public:
 				return;
 			}
 			std::string value = findValue( keyCount );
-			if ( keyCount ) {
+			insert( std::pair< std::string, std::string >( key, value ) );
+			if ( keyCount && ( m_jsonStr[ pos ] == ',' || m_jsonStr[ pos ] == ']' ) ) {
 				++pos;
 			}
-			insert( std::pair< std::string, std::string >( key, value ) );
-			moveToEndChar();
+			else {
+				moveToEndChar();
+            }
 		}
 	}
 
