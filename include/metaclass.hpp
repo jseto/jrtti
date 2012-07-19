@@ -308,6 +308,7 @@ namespace jrtti {
 		 * \param instance the object instance to fill
 		 * \param str a JSON formated string with data to fill the object
 		 */
+		void
 		fromStr( const boost::any & instance, const std::string& str ) {
 			_nameRefMap().clear();
 			_fromStr( instance, str );
