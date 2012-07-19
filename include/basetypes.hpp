@@ -34,7 +34,13 @@ public:
 
 	bool
 	isPointer() { return true;}
-
+/*
+	virtual
+	boost::any
+	copyFromInstance( void * inst ) {
+		return boost::any( inst );
+	}
+  */
 protected:
 	virtual
 	std::string
@@ -53,9 +59,17 @@ protected:
 	virtual
 	boost::any
 	_fromStr( const boost::any& instance, const std::string& str ) {
-		boost::any ptr = create();
-		MetaIndirectedType::_fromStr( ptr, str );
-		return ptr;
+		JSONParser parser( str );
+		boost::any any_ptr;
+		if ( parser.begin()->first == "$ref" ) {
+			void * ptr = _nameRefMap()[ parser.begin()->second ];
+			any_ptr = m_baseType.copyFromInstanceAsPtr( ptr );
+		}
+		else {
+			any_ptr = create();
+			MetaIndirectedType::_fromStr( any_ptr, str );
+		}
+		return any_ptr;
 	}
 
 	virtual

@@ -337,6 +337,12 @@ namespace jrtti {
 			return boost::any();
 		}
 
+		virtual
+		boost::any
+		copyFromInstanceAsPtr( void * inst ) {
+			return boost::any();
+		}
+
 	protected:
 		friend class MetaReferenceType;
 		friend class MetaPointerType;
@@ -676,6 +682,19 @@ namespace jrtti {
 #else
 			return _copyFromInstance< ClassT >( inst );
 #endif
+		}
+
+		boost::any
+		copyFromInstanceAsPtr( void * inst )
+		{
+			ClassT * ptr = (ClassT *) inst;
+			return boost::any( ptr );
+			/*
+#ifdef BOOST_NO_IS_ABSTRACT
+			return _copyFromInstance< IsAbstractT >( inst );
+#else
+			return _copyFromInstance< ClassT >( inst );
+#endif        */
 		}
 
 	private:
