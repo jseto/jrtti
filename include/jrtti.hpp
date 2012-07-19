@@ -1,14 +1,21 @@
 #ifndef jrttiH
 #define jrttiH
 
+#include <map>
 #include "exception.hpp"
 
 namespace jrtti {
+	typedef std::map< void *, std::string > AddressRefMap;
+	typedef std::map< std::string, void * > NameRefMap;
+
 	class Error;
 	class Metatype;
 	class Reflector;
 	Metatype &	getType(std::string name);
 	Error	error(std::string message);
+
+	AddressRefMap&	_addressRefMap();
+	NameRefMap&	_nameRefMap();
 }
 
 #include "reflector.hpp"
@@ -155,6 +162,18 @@ namespace jrtti {
 	inline void
 	clear() {
 		Reflector::instance().clear();
+	}
+
+	inline
+	AddressRefMap&
+	_addressRefMap() {
+		return Reflector::instance()._addressRefMap();
+	}
+
+	inline
+	NameRefMap&
+	_nameRefMap() {
+		return Reflector::instance()._nameRefMap();
 	}
 }
 

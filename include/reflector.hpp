@@ -128,6 +128,19 @@ public:
     	return getType( typeid( T ).name() );
 	}
 
+	
+	inline
+	AddressRefMap&
+	_addressRefMap() {
+		return m_addressRefs;
+	}
+
+	inline
+	NameRefMap&
+	_nameRefMap() {
+		return m_nameRefs;
+	}
+
 private:
 	Reflector()
 	{
@@ -146,8 +159,11 @@ private:
 	}
 
 
-	TypeMap _meta_types;
-	std::map<std::string, std::string> _alias;
+	TypeMap 							_meta_types;
+	std::map<std::string, std::string> 	_alias;
+	AddressRefMap 						m_addressRefs;
+	NameRefMap 							m_nameRefs;
+
 };
 
 //------------------------------------------------------------------------------

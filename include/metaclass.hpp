@@ -294,23 +294,10 @@ namespace jrtti {
 		 * In this case, the property is checked to see if it has the PropertyCategory::nonstreamable
 		 * \return the string representation
 		 */
-		virtual
 		std::string
 		toStr(const boost::any & instance, bool formatForStreaming = false ) {
-			void * inst = get_instance_ptr(instance);
-			std::string result = "{\n";
-			bool need_nl = false;
-			for( PropertyMap::iterator it = properties().begin(); it != properties().end(); ++it) {
-				Property * prop = it->second;
-				if ( prop ) {
-					if ( !( formatForStreaming && prop->annotations().has< NonStreamable >() ) ) {
-						if (need_nl) result += ",\n";
-						need_nl = true;
-						result += ident( "\"" + prop->name() + "\"" + ": " + prop->type().toStr( prop->get(inst), formatForStreaming ) );
-                    }
-				}
-			}
-			return result += "\n}";
+			jrtti::_addressRefMap().clear();
+			return _toStr( instance, formatForStreaming );
 		}
 
 		/**
@@ -367,6 +354,28 @@ namespace jrtti {
 		}
 
 	protected:
+		friend class MetaReferenceType;
+		template< typename C > friend class MetaCollection;
+
+		virtual
+		std::string
+		_toStr( const boost::any & instance, bool formatForStreaming ) {
+			void * inst = get_instance_ptr(instance);
+			std::string result = "{\n";
+			bool need_nl = false;
+			for( PropertyMap::iterator it = properties().begin(); it != properties().end(); ++it) {
+				Property * prop = it->second;
+				if ( prop ) {
+					if ( !( formatForStreaming && prop->annotations().has< NonStreamable >() ) ) {
+						if (need_nl) result += ",\n";
+						need_nl = true;
+						result += ident( "\"" + prop->name() + "\"" + ": " + prop->type()._toStr( prop->get(inst), formatForStreaming ) );
+					}
+				}
+			}
+			return result += "\n}";
+		}
+
 		void
 		set_property( std::string name, Property * prop) {
 			properties()[name] = prop;
@@ -393,12 +402,12 @@ namespace jrtti {
 		}
 
 	private:
-		std::string	m_type_name;
-		MethodMap	m_methods;
-		MethodMap	m_ownedMethods;
-		PropertyMap	m_properties;
-		PropertyMap m_ownedProperties;
-		Annotations m_annotations;
+		std::string		m_type_name;
+		MethodMap		m_methods;
+		MethodMap		m_ownedMethods;
+		PropertyMap		m_properties;
+		PropertyMap 	m_ownedProperties;
+		Annotations 	m_annotations;
 	};
 
 
@@ -745,9 +754,10 @@ namespace jrtti {
 	public:
 		MetaCollection( std::string name, const Annotations& annotations = Annotations() ): Metatype( name, annotations ) {}
 
+	protected:
 		virtual
 		std::string
-		toStr( const boost::any & value, bool formatForStreaming = false ){
+		_toStr( const boost::any & value, bool formatForStreaming ){
 			ClassT& _collection = getReference( value );
 			Metatype& mt = jrtti::getType< ClassT::value_type >();
 			std::string str = "[\n";
@@ -755,7 +765,7 @@ namespace jrtti {
 			for ( ClassT::iterator it = _collection.begin() ; it != _collection.end(); ++it ) {
 				if (need_nl) str += ",\n";
 				need_nl = true;
-				str += ident( mt.toStr( *it, formatForStreaming ) );
+				str += ident( mt._toStr( *it, formatForStreaming ) );
 			}
 			return str += "\n]";
 		}
@@ -784,7 +794,6 @@ namespace jrtti {
 			return new ClassT();
 		}
 
-	protected:
 		virtual
 		void *
 		get_instance_ptr( const boost::any & value ) {

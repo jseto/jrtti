@@ -35,6 +35,7 @@ public:
 	bool
 	isPointer() { return true;}
 
+protected:
 	virtual
 	boost::any
 	fromStr( const boost::any& instance, const std::string& str ) {
@@ -63,9 +64,11 @@ public:
 	bool
 	isReference() { return true;}
 
+protected:
+	virtual
 	std::string
-	toStr(const boost::any & value, bool formatForStreaming = false){
-		return m_baseType.toStr( value, formatForStreaming );
+	_toStr( const boost::any & value, bool formatForStreaming ){
+		return m_baseType._toStr( value, formatForStreaming );
 	}
 
 	virtual
@@ -81,8 +84,9 @@ class MetaInt: public Metatype {
 public:
 	MetaInt(): Metatype("int") {}
 
+	virtual
 	std::string
-	toStr( const boost::any & value, bool formatForStreaming = false ){
+	_toStr( const boost::any & value, bool formatForStreaming ){
 		return numToStr(boost::any_cast<int>(value));
 	}
 
@@ -104,8 +108,9 @@ public:
 public:
 	MetaBool(): Metatype("bool") {}
 
+	virtual
 	std::string
-	toStr( const boost::any & value, bool formatForStreaming = false ){
+	_toStr( const boost::any & value, bool formatForStreaming ){
 		return boost::any_cast<bool>(value) ? "true" : "false";
 	}
 
@@ -125,8 +130,9 @@ class MetaDouble: public Metatype {
 public:
 	MetaDouble(): Metatype("double") {}
 
+	virtual
 	std::string
-	toStr( const boost::any & value, bool formatForStreaming = false ){
+	_toStr( const boost::any & value, bool formatForStreaming ){
 		return numToStr(boost::any_cast<double>(value));
 	}
 
@@ -146,8 +152,9 @@ class MetaString: public Metatype {
 public:
 	MetaString(): Metatype("std::string") {}
 
+	virtual
 	std::string
-	toStr( const boost::any & value, bool formatForStreaming = false ) {
+	_toStr( const boost::any & value, bool formatForStreaming ) {
 		return '"' + addEscapeSeq( boost::any_cast<std::string>(value) ) + '"';
 	}
 

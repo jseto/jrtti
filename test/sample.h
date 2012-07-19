@@ -52,10 +52,10 @@ public:
 class Sample : public SampleBase
 {
 public:
-	Sample(){}
+	Sample(){ circularRef = this; }
 
 	int intMember;
-
+	Sample * circularRef;
 
 	virtual int getIntAbstract() { return 34; }
 	virtual int getIntOverloaded() {return 87;}
@@ -177,6 +177,7 @@ void declare()
 						.property("testRO", &Sample::testIntFunc)
 						.property("testBool", &Sample::setBool, &Sample::getBool)
 						.property("collection", &Sample::setCollection, &Sample::getCollection )
+//						.property("circularRef", &Sample::circularRef )
 
 						.method<void>("testMethod", &Sample::testFunc,
 									jrtti::Annotations() << new GUIAnnotation( "method.ico", false, false ) )
