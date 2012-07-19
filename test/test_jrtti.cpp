@@ -338,6 +338,22 @@ TEST_F(MetaTypeTest, testMultipleAnnotation) {
 	EXPECT_EQ( "Entry_2", a[1]->submenu() );
 }
 
+TEST_F(MetaTypeTest, testTypeAnnotation) {
+	jrtti::Annotations annotations = mClass().annotations();
+
+	GUIAnnotation * a = annotations.getFirst<GUIAnnotation>();
+
+	EXPECT_EQ( "sample.ico", a->icon() );
+}
+
+TEST_F(MetaTypeTest, testMethodAnnotation) {
+	jrtti::Annotations annotations = mClass().method( "testMethod" ).annotations();
+
+	GUIAnnotation * a = annotations.getFirst<GUIAnnotation>();
+
+	EXPECT_EQ( "method.ico", a->icon() );
+}
+
 TEST_F(MetaTypeTest, testCreate) {
 	Point * p = boost::any_cast< Point * >( mClass()[ "point" ].type().create() );
 	EXPECT_TRUE( (p->x == -1) && (p->y == -1) );

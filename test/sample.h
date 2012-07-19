@@ -163,7 +163,7 @@ void declare()
 						.property("intAbstract", &SampleBase::getIntAbstract)
 						.property("intOverloaded", &SampleBase::getIntOverloaded);
 
-	jrtti::declare<Sample>()
+	jrtti::declare<Sample>( jrtti::Annotations() << new GUIAnnotation( "sample.ico" ) )
 				.inheritsFrom<SampleBase>()
 						.property("intMember", &Sample::intMember,
 									jrtti::Annotations() << new jrtti::NonStreamable())
@@ -178,7 +178,8 @@ void declare()
 						.property("testBool", &Sample::setBool, &Sample::getBool)
 						.property("collection", &Sample::setCollection, &Sample::getCollection )
 
-						.method<void>("testMethod", &Sample::testFunc)
+						.method<void>("testMethod", &Sample::testFunc,
+									jrtti::Annotations() << new GUIAnnotation( "method.ico", false, false ) )
 						.method<int>("testIntMethod", &Sample::testIntFunc)
 						.method<double,double>("testSquare", &Sample::testSquare)
 						.method<double,int,double>("testSum", &Sample::testSum);

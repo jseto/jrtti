@@ -23,8 +23,9 @@ namespace jrtti {
 		typedef std::map< std::string, Property * > PropertyMap;
 		typedef std::map< std::string, Method * >	MethodMap;
 
-		Metatype(std::string name): m_type_name(name) {
-		}
+		Metatype( std::string name, const Annotations& annotations = Annotations() )
+			:	m_type_name(name),
+				m_annotations( annotations ) {}
 
 		~Metatype() {
 			for (PropertyMap::iterator it = m_ownedProperties.begin(); it != m_ownedProperties.end(); ++it) {
@@ -51,6 +52,26 @@ namespace jrtti {
 		std::string
 		name()	{
 			return m_type_name;
+		}
+
+		/**
+		 * \brief Assigns an annotation container to this property
+		 * \param annotationsContainer the annotation container
+		 */
+		void
+		annotations( const Annotations& annotationsContainer )
+		{
+			m_annotations = annotationsContainer;
+		}
+
+		/**
+		 * \brief Retrieve the associated annotations container
+		 * \return the associated annotations container of this property
+		 */
+		Annotations&
+		annotations()
+		{
+			return m_annotations;
 		}
 
 		/**
@@ -114,9 +135,13 @@ namespace jrtti {
 		 * \param name the name of the method to look for
 		 * \return the found method abstraction
 		 */
-		Method *
-		getMethod(std::string name) {
-			return methods()[name];
+		Method&
+		method(std::string name) {
+			MethodMap::iterator it = methods().find(name);
+			if ( it == methods().end() ) {
+				error( "Method '" + name + "' not declared in '" + Metatype::name() + "' metaclass" );
+			}
+			return *it->second;
 		}
 
 		/**
@@ -373,6 +398,7 @@ namespace jrtti {
 		MethodMap	m_ownedMethods;
 		PropertyMap	m_properties;
 		PropertyMap m_ownedProperties;
+		Annotations m_annotations;
 	};
 
 
@@ -384,7 +410,8 @@ namespace jrtti {
 	class CustomMetaclass : public Metatype
 	{
 	public:
-		CustomMetaclass(std::string name): Metatype(name) {}
+		CustomMetaclass( std::string name, const Annotations& annotations = Annotations() )
+			: Metatype( name, annotations ) {}
 
 		virtual
 		boost::any
@@ -530,12 +557,12 @@ namespace jrtti {
 		 */
 		template <typename ReturnType>
 		CustomMetaclass&
-		method(std::string name, boost::function<ReturnType (ClassT*)> f)
+		method( std::string name, boost::function<ReturnType (ClassT*)> f, const Annotations& annotations = Annotations() )
 		{
 			typedef TypedMethod<ClassT,ReturnType> MethodType;
 			typedef typename boost::function<ReturnType (ClassT*)> FunctionType;
 
-			return fillMethod<MethodType, FunctionType>(name,f);
+			return fillMethod<MethodType, FunctionType>( name, f, annotations );
 		}
 
 		/**
@@ -551,12 +578,12 @@ namespace jrtti {
 		 */
 		template <typename ReturnType, typename Param1>
 		CustomMetaclass&
-		method(std::string name,boost::function<ReturnType (ClassT*, Param1)> f)
+		method( std::string name,boost::function<ReturnType (ClassT*, Param1)> f, const Annotations& annotations = Annotations() )
 		{
 			typedef typename TypedMethod<ClassT,ReturnType, Param1> MethodType;
 			typedef typename boost::function<ReturnType (ClassT*, Param1)> FunctionType;
 
-			return fillMethod<MethodType, FunctionType>(name,f);
+			return fillMethod<MethodType, FunctionType>( name, f, annotations );
 		}
 
 		/**
@@ -573,12 +600,12 @@ namespace jrtti {
 		 */
 		template <typename ReturnType, typename Param1, typename Param2>
 		CustomMetaclass&
-		method(std::string name,boost::function<ReturnType (ClassT*, Param1, Param2)> f)
+		method( std::string name,boost::function<ReturnType (ClassT*, Param1, Param2)> f, const Annotations& annotations = Annotations() )
 		{
 			typedef typename TypedMethod<ClassT,ReturnType, Param1, Param2> MethodType;
 			typedef typename boost::function<ReturnType (ClassT*, Param1, Param2)> FunctionType;
 
-			return fillMethod<MethodType, FunctionType>(name,f);
+			return fillMethod<MethodType, FunctionType>( name, f, annotations );
 		}
 
 		/**
@@ -617,11 +644,12 @@ namespace jrtti {
 	private:
 		template <typename MethodType, typename FunctionType>
 		CustomMetaclass&
-		fillMethod(std::string name, FunctionType function)
+		fillMethod( std::string name, FunctionType function, const Annotations& annotations )
 		{
 			MethodType * m = new MethodType();
 			m->name(name);
 			m->function(function);
+			m->annotations( annotations );
 			set_method(name, m);
 			return *this;
 		}
@@ -715,7 +743,7 @@ namespace jrtti {
 	template< typename ClassT >
 	class MetaCollection: public Metatype {
 	public:
-		MetaCollection(std::string name): Metatype(name) {}
+		MetaCollection( std::string name, const Annotations& annotations = Annotations() ): Metatype( name, annotations ) {}
 
 		virtual
 		std::string
