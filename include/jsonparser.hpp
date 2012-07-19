@@ -29,6 +29,7 @@ public:
 				++pos;
 			}
 			insert( std::pair< std::string, std::string >( key, value ) );
+			moveToEndChar();
 		}
 	}
 
@@ -130,6 +131,15 @@ private:
 			++pos;
 		}
 	}
+
+	inline
+	void
+	moveToEndChar() {
+		while ( ( m_jsonStr[ pos ] != ',' ) && ( m_jsonStr[ pos ] != '}' ) && ( m_jsonStr[ pos ] != ']' ) && ( pos < m_jsonStr.length() ) ) {
+			++pos;
+		}
+	}
+
 
 	std::string	m_jsonStr;
 	size_t	 	pos;

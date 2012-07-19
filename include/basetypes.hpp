@@ -37,10 +37,24 @@ public:
 
 protected:
 	virtual
+	std::string
+	_toStr( const boost::any & value, bool formatForStreaming ){
+		void * inst = get_instance_ptr(value);
+
+		AddressRefMap::iterator it = _addressRefMap().find( inst );
+		if ( it == _addressRefMap().end() ) {
+			return MetaIndirectedType::_toStr( value, formatForStreaming );
+		}
+		else {
+			return "{\n\t\"$ref\": \"" + it->second + "\"\n}";
+		}
+	}
+
+	virtual
 	boost::any
-	fromStr( const boost::any& instance, const std::string& str ) {
+	_fromStr( const boost::any& instance, const std::string& str ) {
 		boost::any ptr = create();
-		MetaIndirectedType::fromStr( ptr, str );
+		MetaIndirectedType::_fromStr( ptr, str );
 		return ptr;
 	}
 
@@ -73,8 +87,8 @@ protected:
 
 	virtual
 	boost::any
-	fromStr( const boost::any& instance, const std::string& str ) {
-		return m_baseType.fromStr( instance, str );
+	_fromStr( const boost::any& instance, const std::string& str ) {
+		return m_baseType._fromStr( instance, str );
 	}
 };
 
@@ -91,7 +105,7 @@ public:
 	}
 
 	boost::any
-	fromStr( const boost::any& instance, const std::string& str ) {
+	_fromStr( const boost::any& instance, const std::string& str ) {
 		return strToNum<int>( str );
 	}
 
@@ -115,7 +129,7 @@ public:
 	}
 
 	boost::any
-	fromStr( const boost::any& instance, const std::string& str ) {
+	_fromStr( const boost::any& instance, const std::string& str ) {
 		return str == "true";
 	}
 
@@ -137,7 +151,7 @@ public:
 	}
 
 	boost::any
-	fromStr( const boost::any& instance, const std::string& str ) {
+	_fromStr( const boost::any& instance, const std::string& str ) {
 		return strToNum<double>( str );
 	}
 
@@ -159,7 +173,7 @@ public:
 	}
 
 	boost::any
-	fromStr( const boost::any& instance, const std::string& str ) {
+	_fromStr( const boost::any& instance, const std::string& str ) {
 		return removeEscapeSeq( str );
 	}
 

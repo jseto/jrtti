@@ -296,7 +296,7 @@ namespace jrtti {
 		 */
 		std::string
 		toStr(const boost::any & instance, bool formatForStreaming = false ) {
-			jrtti::_addressRefMap().clear();
+			_addressRefMap().clear();
 			return _toStr( instance, formatForStreaming );
 		}
 
@@ -307,26 +307,10 @@ namespace jrtti {
 		 *  of the object.
 		 * \param instance the object instance to fill
 		 * \param str a JSON formated string with data to fill the object
-		 * \return used internally
 		 */
-		virtual
-		boost::any
 		fromStr( const boost::any & instance, const std::string& str ) {
-			void * inst = get_instance_ptr(instance);
-			JSONParser parser( str );
-
-			for( JSONParser::iterator it = parser.begin(); it != parser.end(); ++it) {
-				Property * prop = properties()[ it->first ];
-				if ( prop ) {
-					if ( prop->isWritable() ) {
-						const boost::any &mod = prop->type().fromStr( prop->get( inst ), it->second );
-						if ( !mod.empty() ) {
-							prop->set( inst, mod );
-						}
-					}
-				}
-			}
-			return copyFromInstance( inst );
+			_nameRefMap().clear();
+			_fromStr( instance, str );
 		}
 
 		virtual
@@ -355,6 +339,7 @@ namespace jrtti {
 
 	protected:
 		friend class MetaReferenceType;
+		friend class MetaPointerType;
 		template< typename C > friend class MetaCollection;
 
 		virtual
@@ -362,7 +347,19 @@ namespace jrtti {
 		_toStr( const boost::any & instance, bool formatForStreaming ) {
 			void * inst = get_instance_ptr(instance);
 			std::string result = "{\n";
-			bool need_nl = false;
+			bool need_nl = true;
+
+			AddressRefMap::iterator it = _addressRefMap().find( inst );
+			if ( it == _addressRefMap().end() ) {
+				std::string idStr = numToStr<int>( _addressRefMap().size() );
+				_addressRefMap()[ inst ] = idStr;
+				result += "\t\"$id\": \"" + idStr + "\"";
+			}
+			else {
+				need_nl = false;
+			}
+
+
 			for( PropertyMap::iterator it = properties().begin(); it != properties().end(); ++it) {
 				Property * prop = it->second;
 				if ( prop ) {
@@ -374,6 +371,37 @@ namespace jrtti {
 				}
 			}
 			return result += "\n}";
+		}
+
+		virtual
+		boost::any
+		_fromStr( const boost::any & instance, const std::string& str ) {
+			void * inst = get_instance_ptr(instance);
+			JSONParser parser( str );
+
+			for( JSONParser::iterator it = parser.begin(); it != parser.end(); ++it) {
+				std::string key = it->first;
+				std::string value = it->second;
+				if ( it->first == "$ref" ) {
+					return copyFromInstance( _nameRefMap()[ it->second ] );
+				}
+				if ( it->first == "$id" ) {
+					_nameRefMap()[ it->second ] = inst;
+				}
+				else
+				{
+					Property * prop = properties()[ it->first ];
+					if ( prop ) {
+						if ( prop->isWritable() ) {
+							const boost::any &mod = prop->type()._fromStr( prop->get( inst ), it->second );
+							if ( !mod.empty() ) {
+								prop->set( inst, mod );
+							}
+						}
+					}
+				}
+			}
+			return copyFromInstance( inst );
 		}
 
 		void
@@ -772,7 +800,7 @@ namespace jrtti {
 
 		virtual
 		boost::any
-		fromStr( const boost::any& instance, const std::string& str ) {
+		_fromStr( const boost::any& instance, const std::string& str ) {
 			ClassT& _collection =  getReference( instance );
 			_collection.clear();
 
@@ -781,7 +809,7 @@ namespace jrtti {
 			for( JSONParser::iterator it = parser.begin(); it != parser.end(); ++it) {
 				ClassT::value_type elem;
 				std::string a =  it->second;
-				const boost::any &mod = elemType.fromStr( &elem, it->second );
+				const boost::any &mod = elemType._fromStr( &elem, it->second );
 				_collection.insert( _collection.end(), boost::any_cast< ClassT::value_type >( mod ) );
 			}
 			return boost::any();

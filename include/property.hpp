@@ -333,7 +333,7 @@ private:
 	typename boost::disable_if< boost::type_traits::ice_or<
 										boost::is_pointer< PropT >::value,
 										boost::is_reference< PropT >::value >, boost::any >::type
-	internal_get(void * instance)	{
+	internal_get(void * instance) {
 		PropT res = m_getter( (ClassT *)instance );
 		return res;
 	}

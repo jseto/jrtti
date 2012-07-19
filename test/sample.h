@@ -177,7 +177,7 @@ void declare()
 						.property("testRO", &Sample::testIntFunc)
 						.property("testBool", &Sample::setBool, &Sample::getBool)
 						.property("collection", &Sample::setCollection, &Sample::getCollection )
-//						.property("circularRef", &Sample::circularRef )
+						.property("circularRef", &Sample::circularRef )
 
 						.method<void>("testMethod", &Sample::testFunc,
 									jrtti::Annotations() << new GUIAnnotation( "method.ico", false, false ) )
