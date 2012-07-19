@@ -15,8 +15,29 @@ public:
 		_name = value;
 	}
 
+	/**
+	 * \brief Assigns an annotation container to this property
+	 * \param annotationsContainer the annotation container
+	 */
+	void
+	annotations( const Annotations& annotationsContainer )
+	{
+		_annotations = annotationsContainer;
+	}
+
+	/**
+	 * \brief Retrieve the associated annotations container
+	 * \return the associated annotations container of this property
+	 */
+	Annotations&
+	annotations()
+	{
+		return _annotations;
+	}
+
 private:
 	std::string _name;
+	Annotations _annotations;
 };
 
 template <class ClassT, class ReturnT, class Param1=void, class Param2=void>

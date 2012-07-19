@@ -79,8 +79,8 @@ namespace jrtti {
 	 */
 	template <typename C>
 	CustomMetaclass<C>&
-	declare() {
-		return Reflector::instance().declare<C>();
+	declare( const Annotations& annotations = Annotations() ) {
+		return Reflector::instance().declare<C>( annotations );
 	}
 
 	/**
@@ -92,8 +92,8 @@ namespace jrtti {
 	 */
 	template <typename C>
 	CustomMetaclass<C, boost::true_type>&
-	declareAbstract() {
-		return Reflector::instance().declareAbstract<C>();
+	declareAbstract( const Annotations& annotations = Annotations() ) {
+		return Reflector::instance().declareAbstract<C>( annotations );
 	}
 
 	/**
@@ -136,7 +136,7 @@ namespace jrtti {
 		 * \return an iterator that points to the newly inserted element
 		 */
 		virtual iterator insert( iterator position, const T& x )=0;
-     };
+	 };
 
 	/**
 	 * \brief Declare a collection
@@ -148,8 +148,8 @@ namespace jrtti {
 	 */
 	template <typename C>
 	MetaCollection<C>&
-	declareCollection() {
-		return Reflector::instance().declareCollection<C>();
+	declareCollection( const Annotations& annotations = Annotations() ) {
+		return Reflector::instance().declareCollection<C>( annotations );
 	}
 
 	inline void

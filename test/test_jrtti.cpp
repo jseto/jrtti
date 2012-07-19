@@ -107,7 +107,7 @@ TEST_F(MetaTypeTest, IntMemberMutator) {
 	EXPECT_EQ(321, sample.intMember);
 }
 
-const std::string kHelloString = "Hello, world!";
+const std::string kHelloString = "Hello, \"world\"!\nThis is a new line with non printable char\x11";
 
 TEST_F(MetaTypeTest, StdStringType) {
 
@@ -291,27 +291,67 @@ TEST_F(MetaTypeTest, Serialize) {
 	f << ss;
 
 	ss.erase( std::remove_if( ss.begin(), ss.end(), ::isspace ), ss.end() );
-
-	std::string serialized = "{\"collection\":[{\"d\":1,\"m\":4,\"place\":{\"x\":98,\"y\":93},\"y\":2012},{\"d\":1,\"m\":4,\"place\":{\"x\":98,\"y\":93},\"y\":2013}],\"date\":{\"d\":1,\"m\":4,\"place\":{\"x\":98,\"y\":93},\"y\":2011},\"intAbstract\":34,\"intMember\":128,\"intOverloaded\":87,\"point\":{\"x\":45,\"y\":80},\"refToDate\":{\"d\":1,\"m\":4,\"place\":{\"x\":98,\"y\":93},\"y\":2011},\"testBool\":true,\"testDouble\":65,\"testRO\":23,\"testStr\":\"Hello,world!\"}";
+	std::string serialized = "{\"collection\":[{\"d\":1,\"m\":4,\"place\":{\"x\":98,\"y\":93},\"y\":2012},{\"d\":1,\"m\":4,\"place\":{\"x\":98,\"y\":93},\"y\":2013}],\"date\":{\"d\":1,\"m\":4,\"place\":{\"x\":98,\"y\":93},\"y\":2011},\"intAbstract\":34,\"intMember\":128,\"intOverloaded\":87,\"point\":{\"x\":45,\"y\":80},\"refToDate\":{\"d\":1,\"m\":4,\"place\":{\"x\":98,\"y\":93},\"y\":2011},\"testBool\":true,\"testDouble\":65,\"testRO\":23,\"testStr\":\"Hello,\\\"world\\\"!\\nThisisanewlinewithnonprintablechar\\u0011\"}";
 	EXPECT_EQ(serialized, ss);
+
+	//test for streamable
+	ss = mClass().toStr( &sample, true );
+	ss.erase( std::remove_if( ss.begin(), ss.end(), ::isspace ), ss.end() );
+	serialized = "{\"collection\":[{\"d\":1,\"m\":4,\"place\":{\"x\":98,\"y\":93},\"y\":2012},{\"d\":1,\"m\":4,\"place\":{\"x\":98,\"y\":93},\"y\":2013}],\"date\":{\"d\":1,\"m\":4,\"place\":{\"x\":98,\"y\":93},\"y\":2011},\"intAbstract\":34,\"intOverloaded\":87,\"point\":{\"x\":45,\"y\":80},\"refToDate\":{\"d\":1,\"m\":4,\"place\":{\"x\":98,\"y\":93},\"y\":2011},\"testBool\":true,\"testDouble\":65,\"testRO\":23,\"testStr\":\"Hello,\\\"world\\\"!\\nThisisanewlinewithnonprintablechar\\u0011\"}";
+	EXPECT_EQ( serialized, ss );
 	delete point;
 }
 
 TEST_F(MetaTypeTest, Deserialize) {
-	std::string serialized = "{\"collection\":[{\"d\":1,\"m\":4,\"place\":{\"x\":98,\"y\":93},\"y\":2012},{\"d\":1,\"m\":4,\"place\":{\"x\":98,\"y\":93},\"y\":2013}],\"date\":{\"d\":1,\"m\":4,\"place\":{\"x\":98,\"y\":93},\"y\":2011},\"intAbstract\":34,\"intMember\":128,\"intOverloaded\":87,\"point\":{\"x\":45,\"y\":80},\"refToDate\":{\"d\":1,\"m\":4,\"place\":{\"x\":98,\"y\":93},\"y\":2011},\"testBool\":true,\"testDouble\":65,\"testRO\":23,\"testStr\":\"Hello,world!\"}";
+	std::ifstream fin("test");
+	std::stringstream sss;
+	sss << fin.rdbuf();
+	std::string serialized = sss.str();//"{\"collection\":[{\"d\":1,\"m\":4,\"place\":{\"x\":98,\"y\":93},\"y\":2012},{\"d\":1,\"m\":4,\"place\":{\"x\":98,\"y\":93},\"y\":2013}],\"date\":{\"d\":1,\"m\":4,\"place\":{\"x\":98,\"y\":93},\"y\":2011},\"intAbstract\":34,\"intMember\":128,\"intOverloaded\":87,\"point\":{\"x\":45,\"y\":80},\"refToDate\":{\"d\":1,\"m\":4,\"place\":{\"x\":98,\"y\":93},\"y\":2011},\"testBool\":true,\"testDouble\":65,\"testRO\":23,\"testStr\":\"Hello,\\\"world\\\"!\"}";
 	mClass().fromStr( &sample, serialized );
 	std::string ss = mClass().toStr(&sample);
-	std::ofstream f("test1");
-	f << ss;
-	ss.erase( std::remove_if( ss.begin(), ss.end(), ::isspace ), ss.end() );
+	std::ofstream fout("test1");
+	fout << ss;
+//	ss.erase( std::remove_if( ss.begin(), ss.end(), ::isspace ), ss.end() );
 
 	EXPECT_EQ(serialized, ss);
 	delete sample.getByPtrProp();
 }
 
-TEST_F(MetaTypeTest, testTag) {
-	int tag = mClass()["testDouble"].tag();
-	EXPECT_EQ(658, tag);
+TEST_F(MetaTypeTest, testAnnotation) {
+	jrtti::Annotations annotations = mClass()["testDouble"].annotations();
+
+	GUIAnnotation * a = annotations.getFirst<GUIAnnotation>();
+
+	EXPECT_EQ( "test.ico", a->icon() );
+	a = mClass()["intMember"].annotations().getFirst< GUIAnnotation >();
+	EXPECT_TRUE( a == NULL );            
+}
+
+TEST_F(MetaTypeTest, testMultipleAnnotation) {
+	jrtti::Annotations annotations = mClass()["point"].annotations();
+
+	std::vector< MenuAnnotation * > a = annotations.getAll<MenuAnnotation>();
+
+	EXPECT_EQ( 3, a.size() );
+
+
+	EXPECT_EQ( "Entry_2", a[1]->submenu() );
+}
+
+TEST_F(MetaTypeTest, testTypeAnnotation) {
+	jrtti::Annotations annotations = mClass().annotations();
+
+	GUIAnnotation * a = annotations.getFirst<GUIAnnotation>();
+
+	EXPECT_EQ( "sample.ico", a->icon() );
+}
+
+TEST_F(MetaTypeTest, testMethodAnnotation) {
+	jrtti::Annotations annotations = mClass().method( "testMethod" ).annotations();
+
+	GUIAnnotation * a = annotations.getFirst<GUIAnnotation>();
+
+	EXPECT_EQ( "method.ico", a->icon() );
 }
 
 TEST_F(MetaTypeTest, testCreate) {

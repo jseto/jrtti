@@ -49,14 +49,14 @@ public:
 
 	template <typename C>
 	CustomMetaclass<C>&
-	declare()
+	declare( const Annotations& annotations = Annotations() )
 	{
 		std::string name = nameOf<C>();
 		if ( _meta_types.count( name ) ) {
 			return *( dynamic_cast< CustomMetaclass<C> * >( &getType( name ) ) );
 		}
 
-		CustomMetaclass<C> * mc = new CustomMetaclass<C>(name);
+		CustomMetaclass<C> * mc = new CustomMetaclass<C>( name, annotations );
 		internal_declare(name, mc);
 
 		return * mc;
@@ -64,14 +64,14 @@ public:
 
 	template <typename C>
 	CustomMetaclass<C, boost::true_type>&
-	declareAbstract()
+	declareAbstract( const Annotations& annotations = Annotations() )
 	{
 		std::string name = nameOf<C>();
 		if ( _meta_types.count( name ) ) {
 			return *( dynamic_cast< CustomMetaclass<C, boost::true_type> * >( &getType( name ) ) );
 		}
 
-		CustomMetaclass<C, boost::true_type> * mc = new CustomMetaclass<C, boost::true_type>(name);
+		CustomMetaclass<C, boost::true_type> * mc = new CustomMetaclass<C, boost::true_type>( name, annotations );
 		internal_declare(name, mc);
 
 		return * mc;
@@ -79,16 +79,16 @@ public:
 
 	template <typename C>
 	MetaCollection<C>&
-	declareCollection()
+	declareCollection( const Annotations& annotations = Annotations() )
 	{
 	//////////  COMPILER ERROR: Class C is not a Collection //// Class C should implement type iterator to be a collection
-    	typedef C::iterator iterator;
+		typedef C::iterator iterator;
 		std::string name = nameOf<C>();
 		if ( _meta_types.count( name ) ) {
 			return *( dynamic_cast< MetaCollection<C> * >( &getType( name ) ) );
 		}
 
-		MetaCollection<C> * mc = new MetaCollection<C>(name);
+		MetaCollection<C> * mc = new MetaCollection<C>( name, annotations );
 		internal_declare(name, mc);
 
 		return * mc;

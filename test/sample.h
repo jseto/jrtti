@@ -56,6 +56,7 @@ public:
 
 	int intMember;
 
+
 	virtual int getIntAbstract() { return 34; }
 	virtual int getIntOverloaded() {return 87;}
 
@@ -103,9 +104,51 @@ class SampleDerived : public Sample
 	virtual int getIntOverloaded() {return 43;}
 };
 
+class MenuAnnotation : public jrtti::Annotation {
+public:
+	MenuAnnotation( const std::string& submenu ) {
+		_submenu = submenu;
+	}
+
+	const std::string&
+	submenu() {
+		return _submenu;
+	}
+
+private:
+	std::string _submenu;
+};
+
+class GUIAnnotation : public jrtti::Annotation {
+public:
+	GUIAnnotation( std::string icon = "", bool showInMenu = true, bool showInToolbar = false )
+		: 	_icon( icon ),
+			_showInMenu( showInMenu ),
+			_showInToolbar( showInToolbar ) {}
+
+	const std::string&
+	icon() {
+		return _icon;
+	}
+
+	bool
+	showInMenu() {
+		return _showInMenu;
+	}
+
+	bool
+	showInToolBar() {
+		return _showInToolbar;
+	}
+
+private:
+	std::string	_icon;
+	bool		_showInMenu;
+	bool		_showInToolbar;
+};
+
 void declare()
 {
-
 	jrtti::declare<Point>()
 						.property("x", &Point::x)
 						.property("y", &Point::y);
@@ -120,19 +163,23 @@ void declare()
 						.property("intAbstract", &SampleBase::getIntAbstract)
 						.property("intOverloaded", &SampleBase::getIntOverloaded);
 
-	jrtti::declare<Sample>()
-               	.inheritsFrom<SampleBase>()
-						.property("intMember", &Sample::intMember)
-						.property("testDouble", &Sample::setDoubleProp, &Sample::getDoubleProp, 658)
-						.property("point", &Sample::setByPtrProp, &Sample::getByPtrProp)
-						.property("date", &Sample::setByValProp, &Sample::getByValProp)
+	jrtti::declare<Sample>( jrtti::Annotations() << new GUIAnnotation( "sample.ico" ) )
+				.inheritsFrom<SampleBase>()
+						.property("intMember", &Sample::intMember,
+									jrtti::Annotations() << new jrtti::NonStreamable())
+						.property("testDouble", &Sample::setDoubleProp, &Sample::getDoubleProp,
+									jrtti::Annotations() << new GUIAnnotation( "test.ico", false, true ) )
+						.property("point", &Sample::setByPtrProp, &Sample::getByPtrProp,
+									jrtti::Annotations() << new MenuAnnotation( "Entry_1" ) << new MenuAnnotation( "Entry_2" ) << new MenuAnnotation( "Entry_n" ) )
+						.property("date", &Sample::setByValProp, &Sample::getByValProp )
 						.property("refToDate", &Sample::getByRefProp)
 						.property("testStr", &Sample::setStdStringProp,&Sample::getStdStringProp)
 						.property("testRO", &Sample::testIntFunc)
 						.property("testBool", &Sample::setBool, &Sample::getBool)
 						.property("collection", &Sample::setCollection, &Sample::getCollection )
 
-						.method<void>("testMethod", &Sample::testFunc)
+						.method<void>("testMethod", &Sample::testFunc,
+									jrtti::Annotations() << new GUIAnnotation( "method.ico", false, false ) )
 						.method<int>("testIntMethod", &Sample::testIntFunc)
 						.method<double,double>("testSquare", &Sample::testSquare)
 						.method<double,int,double>("testSum", &Sample::testSum);

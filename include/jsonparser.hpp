@@ -15,7 +15,7 @@ public:
 		long keyCount = 0;
 		std::string key;
 		while ( pos < m_jsonStr.length() ) {
-			if ( ( m_jsonStr[ pos - 1 ] == '[' ) || keyCount ) {
+			if ( ( m_jsonStr[ 0 ] == '[' ) || keyCount ) {
 				key = numToStr( keyCount++ );
 			}
 			else {
@@ -86,8 +86,10 @@ private:
 	void
 	moveToNextQuote() {
 		while ( ( m_jsonStr[ pos ] != '"' ) && ( pos < m_jsonStr.length() ) ) {
+			if ( m_jsonStr[ pos ] == '\\') { //skip escape chars
+				++pos;
+			}
 			++pos;
-			//todo: take care of escape sequences \"
 		}
 	}
 
@@ -118,6 +120,7 @@ private:
 			++pos;
 		}
 		++pos;
+		skipSpaces();
 	}
 
 	inline

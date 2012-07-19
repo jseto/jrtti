@@ -23,8 +23,9 @@ namespace jrtti {
 		typedef std::map< std::string, Property * > PropertyMap;
 		typedef std::map< std::string, Method * >	MethodMap;
 
-		Metatype(std::string name): m_type_name(name) {
-		}
+		Metatype( std::string name, const Annotations& annotations = Annotations() )
+			:	m_type_name(name),
+				m_annotations( annotations ) {}
 
 		~Metatype() {
 			for (PropertyMap::iterator it = m_ownedProperties.begin(); it != m_ownedProperties.end(); ++it) {
@@ -51,6 +52,26 @@ namespace jrtti {
 		std::string
 		name()	{
 			return m_type_name;
+		}
+
+		/**
+		 * \brief Assigns an annotation container to this property
+		 * \param annotationsContainer the annotation container
+		 */
+		void
+		annotations( const Annotations& annotationsContainer )
+		{
+			m_annotations = annotationsContainer;
+		}
+
+		/**
+		 * \brief Retrieve the associated annotations container
+		 * \return the associated annotations container of this property
+		 */
+		Annotations&
+		annotations()
+		{
+			return m_annotations;
 		}
 
 		/**
@@ -114,9 +135,13 @@ namespace jrtti {
 		 * \param name the name of the method to look for
 		 * \return the found method abstraction
 		 */
-		Method *
-		getMethod(std::string name) {
-			return methods()[name];
+		Method&
+		method(std::string name) {
+			MethodMap::iterator it = methods().find(name);
+			if ( it == methods().end() ) {
+				error( "Method '" + name + "' not declared in '" + Metatype::name() + "' metaclass" );
+			}
+			return *it->second;
 		}
 
 		/**
@@ -265,20 +290,24 @@ namespace jrtti {
 		 *
 		 * Retrieves a string representation of the object contens in a JSON format.
 		 * \param instance the object instance to retrieve
+		 * \param formatForStreaming if true, formats the string to be passed to a stream.
+		 * In this case, the property is checked to see if it has the PropertyCategory::nonstreamable
 		 * \return the string representation
 		 */
 		virtual
 		std::string
-		toStr(const boost::any & instance) {
+		toStr(const boost::any & instance, bool formatForStreaming = false ) {
 			void * inst = get_instance_ptr(instance);
 			std::string result = "{\n";
 			bool need_nl = false;
 			for( PropertyMap::iterator it = properties().begin(); it != properties().end(); ++it) {
 				Property * prop = it->second;
 				if ( prop ) {
-					if (need_nl) result += ",\n";
-					need_nl = true;
-					result += ident( "\"" + prop->name() + "\"" + ": " + prop->type().toStr( prop->get(inst) ) );
+					if ( !( formatForStreaming && prop->annotations().has< NonStreamable >() ) ) {
+						if (need_nl) result += ",\n";
+						need_nl = true;
+						result += ident( "\"" + prop->name() + "\"" + ": " + prop->type().toStr( prop->get(inst), formatForStreaming ) );
+                    }
 				}
 			}
 			return result += "\n}";
@@ -369,6 +398,7 @@ namespace jrtti {
 		MethodMap	m_ownedMethods;
 		PropertyMap	m_properties;
 		PropertyMap m_ownedProperties;
+		Annotations m_annotations;
 	};
 
 
@@ -380,7 +410,8 @@ namespace jrtti {
 	class CustomMetaclass : public Metatype
 	{
 	public:
-		CustomMetaclass(std::string name): Metatype(name) {}
+		CustomMetaclass( std::string name, const Annotations& annotations = Annotations() )
+			: Metatype( name, annotations ) {}
 
 		virtual
 		boost::any
@@ -459,19 +490,19 @@ namespace jrtti {
 		 * \param name property name
 		 * \param setter the address of the setter method
 		 * \param getter the address of the getter method
-		 * \param tag a custom user tag
+		 * \param categories a container with property categories
 		 * \return this for chain calls
 		 */
 		template < typename SetterT, typename GetterT >
 		CustomMetaclass&
-		property( std::string name, SetterT setter, GetterT getter, int tag = 0 )
+		property( std::string name, SetterT setter, GetterT getter, const Annotations& annotations = Annotations() )
 		{
-        	////////// COMPILER ERROR   //// Setter or Getter are not proper accesor methods signatures.
+			////////// COMPILER ERROR   //// Setter or Getter are not proper accesor methods signatures.
 			typedef typename detail::FunctionTypes< GetterT >::result_type					PropT;
 			typedef typename boost::function< void (typename ClassT*, typename PropT ) >	BoostSetter;
 			typedef typename boost::function< typename PropT ( typename ClassT * ) >		BoostGetter;
 
-			return fillProperty< typename PropT, BoostSetter, BoostGetter >(name, boost::bind(setter,_1,_2), boost::bind(getter,_1), tag);
+			return fillProperty< typename PropT, BoostSetter, BoostGetter >( name, boost::bind(setter,_1,_2), boost::bind(getter,_1), annotations );
 		}
 
 		/**
@@ -481,18 +512,18 @@ namespace jrtti {
 		 * A property is an abstraction of class members.
 		 * \param name property name
 		 * \param getter the address of the getter method
-		 * \param tag a custom user tag
+		 * \param categories a container with property categories
 		 * \return this for chain calls
 		 */
 		template < typename PropT >
 		CustomMetaclass&
-		property(std::string name,  PropT (ClassT::*getter)(), int tag = 0 )
+		property(std::string name,  PropT (ClassT::*getter)(), const Annotations& annotations = Annotations() )
 		{
 			typedef typename boost::function< void (typename ClassT*, typename PropT ) >	BoostSetter;
 			typedef typename boost::function< typename PropT ( typename ClassT * ) >		BoostGetter;
 
 			BoostSetter setter;       //setter empty is used by Property<>::isReadOnly()
-			return fillProperty< typename PropT, BoostSetter, BoostGetter >(name, setter, getter, tag);
+			return fillProperty< typename PropT, BoostSetter, BoostGetter >(name, setter, getter, annotations );
 		}
 
 		/**
@@ -503,15 +534,15 @@ namespace jrtti {
 		 * A property is an abstraction of class members.
 		 * \param name property name
 		 * \param member the address of the method member
-		 * \param tag a custom user tag
+		 * \param categories a container with property categories
 		 * \return this for chain calls
 		 */
 		template <typename PropT>
 		CustomMetaclass&
-		property(std::string name, PropT ClassT::* member, int tag = 0 )
+		property(std::string name, PropT ClassT::* member, const Annotations& annotations = Annotations() )
 		{
 			typedef typename PropT ClassT::* 	MemberType;
-			return fillProperty< PropT, MemberType, MemberType >(name, member, member, tag);
+			return fillProperty< PropT, MemberType, MemberType >(name, member, member, annotations );
 		}
 
 		/**
@@ -526,12 +557,12 @@ namespace jrtti {
 		 */
 		template <typename ReturnType>
 		CustomMetaclass&
-		method(std::string name, boost::function<ReturnType (ClassT*)> f)
+		method( std::string name, boost::function<ReturnType (ClassT*)> f, const Annotations& annotations = Annotations() )
 		{
 			typedef TypedMethod<ClassT,ReturnType> MethodType;
 			typedef typename boost::function<ReturnType (ClassT*)> FunctionType;
 
-			return fillMethod<MethodType, FunctionType>(name,f);
+			return fillMethod<MethodType, FunctionType>( name, f, annotations );
 		}
 
 		/**
@@ -547,12 +578,12 @@ namespace jrtti {
 		 */
 		template <typename ReturnType, typename Param1>
 		CustomMetaclass&
-		method(std::string name,boost::function<ReturnType (ClassT*, Param1)> f)
+		method( std::string name,boost::function<ReturnType (ClassT*, Param1)> f, const Annotations& annotations = Annotations() )
 		{
 			typedef typename TypedMethod<ClassT,ReturnType, Param1> MethodType;
 			typedef typename boost::function<ReturnType (ClassT*, Param1)> FunctionType;
 
-			return fillMethod<MethodType, FunctionType>(name,f);
+			return fillMethod<MethodType, FunctionType>( name, f, annotations );
 		}
 
 		/**
@@ -569,12 +600,12 @@ namespace jrtti {
 		 */
 		template <typename ReturnType, typename Param1, typename Param2>
 		CustomMetaclass&
-		method(std::string name,boost::function<ReturnType (ClassT*, Param1, Param2)> f)
+		method( std::string name,boost::function<ReturnType (ClassT*, Param1, Param2)> f, const Annotations& annotations = Annotations() )
 		{
 			typedef typename TypedMethod<ClassT,ReturnType, Param1, Param2> MethodType;
 			typedef typename boost::function<ReturnType (ClassT*, Param1, Param2)> FunctionType;
 
-			return fillMethod<MethodType, FunctionType>(name,f);
+			return fillMethod<MethodType, FunctionType>( name, f, annotations );
 		}
 
 		/**
@@ -613,18 +644,19 @@ namespace jrtti {
 	private:
 		template <typename MethodType, typename FunctionType>
 		CustomMetaclass&
-		fillMethod(std::string name, FunctionType function)
+		fillMethod( std::string name, FunctionType function, const Annotations& annotations )
 		{
 			MethodType * m = new MethodType();
 			m->name(name);
 			m->function(function);
+			m->annotations( annotations );
 			set_method(name, m);
 			return *this;
 		}
 
 		template <typename PropT, typename SetterType, typename GetterType >
 		CustomMetaclass&
-		fillProperty(std::string name, SetterType setter, GetterType getter, int tag)
+		fillProperty(std::string name, SetterType setter, GetterType getter, const Annotations& annotations )
 		{
 			if (  properties().find( name ) == properties().end() )
 			{
@@ -632,7 +664,7 @@ namespace jrtti {
 				p->setter(setter);
 				p->getter(getter);
 				p->name(name);
-				p->tag( tag );
+				p->annotations( annotations );
 				set_property(name, p);
 			}
 			return *this;
@@ -711,11 +743,11 @@ namespace jrtti {
 	template< typename ClassT >
 	class MetaCollection: public Metatype {
 	public:
-		MetaCollection(std::string name): Metatype(name) {}
+		MetaCollection( std::string name, const Annotations& annotations = Annotations() ): Metatype( name, annotations ) {}
 
 		virtual
 		std::string
-		toStr( const boost::any & value ){
+		toStr( const boost::any & value, bool formatForStreaming = false ){
 			ClassT& _collection = getReference( value );
 			Metatype& mt = jrtti::getType< ClassT::value_type >();
 			std::string str = "[\n";
@@ -723,7 +755,7 @@ namespace jrtti {
 			for ( ClassT::iterator it = _collection.begin() ; it != _collection.end(); ++it ) {
 				if (need_nl) str += ",\n";
 				need_nl = true;
-				str += ident( mt.toStr( *it ) );
+				str += ident( mt.toStr( *it, formatForStreaming ) );
 			}
 			return str += "\n]";
 		}
