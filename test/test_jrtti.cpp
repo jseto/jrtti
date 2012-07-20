@@ -6,7 +6,7 @@
 #include "../include/base64.hpp"
 
 #include "gtest/gtest.h"
-#pragma link "lib/gtest.lib"
+//#pragma link "lib/gtest.lib"
 
 using namespace jrtti;
 
@@ -129,7 +129,7 @@ TEST_F(MetaTypeTest, StdStringMutator) {
 
 TEST_F(MetaTypeTest, ByValType) {
 
-	EXPECT_EQ("Date", mClass()["date"].typeName());
+	EXPECT_EQ( "Date", jrtti::Reflector::instance().removePrefixDecorators( mClass()["date"].typeName() ) );
 }
 
 TEST_F(MetaTypeTest, ByValAccessor) {
@@ -207,21 +207,22 @@ TEST_F(MetaTypeTest, NestedByValAccessor) {
 	d.d = 9;
 	d.m = 4;
 	d.y = 2011;
-	d.place.x = 40;
+	d.place.x = 40.0;
 	sample.setByValProp(d);
 
 	int result = boost::any_cast<int>(mClass().eval(&sample, "date.y"));
-	EXPECT_EQ(d.y, result);
+	EXPECT_EQ(sample.getByValProp().y, result);
 
 	d.y = 3056;
 	sample.setByValProp(d);
 
 	// this way is shorter and clearer
 	result = mClass().eval<int>(&sample, "date.y");
-	EXPECT_EQ(d.y, result);
+	EXPECT_EQ(sample.getByValProp().y, result);
 
-	result = mClass().eval<double>(&sample, "date.place.x");
-	EXPECT_EQ(d.place.x, result);
+	double dresult = mClass().eval<double>(&sample, "date.place.x");
+	double dexp = sample.getByValProp().place.x;
+	EXPECT_EQ(dexp, dresult);
 }
 
 TEST_F(MetaTypeTest, NestedByPtrMutator) {
@@ -383,16 +384,16 @@ TEST_F(MetaTypeTest, testSumMethodCall) {
 }
 
 TEST_F(MetaTypeTest, base64) {
-	std::ifstream in("test_jrtti.exe", std::ios::binary );
-	in.seekg (0, ios::end);
-	long length = in.tellg();
-	in.seekg (0, ios::beg);
-	char * p = new char[length];
+	const int length = 0xffff;
+	uint8_t * p = new uint8_t[length];
 
-	in.read( p, length );
+	srand ( (unsigned int) time(NULL) );
+	for (int i = 0; i < length; ++i) {
+		p[ i ] = rand() % 0xff;
+	}
 
-	std::string encoded = jrtti::base64Encode( p, length );
-	char * decoded = jrtti::base64Decode( encoded );
+	std::string encoded = jrtti::base64Encode( (uint8_t*)p, length );
+	uint8_t * decoded = jrtti::base64Decode( encoded );
 
 	int i = memcmp( p, decoded, length );
 

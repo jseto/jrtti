@@ -59,7 +59,7 @@ namespace jrtti {
 	 * \brief Get the name of class C
 	 * \return the name of class C
 	 */
-	inline template <typename C>
+	template <typename C>
 	std::string
 	nameOf(){
 		return Reflector::instance().nameOf<C>();
@@ -71,9 +71,9 @@ namespace jrtti {
 	 * Set an alias name for class C
 	 * \param new_name the alias name for class C
 	 */
-	inline template <typename C>
+	template <typename C>
 	void
-	alias(std::string new_name) {
+	alias( const std::string& new_name ) {
 		Reflector::instance().alias<C>(new_name);
 	}
 

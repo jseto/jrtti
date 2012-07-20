@@ -5,6 +5,7 @@
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
 
+//#include "jrtti.hpp"
 #include "helpers.hpp"
 #include "property.hpp"
 #include "method.hpp"
@@ -123,7 +124,7 @@ namespace jrtti {
 		property( std::string name) {
 			PropertyMap::iterator it = properties().find(name);
 			if ( it == properties().end() ) {
-				error( "Property '" + name + "' not declared in '" + Metatype::name() + "' metaclass" );
+				throw error( "Property '" + name + "' not declared in '" + Metatype::name() + "' metaclass" );
 			}
 			return *it->second;
 		}
@@ -139,7 +140,7 @@ namespace jrtti {
 		method(std::string name) {
 			MethodMap::iterator it = methods().find(name);
 			if ( it == methods().end() ) {
-				error( "Method '" + name + "' not declared in '" + Metatype::name() + "' metaclass" );
+				throw error( "Method '" + name + "' not declared in '" + Metatype::name() + "' metaclass" );
 			}
 			return *it->second;
 		}
@@ -162,7 +163,7 @@ namespace jrtti {
 
 			MethodType * ptr = static_cast< MethodType * >( m_methods[methodName] );
 			if (!ptr) {
-				error("Method '" + methodName + "' not found in '" + name() + "' metaclass");
+				throw error("Method '" + methodName + "' not found in '" + name() + "' metaclass");
 			}
 			return ptr->call(instance);
 		}
@@ -187,7 +188,7 @@ namespace jrtti {
 
 			MethodType * ptr = static_cast< MethodType * >( m_methods[methodName] );
 			if (!ptr) {
-				error("Method '" + methodName + "' not found in '" + name() + "' metaclass");
+				throw error("Method '" + methodName + "' not found in '" + name() + "' metaclass");
 			}
 			return ptr->call(instance,p1);
 		}
@@ -214,7 +215,7 @@ namespace jrtti {
 
 			MethodType * ptr = static_cast< MethodType * >( m_methods[methodName] );
 			if (!ptr) {
-				error("Method '" + methodName + "' not found in '" + name() + "' metaclass");
+				throw error("Method '" + methodName + "' not found in '" + name() + "' metaclass");
 			}
 			return ptr->call(instance,p1,p2);
 		}
@@ -507,8 +508,7 @@ namespace jrtti {
 		CustomMetaclass&
 		inheritsFrom( const std::string& parentName )
 		{
-			inheritsFrom( jrtti::getType( parentName ) );
-			return *this;
+			return inheritsFrom( jrtti::getType( parentName ) );
 		}
 
 		/**
@@ -543,6 +543,7 @@ namespace jrtti {
 		{
 			////////// COMPILER ERROR   //// Setter or Getter are not proper accesor methods signatures.
 			typedef typename detail::FunctionTypes< GetterT >::result_type					PropT;
+//			typedef typename boost::remove_reference< typename PropT >::type				PropNoRefT
 			typedef typename boost::function< void (typename ClassT*, typename PropT ) >	BoostSetter;
 			typedef typename boost::function< typename PropT ( typename ClassT * ) >		BoostGetter;
 
@@ -567,7 +568,7 @@ namespace jrtti {
 			typedef typename boost::function< typename PropT ( typename ClassT * ) >		BoostGetter;
 
 			BoostSetter setter;       //setter empty is used by Property<>::isReadOnly()
-			return fillProperty< typename PropT, BoostSetter, BoostGetter >(name, setter, getter, annotations );
+			return fillProperty< typename PropT, BoostSetter, BoostGetter >(name,  setter, getter, annotations );
 		}
 
 		/**
@@ -588,7 +589,7 @@ namespace jrtti {
 			typedef typename PropT ClassT::* 	MemberType;
 			return fillProperty< PropT, MemberType, MemberType >(name, member, member, annotations );
 		}
-
+		
 		/**
 		 * \brief Declares a method without parameters
 		 *
@@ -728,13 +729,13 @@ namespace jrtti {
 		}
 
 #ifdef BOOST_NO_IS_ABSTRACT
-	#define _IS_ABSTRACT( type ) type
+	#define __IS_ABSTRACT( t ) t
 #else
-	#define _IS_ABSTRACT( type ) boost::is_abstract< typename type >::type
+	#define __IS_ABSTRACT( t ) boost::is_abstract< typename t >::type
 #endif
 	//SFINAE _get_instance_ptr for NON ABSTRACT
 		template< typename AbstT >
-		typename boost::disable_if< typename _IS_ABSTRACT( AbstT ), void * >::type
+		typename boost::disable_if< typename __IS_ABSTRACT( AbstT ), void * >::type
 		_get_instance_ptr(const boost::any& content){
 			if ( content.type() == typeid( ClassT ) ) {
 				static ClassT dummy = ClassT();
@@ -749,14 +750,14 @@ namespace jrtti {
 
 	//SFINAE _get_instance_ptr for ABSTRACT
 		template< typename AbstT >
-		typename boost::enable_if< typename _IS_ABSTRACT( AbstT ), void * >::type
+		typename boost::enable_if< typename __IS_ABSTRACT( AbstT ), void * >::type
 		_get_instance_ptr(const boost::any & content){
 			return NULL;
 		}
 
 	//SFINAE _copyFromInstance for NON ABSTRACT
 		template< typename AbstT >
-		typename boost::disable_if< typename _IS_ABSTRACT( AbstT ), boost::any >::type
+		typename boost::disable_if< typename __IS_ABSTRACT( AbstT ), boost::any >::type
 		_copyFromInstance( void * inst ){
 			ClassT obj = *(ClassT *) inst;
 			return obj;
@@ -764,14 +765,14 @@ namespace jrtti {
 
 	//SFINAE _copyFromInstance for ABSTRACT
 		template< typename AbstT >
-		typename boost::enable_if< typename _IS_ABSTRACT( AbstT ), boost::any >::type
+		typename boost::enable_if< typename __IS_ABSTRACT( AbstT ), boost::any >::type
 		_copyFromInstance( void * inst ){
 			return boost::any();
 		}
 
 	//SFINAE _create
 		template< typename AbstT >
-		typename boost::disable_if< typename _IS_ABSTRACT( AbstT ), boost::any >::type
+		typename boost::disable_if< typename __IS_ABSTRACT( AbstT ), boost::any >::type
 		_create()
 		{
 			return new ClassT();
@@ -779,7 +780,7 @@ namespace jrtti {
 
 	//SFINAE _create
 		template< typename AbstT >
-		typename boost::enable_if< typename _IS_ABSTRACT( AbstT ), boost::any >::type
+		typename boost::enable_if< typename __IS_ABSTRACT( AbstT ), boost::any >::type
 		_create()
 		{
 			return NULL;
@@ -807,7 +808,7 @@ namespace jrtti {
 		std::string
 		_toStr( const boost::any & value, bool formatForStreaming ){
 			ClassT& _collection = getReference( value );
-			Metatype& mt = jrtti::getType< ClassT::value_type >();
+			Metatype & mt = jrtti::getType< ClassT::value_type >();
 			std::string str = "[\n";
 			bool need_nl = false;
 			for ( ClassT::iterator it = _collection.begin() ; it != _collection.end(); ++it ) {

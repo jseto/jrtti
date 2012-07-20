@@ -9,7 +9,9 @@
 
 class MetaIndirectedType: public Metatype	{
 public:
-	MetaIndirectedType(Metatype & baseType, std::string name_sufix): m_baseType(baseType), Metatype(baseType.name() + " " + name_sufix)
+	MetaIndirectedType(Metatype & baseType, std::string name_sufix)
+		:	m_baseType(baseType), 
+			Metatype(baseType.name() + " " + name_sufix)
 	{}
 
 	virtual

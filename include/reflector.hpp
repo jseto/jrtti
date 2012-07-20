@@ -1,9 +1,6 @@
 #ifndef reflectorH
 #define reflectorH
 
-//#include <string>
-//#include <map>
-//#include <iostream>
 #include <boost/type_traits/is_abstract.hpp>
 
 #include "basetypes.hpp"
@@ -23,6 +20,9 @@ public:
 	void
 	clear()
 	{
+		m_prefixDecorators.clear();
+		registerPrefixDecorator( "struct" );
+		registerPrefixDecorator( "class" );
 		_meta_types.clear();
 		register_defaults();
 	}
@@ -36,15 +36,6 @@ public:
 	Reflector&
 	operator() () {
 		return instance();
-	}
-
-	void
-	register_defaults(){
-		alias<std::string>("std::string");
-		internal_declare("int", new MetaInt());
-		internal_declare("bool", new MetaBool());
-		internal_declare("double", new MetaDouble());
-		internal_declare("std::string", new MetaString());
 	}
 
 	template <typename C>
@@ -96,9 +87,14 @@ public:
 
 	template <typename C>
 	void
-	alias(std::string new_name)
+	alias( const std::string& new_name)
 	{
 		_alias[typeid(C).name()] = new_name;
+	}
+
+	void
+	registerPrefixDecorator( const std::string & decorator ) {
+		m_prefixDecorators.push_back( decorator );
 	}
 
 	template <typename C>
@@ -116,7 +112,7 @@ public:
 	{
 		TypeMap::iterator it = _meta_types.find(name);
 		if ( it == _meta_types.end() ) {
-			error( "Metatype '" + name + "' not declared" );
+			throw error( "Metatype '" + name + "' not declared" );
 		}
 		return *it->second;
 	}
@@ -128,11 +124,36 @@ public:
     	return getType( typeid( T ).name() );
 	}
 
+	/**
+	 * \brief Removes type name decorators
+	 */
+	std::string
+	removePrefixDecorators( const std::string& name ) {
+		for ( std::vector< std::string >::iterator it = m_prefixDecorators.begin(); it != m_prefixDecorators.end(); ++it ) {
+			size_t pos = name.find( *it );
+			if ( pos != std::string::npos ) {
+				pos += it->length() + 1;
+				return name.substr( pos );
+			}
+		}
+		return name;
+	}
+
 private:
+	typedef std::map<std::string, std::string> AliasMap;
 	Reflector()
 	{
 		clear();
 	};
+
+	void
+	register_defaults(){
+		alias<std::string>("std::string");
+		internal_declare("int", new MetaInt());
+		internal_declare("bool", new MetaBool());
+		internal_declare("double", new MetaDouble());
+		internal_declare("std::string", new MetaString());
+	}
 
 	void
 	internal_declare(std::string name, Metatype * mc)
@@ -143,6 +164,10 @@ private:
 		_meta_types[name] = mc;
 		_meta_types[ptr_mc->name()] = ptr_mc;
 		_meta_types[ref_mc->name()] = ref_mc;
+
+		_meta_types[ removePrefixDecorators( name ) ] = mc;
+		_meta_types[ removePrefixDecorators( ptr_mc->name() ) ] = ptr_mc;
+		_meta_types[ removePrefixDecorators( ref_mc->name() ) ] = ref_mc;
 	}
 
 	friend AddressRefMap& _addressRefMap();
@@ -162,10 +187,10 @@ private:
 	}
 
 	TypeMap 							_meta_types;
-	std::map<std::string, std::string> 	_alias;
+	AliasMap						 	_alias;
 	AddressRefMap 						m_addressRefs;
 	NameRefMap 							m_nameRefs;
-
+	std::vector< std::string >			m_prefixDecorators;
 };
 
 //------------------------------------------------------------------------------

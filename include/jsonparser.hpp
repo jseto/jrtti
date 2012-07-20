@@ -1,6 +1,7 @@
 #ifndef jsonparserH
 #define jsonparserH
 
+#include <ctype.h>
 #include "helpers.hpp"
 
 namespace jrtti {
@@ -24,7 +25,7 @@ public:
 			if ( pos >= m_jsonStr.length() ) {
 				return;
 			}
-			std::string value = findValue( keyCount );
+			std::string value = findValue( keyCount != 0 );
 			insert( std::pair< std::string, std::string >( key, value ) );
 			if ( keyCount && ( m_jsonStr[ pos ] == ',' || m_jsonStr[ pos ] == ']' ) ) {
 				++pos;
@@ -69,7 +70,7 @@ private:
 			}
 			else {
 				// is number
-				while ( ( ( m_jsonStr[ pos ] != '}' && m_jsonStr[ pos ] != ',' && m_jsonStr[ pos ] != ']' ) ) && ( pos < m_jsonStr.length() ) ) {
+				while ( ( pos < m_jsonStr.length() ) && ( ( m_jsonStr[ pos ] != '}' && m_jsonStr[ pos ] != ',' && m_jsonStr[ pos ] != ']' ) ) ) {
 					++pos;
 				}
 			}
@@ -79,7 +80,7 @@ private:
 
 	void
 	moveToValue() {
-		while ( ( m_jsonStr[ pos ] != ':' ) && ( pos < m_jsonStr.length() ) ) {
+		while ( ( pos < m_jsonStr.length() ) && ( m_jsonStr[ pos ] != ':' ) ) {
 			++pos;
 		}
 		++pos;
@@ -88,7 +89,7 @@ private:
 	inline
 	void
 	moveToNextQuote() {
-		while ( ( m_jsonStr[ pos ] != '"' ) && ( pos < m_jsonStr.length() ) ) {
+		while ( ( pos < m_jsonStr.length() ) && ( m_jsonStr[ pos ] != '"' ) ) {
 			if ( m_jsonStr[ pos ] == '\\') { //skip escape chars
 				++pos;
 			}
@@ -108,12 +109,12 @@ private:
 				closeSymbol = ']';
 			}
 			else {
-				error( "Unknown closing symbol" );
+				throw error( "Unknown closing symbol" );
 			}
 		}
 		int count = 0;
 //		++pos;
-		while ( ( ( m_jsonStr[ pos ] != closeSymbol ) || ( count != 0) ) && ( pos < m_jsonStr.length() ) ) {
+		while ( ( pos < m_jsonStr.length() ) && ( ( m_jsonStr[ pos ] != closeSymbol ) || ( count != 0) ) ) {
 			if ( m_jsonStr[ pos + 1 ] == openSymbol ) {
 				++count;
 			}
@@ -129,7 +130,7 @@ private:
 	inline
 	void
 	skipSpaces() {
-		while ( ( std::isspace( m_jsonStr[ pos ] ) ) && ( pos < m_jsonStr.length() ) ) {
+		while ( ( pos < m_jsonStr.length() ) && ( isspace( m_jsonStr[ pos ] ) ) ) {
 			++pos;
 		}
 	}
@@ -137,7 +138,7 @@ private:
 	inline
 	void
 	moveToEndChar() {
-		while ( ( m_jsonStr[ pos ] != ',' ) && ( m_jsonStr[ pos ] != '}' ) && ( m_jsonStr[ pos ] != ']' ) && ( pos < m_jsonStr.length() ) ) {
+		while ( ( pos < m_jsonStr.length() ) && ( m_jsonStr[ pos ] != ',' ) && ( m_jsonStr[ pos ] != '}' ) && ( m_jsonStr[ pos ] != ']' ) ) {
 			++pos;
 		}
 	}
