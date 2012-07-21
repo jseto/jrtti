@@ -2,10 +2,16 @@
 #define reflectorH
 
 #include <boost/type_traits/is_abstract.hpp>
-
+#ifdef __GNUG__
+	#include <cxxabi.h>
+#endif
 #include "basetypes.hpp"
 
 namespace jrtti {
+
+/**
+ * \brief The jrtti engine
+ */
 class Reflector
 {
 public:
@@ -92,6 +98,14 @@ public:
 		_alias[typeid(C).name()] = new_name;
 	}
 
+	/**
+	 * \brief Register a type name decorator
+	 *
+	 * Registers a type name decorator to be used by jrtti::demangle. 'struct' and
+	 * 'class' decorators are registered by default.
+	 * \param decorator the decorator to register
+	 * \sa demangle
+	 */
 	void
 	registerPrefixDecorator( const std::string & decorator ) {
 		m_prefixDecorators.push_back( decorator );
@@ -126,9 +140,30 @@ public:
 
 	/**
 	 * \brief Removes type name decorators
+	 * jrtti uses typeid( T ).name() to determine type names when using declare,
+	 * declareAbstract or declareContainer without passing the user type name.
+	 * The results of typeid().name() depend compiler implementations. Therefore
+	 * there is not a general rule to demangle shuch results. jrtti::demangle
+	 * implementation manages GNU gcc++, MSC++ and Borland C++ compilers. If your
+	 * compiler is not on the list, it could still work. If not try to use
+	 * jrtti::registerPrefixDecorator to try to suit your compiler implementation.
+	 * If still not fixed, use user type names when declaring types.
+	 * \param name the name to demangle
+	 * \return the demangled name
+	 * \sa registerPrefixDecorator
 	 */
 	std::string
-	removePrefixDecorators( const std::string& name ) {
+	demangle( const std::string& name ) {
+#ifdef HAVE_CXA_DEMANGLE
+	    int status = -4;
+		char* res = abi::__cxa_demangle(name.c_str(), NULL, NULL, &status);
+		const char* const demangled_name = (status==0)?res:name;
+		string ret_val(demangled_name);
+		free(res);
+		return ret_val;
+#elif __BORLANDC__
+		return name;
+#else
 		for ( std::vector< std::string >::iterator it = m_prefixDecorators.begin(); it != m_prefixDecorators.end(); ++it ) {
 			size_t pos = name.find( *it );
 			if ( pos != std::string::npos ) {
@@ -137,7 +172,11 @@ public:
 			}
 		}
 		return name;
-	}
+	#ifndef _MSC_VER
+		#warning "Your compiler may not support demangleing of typeid(T).name() results. See jrtti::demangle documentation"  
+	#endif
+#endif
+    }
 
 private:
 	typedef std::map<std::string, std::string> AliasMap;
@@ -165,9 +204,9 @@ private:
 		_meta_types[ptr_mc->name()] = ptr_mc;
 		_meta_types[ref_mc->name()] = ref_mc;
 
-		_meta_types[ removePrefixDecorators( name ) ] = mc;
-		_meta_types[ removePrefixDecorators( ptr_mc->name() ) ] = ptr_mc;
-		_meta_types[ removePrefixDecorators( ref_mc->name() ) ] = ref_mc;
+		_meta_types[ demangle( name ) ] = mc;
+		_meta_types[ demangle( ptr_mc->name() ) ] = ptr_mc;
+		_meta_types[ demangle( ref_mc->name() ) ] = ref_mc;
 	}
 
 	friend AddressRefMap& _addressRefMap();

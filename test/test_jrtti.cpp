@@ -129,7 +129,7 @@ TEST_F(MetaTypeTest, StdStringMutator) {
 
 TEST_F(MetaTypeTest, ByValType) {
 
-	EXPECT_EQ( "Date", jrtti::Reflector::instance().removePrefixDecorators( mClass()["date"].typeName() ) );
+	EXPECT_EQ( "Date", jrtti::Reflector::instance().demangle( mClass()["date"].typeName() ) );
 }
 
 TEST_F(MetaTypeTest, ByValAccessor) {
