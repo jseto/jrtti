@@ -4,10 +4,7 @@
 #define sampleH
 //---------------------------------------------------------------------------
 
-#define BOOST_MEM_FN_ENABLE_FASTCALL    	//Enables __fastcall calling convention. See boost::bind documentaion
-														//use this macro before including jrtti.hpp
-#include "../include/jrtti.hpp"
-
+#include <jrtti/jrtti.hpp>
 #include <iostream>
 #include <vector>
 
@@ -59,7 +56,7 @@ public:
 	virtual int getIntAbstract() { return 34; }
 	virtual int getIntOverloaded() {return 87;}
 
-	void __fastcall setDoubleProp(double d) { test = d; }
+	void setDoubleProp(double d) { test = d; }
 	double getDoubleProp() { return test; }
 
 	std::string getStdStringProp(){ return _s; }

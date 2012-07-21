@@ -11,17 +11,8 @@
     <Borland.Personality>Default.Personality</Borland.Personality>
     <Borland.ProjectType />
     <BorlandProject>
-  <BorlandProject xmlns=""> <Default.Personality> </Default.Personality> </BorlandProject></BorlandProject>
+<BorlandProject xmlns=""><Default.Personality></Default.Personality></BorlandProject></BorlandProject>
   </ProjectExtensions>
-  <Target Name="test_jrtti">
-    <MSBuild Projects="test_jrtti.cbproj" Targets="" />
-  </Target>
-  <Target Name="test_jrtti:Clean">
-    <MSBuild Projects="test_jrtti.cbproj" Targets="Clean" />
-  </Target>
-  <Target Name="test_jrtti:Make">
-    <MSBuild Projects="test_jrtti.cbproj" Targets="Make" />
-  </Target>
   <Target Name="run_sample">
     <MSBuild Projects="run_sample.cbproj" Targets="" />
   </Target>
@@ -31,14 +22,23 @@
   <Target Name="run_sample:Make">
     <MSBuild Projects="run_sample.cbproj" Targets="Make" />
   </Target>
+  <Target Name="test_jrtti">
+    <MSBuild Projects="test_jrtti.cbproj" Targets="" />
+  </Target>
+  <Target Name="test_jrtti:Clean">
+    <MSBuild Projects="test_jrtti.cbproj" Targets="Clean" />
+  </Target>
+  <Target Name="test_jrtti:Make">
+    <MSBuild Projects="test_jrtti.cbproj" Targets="Make" />
+  </Target>
   <Target Name="Build">
-    <CallTarget Targets="test_jrtti;run_sample" />
+    <CallTarget Targets="run_sample;test_jrtti" />
   </Target>
   <Target Name="Clean">
-    <CallTarget Targets="test_jrtti:Clean;run_sample:Clean" />
+    <CallTarget Targets="run_sample:Clean;test_jrtti:Clean" />
   </Target>
   <Target Name="Make">
-    <CallTarget Targets="test_jrtti:Make;run_sample:Make" />
+    <CallTarget Targets="run_sample:Make;test_jrtti:Make" />
   </Target>
   <Import Condition="Exists('$(MSBuildBinPath)\Borland.Group.Targets')" Project="$(MSBuildBinPath)\Borland.Group.Targets" />
 </Project>

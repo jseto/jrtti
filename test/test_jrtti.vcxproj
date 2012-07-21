@@ -34,15 +34,15 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(GTEST_ROOT)\include;$(BOOST_ROOT);$(IncludePath)</IncludePath>
-    <OutDir>$(SolutionDir)out\$(Configuration)\</OutDir>
+    <IncludePath>../include;$(GTEST_ROOT)\include;$(BOOST_ROOT);$(IncludePath)</IncludePath>
+    <OutDir>..\out\msvs\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)out\int\$(Configuration)\</IntDir>
     <LibraryPath>$(GTEST_ROOT)\lib\msvc;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(GTEST_ROOT)\include;$(BOOST_ROOT);$(IncludePath)</IncludePath>
-    <OutDir>$(SolutionDir)out\$(Configuration)\</OutDir>
+    <IncludePath>../include;$(GTEST_ROOT)\include;$(BOOST_ROOT);$(IncludePath)</IncludePath>
+    <OutDir>..\out\msvs\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)out\int\$(Configuration)\</IntDir>
     <LibraryPath>$(GTEST_ROOT)\lib\msvc;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
@@ -94,16 +94,16 @@
     <ClCompile Include="test_jrtti.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\include\base64.hpp" />
-    <ClInclude Include="..\include\basetypes.hpp" />
-    <ClInclude Include="..\include\exception.hpp" />
-    <ClInclude Include="..\include\helpers.hpp" />
-    <ClInclude Include="..\include\jrtti.hpp" />
-    <ClInclude Include="..\include\jsonparser.hpp" />
-    <ClInclude Include="..\include\metaclass.hpp" />
-    <ClInclude Include="..\include\method.hpp" />
-    <ClInclude Include="..\include\property.hpp" />
-    <ClInclude Include="..\include\reflector.hpp" />
+    <ClInclude Include="..\include\jrtti\base64.hpp" />
+    <ClInclude Include="..\include\jrtti\basetypes.hpp" />
+    <ClInclude Include="..\include\jrtti\exception.hpp" />
+    <ClInclude Include="..\include\jrtti\helpers.hpp" />
+    <ClInclude Include="..\include\jrtti\jrtti.hpp" />
+    <ClInclude Include="..\include\jrtti\jsonparser.hpp" />
+    <ClInclude Include="..\include\jrtti\metaclass.hpp" />
+    <ClInclude Include="..\include\jrtti\method.hpp" />
+    <ClInclude Include="..\include\jrtti\property.hpp" />
+    <ClInclude Include="..\include\jrtti\reflector.hpp" />
     <ClInclude Include="sample.h" />
     <ClInclude Include="test_jrtti.h" />
   </ItemGroup>
