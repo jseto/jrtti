@@ -159,11 +159,6 @@ namespace jrtti {
 		return Reflector::instance().declareCollection<C>( annotations );
 	}
 
-	inline void
-	clear() {
-		Reflector::instance().clear();
-	}
-
 	inline
 	AddressRefMap&
 	_addressRefMap() {

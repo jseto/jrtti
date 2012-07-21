@@ -27,7 +27,7 @@ class MetaTypeTest : public testing::Test {
 	// you don't have to provide it.
 	//
 	virtual void TearDown() {
-		jrtti::clear();
+		jrtti::Reflector::instance().clear();
 	}
 
 	Metatype & mClass(){
