@@ -26,7 +26,7 @@ public:
 				_meta_types[ demangledName ] = NULL;
 			}
 		}
-    }
+	}
 
 	void
 	clear()
@@ -140,11 +140,12 @@ public:
 	Metatype &
 	getType()
 	{
-    	return getType( typeid( T ).name() );
+		return getType( typeid( T ).name() );
 	}
 
 	/**
 	 * \brief Removes type name decorators
+	 *
 	 * jrtti uses typeid( T ).name() to determine type names when using declare,
 	 * declareAbstract or declareContainer without passing the user type name.
 	 * The results of typeid().name() depend compiler implementations. Therefore
@@ -160,7 +161,7 @@ public:
 	std::string
 	demangle( const std::string& name ) {
 #ifdef HAVE_CXA_DEMANGLE
-	    int status = -4;
+		int status = -4;
 		char* res = abi::__cxa_demangle(name.c_str(), NULL, NULL, &status);
 		const char* const demangled_name = (status==0)?res:name;
 		string ret_val(demangled_name);
@@ -178,10 +179,10 @@ public:
 		}
 		return name;
 	#ifndef _MSC_VER
-		#warning "Your compiler may not support demangleing of typeid(T).name() results. See jrtti::demangle documentation"  
+		#warning "Your compiler may not support demangleing of typeid(T).name() results. See jrtti::demangle documentation"
 	#endif
 #endif
-    }
+	}
 
 private:
 	typedef std::map<std::string, std::string> AliasMap;
@@ -230,11 +231,11 @@ private:
 		return m_nameRefs;
 	}
 
-	TypeMap 							_meta_types;
-	AliasMap						 	_alias;
-	AddressRefMap 						m_addressRefs;
-	NameRefMap 							m_nameRefs;
-	std::vector< std::string >			m_prefixDecorators;
+	TypeMap						_meta_types;
+	AliasMap					_alias;
+	AddressRefMap				m_addressRefs;
+	NameRefMap					m_nameRefs;
+	std::vector< std::string >	m_prefixDecorators;
 };
 
 //------------------------------------------------------------------------------

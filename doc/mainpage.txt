@@ -9,113 +9,54 @@
  * 
  * It also provides a string representation of class members that can be used for object serialization and deserialization.
  *
- * \section mainclasses Main Classes
+ * \section mainclasses Main Classes and namespaces
  * 
- * \li jrtti
- * \li CustomMetaclass
- * \li Property
- * \li Method
+ * \li \ref jrtti
+ * \li \ref Reflector
+ * \li \ref Metatype
+ * \li \ref Property
+ * \li \ref Method
  *
  * \section download Download
  *
  * You can get jrtti from GitHub at https://github.com/jseto/jrtti
+ *
  * \section dependencies Dependencies
- * boost http://www.boost.org/
+ *
+ * \subsection boost Boost
+ * jrtti uses header-only Boost C++ libraries. Download boost from http://www.boost.org/ and make sure your compiler have access to boost include directory.
+ * subsection gtest gtest
+ * jrtti test use gtest testing framework. If you plan to run the test download gtest from http://code.google.com/p/googletest/ and install it. 
+ *
  * \section install Install
- * jrtti is a header only library. Just include jrtti.hpp to your project and make boost header file path available to your project.
+ * jrtti is a header-only library. Just make sure your compiler has access to jrtti include directory and add #include <jrtti/jrtti.hpp> to your 
+ * source code. Make sure boost header file path is available to your project.
  *
  * \section example Example
  * 
- * This example shows the main capabilities and usage of jrtti. \see sample.h and tests.
+ * This example shows the main capabilities and usage of jrtti. 
+ * \see \ref sample.h 
+ * \see and the tests.
  *
- * \code
- * #include <jrtti.hpp>
- * #include <string>
- * 
- * // Define C++ classes
- * struct Position {
- *     double x;
- *     double y;
- *     double z;
- * };
- * 
- * class Ball
- * {
- * public:
- *	   // color setter
- *     void setColor( std::string color )
- *     {
- *         m_color = color;
- *     }
- * 
- *     // color getter
- *     std::string getColor()
- *     {
- *         return m_color;
- *     }
- * 
- *     // position getter
- *     Position getPosition()
- *     {
- *         return m_position;
- *     }
- * 
- *     // move ball ( method call example )
- *     void quick()
- *     {
- *         ++m_position.x;
- *         ++m_position.y;
- *         ++m_position.z;
- *     }
- * 
- * private:
- * 
- *     std::string m_color;
- *     Position m_position;
- * };
- * 
- * int main()
- * {
- *     // Make Position class available to jrtti
- *     jrtti::declare< Position >()
- *         .property( "x", &Position::x )
- *         .property( "y", &Position::y )
- *         .property( "z", &Position::z )
- * 
- *     // Make Ball class available to jrtti
- *     jrtti::declare< Ball >()
- *         .property( "color", &Ball::setColor, &Ball::getColor )
- *         .property( "position", &Ball::getPosition )
- *         .method< void >( "quick", &Ball::quick )
- * 
- *     // Use jrtti
- *     Ball ball;
+ * \include doc_sample.cpp
  *
- *     // set the ball color
- *     jrtti::getType( "Ball" ).property( "color" ).set( &ball, "red" );
+ * \section tests Running the tests
+ *
+ * \subsection testWindows Windows
+ *
+ * There are VSC++ and Codegear project files under the test directory. As said above, test are coded 
+ * using <a href="http://code.google.com/p/googletest/">gtest</a>. Install gtest in your system as well as boost libraries and add the following 
+ * environment variables:
+ * \li BOOST_ROOT -> points to your boost directory
+ * \li GTEST_ROOT -> points to your gtest directory
  * 
- *     //get a Metatype object
- *     jrtti::Metatype & mt = jrtti::getType("Sample");
- *
- *     //and working with it accessing properties as an array
- *     mt[ "color" ].set( &s, "green" );
- *
- *     //call a method
- *     mt.call< void >( "quick", &ball );
- *
- *     //get a property value by full categorized name
- *	   double xPos = mt.eval( &s, "ball.x" );
- *
- *     //get property string representation
- *     cout << mt.toStr( &ball );
- *
- *     return 0;
- * }
- * \endcode
+ * \subsection testLinux Linux
+ * 
+ * There are no makefiles for Linux compilers, but the setup should be straight forward.
  *
  * \section license License
  *
- * jrtti is distributed under the terms of the GNU Lesser General Public License as published by the Free Software Foundation (LGPLv3).
+ * jrtti is distributed under the terms of the <a href="http://www.gnu.org/licenses/lgpl-3.0-standalone.html">GNU Lesser General Public License as published by the Free Software Foundation (LGPLv3)</a>.
  * 
  * jrtti is distributed WITHOUT ANY WARRANTY. Use at your own risk.
  *
