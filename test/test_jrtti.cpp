@@ -1,12 +1,11 @@
 
-#include "sample.h"
 #include <algorithm>
 #include <fstream>
+#include <gtest/gtest.h>
 #include "test_jrtti.h"
 #include "../include/base64.hpp"
+#include "sample.h"
 
-#include "gtest/gtest.h"
-//#pragma link "lib/gtest.lib"
 
 using namespace jrtti;
 

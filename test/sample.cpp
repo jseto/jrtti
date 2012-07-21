@@ -49,35 +49,55 @@ void declare()
 
 void useCase() {
 	Sample s;
+	Point p;
+	Date d;
 
+	//populate s
+	p.x = 30; p.y = 60;
+	d.d = 1; d.m = 5; d.y = 2012; d.place = p;
+	s.setByValProp( d );
+	s.circularRef = &s; s.setDoubleProp( 344.23 ); s.setStdStringProp( "Hello!!!" );
+	
 	//set the property intMember of s object to 15
 	jrtti::getType( "Sample" ).property( "intMember" ).set( &s, 15 );
+	std::cout << s.intMember << " == " << 15 << std::endl;
 
 	//retrieve the value of intMember from s object
 	int i = jrtti::getType( "Sample" ).property( "intMember" ).get<int>( &s );
+	std::cout << s.intMember << " == " << i << std::endl;
 
 	//same as above using braket operator
 	i = jrtti::getType("Sample")[ "intMember" ].get<int>( &s );
+	std::cout << s.intMember << " == " << i << std::endl;
 
 	//getting a Metatype object
 	jrtti::Metatype & mt = jrtti::getType("Sample");
 	//and working with it
-	mt[ "intMember" ].set( &s, 23 );
+	p.x = 23;
+	mt[ "point" ].set( &s, &p );
+	std::cout << 23 << " == " << s.getByPtrProp()->x << std::endl;
+
+	//call a method without parameters returning void
+	mt.call<void>( "testMethod", &s );
 
 	//call a method returning int and having two parameters
-	double d = mt.call<double,Sample,int,double>( "testSum", &s, 3, 8 );
+	double f = mt.call<double,Sample,int,double>( "testSum", &s, 3, 8 );
 	//or
-	d = mt.call<double>( "testSum", &s, 3, 8.0 );
+	f = mt.call<double>( "testSum", &s, 3, 8.0 );
+	std::cout << 3+8 << " == " << f << std::endl;
+
 
 	//set value from a fully qualified path
 	mt.apply( &s, "date.place.x", 25.0 );
 	//get value from a fully qualified path
-	d = mt.eval<double>( &s, "date.place.x" );
+	f = mt.eval<double>( &s, "date.place.x" );
+	std::cout << 25 << " == " << f << std::endl;
 
 	//get a string representation of s object
 	std::string contens = mt.toStr( &s );
 	//and set the s object from a string representation
 	mt.fromStr( &s, contens );
+	std::cout << contens << std::endl;
 
-	d=i+d;
+	std::cin.ignore(1);
 }

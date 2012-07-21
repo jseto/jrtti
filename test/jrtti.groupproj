@@ -1,0 +1,44 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <ProjectGuid>{9837f291-0afc-4e0e-94d4-d734830f33c4}</ProjectGuid>
+  </PropertyGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <Projects Include="run_sample.cbproj" />
+    <Projects Include="test_jrtti.cbproj" />
+  </ItemGroup>
+  <ProjectExtensions>
+    <Borland.Personality>Default.Personality</Borland.Personality>
+    <Borland.ProjectType />
+    <BorlandProject>
+  <BorlandProject xmlns=""> <Default.Personality> </Default.Personality> </BorlandProject></BorlandProject>
+  </ProjectExtensions>
+  <Target Name="test_jrtti">
+    <MSBuild Projects="test_jrtti.cbproj" Targets="" />
+  </Target>
+  <Target Name="test_jrtti:Clean">
+    <MSBuild Projects="test_jrtti.cbproj" Targets="Clean" />
+  </Target>
+  <Target Name="test_jrtti:Make">
+    <MSBuild Projects="test_jrtti.cbproj" Targets="Make" />
+  </Target>
+  <Target Name="run_sample">
+    <MSBuild Projects="run_sample.cbproj" Targets="" />
+  </Target>
+  <Target Name="run_sample:Clean">
+    <MSBuild Projects="run_sample.cbproj" Targets="Clean" />
+  </Target>
+  <Target Name="run_sample:Make">
+    <MSBuild Projects="run_sample.cbproj" Targets="Make" />
+  </Target>
+  <Target Name="Build">
+    <CallTarget Targets="test_jrtti;run_sample" />
+  </Target>
+  <Target Name="Clean">
+    <CallTarget Targets="test_jrtti:Clean;run_sample:Clean" />
+  </Target>
+  <Target Name="Make">
+    <CallTarget Targets="test_jrtti:Make;run_sample:Make" />
+  </Target>
+  <Import Condition="Exists('$(MSBuildBinPath)\Borland.Group.Targets')" Project="$(MSBuildBinPath)\Borland.Group.Targets" />
+</Project>

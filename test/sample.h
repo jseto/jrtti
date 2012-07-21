@@ -11,7 +11,6 @@
 #include <iostream>
 #include <vector>
 
-
 struct Point
 {
 	double x;
@@ -148,5 +147,6 @@ private:
 };
 
 void declare();
+void useCase();
 
 #endif

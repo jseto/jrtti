@@ -20,9 +20,14 @@ public:
 	~Reflector()
 	{
 		for ( TypeMap::iterator it = _meta_types.begin(); it != _meta_types.end(); ++it) {
-            delete it->second;
+			std::string demangledName = demangle( it->first );
+			if ( _meta_types[ demangledName ] ) {
+				delete _meta_types[ demangledName ];
+				_meta_types[ demangledName ] = NULL;
+			}
 		}
     }
+
 	void
 	clear()
 	{
