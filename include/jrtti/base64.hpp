@@ -4,6 +4,7 @@
 #include <string>
 #include <sstream>
 #include <memory>
+#include <stdint.h>
 
 namespace jrtti
 {

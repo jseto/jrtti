@@ -9,7 +9,9 @@
 
 class MetaIndirectedType: public Metatype	{
 public:
-	MetaIndirectedType(Metatype & baseType, std::string name_sufix): m_baseType(baseType), Metatype(baseType.name() + " " + name_sufix)
+	MetaIndirectedType(Metatype & baseType, std::string name_sufix)
+		:	m_baseType(baseType), 
+			Metatype(baseType.name() + " " + name_sufix)
 	{}
 
 	virtual
@@ -34,13 +36,42 @@ public:
 
 	bool
 	isPointer() { return true;}
+/*
+	virtual
+	boost::any
+	copyFromInstance( void * inst ) {
+		return boost::any( inst );
+	}
+  */
+protected:
+	virtual
+	std::string
+	_toStr( const boost::any & value, bool formatForStreaming ){
+		void * inst = get_instance_ptr(value);
+
+		AddressRefMap::iterator it = _addressRefMap().find( inst );
+		if ( it == _addressRefMap().end() ) {
+			return MetaIndirectedType::_toStr( value, formatForStreaming );
+		}
+		else {
+			return "{\n\t\"$ref\": \"" + it->second + "\"\n}";
+		}
+	}
 
 	virtual
 	boost::any
-	fromStr( const boost::any& instance, const std::string& str ) {
-		boost::any ptr = create();
-		MetaIndirectedType::fromStr( ptr, str );
-		return ptr;
+	_fromStr( const boost::any& instance, const std::string& str ) {
+		JSONParser parser( str );
+		boost::any any_ptr;
+		if ( parser.begin()->first == "$ref" ) {
+			void * ptr = _nameRefMap()[ parser.begin()->second ];
+			any_ptr = m_baseType.copyFromInstanceAsPtr( ptr );
+		}
+		else {
+			any_ptr = create();
+			MetaIndirectedType::_fromStr( any_ptr, str );
+		}
+		return any_ptr;
 	}
 
 	virtual
@@ -63,15 +94,17 @@ public:
 	bool
 	isReference() { return true;}
 
+protected:
+	virtual
 	std::string
-	toStr(const boost::any & value, bool formatForStreaming = false){
-		return m_baseType.toStr( value, formatForStreaming );
+	_toStr( const boost::any & value, bool formatForStreaming ){
+		return m_baseType._toStr( value, formatForStreaming );
 	}
 
 	virtual
 	boost::any
-	fromStr( const boost::any& instance, const std::string& str ) {
-		return m_baseType.fromStr( instance, str );
+	_fromStr( const boost::any& instance, const std::string& str ) {
+		return m_baseType._fromStr( instance, str );
 	}
 };
 
@@ -81,13 +114,14 @@ class MetaInt: public Metatype {
 public:
 	MetaInt(): Metatype("int") {}
 
+	virtual
 	std::string
-	toStr( const boost::any & value, bool formatForStreaming = false ){
+	_toStr( const boost::any & value, bool formatForStreaming ){
 		return numToStr(boost::any_cast<int>(value));
 	}
 
 	boost::any
-	fromStr( const boost::any& instance, const std::string& str ) {
+	_fromStr( const boost::any& instance, const std::string& str ) {
 		return strToNum<int>( str );
 	}
 
@@ -104,13 +138,14 @@ public:
 public:
 	MetaBool(): Metatype("bool") {}
 
+	virtual
 	std::string
-	toStr( const boost::any & value, bool formatForStreaming = false ){
+	_toStr( const boost::any & value, bool formatForStreaming ){
 		return boost::any_cast<bool>(value) ? "true" : "false";
 	}
 
 	boost::any
-	fromStr( const boost::any& instance, const std::string& str ) {
+	_fromStr( const boost::any& instance, const std::string& str ) {
 		return str == "true";
 	}
 
@@ -125,13 +160,14 @@ class MetaDouble: public Metatype {
 public:
 	MetaDouble(): Metatype("double") {}
 
+	virtual
 	std::string
-	toStr( const boost::any & value, bool formatForStreaming = false ){
+	_toStr( const boost::any & value, bool formatForStreaming ){
 		return numToStr(boost::any_cast<double>(value));
 	}
 
 	boost::any
-	fromStr( const boost::any& instance, const std::string& str ) {
+	_fromStr( const boost::any& instance, const std::string& str ) {
 		return strToNum<double>( str );
 	}
 
@@ -146,13 +182,14 @@ class MetaString: public Metatype {
 public:
 	MetaString(): Metatype("std::string") {}
 
+	virtual
 	std::string
-	toStr( const boost::any & value, bool formatForStreaming = false ) {
+	_toStr( const boost::any & value, bool formatForStreaming ) {
 		return '"' + addEscapeSeq( boost::any_cast<std::string>(value) ) + '"';
 	}
 
 	boost::any
-	fromStr( const boost::any& instance, const std::string& str ) {
+	_fromStr( const boost::any& instance, const std::string& str ) {
 		return removeEscapeSeq( str );
 	}
 

@@ -96,7 +96,7 @@ public:
 	template< typename T >
 	bool
 	has() {
-		return getFirst< T >();
+		return getFirst< T >() != NULL;
 	}
 
 private:
@@ -191,7 +191,7 @@ public:
 	 */
 	bool
 	isWritable()	{
-		return (_mode & Writable);
+		return (_mode & Writable) != 0;
 	}
 
 	/**
@@ -264,6 +264,8 @@ template <class ClassT, class PropT>
 class TypedProperty : public Property
 {
 public:
+	typedef typename boost::remove_reference< typename PropT >::type PropNoRefT;
+
 	TypedProperty()
 	{
 		typeName( jrtti::nameOf<PropT>());
@@ -279,7 +281,8 @@ public:
 	}
 
 	TypedProperty&
-	setter(PropT ClassT::* dataMember)
+//	typename boost::disable_if< typename boost::is_reference< typename PropT >::type, TypedProperty& >::type
+	setter( PropNoRefT ClassT::* dataMember)
 	{
 		setMode( Writable );
 		setMode( Readable );
@@ -307,8 +310,8 @@ public:
 	void
 	set( void * instance, const boost::any& val)	{
 		if (isWritable()) {
-			typedef boost::remove_reference< PropT >::type PropTNoRef;
-			PropTNoRef p = boost::any_cast< PropTNoRef >( val );
+//			typedef boost::remove_reference< PropT >::type PropTNoRef;
+			PropNoRefT p = boost::any_cast< typename PropNoRefT >( val );
 			internal_set( (ClassT *)instance, p );
 		}
 	}
@@ -333,7 +336,7 @@ private:
 	typename boost::disable_if< boost::type_traits::ice_or<
 										boost::is_pointer< PropT >::value,
 										boost::is_reference< PropT >::value >, boost::any >::type
-	internal_get(void * instance)	{
+	internal_get(void * instance) {
 		PropT res = m_getter( (ClassT *)instance );
 		return res;
 	}
@@ -351,7 +354,7 @@ private:
 
 	boost::function<void (ClassT*, PropT)>	m_setter;
 	boost::function< PropT (ClassT*)>		m_getter;
-	PropT ClassT::*							m_dataMember;
+	PropNoRefT ClassT::*					m_dataMember;
 };
 
 //------------------------------------------------------------------------------

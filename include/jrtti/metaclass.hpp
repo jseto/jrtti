@@ -5,6 +5,7 @@
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
 
+//#include "jrtti.hpp"
 #include "helpers.hpp"
 #include "property.hpp"
 #include "method.hpp"
@@ -123,7 +124,7 @@ namespace jrtti {
 		property( std::string name) {
 			PropertyMap::iterator it = properties().find(name);
 			if ( it == properties().end() ) {
-				error( "Property '" + name + "' not declared in '" + Metatype::name() + "' metaclass" );
+				throw error( "Property '" + name + "' not declared in '" + Metatype::name() + "' metaclass" );
 			}
 			return *it->second;
 		}
@@ -139,7 +140,7 @@ namespace jrtti {
 		method(std::string name) {
 			MethodMap::iterator it = methods().find(name);
 			if ( it == methods().end() ) {
-				error( "Method '" + name + "' not declared in '" + Metatype::name() + "' metaclass" );
+				throw error( "Method '" + name + "' not declared in '" + Metatype::name() + "' metaclass" );
 			}
 			return *it->second;
 		}
@@ -162,7 +163,7 @@ namespace jrtti {
 
 			MethodType * ptr = static_cast< MethodType * >( m_methods[methodName] );
 			if (!ptr) {
-				error("Method '" + methodName + "' not found in '" + name() + "' metaclass");
+				throw error("Method '" + methodName + "' not found in '" + name() + "' metaclass");
 			}
 			return ptr->call(instance);
 		}
@@ -187,7 +188,7 @@ namespace jrtti {
 
 			MethodType * ptr = static_cast< MethodType * >( m_methods[methodName] );
 			if (!ptr) {
-				error("Method '" + methodName + "' not found in '" + name() + "' metaclass");
+				throw error("Method '" + methodName + "' not found in '" + name() + "' metaclass");
 			}
 			return ptr->call(instance,p1);
 		}
@@ -214,7 +215,7 @@ namespace jrtti {
 
 			MethodType * ptr = static_cast< MethodType * >( m_methods[methodName] );
 			if (!ptr) {
-				error("Method '" + methodName + "' not found in '" + name() + "' metaclass");
+				throw error("Method '" + methodName + "' not found in '" + name() + "' metaclass");
 			}
 			return ptr->call(instance,p1,p2);
 		}
@@ -294,23 +295,10 @@ namespace jrtti {
 		 * In this case, the property is checked to see if it has the PropertyCategory::nonstreamable
 		 * \return the string representation
 		 */
-		virtual
 		std::string
 		toStr(const boost::any & instance, bool formatForStreaming = false ) {
-			void * inst = get_instance_ptr(instance);
-			std::string result = "{\n";
-			bool need_nl = false;
-			for( PropertyMap::iterator it = properties().begin(); it != properties().end(); ++it) {
-				Property * prop = it->second;
-				if ( prop ) {
-					if ( !( formatForStreaming && prop->annotations().has< NonStreamable >() ) ) {
-						if (need_nl) result += ",\n";
-						need_nl = true;
-						result += ident( "\"" + prop->name() + "\"" + ": " + prop->type().toStr( prop->get(inst), formatForStreaming ) );
-                    }
-				}
-			}
-			return result += "\n}";
+			_addressRefMap().clear();
+			return _toStr( instance, formatForStreaming );
 		}
 
 		/**
@@ -320,26 +308,11 @@ namespace jrtti {
 		 *  of the object.
 		 * \param instance the object instance to fill
 		 * \param str a JSON formated string with data to fill the object
-		 * \return used internally
 		 */
-		virtual
-		boost::any
+		void
 		fromStr( const boost::any & instance, const std::string& str ) {
-			void * inst = get_instance_ptr(instance);
-			JSONParser parser( str );
-
-			for( JSONParser::iterator it = parser.begin(); it != parser.end(); ++it) {
-				Property * prop = properties()[ it->first ];
-				if ( prop ) {
-					if ( prop->isWritable() ) {
-						const boost::any &mod = prop->type().fromStr( prop->get( inst ), it->second );
-						if ( !mod.empty() ) {
-							prop->set( inst, mod );
-						}
-					}
-				}
-			}
-			return copyFromInstance( inst );
+			_nameRefMap().clear();
+			_fromStr( instance, str );
 		}
 
 		virtual
@@ -366,7 +339,79 @@ namespace jrtti {
 			return boost::any();
 		}
 
+		virtual
+		boost::any
+		copyFromInstanceAsPtr( void * inst ) {
+			return boost::any();
+		}
+
 	protected:
+		friend class MetaReferenceType;
+		friend class MetaPointerType;
+		template< typename C > friend class MetaCollection;
+
+		virtual
+		std::string
+		_toStr( const boost::any & instance, bool formatForStreaming ) {
+			void * inst = get_instance_ptr(instance);
+			std::string result = "{\n";
+			bool need_nl = true;
+
+			AddressRefMap::iterator it = _addressRefMap().find( inst );
+			if ( it == _addressRefMap().end() ) {
+				std::string idStr = numToStr<int>( _addressRefMap().size() );
+				_addressRefMap()[ inst ] = idStr;
+				result += "\t\"$id\": \"" + idStr + "\"";
+			}
+			else {
+				need_nl = false;
+			}
+
+
+			for( PropertyMap::iterator it = properties().begin(); it != properties().end(); ++it) {
+				Property * prop = it->second;
+				if ( prop ) {
+					if ( !( formatForStreaming && prop->annotations().has< NonStreamable >() ) ) {
+						if (need_nl) result += ",\n";
+						need_nl = true;
+						result += ident( "\"" + prop->name() + "\"" + ": " + prop->type()._toStr( prop->get(inst), formatForStreaming ) );
+					}
+				}
+			}
+			return result += "\n}";
+		}
+
+		virtual
+		boost::any
+		_fromStr( const boost::any & instance, const std::string& str ) {
+			void * inst = get_instance_ptr(instance);
+			JSONParser parser( str );
+
+			for( JSONParser::iterator it = parser.begin(); it != parser.end(); ++it) {
+//				std::string key = it->first;
+//				std::string value = it->second;
+				if ( it->first == "$ref" ) {
+					return copyFromInstance( _nameRefMap()[ it->second ] );
+				}
+				if ( it->first == "$id" ) {
+					_nameRefMap()[ it->second ] = inst;
+				}
+				else
+				{
+					Property * prop = properties()[ it->first ];
+					if ( prop ) {
+						if ( prop->isWritable() ) {
+							const boost::any &mod = prop->type()._fromStr( prop->get( inst ), it->second );
+							if ( !mod.empty() ) {
+								prop->set( inst, mod );
+							}
+						}
+					}
+				}
+			}
+			return copyFromInstance( inst );
+		}
+
 		void
 		set_property( std::string name, Property * prop) {
 			properties()[name] = prop;
@@ -393,12 +438,12 @@ namespace jrtti {
 		}
 
 	private:
-		std::string	m_type_name;
-		MethodMap	m_methods;
-		MethodMap	m_ownedMethods;
-		PropertyMap	m_properties;
-		PropertyMap m_ownedProperties;
-		Annotations m_annotations;
+		std::string		m_type_name;
+		MethodMap		m_methods;
+		MethodMap		m_ownedMethods;
+		PropertyMap		m_properties;
+		PropertyMap 	m_ownedProperties;
+		Annotations 	m_annotations;
 	};
 
 
@@ -463,8 +508,7 @@ namespace jrtti {
 		CustomMetaclass&
 		inheritsFrom( const std::string& parentName )
 		{
-			inheritsFrom( jrtti::getType( parentName ) );
-			return *this;
+			return inheritsFrom( jrtti::getType( parentName ) );
 		}
 
 		/**
@@ -499,6 +543,7 @@ namespace jrtti {
 		{
 			////////// COMPILER ERROR   //// Setter or Getter are not proper accesor methods signatures.
 			typedef typename detail::FunctionTypes< GetterT >::result_type					PropT;
+//			typedef typename boost::remove_reference< typename PropT >::type				PropNoRefT
 			typedef typename boost::function< void (typename ClassT*, typename PropT ) >	BoostSetter;
 			typedef typename boost::function< typename PropT ( typename ClassT * ) >		BoostGetter;
 
@@ -523,7 +568,7 @@ namespace jrtti {
 			typedef typename boost::function< typename PropT ( typename ClassT * ) >		BoostGetter;
 
 			BoostSetter setter;       //setter empty is used by Property<>::isReadOnly()
-			return fillProperty< typename PropT, BoostSetter, BoostGetter >(name, setter, getter, annotations );
+			return fillProperty< typename PropT, BoostSetter, BoostGetter >(name,  setter, getter, annotations );
 		}
 
 		/**
@@ -544,7 +589,7 @@ namespace jrtti {
 			typedef typename PropT ClassT::* 	MemberType;
 			return fillProperty< PropT, MemberType, MemberType >(name, member, member, annotations );
 		}
-
+		
 		/**
 		 * \brief Declares a method without parameters
 		 *
@@ -641,6 +686,19 @@ namespace jrtti {
 #endif
 		}
 
+		boost::any
+		copyFromInstanceAsPtr( void * inst )
+		{
+			ClassT * ptr = (ClassT *) inst;
+			return boost::any( ptr );
+			/*
+#ifdef BOOST_NO_IS_ABSTRACT
+			return _copyFromInstance< IsAbstractT >( inst );
+#else
+			return _copyFromInstance< ClassT >( inst );
+#endif        */
+		}
+
 	private:
 		template <typename MethodType, typename FunctionType>
 		CustomMetaclass&
@@ -671,13 +729,13 @@ namespace jrtti {
 		}
 
 #ifdef BOOST_NO_IS_ABSTRACT
-	#define _IS_ABSTRACT( type ) type
+	#define __IS_ABSTRACT( t ) t
 #else
-	#define _IS_ABSTRACT( type ) boost::is_abstract< typename type >::type
+	#define __IS_ABSTRACT( t ) boost::is_abstract< typename t >::type
 #endif
 	//SFINAE _get_instance_ptr for NON ABSTRACT
 		template< typename AbstT >
-		typename boost::disable_if< typename _IS_ABSTRACT( AbstT ), void * >::type
+		typename boost::disable_if< typename __IS_ABSTRACT( AbstT ), void * >::type
 		_get_instance_ptr(const boost::any& content){
 			if ( content.type() == typeid( ClassT ) ) {
 				static ClassT dummy = ClassT();
@@ -692,14 +750,14 @@ namespace jrtti {
 
 	//SFINAE _get_instance_ptr for ABSTRACT
 		template< typename AbstT >
-		typename boost::enable_if< typename _IS_ABSTRACT( AbstT ), void * >::type
+		typename boost::enable_if< typename __IS_ABSTRACT( AbstT ), void * >::type
 		_get_instance_ptr(const boost::any & content){
 			return NULL;
 		}
 
 	//SFINAE _copyFromInstance for NON ABSTRACT
 		template< typename AbstT >
-		typename boost::disable_if< typename _IS_ABSTRACT( AbstT ), boost::any >::type
+		typename boost::disable_if< typename __IS_ABSTRACT( AbstT ), boost::any >::type
 		_copyFromInstance( void * inst ){
 			ClassT obj = *(ClassT *) inst;
 			return obj;
@@ -707,14 +765,14 @@ namespace jrtti {
 
 	//SFINAE _copyFromInstance for ABSTRACT
 		template< typename AbstT >
-		typename boost::enable_if< typename _IS_ABSTRACT( AbstT ), boost::any >::type
+		typename boost::enable_if< typename __IS_ABSTRACT( AbstT ), boost::any >::type
 		_copyFromInstance( void * inst ){
 			return boost::any();
 		}
 
 	//SFINAE _create
 		template< typename AbstT >
-		typename boost::disable_if< typename _IS_ABSTRACT( AbstT ), boost::any >::type
+		typename boost::disable_if< typename __IS_ABSTRACT( AbstT ), boost::any >::type
 		_create()
 		{
 			return new ClassT();
@@ -722,7 +780,7 @@ namespace jrtti {
 
 	//SFINAE _create
 		template< typename AbstT >
-		typename boost::enable_if< typename _IS_ABSTRACT( AbstT ), boost::any >::type
+		typename boost::enable_if< typename __IS_ABSTRACT( AbstT ), boost::any >::type
 		_create()
 		{
 			return NULL;
@@ -732,11 +790,11 @@ namespace jrtti {
 	/**
 	 * \brief Abstraction for a collection type
 	 *
-	 * A collection is a secuence of objects, as std library containers.
+	 * A collection is a secuence of objects, as STL containers.
 	 * Collections should implement and iterator type named iterator, the type of
 	 * the elements named value_type and public member functions begin(), end()
 	 * and insert(). In esence, a native collection type should implement the provided
-	 * interface CollectionInterface. Most std library containers implement this
+	 * interface CollectionInterface. Most STL containers implement this
 	 * interface.
 	 *
 	 */
@@ -745,24 +803,25 @@ namespace jrtti {
 	public:
 		MetaCollection( std::string name, const Annotations& annotations = Annotations() ): Metatype( name, annotations ) {}
 
+	protected:
 		virtual
 		std::string
-		toStr( const boost::any & value, bool formatForStreaming = false ){
+		_toStr( const boost::any & value, bool formatForStreaming ){
 			ClassT& _collection = getReference( value );
-			Metatype& mt = jrtti::getType< ClassT::value_type >();
+			Metatype & mt = jrtti::getType< ClassT::value_type >();
 			std::string str = "[\n";
 			bool need_nl = false;
 			for ( ClassT::iterator it = _collection.begin() ; it != _collection.end(); ++it ) {
 				if (need_nl) str += ",\n";
 				need_nl = true;
-				str += ident( mt.toStr( *it, formatForStreaming ) );
+				str += ident( mt._toStr( *it, formatForStreaming ) );
 			}
 			return str += "\n]";
 		}
 
 		virtual
 		boost::any
-		fromStr( const boost::any& instance, const std::string& str ) {
+		_fromStr( const boost::any& instance, const std::string& str ) {
 			ClassT& _collection =  getReference( instance );
 			_collection.clear();
 
@@ -770,8 +829,8 @@ namespace jrtti {
 			Metatype& elemType = jrtti::getType< ClassT::value_type >();
 			for( JSONParser::iterator it = parser.begin(); it != parser.end(); ++it) {
 				ClassT::value_type elem;
-				std::string a =  it->second;
-				const boost::any &mod = elemType.fromStr( &elem, it->second );
+//				std::string a =  it->second;
+				const boost::any &mod = elemType._fromStr( &elem, it->second );
 				_collection.insert( _collection.end(), boost::any_cast< ClassT::value_type >( mod ) );
 			}
 			return boost::any();
@@ -784,7 +843,6 @@ namespace jrtti {
 			return new ClassT();
 		}
 
-	protected:
 		virtual
 		void *
 		get_instance_ptr( const boost::any & value ) {

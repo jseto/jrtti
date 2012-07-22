@@ -1,14 +1,21 @@
 #ifndef jrttiH
 #define jrttiH
 
+#include <map>
 #include "exception.hpp"
 
 namespace jrtti {
+	typedef std::map< void *, std::string > AddressRefMap;
+	typedef std::map< std::string, void * > NameRefMap;
+
 	class Error;
 	class Metatype;
 	class Reflector;
 	Metatype &	getType(std::string name);
 	Error	error(std::string message);
+
+	AddressRefMap&	_addressRefMap();
+	NameRefMap&	_nameRefMap();
 }
 
 #include "reflector.hpp"
@@ -52,7 +59,7 @@ namespace jrtti {
 	 * \brief Get the name of class C
 	 * \return the name of class C
 	 */
-	inline template <typename C>
+	template <typename C>
 	std::string
 	nameOf(){
 		return Reflector::instance().nameOf<C>();
@@ -64,9 +71,9 @@ namespace jrtti {
 	 * Set an alias name for class C
 	 * \param new_name the alias name for class C
 	 */
-	inline template <typename C>
+	template <typename C>
 	void
-	alias(std::string new_name) {
+	alias( const std::string& new_name ) {
 		Reflector::instance().alias<C>(new_name);
 	}
 
@@ -142,7 +149,7 @@ namespace jrtti {
 	 * \brief Declare a collection
 	 *
 	 * Declares a new Metacollection based on collection C.
-	 * A collection is a secuence of objects, as std library containers
+	 * A collection is a secuence of objects, as STL containers
 	 *
 	 * \return this to chain calls
 	 */
@@ -152,9 +159,16 @@ namespace jrtti {
 		return Reflector::instance().declareCollection<C>( annotations );
 	}
 
-	inline void
-	clear() {
-		Reflector::instance().clear();
+	inline
+	AddressRefMap&
+	_addressRefMap() {
+		return Reflector::instance()._addressRefMap();
+	}
+
+	inline
+	NameRefMap&
+	_nameRefMap() {
+		return Reflector::instance()._nameRefMap();
 	}
 }
 
