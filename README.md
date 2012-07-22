@@ -1,6 +1,4 @@
-\mainpage 
-
-jrtti - C++ Introspection
+jrtti - C++ Introspection			{#mainpage}
 =========================
 
 Overview
@@ -32,12 +30,12 @@ Dependencies
 ------------
 
 ### Boost
-	jrtti uses header-only Boost C++ libraries. Download boost from http://www.boost.org/ and
-	make sure your compiler have access to boost include directory.		
+jrtti uses header-only Boost C++ libraries. Download boost from http://www.boost.org/ and
+make sure your compiler have access to boost include directory.		
 
 ### gtest
-	jrtti test use gtest testing framework. If you plan to run the test download 
-	gtest from http://code.google.com/p/googletest/ and install it. 
+jrtti test use gtest testing framework. If you plan to run the test download 
+gtest from http://code.google.com/p/googletest/ and install it. 
 
 Install
 -------
@@ -52,7 +50,8 @@ Example
 This easy example shows the main capabilities and usage of jrtti.
 For more detailed samples see sample.cpp and tests under the test directory.
 
-```c++ \code
+
+~~~{.cpp}
 #include <jrtti/jrtti.hpp>
 
 // Define C++ classes
@@ -136,21 +135,22 @@ int main()
 	std::cin.ignore(1);
 	return 0;
 }
-\endcode ```  
+~~~
 
 Running the tests
 -----------------
 
 ### Windows
-	There are VSC++ and Codegear project files under the test directory. As said above, test are coded 
-	using [gtest](http://code.google.com/p/googletest/). Install gtest in your system as well
-	as boost libraries and add the following environment variables:
 
-	- BOOST_ROOT -> points to your boost directory
-	- GTEST_ROOT -> points to your gtest directory
+There are VSC++ and Codegear project files under the test directory. As said above, test are coded 
+using [gtest](http://code.google.com/p/googletest/). Install gtest in your system as well
+as boost libraries and add the following environment variables:
+
+	BOOST_ROOT -> points to your boost directory
+	GTEST_ROOT -> points to your gtest directory
 
 ### Linux
-	There are no makefiles for Linux compilers, but the setup should be straight forward.
+There are no makefiles for Linux compilers, but the setup should be straight forward.
 
 License
 -------

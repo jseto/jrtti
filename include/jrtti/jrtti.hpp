@@ -149,7 +149,7 @@ namespace jrtti {
 	 * \brief Declare a collection
 	 *
 	 * Declares a new Metacollection based on collection C.
-	 * A collection is a secuence of objects, as std library containers
+	 * A collection is a secuence of objects, as STL containers
 	 *
 	 * \return this to chain calls
 	 */
