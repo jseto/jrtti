@@ -21,6 +21,11 @@ Main Classes and namespaces
 - Property
 - Method
 
+Detailed Documentation
+----------------------
+
+Find detailed library documentation at http://jseto.github.com/jrtti/doc/
+
 Download
 --------
 
