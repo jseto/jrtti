@@ -157,6 +157,18 @@ as boost libraries and add the following environment variables:
 ### Linux
 There are no makefiles for Linux compilers, but the setup should be straight forward.
 
+
+Get help and collaborate
+------------------------
+
+You can check the [wiki](https://github.com/jseto/jrtti/wiki). If you do not find the answer, [twit to @jrtti-cpp](https://twitter.com/intent/tweet?screen_name=jrtti_cpp&text=Help!!!%20I%20need%20help%20on)
+
+If you want to collaborate, [fork jrtti](https://github.com/jseto/jrtti/fork) from Github and send a pull request.
+
+### Bug notification
+
+If you find a bug, check if there is a [open related issue](https://github.com/jseto/jrtti/issues) about the bug you detected, if not open a [new issue](https://github.com/jseto/jrtti/issues/new) in Github.
+
 License
 -------
 
