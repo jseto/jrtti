@@ -161,7 +161,7 @@ There are no makefiles for Linux compilers, but the setup should be straight for
 Get help and collaborate
 ------------------------
 
-You can check the [wiki](https://github.com/jseto/jrtti/wiki). If you do not find the answer, [twit to @jrtti-cpp](https://twitter.com/intent/tweet?screen_name=jrtti_cpp&text=Help!!!%20I%20need%20help%20on)
+You can check the [wiki](https://github.com/jseto/jrtti/wiki). If you do not find the answer, [twit \@jrtti_cpp for help](https://twitter.com/intent/tweet?screen_name=jrtti_cpp&text=Help!!!%20I%20need%20help%20on)
 
 If you want to collaborate, [fork jrtti](https://github.com/jseto/jrtti/fork) from Github and send a pull request.
 

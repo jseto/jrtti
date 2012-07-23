@@ -105,7 +105,7 @@ public:
 	 * Looks for a property of this class by name
 	 * \param name the name of the property to look for
 	 * \return the found property abstraction
-	 * \sa getProperty
+	 * \sa property
 	 */
 	Property& operator [](std::string name) {
 		return property(name);
@@ -117,7 +117,7 @@ public:
 	 * Looks for a property of this class by name
 	 * \param name the name of the property to look for
 	 * \return the found property abstraction
-	 * \sa operator []
+	 * \sa operator[](std::string name)
 	 */
 	virtual
 	Property&
