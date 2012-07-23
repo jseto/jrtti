@@ -112,7 +112,7 @@ namespace jrtti {
 	 * \return this to chain calls
 	 */
 	template <typename C>
-	MetaCollection<C>&
+	Metacollection<C>&
 	declareCollection( const Annotations& annotations = Annotations() ) {
 		return Reflector::instance().declareCollection<C>( annotations );
 	}

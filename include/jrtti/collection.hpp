@@ -18,9 +18,9 @@ namespace jrtti {
 *
 */
 template< typename ClassT >
-class MetaCollection: public Metatype {
+class Metacollection: public Metatype {
 public:
-	MetaCollection( std::string name, const Annotations& annotations = Annotations() ): Metatype( name, annotations ) {}
+	Metacollection( std::string name, const Annotations& annotations = Annotations() ): Metatype( name, annotations ) {}
 
 protected:
 	virtual

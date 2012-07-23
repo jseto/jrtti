@@ -82,17 +82,17 @@ public:
 	}
 
 	template <typename C>
-	MetaCollection<C>&
+	Metacollection<C>&
 	declareCollection( const Annotations& annotations = Annotations() )
 	{
 	//////////  COMPILER ERROR: Class C is not a Collection //// Class C should implement type iterator to be a collection
 		typedef C::iterator iterator;
 		std::string name = nameOf<C>();
 		if ( _meta_types.count( name ) ) {
-			return *( dynamic_cast< MetaCollection<C> * >( &getType( name ) ) );
+			return *( dynamic_cast< Metacollection<C> * >( &getType( name ) ) );
 		}
 
-		MetaCollection<C> * mc = new MetaCollection<C>( name, annotations );
+		Metacollection<C> * mc = new Metacollection<C>( name, annotations );
 		internal_declare(name, mc);
 
 		return * mc;

@@ -13,7 +13,7 @@
 
 namespace jrtti {
 	/**
-	 * \brief Abstraction for classes
+	 * \brief Abstraction for classes and types
 	 *
 	 * This is the base class for the abstraction of C++ classes. It provides a
 	 * generic untyped Metatype and services to manipulate the members of the
@@ -348,7 +348,7 @@ namespace jrtti {
 	protected:
 		friend class MetaReferenceType;
 		friend class MetaPointerType;
-		template< typename C > friend class MetaCollection;
+		template< typename C > friend class Metacollection;
 
 		virtual
 		std::string
