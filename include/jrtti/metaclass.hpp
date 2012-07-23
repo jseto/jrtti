@@ -790,10 +790,11 @@ namespace jrtti {
 	/**
 	 * \brief Abstraction for a collection type
 	 *
-	 * A collection is a secuence of objects, as STL containers.
-	 * Collections should implement and iterator type named iterator, the type of
-	 * the elements named value_type and public member functions begin(), end()
-	 * and insert(). In esence, a native collection type should implement the provided
+	 * A collection is a secuence of objects, like STL containers.
+	 * Collections should expose both, an iterator named iterator and a public type
+	 * exposing the the type of the container elements named value_type. Additionally should 
+	 * also expose member functions begin(), end(), clear() and insert().
+	 * In esence, a native collection type should implement the provided
 	 * interface CollectionInterface. Most STL containers implement this
 	 * interface.
 	 *
@@ -822,15 +823,13 @@ namespace jrtti {
 		virtual
 		boost::any
 		_fromStr( const boost::any& instance, const std::string& str ) {
-			ClassT& _collection =  getReference( instance );
-			_collection.clear();
-
+			ClassT& _collection =  getReference( instance );
+			_collection.clear();
 			JSONParser parser( str );
-			Metatype& elemType = jrtti::getType< ClassT::value_type >();
-			for( JSONParser::iterator it = parser.begin(); it != parser.end(); ++it) {
-				ClassT::value_type elem;
-//				std::string a =  it->second;
-				const boost::any &mod = elemType._fromStr( &elem, it->second );
+			Metatype& elemType = jrtti::getType< ClassT::value_type >();
+			for( JSONParser::iterator it = parser.begin(); it != parser.end(); ++it) {
+				ClassT::value_type elem;
+				const boost::any &mod = elemType._fromStr( &elem, it->second );
 				_collection.insert( _collection.end(), boost::any_cast< ClassT::value_type >( mod ) );
 			}
 			return boost::any();
@@ -854,6 +853,9 @@ namespace jrtti {
 			if ( value.type() == typeid( ClassT ) ) {
 				static ClassT ref = boost::any_cast< ClassT >( value );
 				return ref;
+			}
+			if ( value.type() == typeid( ClassT * ) ) {
+				return * boost::any_cast< ClassT * >( value );
 			}
 			else {
 				return boost::any_cast< boost::reference_wrapper< ClassT > >( value ).get();

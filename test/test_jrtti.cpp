@@ -401,6 +401,24 @@ TEST_F(MetaTypeTest, base64) {
 	delete decoded;
 }
 
+TEST_F(MetaTypeTest, testCollectionInterface) {
+	MyCollection col;
+	jrtti::declareCollection< MyCollection >();
+
+	MyCollection::iterator it = col.begin();
+
+	for ( int i = 0; i<20; ++i) {
+		it = col.insert( it, i );
+		++it;
+	}
+
+	std::string res = jrtti::getType< MyCollection >().toStr( &col );
+
+	jrtti::getType< MyCollection >().fromStr( &col, res );
+
+	EXPECT_EQ( res.length(), jrtti::getType< MyCollection >().toStr( &col ).length() );
+}
+
 GTEST_API_ int main(int argc, char **argv) {
 	std::cout << "Running tests\n";
 

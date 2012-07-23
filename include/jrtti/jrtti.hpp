@@ -104,15 +104,22 @@ namespace jrtti {
 	}
 
 	/**
+	* \brief Iterator with deference, prefix increment and inequality operators
+	*/
+	template< typename T >
+	struct iterator {
+		virtual	T& operator * () = 0;
+		virtual iterator& operator ++ () = 0;
+		virtual bool operator != ( const iterator& it ) = 0;
+	};
+
+	/**
 	 * \brief Interface template for native Collection types
 	 */
-	template < typename T, typename Iterator >
+	template < typename T >
 	class CollectionInterface {
 	public:
-		/**
-		 * \brief Forward iterator with increment operator
-		 */
-		typedef Iterator iterator;
+		typedef iterator< T > iterator;
 		/**
 		 * \brief Type of the elements in the container
 		 */
@@ -132,7 +139,7 @@ namespace jrtti {
 		 * Returns an iterator referring to the past-the-end element of the collection
 		 * \return iterator at the end of the collection
 		 */
-		virtual iterator end()=0;
+		virtual iterator end() = 0;
 
 		/**
 		 * \brief Insert an element
@@ -142,7 +149,12 @@ namespace jrtti {
 		 * \param x value to be used to initialize the inserted element
 		 * \return an iterator that points to the newly inserted element
 		 */
-		virtual iterator insert( iterator position, const T& x )=0;
+		virtual iterator insert( iterator position, const T& x ) = 0;
+
+		/**
+		* \brief Discards all elements of the collection.
+		*/
+		virtual void clear() = 0;
 	 };
 
 	/**
