@@ -5,7 +5,7 @@
 
 void declare()
 {
-	jrtti::declare<Point>()
+	jrtti::declare<Point>( "aliasPoint" )
 						.property("x", &Point::x)
 						.property("y", &Point::y);
 
@@ -15,9 +15,15 @@ void declare()
 						.property("y", &Date::y)
 						.property("place", &Date::place);
 
-	jrtti::declareAbstract<SampleBase>()
+#ifdef BOOST_NO_IS_ABSTRACT
+	jrtti::declareAbstract<SampleBase>()			// declare abstract for generic compilers
 						.property("intAbstract", &SampleBase::getIntAbstract)
 						.property("intOverloaded", &SampleBase::getIntOverloaded);
+#else
+	jrtti::declare<SampleBase>()					// if compiler supports boost::is_abstract you can declare an abstract class directly with jrtti::declare
+						.property("intAbstract", &SampleBase::getIntAbstract)
+						.property("intOverloaded", &SampleBase::getIntOverloaded);
+#endif
 
 	jrtti::declare<Sample>( jrtti::Annotations() << new GUIAnnotation( "sample.ico" ) )
 				.inheritsFrom<SampleBase>()

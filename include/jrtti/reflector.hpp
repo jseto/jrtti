@@ -68,6 +68,15 @@ public:
 	}
 
 	template <typename C>
+	CustomMetaclass<C>&
+	declare( std::string alias, const Annotations& annotations = Annotations() )
+	{
+		this->alias<C>( alias );
+		return declare<C>( annotations );
+	}
+
+
+	template <typename C>
 	CustomMetaclass<C, boost::true_type>&
 	declareAbstract( const Annotations& annotations = Annotations() )
 	{
@@ -80,6 +89,15 @@ public:
 		internal_declare(name, mc);
 
 		return * mc;
+	}
+
+
+	template <typename C>
+	CustomMetaclass<C, boost::true_type>&
+	declareAbstract( std::string alias, const Annotations& annotations = Annotations() )
+	{
+		this->alias<C>( alias );
+		return declareAbstract<C>( annotations );
 	}
 
 	template <typename C>
@@ -100,10 +118,19 @@ public:
 	}
 
 	template <typename C>
+	Metacollection<C>&
+	declareCollection( std::string alias, const Annotations& annotations = Annotations() )
+	{
+		this->alias<C>( alias );
+		return declareCollection<C>( annotations );
+	}
+
+	template <typename C>
 	void
 	alias( const std::string& new_name)
 	{
 		_alias[typeid(C).name()] = new_name;
+		_alias[typeid(C*).name()] = new_name + " *";
 	}
 
 	/**

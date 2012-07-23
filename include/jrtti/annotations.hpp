@@ -6,6 +6,7 @@ namespace jrtti {
 
 /**
  * \brief Base class for annotations
+ * \sa Annotations
  */
 class Annotation {
 public:
@@ -43,7 +44,7 @@ public:
 	/**
 	 * \brief Get the first occurrence of annotation of type T
 	 *
-	 * Template parameter T indicates the type of annotation to retrieve
+	 * \tparam T indicates the type of annotation to retrieve
 	 * \return the first occurrence of annotation of type T
 	 */
 	template< typename T >
@@ -60,7 +61,7 @@ public:
 	/**
 	 * \brief Get all instances of Annotations of type T
 	 *
-	 * Template parameter T indicates the type of annotations to retrieve
+	 * \tparam T indicates the type of annotations to retrieve
 	 * \return a vector with the instances of annotations of type T
 	 */
 	template< typename T >
@@ -78,7 +79,7 @@ public:
 	/**
 	 * \brief Check for the existence of annotations of type T
 	 *
-	 * Template parameter T indicates the type of annotations to check for
+	 * \tparam T indicates the type of annotations to check for
 	 * \return true if an annotation of type T exists
 	 */
 	template< typename T >

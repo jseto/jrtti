@@ -43,9 +43,11 @@ class MetaTypeTest : public testing::Test {
 };
 
 TEST_F(MetaTypeTest, DoubleType) {
-
 	EXPECT_EQ("double", mClass()["testDouble"].typeName());
+}
 
+TEST_F(MetaTypeTest, AliasType) {
+	EXPECT_EQ( "aliasPoint", jrtti::nameOf<Point>() );
 }
 
 TEST_F(MetaTypeTest, DoubleAccessor) {

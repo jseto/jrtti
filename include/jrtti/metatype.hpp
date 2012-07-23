@@ -149,12 +149,12 @@ public:
 	 * \brief Invoke a method without parameters
 	 *
 	 * Invokes a method without parameters from class ClassT by name.
-	 * ClassT template parameter is the class type of this Metatype.
-	 * ReturnT template parameter is the return type of the method.
-	 * Throws error if method not found
+	 * \tparam ClassT the class type of this Metatype.
+	 * \tparam ReturnT the return type of the method.
 	 * \param methodName the name of the method to invoke
 	 * \param instance the object instance where the method will be invoked
 	 * \return the call result
+	 * \throw Error if method not found
 	 */
 	template < class ReturnT, class ClassT >
 	ReturnT
@@ -172,14 +172,14 @@ public:
 	 * \brief Invoke a method with one parameter
 	 *
 	 * Invokes a method with one parameter from class ClassT by name.
-	 * ClassT template parameter is the class type of this Metatype.
-	 * ReturnT template parameter is the return type of the method.
-	 * Param1 template parameter is the parameter type of the method.
-	 * Throws error if method not found
+	 * \tparam ClassT the class type of this Metatype.
+	 * \tparam ReturnT the return type of the method.
+	 * \tparam Param1 the parameter type of the method.
 	 * \param methodName the name of the method to invoke
 	 * \param instance the object instance where the method will be invoked
 	 * \param p1 method parameter
 	 * \return the call result
+	 * \throw Error if method not found
 	 */
 	template <class ReturnT, class ClassT, class Param1>
 	ReturnT
@@ -197,16 +197,16 @@ public:
 	 * \brief Invoke a method without parameters
 	 *
 	 * Invokes a method without parameters from class ClassT by name.
-	 * ClassT template parameter is the class type of this Metatype.
-	 * ReturnT template parameter is the return type of the method.
-	 * Param1 template parameter is the first parameter type of the method.
-	 * Param2 template parameter is the second parameter type of the method.
-	 * Throws error if method not found
+	 * \tparam ClassT the class type of this Metatype.
+	 * \tparam ReturnT the return type of the method.
+	 * \tparam Param1 the first parameter type of the method.
+	 * \tparam Param2 the second parameter type of the method.
 	 * \param methodName the name of the method to invoke
 	 * \param instance the object instance where the method will be invoked
 	 * \param p1 first method parameter
 	 * \param p2 second method parameter
 	 * \return the call result
+	 * \throw Error if method not found
 	 */
 	template <class ReturnT, class ClassT, class Param1, class Param2>
 	ReturnT
@@ -247,7 +247,7 @@ public:
 	 * \brief Evaluates a full categorized property
 	 *
 	 * Returns the value of a full categorized property as type PropT.
-	 * Template parameter PropT is the expected type of the property
+	 * \tparam the expected type of the property
 	 * \param instance the object instance from where to retrieve the property value
 	 * \param path full categorized property name dotted separated. ex: "pont.x"
 	 * \return the property value

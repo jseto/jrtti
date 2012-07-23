@@ -35,14 +35,10 @@ public:
 	{}
 
 	bool
-	isPointer() { return true;}
-/*
-	virtual
-	boost::any
-	copyFromInstance( void * inst ) {
-		return boost::any( inst );
+	isPointer() { 
+		return true;
 	}
-  */
+
 protected:
 	virtual
 	std::string

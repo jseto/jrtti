@@ -96,7 +96,7 @@ protected:
  * deference, prefix increment and inequality operators. In other words, your iterator
  * should implement an speciallization of this template for your collection elements
  * type.
- * \example see test_jrtti.h for a use case.
+ * \example test_jrtti.h for a use case.
  */
 template< typename T >
 struct iterator {

@@ -142,7 +142,7 @@ public:
 	/**
 	 * \brief Get the property value
 	 *
-	 * Template parameter PropT is the type of the property value
+	 * \tparam PropT the type of the property value
 	 * \param instance the object address from where to retrieve the property value
 	 * \return the property value as PropT
 	 */

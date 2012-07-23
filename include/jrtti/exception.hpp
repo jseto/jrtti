@@ -5,7 +5,9 @@
 
 namespace jrtti
 {
-
+	/**
+	 * \brief Exeception class
+	 */
 	class Error : public std::logic_error
 	{
 	public:
