@@ -5,7 +5,9 @@
 #ifdef __GNUG__
 	#include <cxxabi.h>
 #endif
+
 #include "basetypes.hpp"
+#include "collection.hpp"
 
 namespace jrtti {
 

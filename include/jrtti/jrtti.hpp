@@ -104,60 +104,6 @@ namespace jrtti {
 	}
 
 	/**
-	* \brief Iterator with deference, prefix increment and inequality operators
-	*/
-	template< typename T >
-	struct iterator {
-		virtual	T& operator * () = 0;
-		virtual iterator& operator ++ () = 0;
-		virtual bool operator != ( const iterator& it ) = 0;
-	};
-
-	/**
-	 * \brief Interface template for native Collection types
-	 */
-	template < typename T >
-	class CollectionInterface {
-	public:
-		typedef iterator< T > iterator;
-		/**
-		 * \brief Type of the elements in the container
-		 */
-		typedef T value_type;
-
-		/**
-		 * \brief Return iterator to beginning
-		 *
-		 * Returns an iterator referring to the first element of the collection
-		 * \return iterator to the beginning of the sequence
-		 */
-		virtual iterator begin()=0;
-
-		/**
-		 * \brief Return iterator to the end
-		 *
-		 * Returns an iterator referring to the past-the-end element of the collection
-		 * \return iterator at the end of the collection
-		 */
-		virtual iterator end() = 0;
-
-		/**
-		 * \brief Insert an element
-		 *
-		 * Insert a new element to the collection
-		 * \param position position in the collection where the new element is inserted
-		 * \param x value to be used to initialize the inserted element
-		 * \return an iterator that points to the newly inserted element
-		 */
-		virtual iterator insert( iterator position, const T& x ) = 0;
-
-		/**
-		* \brief Discards all elements of the collection.
-		*/
-		virtual void clear() = 0;
-	 };
-
-	/**
 	 * \brief Declare a collection
 	 *
 	 * Declares a new Metacollection based on collection C.
