@@ -90,6 +90,10 @@
       <DependentOn>test_jrtti.h</DependentOn>
       <BuildOrder>0</BuildOrder>
     </CppCompile>
+    <None Include="..\include\jrtti\annotations.hpp">
+      <ModuleName>File1</ModuleName>
+      <BuildOrder>14</BuildOrder>
+    </None>
     <None Include="..\include\jrtti\base64.hpp">
       <BuildOrder>2</BuildOrder>
     </None>

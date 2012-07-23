@@ -94,6 +94,7 @@
     <ClCompile Include="test_jrtti.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\include\jrtti\annotations.hpp" />
     <ClInclude Include="..\include\jrtti\base64.hpp" />
     <ClInclude Include="..\include\jrtti\basetypes.hpp" />
     <ClInclude Include="..\include\jrtti\exception.hpp" />
