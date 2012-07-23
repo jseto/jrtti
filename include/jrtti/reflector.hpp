@@ -47,11 +47,6 @@ public:
 		return inst;
 	}
 
-	Reflector&
-	operator() () {
-		return instance();
-	}
-
 	template <typename C>
 	CustomMetaclass<C>&
 	declare( const Annotations& annotations = Annotations() )
