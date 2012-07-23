@@ -7,6 +7,7 @@
 #endif
 
 #include "basetypes.hpp"
+#include "custommetaclass.hpp"
 #include "collection.hpp"
 
 namespace jrtti {

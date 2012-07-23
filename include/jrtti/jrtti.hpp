@@ -24,6 +24,7 @@ namespace jrtti {
  * \brief jrtti top level functions
  */
 namespace jrtti {
+
 	inline Error
 	error(std::string message)	{
 		return Error(message);
