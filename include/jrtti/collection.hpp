@@ -1,7 +1,7 @@
 #ifndef jrtticollectionH
 #define jrtticollectionH
 
-#include "metaclass.hpp"
+#include "metatype.hpp"
 
 namespace jrtti {
 

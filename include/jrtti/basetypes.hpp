@@ -3,7 +3,7 @@
 
 #include <sstream>
 #include <iomanip>
-#include "metaclass.hpp"
+#include "metatype.hpp"
 
 namespace jrtti {
 

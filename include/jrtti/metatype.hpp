@@ -1,5 +1,5 @@
-#ifndef jrttimetaclassH
-#define jrttimetaclassH
+#ifndef jrttimetatypeH
+#define jrttimetatypeH
 
 #include <map>
 #include <boost/function.hpp>
@@ -388,8 +388,6 @@ namespace jrtti {
 			JSONParser parser( str );
 
 			for( JSONParser::iterator it = parser.begin(); it != parser.end(); ++it) {
-//				std::string key = it->first;
-//				std::string value = it->second;
 				if ( it->first == "$ref" ) {
 					return copyFromInstance( _nameRefMap()[ it->second ] );
 				}
@@ -790,5 +788,5 @@ namespace jrtti {
 
 //------------------------------------------------------------------------------
 }; //namespace jrtti
-#endif  //jrttimetaclassH
+#endif  //jrttimetatypeH
 

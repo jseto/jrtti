@@ -100,7 +100,7 @@
     <ClInclude Include="..\include\jrtti\helpers.hpp" />
     <ClInclude Include="..\include\jrtti\jrtti.hpp" />
     <ClInclude Include="..\include\jrtti\jsonparser.hpp" />
-    <ClInclude Include="..\include\jrtti\metaclass.hpp" />
+    <ClInclude Include="..\include\jrtti\metatype.hpp" />
     <ClInclude Include="..\include\jrtti\method.hpp" />
     <ClInclude Include="..\include\jrtti\property.hpp" />
     <ClInclude Include="..\include\jrtti\reflector.hpp" />

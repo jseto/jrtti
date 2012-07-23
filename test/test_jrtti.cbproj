@@ -111,7 +111,8 @@
     <None Include="..\include\jrtti\jsonparser.hpp">
       <BuildOrder>7</BuildOrder>
     </None>
-    <None Include="..\include\jrtti\metaclass.hpp">
+    <None Include="..\include\jrtti\metatype.hpp">
+      <ModuleName>metaclass</ModuleName>
       <BuildOrder>8</BuildOrder>
     </None>
     <None Include="..\include\jrtti\method.hpp">
