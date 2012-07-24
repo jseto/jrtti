@@ -1,7 +1,6 @@
 //---------------------------------------------------------------------------
-
+#include <jrtti/base64.hpp>
 #include "sample.h"
-
 
 void declare()
 {
@@ -51,6 +50,8 @@ void declare()
 				.inheritsFrom<Sample>();
 
 	jrtti::declareCollection< Sample::Collection >();
+
+	jrtti::declare< StringifierTester >( jrtti::Annotations() << new jrtti::StringifySpecialization<StringifierTester>( &StringifierTester::stringifier, &StringifierTester::deStringifier ) );
 }
 
 void useCase() {
@@ -108,3 +109,21 @@ void useCase() {
 
 	std::cin.ignore(1);
 }
+
+StringifierTester::StringifierTester( uint8_t * array, size_t size ) {
+	std::memcpy( m_sampleArray, array, size );
+	m_arraySize = size;
+}
+
+std::string StringifierTester::stringifier() {
+	return jrtti::base64Encode( m_sampleArray, m_arraySize );
+}
+
+void StringifierTester::deStringifier( std::string str ) {
+	jrtti::base64Decode( str, m_sampleArray );
+}
+
+uint8_t * StringifierTester::getArray() {
+	return m_sampleArray;
+}
+

@@ -101,5 +101,29 @@ private:
 class NoStreamable : public Annotation {
 };
 
+template< typename T >
+class StringifySpecialization : public Annotation {
+	typedef boost::function< void ( T*, std::string ) > DeStringifier;
+	typedef boost::function< std::string ( T* ) > Stringifier;
+
+public:
+	StringifySpecialization( Stringifier stringifier, DeStringifier deStringifier ) {
+		m_deStringifier = deStringifier;
+		m_stringifier = stringifier;
+	}
+
+	std::string toStr( T * instance ) {
+		return m_stringifier( instance );
+	}
+
+	void fromStr( T * instance, std::string str ) {
+		m_deStringifier( instance, str );
+	}
+
+private:
+	DeStringifier m_deStringifier;
+	Stringifier m_stringifier;
+};
+
 }; //namespace jrtti
 #endif // jrttiannotationsH

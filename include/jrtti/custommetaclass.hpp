@@ -221,6 +221,32 @@ public:
 	}
 
 protected:
+	virtual
+	std::string
+	_toStr( const boost::any & instance, bool formatForStreaming ) {
+		StringifySpecialization< ClassT > * ss = annotations().getFirst< StringifySpecialization< ClassT > >();
+		if ( ss && !( formatForStreaming && annotations().has< NoStreamable >() ) ) {
+			return ss->toStr( (ClassT *)get_instance_ptr( instance ) );
+		}
+		else {
+			return Metatype::_toStr( instance, formatForStreaming );
+		}
+	}
+
+	virtual
+	boost::any
+	_fromStr( const boost::any & instance, const std::string& str ) {
+		StringifySpecialization< ClassT > * ss = annotations().getFirst< StringifySpecialization< ClassT > >();
+		if ( ss ) {
+			ss->fromStr( (ClassT *)get_instance_ptr( instance ), str );
+			return boost::any();
+		}
+		else {
+			return Metatype::_fromStr( instance, str );
+		}
+	}
+
+
 	void *
 	get_instance_ptr(const boost::any& content){
 #ifdef BOOST_NO_IS_ABSTRACT

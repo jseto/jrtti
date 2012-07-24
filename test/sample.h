@@ -144,6 +144,19 @@ private:
 	bool		_showInToolbar;
 };
 
+class StringifierTester {
+public:
+	StringifierTester(){}
+	StringifierTester( uint8_t * array, size_t size );
+	std::string stringifier();
+	void deStringifier( std::string str );
+	uint8_t * getArray();
+
+private:
+	uint8_t m_sampleArray[0xffff];
+	size_t m_arraySize;
+};
+
 // see test_jrtti.h for a declaration sample of custom collection. This does not need to be used if your collection derives from STL containers
 
 void declare();

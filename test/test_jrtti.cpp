@@ -2,7 +2,7 @@
 #include <algorithm>
 #include <fstream>
 #include <gtest/gtest.h>
-#include <jrtti/base64.hpp>
+//#include <jrtti/base64.hpp>
 #include "test_jrtti.h"
 #include "sample.h"
 
@@ -384,7 +384,7 @@ TEST_F(MetaTypeTest, testSumMethodCall) {
 	EXPECT_EQ(15.0, result);
 }
 
-TEST_F(MetaTypeTest, base64) {
+TEST_F(MetaTypeTest, base64StringifierTester) {
 	const int length = 0xffff;
 	uint8_t * p = new uint8_t[length];
 
@@ -393,14 +393,22 @@ TEST_F(MetaTypeTest, base64) {
 		p[ i ] = rand() % 0xff;
 	}
 
-	std::string encoded = jrtti::base64Encode( (uint8_t*)p, length );
-	uint8_t * decoded = jrtti::base64Decode( encoded );
+	StringifierTester cTest( p, length );
 
-	int i = memcmp( p, decoded, length );
+	Metatype& mt = jrtti::getType<StringifierTester>();
+
+	std::string encoded = mt.toStr( &cTest );
+	memset( cTest.getArray(), (uint8_t)0, length ); 
+	mt.fromStr( &cTest, encoded );
+
+//	std::string encoded = jrtti::base64Encode( (uint8_t*)p, length );
+//	uint8_t * decoded = jrtti::base64Decode( encoded );
+
+	int i = memcmp( p, cTest.getArray(), length );
 
 	EXPECT_FALSE(i);
 	delete p;
-	delete decoded;
+//	delete decoded;
 }
 
 TEST_F(MetaTypeTest, testCollectionInterface) {
