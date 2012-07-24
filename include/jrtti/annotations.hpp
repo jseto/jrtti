@@ -101,12 +101,27 @@ private:
 class NoStreamable : public Annotation {
 };
 
+/**
+ * \brief Delegates for toStr and fromStr
+ *
+ * Metatypes annotated with StrigifySpecialization delegate methods toStr and
+ * fromStr to stringifier and deStringifier methods.
+ * Write in the native class, methods to manage the way the class should be
+ * represented as a string. This is useful when the class has members that not
+ * fit with the standard JSON representation as, for example, memory dump.
+ * \tparam the class having to specialize some menbers
+ */
 template< typename T >
 class StringifySpecialization : public Annotation {
 	typedef boost::function< void ( T*, std::string ) > DeStringifier;
 	typedef boost::function< std::string ( T* ) > Stringifier;
 
 public:
+	/**
+	 * \brief Constructor to pass the function members to carry the specializtion task
+	 * \param stringifier the address of function member of T to produce a string representation with std::string f() signature
+	 * \param deStringifier the address of function member of T to reconstruct the class member from a string representation with void f( sdt::string ) signature
+	 */
 	StringifySpecialization( Stringifier stringifier, DeStringifier deStringifier ) {
 		m_deStringifier = deStringifier;
 		m_stringifier = stringifier;
