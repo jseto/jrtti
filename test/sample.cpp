@@ -28,7 +28,7 @@ void declare()
 	jrtti::declare<Sample>( jrtti::Annotations() << new GUIAnnotation( "sample.ico" ) )
 				.inheritsFrom<SampleBase>()
 						.property("intMember", &Sample::intMember,
-									jrtti::Annotations() << new jrtti::NonStreamable())
+									jrtti::Annotations() << new jrtti::NoStreamable())
 						.property("testDouble", &Sample::setDoubleProp, &Sample::getDoubleProp,
 									jrtti::Annotations() << new GUIAnnotation( "test.ico", false, true ) )
 						.property("point", &Sample::setByPtrProp, &Sample::getByPtrProp,

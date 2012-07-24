@@ -95,10 +95,10 @@ private:
 /**
  * \brief Annotation for non streamable properties
  *
- * A property with annotation NonStreamable will not be streamed or returned by
+ * A property with annotation NoStreamable will not be streamed or returned by
  * method Metatype::toStr with parameter formatForStreaming set to true
  */
-class NonStreamable : public Annotation {
+class NoStreamable : public Annotation {
 };
 
 }; //namespace jrtti

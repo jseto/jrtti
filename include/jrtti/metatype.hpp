@@ -371,7 +371,7 @@ protected:
 		for( PropertyMap::iterator it = properties().begin(); it != properties().end(); ++it) {
 			Property * prop = it->second;
 			if ( prop ) {
-				if ( !( formatForStreaming && prop->annotations().has< NonStreamable >() ) ) {
+				if ( !( formatForStreaming && prop->annotations().has< NoStreamable >() ) ) {
 					if (need_nl) result += ",\n";
 					need_nl = true;
 					result += ident( "\"" + prop->name() + "\"" + ": " + prop->type()._toStr( prop->get(inst), formatForStreaming ) );
