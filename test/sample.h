@@ -96,11 +96,11 @@ public:
 	}
 
 	std::string stringifier() {
-		return "\"" + jrtti::base64Encode( m_sampleArray, m_arraySize ) + "\"";
+		return "\"" + jrtti::Base64::encode( (uint8_t *) m_sampleArray, m_arraySize ) + "\"";
 	}
 
 	void deStringifier( std::string str ) {
-		jrtti::base64Decode( str, m_sampleArray );
+		jrtti::Base64::decode( str, (uint8_t *)m_sampleArray );
 	}
 
 private:	// User declarations
@@ -110,7 +110,7 @@ private:	// User declarations
 	std::string	_s;
 	bool boolVal;
 	Collection _collection;
-	uint8_t m_sampleArray[0xffff];
+	char m_sampleArray[0xffff];
 	size_t m_arraySize;
 };
 
@@ -161,20 +161,7 @@ private:
 	bool		_showInMenu;
 	bool		_showInToolbar;
 };
-/*
-class StringifierTester {
-public:
-	StringifierTester(){}
-	StringifierTester( uint8_t * array, size_t size );
-	std::string stringifier();
-	void deStringifier( std::string str );
-	uint8_t * getArray();
 
-private:
-	uint8_t m_sampleArray[0xffff];
-	size_t m_arraySize;
-};
-  */
 // see test_jrtti.h for a declaration sample of custom collection. This does not need to be used if your collection derives from STL containers
 
 void declare();

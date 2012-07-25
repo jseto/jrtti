@@ -393,23 +393,14 @@ TEST_F(MetaTypeTest, base64) {
 	for (int i = 0; i < length; ++i) {
 		p[ i ] = rand() % 0xff;
 	}
-/*
-	StringifierTester cTest( p, length );
 
-	Metatype& mt = jrtti::getType<StringifierTester>();
-
-	std::string encoded = mt.toStr( &cTest );
-	memset( cTest.getArray(), (uint8_t)0, length );
-	mt.fromStr( &cTest, encoded );
-	int i = memcmp( p, cTest.getArray(), length );
-*/
-	std::string encoded = jrtti::base64Encode( (uint8_t*)p, length );
-	uint8_t * decoded = jrtti::base64Decode( encoded );
+	std::string encoded = jrtti::Base64::encode( p, length );
+	uint8_t * decoded = jrtti::Base64::decode( encoded );
 	int i = memcmp( p, decoded, length );
 
 	EXPECT_FALSE(i);
 	delete p;
-//	delete decoded;
+	delete decoded;
 }
 
 TEST_F(MetaTypeTest, testCollectionInterface) {
