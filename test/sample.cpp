@@ -1,5 +1,4 @@
 //---------------------------------------------------------------------------
-#include <jrtti/base64.hpp>
 #include "sample.h"
 
 void declare()
@@ -27,7 +26,7 @@ void declare()
 	jrtti::declare<Sample>( jrtti::Annotations() << new GUIAnnotation( "sample.ico" ) )
 				.inheritsFrom<SampleBase>()
 						.property("intMember", &Sample::intMember,
-									jrtti::Annotations() << new jrtti::NoStreamable())
+									jrtti::Annotations() << new jrtti::NoStreamable() )
 						.property("testDouble", &Sample::setDoubleProp, &Sample::getDoubleProp,
 									jrtti::Annotations() << new GUIAnnotation( "test.ico", false, true ) )
 						.property("point", &Sample::setByPtrProp, &Sample::getByPtrProp,
@@ -39,6 +38,7 @@ void declare()
 						.property("testBool", &Sample::setBool, &Sample::getBool)
 						.property("collection", &Sample::setCollection, &Sample::getCollection )
 						.property("circularRef", &Sample::circularRef )
+						.property("memoryDump", &Sample::getArray, jrtti::Annotations() << new jrtti::StringifyDelegate<Sample>( &Sample::stringifier, &Sample::deStringifier) )
 
 						.method<void>("testMethod", &Sample::testFunc,
 									jrtti::Annotations() << new GUIAnnotation( "method.ico", false, false ) )
@@ -51,7 +51,7 @@ void declare()
 
 	jrtti::declareCollection< Sample::Collection >();
 
-	jrtti::declare< StringifierTester >( jrtti::Annotations() << new jrtti::StringifySpecialization<StringifierTester>( &StringifierTester::stringifier, &StringifierTester::deStringifier ) );
+//	jrtti::declare< StringifierTester >( jrtti::Annotations() << new jrtti::StringifySpecialization<StringifierTester>( &StringifierTester::stringifier, &StringifierTester::deStringifier ) );
 }
 
 void useCase() {
@@ -109,7 +109,7 @@ void useCase() {
 
 	std::cin.ignore(1);
 }
-
+/*
 StringifierTester::StringifierTester( uint8_t * array, size_t size ) {
 	std::memcpy( m_sampleArray, array, size );
 	m_arraySize = size;
@@ -126,4 +126,4 @@ void StringifierTester::deStringifier( std::string str ) {
 uint8_t * StringifierTester::getArray() {
 	return m_sampleArray;
 }
-
+ */

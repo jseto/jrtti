@@ -220,6 +220,7 @@ private:
 	register_defaults(){
 		alias<std::string>("std::string");
 		internal_declare("int", new MetaInt());
+		internal_declare("char", new MetaChar());
 		internal_declare("bool", new MetaBool());
 		internal_declare("double", new MetaDouble());
 		internal_declare("std::string", new MetaString());

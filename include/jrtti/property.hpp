@@ -200,6 +200,9 @@ public:
 	getter( boost::function< PropT (ClassT*) > functor )	{
 		if ( !functor.empty() ) {
 			setMode( Readable );
+			if ( boost::is_pointer< PropT >::value ) {
+                setMode( Writable );
+			}
 		}
 		m_getter = functor;
 		return *this;

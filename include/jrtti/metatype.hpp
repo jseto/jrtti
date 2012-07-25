@@ -367,14 +367,22 @@ protected:
 			need_nl = false;
 		}
 
-
 		for( PropertyMap::iterator it = properties().begin(); it != properties().end(); ++it) {
 			Property * prop = it->second;
 			if ( prop ) {
 				if ( !( formatForStreaming && prop->annotations().has< NoStreamable >() ) ) {
 					if (need_nl) result += ",\n";
 					need_nl = true;
-					result += ident( "\"" + prop->name() + "\"" + ": " + prop->type()._toStr( prop->get(inst), formatForStreaming ) );
+
+					std::string addToResult;
+					StringifyDelegateBase * stringifyDelegate = prop->annotations().getFirst< StringifyDelegateBase >();
+					if ( stringifyDelegate ) {
+						addToResult = stringifyDelegate->toStr( inst );
+					}
+					else {
+						addToResult = prop->type()._toStr( prop->get(inst), formatForStreaming );
+					}
+					result += ident( "\"" + prop->name() + "\"" + ": " + addToResult );
 				}
 			}
 		}
@@ -399,9 +407,15 @@ protected:
 				Property * prop = properties()[ it->first ];
 				if ( prop ) {
 					if ( prop->isWritable() ) {
-						const boost::any &mod = prop->type()._fromStr( prop->get( inst ), it->second );
-						if ( !mod.empty() ) {
-							prop->set( inst, mod );
+						StringifyDelegateBase * stringifyDelegate = prop->annotations().getFirst< StringifyDelegateBase >();
+						if ( stringifyDelegate ) {
+                        	stringifyDelegate->fromStr( inst, it->second );
+						}
+						else {
+							const boost::any &mod = prop->type()._fromStr( prop->get( inst ), it->second );
+							if ( !mod.empty() ) {
+								prop->set( inst, mod );
+							}
 						}
 					}
 				}

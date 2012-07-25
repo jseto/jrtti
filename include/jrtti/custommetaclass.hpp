@@ -221,7 +221,7 @@ public:
 	}
 
 protected:
-	virtual
+/*	virtual
 	std::string
 	_toStr( const boost::any & instance, bool formatForStreaming ) {
 		StringifySpecialization< ClassT > * ss = annotations().getFirst< StringifySpecialization< ClassT > >();
@@ -245,7 +245,7 @@ protected:
 			return Metatype::_fromStr( instance, str );
 		}
 	}
-
+*/
 
 	void *
 	get_instance_ptr(const boost::any& content){

@@ -5,6 +5,7 @@
 //---------------------------------------------------------------------------
 
 #include <jrtti/jrtti.hpp>
+#include <jrtti/base64.hpp>
 #include <iostream>
 #include <vector>
 #include <string.h>
@@ -49,7 +50,10 @@ public:
 class Sample : public SampleBase
 {
 public:
-	Sample(){ circularRef = this; }
+	Sample(){
+		circularRef = this;
+		m_arraySize = 5;
+	}
 
 	int intMember;
 	Sample * circularRef;
@@ -87,6 +91,18 @@ public:
 	Collection& getCollection(){ return _collection; }
 	void setCollection( Collection& col ){ _collection = col; }
 
+	char * getArray() {
+		return m_sampleArray;
+	}
+
+	std::string stringifier() {
+		return "\"" + jrtti::base64Encode( m_sampleArray, m_arraySize ) + "\"";
+	}
+
+	void deStringifier( std::string str ) {
+		jrtti::base64Decode( str, m_sampleArray );
+	}
+
 private:	// User declarations
 	double test;
 	Point * _point;
@@ -94,6 +110,8 @@ private:	// User declarations
 	std::string	_s;
 	bool boolVal;
 	Collection _collection;
+	uint8_t m_sampleArray[0xffff];
+	size_t m_arraySize;
 };
 
 class SampleDerived : public Sample
@@ -143,7 +161,7 @@ private:
 	bool		_showInMenu;
 	bool		_showInToolbar;
 };
-
+/*
 class StringifierTester {
 public:
 	StringifierTester(){}
@@ -156,7 +174,7 @@ private:
 	uint8_t m_sampleArray[0xffff];
 	size_t m_arraySize;
 };
-
+  */
 // see test_jrtti.h for a declaration sample of custom collection. This does not need to be used if your collection derives from STL containers
 
 void declare();

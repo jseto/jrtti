@@ -129,8 +129,30 @@ public:
 	}
 };
 
+class MetaChar: public Metatype {
+public:
+	MetaChar(): Metatype("char") {}
 
-class MetaBool: public Metatype {
+	virtual
+	std::string
+	_toStr( const boost::any & value, bool formatForStreaming ){
+		return numToStr(boost::any_cast<char>(value));
+	}
+
+	boost::any
+	_fromStr( const boost::any& instance, const std::string& str ) {
+		return strToNum<char>( str );
+	}
+
+	virtual
+	boost::any
+	create()
+	{
+		return new char;
+	}
+};
+
+class MetaBool: public Metatype {
 public:
 	MetaBool(): Metatype("bool") {}
 

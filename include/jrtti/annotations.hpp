@@ -1,6 +1,7 @@
 #ifndef jrttiannotationsH
 #define jrttiannotationsH
 
+#include <boost/pointer_cast.hpp>
 
 namespace jrtti {
 
@@ -51,7 +52,7 @@ public:
 	T *
 	getFirst() {
 		for ( Container::iterator it = m_annotations.begin(); it != m_annotations.end(); ++it ) {
-			T * p = dynamic_cast< T* >( it->get() );
+			T * p = boost::dynamic_pointer_cast< T >( *it ).get();
 			if ( p )
 				return p;
 		}
@@ -69,7 +70,7 @@ public:
 	getAll() {
 		std::vector< T * > v;
 		for ( Container::iterator it = m_annotations.begin(); it != m_annotations.end(); ++it ) {
-			T * p = dynamic_cast< T* >( it->get() );
+			T * p = boost::dynamic_pointer_cast< T >( it->get() );
 			if ( p )
 				v.push_back( p );
 		}
@@ -101,10 +102,16 @@ private:
 class NoStreamable : public Annotation {
 };
 
+class StringifyDelegateBase : public Annotation {
+public:
+	virtual std::string toStr( void * instance )=0;
+	virtual void fromStr( void * instance, std::string str )=0;
+};
+
 /**
  * \brief Delegates for toStr and fromStr
  *
- * Metatypes annotated with StrigifySpecialization delegate methods toStr and
+ * Metatypes annotated with StrigifyDelegate delegate methods toStr and
  * fromStr to stringifier and deStringifier methods.
  * Write in the native class, methods to manage the way the class should be
  * represented as a string. This is useful when the class has members that not
@@ -112,27 +119,31 @@ class NoStreamable : public Annotation {
  * \tparam the class having to specialize some menbers
  */
 template< typename T >
-class StringifySpecialization : public Annotation {
+class StringifyDelegate : public StringifyDelegateBase {
 	typedef boost::function< void ( T*, std::string ) > DeStringifier;
 	typedef boost::function< std::string ( T* ) > Stringifier;
 
 public:
 	/**
-	 * \brief Constructor to pass the function members to carry the specializtion task
+	 * \brief Constructor to pass the delegated function members
 	 * \param stringifier the address of function member of T to produce a string representation with std::string f() signature
 	 * \param deStringifier the address of function member of T to reconstruct the class member from a string representation with void f( sdt::string ) signature
 	 */
-	StringifySpecialization( Stringifier stringifier, DeStringifier deStringifier ) {
+	StringifyDelegate( Stringifier stringifier, DeStringifier deStringifier ) {
 		m_deStringifier = deStringifier;
 		m_stringifier = stringifier;
 	}
 
-	std::string toStr( T * instance ) {
-		return m_stringifier( instance );
+	virtual
+	std::string
+	toStr( void * instance ) {
+		return m_stringifier( (T*)instance );
 	}
 
-	void fromStr( T * instance, std::string str ) {
-		m_deStringifier( instance, str );
+	virtual
+	void
+	fromStr( void * instance, std::string str ) {
+		m_deStringifier( (T*)instance, str );
 	}
 
 private:
