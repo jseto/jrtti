@@ -11,6 +11,8 @@ namespace jrtti
 	const char base64chars[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 	const char base64pad = '=';
 
+// based on Kapo coding http://kapo-cpp.blogspot.com/. Thanks!
+
 class Base64 {
 public:
 	/**

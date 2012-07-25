@@ -258,9 +258,6 @@ TEST_F(MetaTypeTest, testPropsRO) {
 
 	int result = (mClass()["testRO"].get<int>(&sample));
 	EXPECT_EQ(23, result);
-
-	//assert(mc.getGenericProperty("intMember")->isWriteOnly() == false);
-	//assert(mc.getGenericProperty("testRO")->isReadWrite() == false);
 }
 
 TEST_F(MetaTypeTest, Serialize) {
@@ -315,7 +312,6 @@ TEST_F(MetaTypeTest, Deserialize) {
 	std::string ss = mClass().toStr(&sample);
 	std::ofstream fout("test1");
 	fout << ss;
-//	ss.erase( std::remove_if( ss.begin(), ss.end(), ::isspace ), ss.end() );
 
 	EXPECT_EQ(serialized, ss);
 	EXPECT_TRUE( &sample == sample.circularRef );

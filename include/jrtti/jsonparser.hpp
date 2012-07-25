@@ -113,7 +113,6 @@ private:
 			}
 		}
 		int count = 0;
-//		++pos;
 		while ( ( pos < m_jsonStr.length() ) && ( ( m_jsonStr[ pos ] != closeSymbol ) || ( count != 0) ) ) {
 			if ( m_jsonStr[ pos + 1 ] == openSymbol ) {
 				++count;
