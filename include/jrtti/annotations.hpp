@@ -116,6 +116,12 @@ public:
  * Write in the native class, methods to manage the way the class should be
  * represented as a string. This is useful when the class has members that not
  * fit with the standard JSON representation as, for example, memory dump.
+ * It is responsability of the programer that the stringifier function returns
+ * something compatible with JSON values, that means that the string returned
+ * has to be a JSON number, a JSON string surronded with quotes, a JSON object
+ * surround with braces ( {...} ) or a JSON collection surrounded by brakets ( [...] ).
+ * The contens of the produced JSON value is irrelevant to jrtti and jrtti will only return to
+ * the destrigifier the inner content of the JSON value.
  * \tparam the class having to specialize some menbers
  */
 template< typename T >

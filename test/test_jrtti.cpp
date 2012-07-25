@@ -2,7 +2,6 @@
 #include <algorithm>
 #include <fstream>
 #include <gtest/gtest.h>
-//#include <jrtti/base64.hpp>
 #include "test_jrtti.h"
 #include "sample.h"
 

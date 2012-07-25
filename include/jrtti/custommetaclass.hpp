@@ -126,6 +126,32 @@ public:
 	}
 
 	/**
+	 * \brief Declares a property without accessors
+	 *
+	 * Declares a property without accessor, usualy used with StringifyDelegate
+	 * as most times this kind of properties use a set of non-standard native accessors.
+	 * Property is declared as read-write
+	 * A property is an abstraction of class members.
+	 * \param name property name
+	 * \param categories a container with property categories
+	 * \return this for chain calls
+	 */
+	CustomMetaclass&
+	property(std::string name, const Annotations& annotations = Annotations() )
+	{
+		if (  properties().find( name ) == properties().end() )
+		{
+			TypedProperty< ClassT, int > * p = new TypedProperty< ClassT, int >;
+			p->name(name);
+			p->setMode( Property::Writable );
+			p->setMode( Property::Readable );
+			p->annotations( annotations );
+			set_property(name, p);
+		}
+		return *this;
+	}
+
+	/**
 	 * \brief Declares a property from a class attribute
 	 *
 	 * Declares a property from a class attribute of type PropT. Accesing
