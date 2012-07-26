@@ -97,10 +97,22 @@ public:
 
 	std::string stringifier() {
 		return "\"" + jrtti::Base64::encode( (uint8_t *) m_sampleArray, m_arraySize ) + "\"";
+/*		std::string str = "[";
+		for (int i = 0; i < m_arraySize; ++i) {
+			str += jrtti::numToStr( (int)m_sampleArray[i] ) + ",";
+		}
+		str[str.length()-1]=']';
+		return str;
+*/
 	}
 
 	void deStringifier( std::string str ) {
 		jrtti::Base64::decode( str, (uint8_t *)m_sampleArray );
+/*		jrtti::JSONParser parser( str );
+		int i = 0;
+		for ( jrtti::JSONParser::iterator it = parser.begin(); it != parser.end(); ++it )
+			m_sampleArray[ i++ ] = jrtti::strToNum<int>( it->second );
+*/
 	}
 
 private:	// User declarations
