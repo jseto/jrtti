@@ -100,6 +100,17 @@ public:
 	}
 
 	/**
+	 * \brief Check if this Metatype is the abstraction of a fundamental type
+	 * Fundamental types are bool, char, int, float, double and wchar_t
+	 * \return true if fundamental
+	 */
+	virtual
+	bool
+	isFundamental() {
+		return false;
+    }
+
+	/**
 	 * \brief Returns a property abstraction
 	 *
 	 * Looks for a property of this class by name

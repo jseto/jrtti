@@ -111,6 +111,12 @@ public:
 	MetaInt(): Metatype("int") {}
 
 	virtual
+	bool
+	isFundamental() {
+		return true;
+	}
+
+	virtual
 	std::string
 	_toStr( const boost::any & value, bool formatForStreaming ){
 		return numToStr(boost::any_cast<int>(value));
@@ -132,6 +138,12 @@ public:
 class MetaChar: public Metatype {
 public:
 	MetaChar(): Metatype("char") {}
+
+	virtual
+	bool
+	isFundamental() {
+		return true;
+	}
 
 	virtual
 	std::string
@@ -157,6 +169,12 @@ public:
 	MetaBool(): Metatype("bool") {}
 
 	virtual
+	bool
+	isFundamental() {
+		return true;
+	}
+
+	virtual
 	std::string
 	_toStr( const boost::any & value, bool formatForStreaming ){
 		return boost::any_cast<bool>(value) ? "true" : "false";
@@ -177,6 +195,12 @@ public:
 class MetaDouble: public Metatype {
 public:
 	MetaDouble(): Metatype("double") {}
+
+	virtual
+	bool
+	isFundamental() {
+		return true;
+	}
 
 	virtual
 	std::string

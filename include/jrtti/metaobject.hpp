@@ -52,7 +52,16 @@ public:
 	std::string
 	toStr() {
 		return m_metatype->toStr( m_instance );
-    }
+	}
+
+	/**
+	 * \brief Returns the associated Metatype
+	 * \return the associated Metatype
+	 */
+	const Metatype&
+	type() {
+		return *m_metatype;
+	}
 
 private:
 	boost::any m_instance;
