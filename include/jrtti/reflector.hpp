@@ -9,6 +9,7 @@
 #include "basetypes.hpp"
 #include "custommetaclass.hpp"
 #include "collection.hpp"
+#include "metaobject.hpp"
 
 namespace jrtti {
 

@@ -416,6 +416,18 @@ TEST_F(MetaTypeTest, testCollectionInterface) {
 	EXPECT_EQ( res.length(), jrtti::getType< MyCollection >().toStr( &col ).length() );
 }
 
+TEST_F(MetaTypeTest, testMetaobject) {
+	Metaobject mo( &mClass(), &sample );
+
+	mo.set( "date.d", 34 );
+	EXPECT_EQ( 34, mo.get<int>( "date.d" ) );
+
+	mo.set( "testDouble", 34.8 );
+	EXPECT_EQ( 34.8, mo.get<double>( "testDouble" ) );
+
+//	std::cout << mo.toStr() << std::endl; 
+}
+
 GTEST_API_ int main(int argc, char **argv) {
 	std::cout << "Running tests\n";
 
