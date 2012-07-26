@@ -406,7 +406,7 @@ protected:
 			{
 				Property * prop = properties()[ it->first ];
 				if ( prop ) {
-					if ( prop->isWritable() ) {
+					if ( prop->isWritable() || prop->annotations().has< ForceStreamLoadable >() ) {
 						StringifyDelegateBase * stringifyDelegate = prop->annotations().getFirst< StringifyDelegateBase >();
 						if ( stringifyDelegate ) {
                         	stringifyDelegate->fromStr( inst, it->second );

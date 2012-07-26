@@ -109,6 +109,19 @@ public:
 };
 
 /**
+ * \brief Marks property for stream reading
+ * 
+ * Reference or pointer properties without setter are marked as ReadOnly. 
+ * Therefore, the fromStr method ignores such a property and it is not loaded.
+ * Non const references or pointers give access to it contens allowing to change 
+ * internal values. This often happens in streaming. This Annotation forces the 
+ * streaming mechanism to load data for such properties.
+ */
+class ForceStreamLoadable : public Annotation {
+	//TODO: consirering the constness of references and pointers, this may be unnecesary
+};
+
+/**
  * \brief Delegates for toStr and fromStr
  *
  * Metatypes annotated with StrigifyDelegate delegate methods toStr and

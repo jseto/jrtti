@@ -36,7 +36,7 @@ void declare()
 						.property("testStr", &Sample::setStdStringProp,&Sample::getStdStringProp)
 						.property("testRO", &Sample::testIntFunc)
 						.property("testBool", &Sample::setBool, &Sample::getBool)
-						.property("collection", &Sample::setCollection, &Sample::getCollection )
+						.property("collection", /*&Sample::setCollection, */&Sample::getCollection, jrtti::Annotations() << new jrtti::ForceStreamLoadable() )
 						.property("circularRef", &Sample::circularRef )
 						.property("memoryDump", jrtti::Annotations() << new jrtti::StringifyDelegate<Sample>( &Sample::stringifier, &Sample::deStringifier) )
 
