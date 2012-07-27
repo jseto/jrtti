@@ -10,6 +10,13 @@ namespace jrtti {
  */
 class Metaobject {
 public:
+	Metaobject(){}
+
+	Metaobject( const Metaobject& mo ) {
+		m_instance = mo.m_instance;
+		m_metatype = mo.m_metatype;
+	}
+
 	/**
 	 * \brief Constructor
 	 * \param metatype Metatype associated to this Metaobject
@@ -58,7 +65,7 @@ public:
 	 * \brief Returns the associated Metatype
 	 * \return the associated Metatype
 	 */
-	const Metatype&
+	Metatype&
 	type() {
 		return *m_metatype;
 	}

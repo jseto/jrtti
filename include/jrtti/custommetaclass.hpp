@@ -105,7 +105,7 @@ public:
 	}
 
 	/**
-	 * \brief Declares a property with only getter accessor method
+	 * \brief Declares a property with only a getter accessor method
 	 *
 	 * Declares a property with only a getter method.
 	 * A property is an abstraction of class members.
@@ -169,7 +169,33 @@ public:
 		typedef typename PropT ClassT::* 	MemberType;
 		return fillProperty< PropT, MemberType, MemberType >(name, member, member, annotations );
 	}
-		
+
+	/**
+	 * \brief Declares a property which is a collection
+	 *
+	 * Declares a property of a collection type and its getter method.
+	 * The collection type is automatically declared to jrtti and it
+	 * will be available as a Metacollection throught it.
+	 * A property is an abstraction of class members.
+	 * \param name property collection name
+	 * \param getter the address of the getter method. Should return a reference to the collection type to allow to be loaded from a stream
+	 * \param annotations a container with property annotations
+	 * \return this for chain calls
+	 * \sa Metacollection
+	 */
+	template <typename PropT>
+	CustomMetaclass&
+	collection( std::string name,  PropT (ClassT::*getter)(), const Annotations& annotations = Annotations() )
+	{
+		typedef typename boost::function< void (typename ClassT*, typename PropT ) >	BoostSetter;
+		typedef typename boost::function< typename PropT ( typename ClassT * ) >		BoostGetter;
+
+		jrtti::declareCollection< typename boost::remove_reference< PropT >::type >();
+
+		BoostSetter setter;       //setter empty is used by Property<>::isReadOnly()
+		return fillProperty< typename PropT, BoostSetter, BoostGetter >(name,  setter, getter, annotations );
+	}
+
 	/**
 	 * \brief Declares a method without parameters
 	 *
