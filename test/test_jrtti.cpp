@@ -42,7 +42,7 @@ class MetaTypeTest : public testing::Test {
 };
 
 TEST_F(MetaTypeTest, DoubleType) {
-	EXPECT_EQ("double", mClass()["testDouble"].typeName());
+	EXPECT_EQ("double", mClass()["testDouble"].type().name());
 }
 
 TEST_F(MetaTypeTest, DoubleAccessor) {
@@ -81,7 +81,7 @@ TEST_F(MetaTypeTest, DoubleMutator) {
 
 TEST_F(MetaTypeTest, IntMemberType) {
 
-	EXPECT_EQ("int", mClass()["intMember"].typeName());
+	EXPECT_EQ("int", mClass()["intMember"].type().name());
 }
 
 TEST_F(MetaTypeTest, BoolMutator) {
@@ -120,7 +120,7 @@ TEST_F(MetaTypeTest, StdStringMutator) {
 
 TEST_F(MetaTypeTest, ByValType) {
 
-	EXPECT_EQ( "Date", jrtti::Reflector::instance().demangle( mClass()["date"].typeName() ) );
+	EXPECT_EQ( "Date", jrtti::Reflector::instance().demangle( mClass()["date"].type().name() ) );
 }
 
 TEST_F(MetaTypeTest, ByValAccessor) {
@@ -422,9 +422,13 @@ TEST_F(MetaTypeTest, testMetaobject) {
 TEST_F(MetaTypeTest, comparationOperators) {
 	Metatype &mt_sample = jrtti::getType("Sample");
 	Metatype &mt_date = jrtti::getType("Date");
+	Metatype &mt_point = jrtti::getType("Point");
+
+	std::string s = typeid( Date& ).name();
 
 	EXPECT_TRUE( ( mt_date == mt_sample["date"].type() ) );
-	EXPECT_TRUE( ( mt_date != mt_sample["refToDate"].type() ) );
+	EXPECT_TRUE( ( mt_date == mt_sample["refToDate"].type() ) );
+	EXPECT_TRUE( ( mt_point != mt_sample["point"].type() ) );
 }
 
 GTEST_API_ int main(int argc, char **argv) {

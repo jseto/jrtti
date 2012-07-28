@@ -167,7 +167,13 @@ public:
 	Metatype &
 	getType()
 	{
-		return getType( typeid( T ).name() );
+		std::string tname = typeid( T ).name();
+#ifdef __BORLANDC__
+		if ( boost::is_reference< T >::value ) {
+			tname = tname.substr( 0, tname.length()-2 );
+		}
+#endif
+		return getType( tname );
 	}
 
 	/**

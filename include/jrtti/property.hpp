@@ -60,21 +60,12 @@ public:
 	}
 
 	/**
-	 * \brief Gets the type name of this property
-	 * \return the type name
-	 */
-	std::string
-	typeName() {
-		return _type_name;
-	}
-
-	/**
 	 * \brief Retrieves the Metatype of this property
 	 * \return the meta type
 	 */
 	Metatype &
 	type() {
-		return jrtti::getType( typeName() );
+		return *_metaType;
 	}
 
 	/**
@@ -153,14 +144,14 @@ public:
 	}
 
 protected:
-	void
-	typeName(std::string value) {
-		_type_name = value;
+	void 
+	setMetatype( Metatype * mt ) {
+		_metaType = mt;
 	}
 
 private:
 	Annotations	_annotations;
-	std::string	_type_name;
+	Metatype * _metaType;
 	std::string	_name;
 	Mode 	   	_mode;
 };
@@ -173,7 +164,7 @@ public:
 
 	TypedProperty()
 	{
-		typeName( typeid( PropT ).name() );
+		setMetatype( &jrtti::getType< PropT >() );
 	}
 
 	TypedProperty&
