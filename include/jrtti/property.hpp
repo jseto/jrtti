@@ -186,7 +186,6 @@ public:
 	}
 
 	TypedProperty&
-//	typename boost::disable_if< typename boost::is_reference< typename PropT >::type, TypedProperty& >::type
 	setter( PropNoRefT ClassT::* dataMember)
 	{
 		setMode( Writable );
@@ -215,7 +214,6 @@ public:
 	void
 	set( void * instance, const boost::any& val)	{
 		if (isWritable()) {
-//			typedef boost::remove_reference< PropT >::type PropTNoRef;
 			PropNoRefT p = boost::any_cast< typename PropNoRefT >( val );
 			internal_set( (ClassT *)instance, p );
 		}

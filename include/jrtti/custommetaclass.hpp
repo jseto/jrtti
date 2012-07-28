@@ -97,7 +97,6 @@ public:
 	{
 		////////// COMPILER ERROR   //// Setter or Getter are not proper accesor methods signatures.
 		typedef typename detail::FunctionTypes< GetterT >::result_type					PropT;
-//			typedef typename boost::remove_reference< typename PropT >::type				PropNoRefT
 		typedef typename boost::function< void (typename ClassT*, typename PropT ) >	BoostSetter;
 		typedef typename boost::function< typename PropT ( typename ClassT * ) >		BoostGetter;
 

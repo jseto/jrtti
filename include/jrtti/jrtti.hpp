@@ -58,33 +58,6 @@ namespace jrtti {
 	}
 
 	/**
-	 * \brief Get the name of type T
-	 *
-	 * Returns the name of type T registered in the jrtti engine, that is,
-	 * its alias or name given in the Metatype declaration, if one was issued.
-	 * \tparam T the type to get the name for
-	 * \return the name of class T
-	 */
-/*	template <typename T>
-	std::string
-	nameOf(){
-		return Reflector::instance().nameOf<T>();
-	}
-*/
-	/**
-	 * \brief Gives an alias name
-	 *
-	 * Set an alias name for type T
-	 * \tparam T the type to assign an alias
-	 * \param new_name the alias name for type T
-	 */
-	template <typename T>
-	void
-	alias( const std::string& new_name ) {
-		Reflector::instance().alias<T>(new_name);
-	}
-
-	/**
 	 * \brief Declare a user metaclass
 	 *
 	 * Declares a new user metaclass based on class C

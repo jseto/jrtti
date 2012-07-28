@@ -69,8 +69,6 @@ public:
 	CustomMetaclass<C>&
 	declare( std::string alias, const Annotations& annotations = Annotations() )
 	{
-//		this->alias<C>( alias );
-//		return declare<C>( annotations );
 		CustomMetaclass<C> * mc = &declare<C>( annotations );
 		internal_declare( alias, mc );
 		return *mc;
@@ -97,8 +95,6 @@ public:
 	CustomMetaclass<C, boost::true_type>&
 	declareAbstract( std::string alias, const Annotations& annotations = Annotations() )
 	{
-//		this->alias<C>( alias );
-//		return declareAbstract<C>( annotations );
 		CustomMetaclass<C> * mc = &declareAbstract<C>( annotations );
 		internal_declare( alias, mc );
 		return *mc;
@@ -125,13 +121,18 @@ public:
 	Metacollection<C>&
 	declareCollection( std::string alias, const Annotations& annotations = Annotations() )
 	{
-//		this->alias<C>( alias );
-//		return declareCollection<C>( annotations );
 		Metacollection<C> * mc = &declareCollection<C>( annotations );
 		internal_declare( alias, mc );
 		return *mc;
 	}
 
+	/**
+	 * \brief Gives an alias name
+	 *
+	 * Set an alias name for type T
+	 * \tparam T the type to assign an alias
+	 * \param new_name the alias name for type T
+	 */
 	template <typename C>
 	void
 	alias( const std::string& new_name)
@@ -151,17 +152,7 @@ public:
 	registerPrefixDecorator( const std::string & decorator ) {
 		m_prefixDecorators.push_back( decorator );
 	}
-/*
-	template <typename C>
-	std::string
-	nameOf()
-	{
-		std::string name = typeid(C).name();
-		if (_alias.count(name) > 0)
-			return _alias[name];
-		return name;
-	}
-*/
+
 	Metatype &
 	getType( std::string name )
 	{
@@ -221,7 +212,6 @@ public:
 	}
 
 private:
-	typedef std::map<std::string, std::string> AliasMap;
 	Reflector()
 	{
 		clear();
@@ -278,7 +268,6 @@ private:
 	}
 
 	TypeMap						_meta_types;
-//	AliasMap					_alias;
 	AddressRefMap				m_addressRefs;
 	NameRefMap					m_nameRefs;
 	std::vector< std::string >	m_prefixDecorators;
