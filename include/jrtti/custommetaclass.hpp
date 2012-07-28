@@ -77,7 +77,7 @@ public:
 	CustomMetaclass&
 	inheritsFrom()
 	{
-		return inheritsFrom( nameOf< C >() );
+		return inheritsFrom( typeid( C ).name() );
 	}
 
 	/**

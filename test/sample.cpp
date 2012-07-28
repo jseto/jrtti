@@ -77,6 +77,7 @@ void useCase() {
 
 	//getting a Metatype object
 	jrtti::Metatype & mt = jrtti::getType("Sample");
+
 	//and working with it
 	p.x = 23;
 	mt[ "point" ].set( &s, &p );

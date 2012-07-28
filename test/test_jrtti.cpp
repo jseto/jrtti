@@ -44,11 +44,11 @@ class MetaTypeTest : public testing::Test {
 TEST_F(MetaTypeTest, DoubleType) {
 	EXPECT_EQ("double", mClass()["testDouble"].typeName());
 }
-
+/*
 TEST_F(MetaTypeTest, AliasType) {
 	EXPECT_EQ( "aliasPoint", jrtti::nameOf<Point>() );
 }
-
+*/
 TEST_F(MetaTypeTest, DoubleAccessor) {
 
 	sample.setDoubleProp(65.0);
@@ -108,12 +108,12 @@ TEST_F(MetaTypeTest, IntMemberMutator) {
 }
 
 const std::string kHelloString = "Hello, \"world\"!\nThis is a new line with non printable char\x11";
-
+/*
 TEST_F(MetaTypeTest, StdStringType) {
 
 	EXPECT_EQ("std::string", mClass()["testStr"].typeName());
 }
-
+*/
 TEST_F(MetaTypeTest, StdStringAccessor) {
 	sample.setStdStringProp(kHelloString);
 	std::string result = mClass()["testStr"].get<std::string>(&sample);
@@ -425,7 +425,7 @@ TEST_F(MetaTypeTest, testMetaobject) {
 	mo.set( "testDouble", 34.8 );
 	EXPECT_EQ( 34.8, mo.get<double>( "testDouble" ) );
 
-//	std::cout << mo.toStr() << std::endl; 
+//	std::cout << mo.toStr() << std::endl;
 }
 
 GTEST_API_ int main(int argc, char **argv) {

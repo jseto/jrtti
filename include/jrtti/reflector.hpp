@@ -6,6 +6,7 @@
 	#include <cxxabi.h>
 #endif
 
+#include <set>
 #include "basetypes.hpp"
 #include "custommetaclass.hpp"
 #include "collection.hpp"
@@ -23,12 +24,13 @@ public:
 
 	~Reflector()
 	{
+		std::set< Metatype * > pending;
 		for ( TypeMap::iterator it = _meta_types.begin(); it != _meta_types.end(); ++it) {
-			std::string demangledName = demangle( it->first );
-			if ( _meta_types[ demangledName ] ) {
-				delete _meta_types[ demangledName ];
-				_meta_types[ demangledName ] = NULL;
-			}
+			pending.insert( it->second );
+		}
+
+		for ( std::set< Metatype * >::iterator it = pending.begin(); it != pending.end(); ++it ) {
+			delete *it;
 		}
 	}
 
@@ -52,7 +54,7 @@ public:
 	CustomMetaclass<C>&
 	declare( const Annotations& annotations = Annotations() )
 	{
-		std::string name = nameOf<C>();
+		std::string name =typeid( C ).name();
 		if ( _meta_types.count( name ) ) {
 			return *( dynamic_cast< CustomMetaclass<C> * >( &getType( name ) ) );
 		}
@@ -67,8 +69,11 @@ public:
 	CustomMetaclass<C>&
 	declare( std::string alias, const Annotations& annotations = Annotations() )
 	{
-		this->alias<C>( alias );
-		return declare<C>( annotations );
+//		this->alias<C>( alias );
+//		return declare<C>( annotations );
+		CustomMetaclass<C> * mc = &declare<C>( annotations );
+		internal_declare( alias, mc );
+		return *mc;
 	}
 
 
@@ -76,7 +81,7 @@ public:
 	CustomMetaclass<C, boost::true_type>&
 	declareAbstract( const Annotations& annotations = Annotations() )
 	{
-		std::string name = nameOf<C>();
+		std::string name =typeid( C ).name();
 		if ( _meta_types.count( name ) ) {
 			return *( dynamic_cast< CustomMetaclass<C, boost::true_type> * >( &getType( name ) ) );
 		}
@@ -92,8 +97,11 @@ public:
 	CustomMetaclass<C, boost::true_type>&
 	declareAbstract( std::string alias, const Annotations& annotations = Annotations() )
 	{
-		this->alias<C>( alias );
-		return declareAbstract<C>( annotations );
+//		this->alias<C>( alias );
+//		return declareAbstract<C>( annotations );
+		CustomMetaclass<C> * mc = &declareAbstract<C>( annotations );
+		internal_declare( alias, mc );
+		return *mc;
 	}
 
 	template <typename C>
@@ -102,7 +110,7 @@ public:
 	{
 	//////////  COMPILER ERROR: Class C is not a Collection //// Class C should implement type iterator to be a collection
 		typedef C::iterator iterator;
-		std::string name = nameOf<C>();
+		std::string name = typeid( C ).name();
 		if ( _meta_types.count( name ) ) {
 			return *( dynamic_cast< Metacollection<C> * >( &getType( name ) ) );
 		}
@@ -117,16 +125,18 @@ public:
 	Metacollection<C>&
 	declareCollection( std::string alias, const Annotations& annotations = Annotations() )
 	{
-		this->alias<C>( alias );
-		return declareCollection<C>( annotations );
+//		this->alias<C>( alias );
+//		return declareCollection<C>( annotations );
+		Metacollection<C> * mc = &declareCollection<C>( annotations );
+		internal_declare( alias, mc );
+		return *mc;
 	}
 
 	template <typename C>
 	void
 	alias( const std::string& new_name)
 	{
-		_alias[typeid(C).name()] = new_name;
-		_alias[typeid(C*).name()] = new_name + " *";
+		internal_declare( new_name, &getType<C>() );
 	}
 
 	/**
@@ -141,7 +151,7 @@ public:
 	registerPrefixDecorator( const std::string & decorator ) {
 		m_prefixDecorators.push_back( decorator );
 	}
-
+/*
 	template <typename C>
 	std::string
 	nameOf()
@@ -151,7 +161,7 @@ public:
 			return _alias[name];
 		return name;
 	}
-
+*/
 	Metatype &
 	getType( std::string name )
 	{
@@ -219,27 +229,36 @@ private:
 
 	void
 	register_defaults(){
+		internal_declare( typeid( int ).name(), new MetaInt());
+		internal_declare( typeid( char ).name(), new MetaChar());
+		internal_declare( typeid( bool ).name(), new MetaBool());
+		internal_declare( typeid( double ).name(), new MetaDouble());
+		internal_declare( typeid( std::string ).name(), new MetaString());
 		alias<std::string>("std::string");
-		internal_declare("int", new MetaInt());
-		internal_declare("char", new MetaChar());
-		internal_declare("bool", new MetaBool());
-		internal_declare("double", new MetaDouble());
-		internal_declare("std::string", new MetaString());
 	}
 
 	void
 	internal_declare(std::string name, Metatype * mc)
 	{
-		Metatype * ptr_mc = new MetaPointerType(*mc);
-		Metatype * ref_mc = new MetaReferenceType(*mc);
+		Metatype * ptr_mc;
+		Metatype * ref_mc;
+
+		if ( _meta_types.count( mc->name() ) == 0 ) {
+			ptr_mc = new MetaPointerType(*mc);
+			ref_mc = new MetaReferenceType(*mc);
+		}
+		else {
+			ptr_mc = &getType( mc->name() + " *" );
+			ref_mc = &getType( mc->name() + " &" );
+		}
 
 		_meta_types[name] = mc;
-		_meta_types[ptr_mc->name()] = ptr_mc;
-		_meta_types[ref_mc->name()] = ref_mc;
+		_meta_types[name + " *"] = ptr_mc;
+		_meta_types[name + " &"] = ref_mc;
 
 		_meta_types[ demangle( name ) ] = mc;
-		_meta_types[ demangle( ptr_mc->name() ) ] = ptr_mc;
-		_meta_types[ demangle( ref_mc->name() ) ] = ref_mc;
+		_meta_types[ demangle( name + " *" ) ] = ptr_mc;
+		_meta_types[ demangle( name + " &" ) ] = ref_mc;
 	}
 
 	friend AddressRefMap& _addressRefMap();
@@ -259,7 +278,7 @@ private:
 	}
 
 	TypeMap						_meta_types;
-	AliasMap					_alias;
+//	AliasMap					_alias;
 	AddressRefMap				m_addressRefs;
 	NameRefMap					m_nameRefs;
 	std::vector< std::string >	m_prefixDecorators;

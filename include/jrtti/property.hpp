@@ -173,7 +173,7 @@ public:
 
 	TypedProperty()
 	{
-		typeName( jrtti::nameOf<PropT>());
+		typeName( typeid( PropT ).name() );
 	}
 
 	TypedProperty&

@@ -65,12 +65,12 @@ namespace jrtti {
 	 * \tparam T the type to get the name for
 	 * \return the name of class T
 	 */
-	template <typename T>
+/*	template <typename T>
 	std::string
 	nameOf(){
 		return Reflector::instance().nameOf<T>();
 	}
-
+*/
 	/**
 	 * \brief Gives an alias name
 	 *

@@ -24,10 +24,6 @@ public:
 	typedef std::map< std::string, Property * > PropertyMap;
 	typedef std::map< std::string, Method * >	MethodMap;
 
-	Metatype( std::string name, const Annotations& annotations = Annotations() )
-		:	m_type_name(name),
-			m_annotations( annotations ) {}
-
 	~Metatype() {
 		for (PropertyMap::iterator it = m_ownedProperties.begin(); it != m_ownedProperties.end(); ++it) {
 			delete it->second;
@@ -359,7 +355,11 @@ public:
 protected:
 	friend class MetaReferenceType;
 	friend class MetaPointerType;
+	
 	template< typename C > friend class Metacollection;
+	Metatype( std::string name, const Annotations& annotations = Annotations() )
+		:	m_type_name(name),
+			m_annotations( annotations ) {}
 
 	virtual
 	std::string
