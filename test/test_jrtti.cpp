@@ -419,6 +419,14 @@ TEST_F(MetaTypeTest, testMetaobject) {
 //	std::cout << mo.toStr() << std::endl;
 }
 
+TEST_F(MetaTypeTest, comparationOperators) {
+	Metatype &mt_sample = jrtti::getType("Sample");
+	Metatype &mt_date = jrtti::getType("Date");
+
+	EXPECT_TRUE( ( mt_date == mt_sample["date"].type() ) );
+	EXPECT_TRUE( ( mt_date != mt_sample["refToDate"].type() ) );
+}
+
 GTEST_API_ int main(int argc, char **argv) {
 	std::cout << "Running tests\n";
 
