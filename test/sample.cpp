@@ -24,7 +24,7 @@ void declare()
 #endif
 
 	jrtti::declare<Sample>( jrtti::Annotations() << new GUIAnnotation( "sample.ico" ) )
-				.inheritsFrom<SampleBase>()
+				.derivesFrom<SampleBase>()
 						.property("intMember", &Sample::intMember,
 									jrtti::Annotations() << new jrtti::NoStreamable() )
 						.property("testDouble", &Sample::setDoubleProp, &Sample::getDoubleProp,
@@ -47,7 +47,7 @@ void declare()
 						.method<double,int,double>("testSum", &Sample::testSum);
 
 	jrtti::declare<SampleDerived>()
-				.inheritsFrom<Sample>();
+				.derivesFrom<Sample>();
 
 	//jrtti::declareCollection< Sample::Collection >();
 }

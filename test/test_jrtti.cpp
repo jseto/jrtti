@@ -424,11 +424,18 @@ TEST_F(MetaTypeTest, comparationOperators) {
 	Metatype &mt_date = jrtti::getType("Date");
 	Metatype &mt_point = jrtti::getType("Point");
 
-	std::string s = typeid( Date& ).name();
-
 	EXPECT_TRUE( ( mt_date == mt_sample["date"].type() ) );
 	EXPECT_TRUE( ( mt_date == mt_sample["refToDate"].type() ) );
 	EXPECT_TRUE( ( mt_point != mt_sample["point"].type() ) );
+}
+
+TEST_F(MetaTypeTest, parentCheck) {
+	Metatype &mt_sample = jrtti::getType("Sample");
+	Metatype &mt_date = jrtti::getType("Date");
+
+	EXPECT_FALSE( mt_date.isDerivedFrom( mt_sample ) );
+	EXPECT_TRUE( jrtti::getType< SampleDerived >().isDerivedFrom( mt_sample ) );
+	EXPECT_TRUE( jrtti::getType< SampleDerived >().isDerivedFrom< SampleBase >() );
 }
 
 GTEST_API_ int main(int argc, char **argv) {

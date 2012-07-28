@@ -44,8 +44,9 @@ public:
 	 * \return this for chain calls
 	 */
 	CustomMetaclass&
-	inheritsFrom( Metatype& parent )
+	derivesFrom( Metatype& parent )
 	{
+		parentMetatype( &parent );
 		PropertyMap& parentProps = parent.properties();
 		properties().insert( parentProps.begin(), parentProps.end() );
 		return *this;
@@ -60,9 +61,9 @@ public:
 	 * \return this for chain calls
 	 */
 	CustomMetaclass&
-	inheritsFrom( const std::string& parentName )
+	derivesFrom( const std::string& parentName )
 	{
-		return inheritsFrom( jrtti::getType( parentName ) );
+		return derivesFrom( jrtti::getType( parentName ) );
 	}
 
 	/**
@@ -75,9 +76,9 @@ public:
 	 */
 	template < typename C >
 	CustomMetaclass&
-	inheritsFrom()
+	derivesFrom()
 	{
-		return inheritsFrom( typeid( C ).name() );
+		return derivesFrom( typeid( C ).name() );
 	}
 
 	/**

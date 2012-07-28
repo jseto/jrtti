@@ -116,6 +116,21 @@ public:
 		return false;
     }
 
+	bool 
+	isDerivedFrom( const Metatype& parent ) {
+		Metatype * derived = this;
+		while ( derived->m_parentMetatype && ( *derived->m_parentMetatype != parent ) ) {
+			derived = derived->m_parentMetatype;
+		}
+		return ( derived->m_parentMetatype != NULL );
+	}
+	
+	template< typename T >
+	bool 
+	isDerivedFrom() {
+		return isDerivedFrom( jrtti::getType< T >() );
+	}
+
 	/**
 	 * \brief Returns a property abstraction
 	 *
@@ -367,9 +382,16 @@ protected:
 	friend class MetaPointerType;
 	
 	template< typename C > friend class Metacollection;
+
 	Metatype( std::string name, const Annotations& annotations = Annotations() )
 		:	m_type_name(name),
-			m_annotations( annotations ) {}
+			m_annotations( annotations ),
+			m_parentMetatype( NULL ) {}
+
+	void 
+	parentMetatype( Metatype * parent ) {
+		m_parentMetatype = parent;
+	}
 
 	virtual
 	std::string
@@ -477,6 +499,7 @@ private:
 	PropertyMap		m_properties;
 	PropertyMap 	m_ownedProperties;
 	Annotations 	m_annotations;
+	Metatype *		m_parentMetatype;
 };
 
 //------------------------------------------------------------------------------
