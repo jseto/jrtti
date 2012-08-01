@@ -103,10 +103,14 @@ protected:
  * \example test_jrtti.h for a use case.
  */
 template< typename T >
-struct iterator {
-	virtual	T& operator * () = 0;							/// \brief Deference operator
-	virtual iterator& operator ++ () = 0;					/// \brief prefix increment operator
-	virtual bool operator != ( const iterator& it ) = 0;	/// \brief inequality operator
+struct jrtti_iterator : public std::iterator< std::forward_iterator_tag, T > {
+	jrtti_iterator( T* x ) : p( x ){}
+	jrtti_iterator( const jrtti_iterator& jit ) : p( jit.p ){}
+	T& operator * () { return *p; };									/// \brief Deference operator
+	jrtti_iterator& operator ++ () { ++p; return *this; }				/// \brief prefix increment operator
+	bool operator != ( const jrtti_iterator& it ) { return p!= it.p; }	/// \brief inequality operator
+private:
+	T * p;
 };
 
 /**
@@ -119,7 +123,7 @@ struct iterator {
 template < typename T >
 class CollectionInterface {
 public:
-	typedef iterator< T > iterator;
+	typedef jrtti_iterator<T> iterator;
 	typedef T value_type;
 
 	/**

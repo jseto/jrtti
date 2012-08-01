@@ -167,6 +167,7 @@ public:
 	property(std::string name, PropT ClassT::* member, const Annotations& annotations = Annotations() )
 	{
 		typedef typename PropT ClassT::* 	MemberType;
+		////////// COMPILER ERROR   //// Method parameter 'member' is not an attribute member of ClassT.
 		return fillProperty< PropT, MemberType, MemberType >(name, member, member, annotations );
 	}
 

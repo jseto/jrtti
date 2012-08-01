@@ -3,47 +3,24 @@
 
 #include <jrtti/jrtti.hpp>
 
-template < >
-struct jrtti::iterator<int> {
-	iterator(): m_ptr( 0 ){}
-
-	int operator * () {
-		return *m_ptr;
-	}
-
-	iterator& operator ++ () {
-		++m_ptr;
-		return *this;
-	}
-
-	bool operator != ( const iterator& it ) {
-		return m_ptr != it.m_ptr;
-	}
-	int * m_ptr;
-};
-
 class MyCollection : public jrtti::CollectionInterface<int> {
 public:
 	MyCollection(): m_elemCount( 0 ) {}
 
 	iterator begin() {
-		iterator it;
-		it.m_ptr = m_elements;
-		return it;
+		return iterator(m_elements);
 	}
 
 	iterator end() {
-		iterator it;
-		it.m_ptr = m_elements + m_elemCount;
-		return it;
+		return iterator(m_elements + m_elemCount);
 	}
 
 	iterator insert( iterator position, const int& x ) {
-		int * orig = position.m_ptr;
-		std::memmove( orig+1, orig, m_elemCount );
-		*orig = x;
+		iterator start( position );
+		std::memmove( &(*(++position)), &(*start), m_elemCount );
+		*start = x;
 		++m_elemCount;
-		return position;
+		return start;
 	}
 
 	void clear() {
@@ -54,6 +31,5 @@ private:
 	value_type m_elements[200];
 	size_t m_elemCount;
 };
-
 
 #endif  //test_jrttiH
