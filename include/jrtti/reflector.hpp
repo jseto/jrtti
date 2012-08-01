@@ -105,7 +105,7 @@ public:
 	declareCollection( const Annotations& annotations = Annotations() )
 	{
 	//////////  COMPILER ERROR: Class C is not a Collection //// Class C should implement type iterator to be a collection
-		typedef C::iterator iterator;
+		typedef typename C::iterator iterator;
 		std::string name = typeid( C ).name();
 		if ( _meta_types.count( name ) ) {
 			return *( dynamic_cast< Metacollection<C> * >( &getType( name ) ) );
@@ -193,11 +193,11 @@ public:
 	 */
 	std::string
 	demangle( const std::string& name ) {
-#ifdef HAVE_CXA_DEMANGLE
+#ifdef __GNUG__
 		int status = -4;
 		char* res = abi::__cxa_demangle(name.c_str(), NULL, NULL, &status);
-		const char* const demangled_name = (status==0)?res:name;
-		string ret_val(demangled_name);
+		const char* const demangled_name = (status==0)?res:name.c_str();
+		std::string ret_val(demangled_name);
 		free(res);
 		return ret_val;
 #elif __BORLANDC__
@@ -230,7 +230,8 @@ private:
 		internal_declare( typeid( bool ).name(), new MetaBool());
 		internal_declare( typeid( double ).name(), new MetaDouble());
 		internal_declare( typeid( std::string ).name(), new MetaString());
-		alias<std::string>("std::string");
+//		alias<std::string>("std::string");
+//		alias<std::string *>("std::string *");
 	}
 
 	void

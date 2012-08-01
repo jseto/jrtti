@@ -25,7 +25,7 @@ public:
 	struct detail
 	{
 		template <typename >
-		struct FunctionTypes;
+		struct FunctionTypes{};
 
 		template < typename R >
 		struct FunctionTypes< R ( ClassT::* )() >
@@ -97,11 +97,11 @@ public:
 	property( std::string name, SetterT setter, GetterT getter, const Annotations& annotations = Annotations() )
 	{
 		////////// COMPILER ERROR   //// Setter or Getter are not proper accesor methods signatures.
-		typedef typename detail::FunctionTypes< GetterT >::result_type					PropT;
-		typedef typename boost::function< void (typename ClassT*, typename PropT ) >	BoostSetter;
-		typedef typename boost::function< typename PropT ( typename ClassT * ) >		BoostGetter;
+		typedef typename detail::template FunctionTypes< GetterT >::result_type	PropT;
+		typedef typename boost::function< void ( ClassT*, PropT ) >				BoostSetter;
+		typedef typename boost::function< PropT ( ClassT * ) >					BoostGetter;
 
-		return fillProperty< typename PropT, BoostSetter, BoostGetter >( name, boost::bind(setter,_1,_2), boost::bind(getter,_1), annotations );
+		return fillProperty< PropT, BoostSetter, BoostGetter >( name, boost::bind(setter,_1,_2), boost::bind(getter,_1), annotations );
 	}
 
 	/**
@@ -118,11 +118,11 @@ public:
 	CustomMetaclass&
 	property(std::string name,  PropT (ClassT::*getter)(), const Annotations& annotations = Annotations() )
 	{
-		typedef typename boost::function< void (typename ClassT*, typename PropT ) >	BoostSetter;
-		typedef typename boost::function< typename PropT ( typename ClassT * ) >		BoostGetter;
+		typedef typename boost::function< void ( ClassT*, PropT ) >	BoostSetter;
+		typedef typename boost::function< PropT ( ClassT * ) >		BoostGetter;
 
 		BoostSetter setter;       //setter empty is used by Property<>::isReadOnly()
-		return fillProperty< typename PropT, BoostSetter, BoostGetter >(name,  setter, getter, annotations );
+		return fillProperty< PropT, BoostSetter, BoostGetter >(name,  setter, getter, annotations );
 	}
 
 	/**
@@ -166,8 +166,7 @@ public:
 	CustomMetaclass&
 	property(std::string name, PropT ClassT::* member, const Annotations& annotations = Annotations() )
 	{
-		typedef typename PropT ClassT::* 	MemberType;
-		////////// COMPILER ERROR   //// Method parameter 'member' is not an attribute member of ClassT.
+		typedef PropT ClassT::* 	MemberType;
 		return fillProperty< PropT, MemberType, MemberType >(name, member, member, annotations );
 	}
 
@@ -188,13 +187,13 @@ public:
 	CustomMetaclass&
 	collection( std::string name,  PropT (ClassT::*getter)(), const Annotations& annotations = Annotations() )
 	{
-		typedef typename boost::function< void (typename ClassT*, typename PropT ) >	BoostSetter;
-		typedef typename boost::function< typename PropT ( typename ClassT * ) >		BoostGetter;
+		typedef typename boost::function< void ( ClassT*,  PropT ) >	BoostSetter;
+		typedef typename boost::function<  PropT (  ClassT * ) >		BoostGetter;
 
 		jrtti::declareCollection< typename boost::remove_reference< PropT >::type >();
 
 		BoostSetter setter;       //setter empty is used by Property<>::isReadOnly()
-		return fillProperty< typename PropT, BoostSetter, BoostGetter >(name,  setter, getter, annotations );
+		return fillProperty< PropT, BoostSetter, BoostGetter >(name,  setter, getter, annotations );
 	}
 
 	/**
@@ -232,10 +231,10 @@ public:
 	CustomMetaclass&
 	method( std::string name,boost::function<ReturnType (ClassT*, Param1)> f, const Annotations& annotations = Annotations() )
 	{
-		typedef typename TypedMethod<ClassT,ReturnType, Param1> MethodType;
-		typedef typename boost::function<ReturnType (ClassT*, Param1)> FunctionType;
+		typedef TypedMethod< ClassT, ReturnType, Param1 > MethodType;
+		typedef typename boost::function<ReturnType (ClassT*, Param1) > FunctionType;
 
-		return fillMethod<MethodType, FunctionType>( name, f, annotations );
+		return fillMethod< MethodType, FunctionType >( name, f, annotations );
 	}
 
 	/**
@@ -254,7 +253,7 @@ public:
 	CustomMetaclass&
 	method( std::string name,boost::function<ReturnType (ClassT*, Param1, Param2)> f, const Annotations& annotations = Annotations() )
 	{
-		typedef typename TypedMethod<ClassT,ReturnType, Param1, Param2> MethodType;
+		typedef TypedMethod<ClassT,ReturnType, Param1, Param2> MethodType;
 		typedef typename boost::function<ReturnType (ClassT*, Param1, Param2)> FunctionType;
 
 		return fillMethod<MethodType, FunctionType>( name, f, annotations );
@@ -269,7 +268,7 @@ public:
 	TypedMethod<ClassT,ReturnType, Param1, Param2>&
 	getMethod(std::string name)
 	{
-		typedef Method<ClassT,ReturnType, Param1, Param2> ElementType;
+		typedef TypedMethod< ClassT, ReturnType, Param1, Param2 > ElementType;
 		return * static_cast< ElementType * >( m_methods[name] );
 	}
 
@@ -332,7 +331,7 @@ private:
 #ifdef BOOST_NO_IS_ABSTRACT
 #define __IS_ABSTRACT( t ) t
 #else
-#define __IS_ABSTRACT( t ) boost::is_abstract< typename t >::type
+#define __IS_ABSTRACT( t ) boost::is_abstract< t >::type
 #endif
 //SFINAE _get_instance_ptr for NON ABSTRACT
 	template< typename AbstT >
@@ -384,7 +383,7 @@ private:
 	typename boost::enable_if< typename __IS_ABSTRACT( AbstT ), boost::any >::type
 	_create()
 	{
-		return NULL;
+		return boost::any();
 	}
 };
 

@@ -1,6 +1,7 @@
 
 #include <algorithm>
 #include <fstream>
+#include <time.h>
 #include <gtest/gtest.h>
 #include "test_jrtti.h"
 #include "sample.h"
@@ -323,7 +324,7 @@ TEST_F(MetaTypeTest, testMultipleAnnotation) {
 
 	std::vector< MenuAnnotation * > a = annotations.getAll<MenuAnnotation>();
 
-	EXPECT_EQ( 3, a.size() );
+	EXPECT_EQ( (size_t)3, a.size() );
 
 
 	EXPECT_EQ( "Entry_2", a[1]->submenu() );

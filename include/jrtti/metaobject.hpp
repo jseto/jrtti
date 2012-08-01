@@ -22,7 +22,9 @@ public:
 	 * \param metatype Metatype associated to this Metaobject
 	 * \param instance the object instance to encapsulate
 	 */
-	Metaobject( Metatype * metatype, const boost::any& instance ): m_metatype( metatype ), m_instance( instance ){}
+	Metaobject( Metatype * metatype, const boost::any& instance )
+		: m_instance( instance ),
+		  m_metatype( metatype ) {}
 
 	/**
 	 * \brief Set the value of a property or a full categorized property

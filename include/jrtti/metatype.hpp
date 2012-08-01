@@ -191,7 +191,7 @@ public:
 	template < class ReturnT, class ClassT >
 	ReturnT
 	call ( std::string methodName, ClassT * instance ) {
-		typedef typename TypedMethod< ClassT, ReturnT > MethodType;
+		typedef TypedMethod< ClassT, ReturnT > MethodType;
 
 		MethodType * ptr = static_cast< MethodType * >( m_methods[methodName] );
 		if (!ptr) {
@@ -216,7 +216,7 @@ public:
 	template <class ReturnT, class ClassT, class Param1>
 	ReturnT
 	call ( std::string methodName, ClassT * instance, Param1 p1 ) {
-		typedef typename TypedMethod< ClassT, ReturnT, Param1 > MethodType;
+		typedef TypedMethod< ClassT, ReturnT, Param1 > MethodType;
 
 		MethodType * ptr = static_cast< MethodType * >( m_methods[methodName] );
 		if (!ptr) {
@@ -243,7 +243,7 @@ public:
 	template <class ReturnT, class ClassT, class Param1, class Param2>
 	ReturnT
 	call ( std::string methodName, ClassT * instance, Param1 p1, Param2 p2 ) {
-		typedef typename TypedMethod< ClassT, ReturnT, Param1, Param2 > MethodType;
+		typedef TypedMethod< ClassT, ReturnT, Param1, Param2 > MethodType;
 
 		MethodType * ptr = static_cast< MethodType * >( m_methods[methodName] );
 		if (!ptr) {

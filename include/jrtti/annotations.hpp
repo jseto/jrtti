@@ -1,7 +1,10 @@
 #ifndef jrttiannotationsH
 #define jrttiannotationsH
 
+#include <vector>
+#include <boost/shared_ptr.hpp>
 #include <boost/pointer_cast.hpp>
+#include <boost/function.hpp>
 
 namespace jrtti {
 

@@ -2,7 +2,9 @@
 #define jrttiH
 
 #include <map>
+#include <typeinfo>
 #include "exception.hpp"
+#include "annotations.hpp"
 
 namespace jrtti {
 	typedef std::map< void *, std::string > AddressRefMap;
@@ -12,6 +14,10 @@ namespace jrtti {
 	class Metatype;
 	class Reflector;
 	Metatype &	getType(std::string name);
+	template< typename T > Metatype& getType();
+	template< typename C > class Metacollection;
+	template <typename C> Metacollection<C>& declareCollection( const Annotations& annotations = Annotations() );
+
 	Error	error(std::string message);
 
 	AddressRefMap&	_addressRefMap();
@@ -126,7 +132,7 @@ namespace jrtti {
 	 */
 	template <typename C>
 	Metacollection<C>&
-	declareCollection( const Annotations& annotations = Annotations() ) {
+	declareCollection( const Annotations& annotations ) {
 		return Reflector::instance().declareCollection<C>( annotations );
 	}
 
