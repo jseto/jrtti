@@ -44,11 +44,11 @@ namespace jrtti {
 	 * \return the found Metatype.
 	 * \throw Error if not found
 	 */
-	inline Metatype &
+/*	inline Metatype &
 	getType(std::string name) {
 		return Reflector::instance().getType(name);
 	}
-
+  */
 	/**
 	 * \brief Retrieve Metatype
 	 *

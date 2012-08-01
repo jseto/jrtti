@@ -30,11 +30,11 @@ class MetaTypeTest : public testing::Test {
 	}
 
 	Metatype & mClass(){
-		return jrtti::getType("Sample");
+		return jrtti::getType<Sample>();
 	}
 
 	Metatype & derivedClass(){
-		return jrtti::getType("SampleDerived");
+		return jrtti::getType<SampleDerived>();
 	}
 
 	// Declares the variables your tests want to use.
@@ -245,7 +245,7 @@ TEST_F(MetaTypeTest, testPropsRO) {
 
 	EXPECT_TRUE(mClass()["testDouble"].isReadWrite());
 	EXPECT_FALSE(mClass()["testRO"].isWritable());
-	EXPECT_TRUE( jrtti::getType("Date").property("d").isWritable() );
+	EXPECT_TRUE( jrtti::getType<Date>().property("d").isWritable() );
 
 	int result = (mClass()["testRO"].get<int>(&sample));
 	EXPECT_EQ(23, result);
@@ -421,9 +421,9 @@ TEST_F(MetaTypeTest, testMetaobject) {
 }
 
 TEST_F(MetaTypeTest, comparationOperators) {
-	Metatype &mt_sample = jrtti::getType("Sample");
-	Metatype &mt_date = jrtti::getType("Date");
-	Metatype &mt_point = jrtti::getType("Point");
+	Metatype &mt_sample = jrtti::getType<Sample>();
+	Metatype &mt_date = jrtti::getType<Date>();
+	Metatype &mt_point = jrtti::getType<Point>();
 
 	EXPECT_TRUE( ( mt_date == mt_sample["date"].type() ) );
 	EXPECT_TRUE( ( mt_date == mt_sample["refToDate"].type() ) );
@@ -431,8 +431,8 @@ TEST_F(MetaTypeTest, comparationOperators) {
 }
 
 TEST_F(MetaTypeTest, parentCheck) {
-	Metatype &mt_sample = jrtti::getType("Sample");
-	Metatype &mt_date = jrtti::getType("Date");
+	Metatype &mt_sample = jrtti::getType<Sample>();
+	Metatype &mt_date = jrtti::getType<Date>();
 
 	EXPECT_FALSE( mt_date.isDerivedFrom( mt_sample ) );
 	EXPECT_TRUE( jrtti::getType< SampleDerived >().isDerivedFrom( mt_sample ) );

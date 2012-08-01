@@ -78,7 +78,7 @@ public:
 	CustomMetaclass&
 	derivesFrom()
 	{
-		return derivesFrom( typeid( C ).name() );
+		return derivesFrom( jrtti::getType< C >() );
 	}
 
 	/**

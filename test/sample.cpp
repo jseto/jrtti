@@ -3,7 +3,7 @@
 
 void declare()
 {
-	jrtti::declare<Point>( "aliasPoint" )
+	jrtti::declare<Point>()
 						.property("x", &Point::x)
 						.property("y", &Point::y);
 

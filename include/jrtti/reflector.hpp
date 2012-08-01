@@ -60,7 +60,7 @@ public:
 		}
 
 		CustomMetaclass<C> * mc = new CustomMetaclass<C>( name, annotations );
-		internal_declare(name, mc);
+		internal_declare< C >( mc );
 
 		return * mc;
 	}
@@ -70,7 +70,7 @@ public:
 	declare( std::string alias, const Annotations& annotations = Annotations() )
 	{
 		CustomMetaclass<C> * mc = &declare<C>( annotations );
-		internal_declare( alias, mc );
+//		internal_declare( alias, mc );
 		return *mc;
 	}
 
@@ -85,7 +85,7 @@ public:
 		}
 
 		CustomMetaclass<C, boost::true_type> * mc = new CustomMetaclass<C, boost::true_type>( name, annotations );
-		internal_declare(name, mc);
+		internal_declare< C >( mc );
 
 		return * mc;
 	}
@@ -96,7 +96,7 @@ public:
 	declareAbstract( std::string alias, const Annotations& annotations = Annotations() )
 	{
 		CustomMetaclass<C> * mc = &declareAbstract<C>( annotations );
-		internal_declare( alias, mc );
+//		internal_declare( alias, mc );
 		return *mc;
 	}
 
@@ -112,7 +112,7 @@ public:
 		}
 
 		Metacollection<C> * mc = new Metacollection<C>( name, annotations );
-		internal_declare(name, mc);
+		internal_declare< C >( mc );
 
 		return * mc;
 	}
@@ -122,7 +122,7 @@ public:
 	declareCollection( std::string alias, const Annotations& annotations = Annotations() )
 	{
 		Metacollection<C> * mc = &declareCollection<C>( annotations );
-		internal_declare( alias, mc );
+//		internal_declare( alias, mc );
 		return *mc;
 	}
 
@@ -137,7 +137,7 @@ public:
 	void
 	alias( const std::string& new_name)
 	{
-		internal_declare( new_name, &getType<C>() );
+//		internal_declare( new_name, &getType<C>() );
 	}
 
 	/**
@@ -225,15 +225,42 @@ private:
 
 	void
 	register_defaults(){
-		internal_declare( typeid( int ).name(), new MetaInt());
-		internal_declare( typeid( char ).name(), new MetaChar());
-		internal_declare( typeid( bool ).name(), new MetaBool());
-		internal_declare( typeid( double ).name(), new MetaDouble());
-		internal_declare( typeid( std::string ).name(), new MetaString());
+		internal_declare< int >( new MetaInt() );
+		internal_declare< char >( new MetaChar() );
+		internal_declare< bool >( new MetaBool() );
+		internal_declare< double >( new MetaDouble() );
+		internal_declare< std::string >( new MetaString() );
 //		alias<std::string>("std::string");
 //		alias<std::string *>("std::string *");
 	}
 
+	template< typename T >
+	void
+	internal_declare( Metatype * mc)
+	{
+		Metatype * ptr_mc;
+//		Metatype * ref_mc;
+
+		if ( _meta_types.count( mc->name() ) == 0 ) {
+			ptr_mc = new MetaPointerType(*mc);
+//			ref_mc = new MetaReferenceType(*mc);
+		}
+		else {
+			ptr_mc = &getType( mc->name() + " *" );
+//			ref_mc = &getType( mc->name() + " &" );
+		}
+//		std::cout <<  typeid( T ).name()  << " : " << demangle( typeid( T ).name() ) << " ptr: " << typeid( T* ).name() << " : " << demangle( typeid( T* ).name() ) << " ref: " << typeid( T& ).name() << " : " << demangle( typeid( T& ).name() ) << std::endl;
+		_meta_types[ typeid( T ).name() ] = mc;
+		_meta_types[ typeid( T* ).name() ] = ptr_mc;
+//		_meta_types[ typeid( T ).name() ] = ref_mc;
+
+//		_meta_types[ demangle( typeid( T ).name() ) ] = mc;
+//		_meta_types[ demangle( typeid( T* ).name() ) ] = ptr_mc;
+//		_meta_types[ demangle( typeid( T& ).name() ) + "&" ] = ref_mc;
+	}
+
+
+/*
 	void
 	internal_declare(std::string name, Metatype * mc)
 	{
@@ -248,7 +275,7 @@ private:
 			ptr_mc = &getType( mc->name() + " *" );
 			ref_mc = &getType( mc->name() + " &" );
 		}
-
+		std::cout << name << " : " << demangle(name) << std::endl;
 		_meta_types[name] = mc;
 		_meta_types[name + " *"] = ptr_mc;
 		_meta_types[name + " &"] = ref_mc;
@@ -257,7 +284,7 @@ private:
 		_meta_types[ demangle( name + " *" ) ] = ptr_mc;
 		_meta_types[ demangle( name + " &" ) ] = ref_mc;
 	}
-
+*/
 	friend AddressRefMap& _addressRefMap();
 
 	inline
