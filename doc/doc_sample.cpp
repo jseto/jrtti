@@ -1,3 +1,4 @@
+#include <iostream>
 #include <jrtti/jrtti.hpp>
 
 // Define C++ classes

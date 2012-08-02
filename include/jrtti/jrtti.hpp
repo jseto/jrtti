@@ -6,6 +6,9 @@
 #include "exception.hpp"
 #include "annotations.hpp"
 
+/// \example sample.h
+/// \example sample.cpp
+
 namespace jrtti {
 	typedef std::map< void *, std::string > AddressRefMap;
 	typedef std::map< std::string, void * > NameRefMap;

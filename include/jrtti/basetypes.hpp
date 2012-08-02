@@ -7,29 +7,6 @@
 
 namespace jrtti {
 
-/*class MetaIndirectedType: public Metatype	{
-public:
-	MetaIndirectedType(Metatype & baseType, std::string name_sufix)
-		:	Metatype(baseType.name() + " " + name_sufix),
-		 	m_baseType(baseType)
-
-	{}
-
-	virtual
-	boost::any
-	create() {
-		return m_baseType.create();
-	}
-
-	PropertyMap &
-	properties(){
-		return m_baseType.properties();
-	}
-
-protected:
-	Metatype & m_baseType;
-};
-*/
 class MetaPointerType: public Metatype {
 public:
 	MetaPointerType ( const std::type_info& typeinfo, Metatype & baseType )
@@ -49,7 +26,7 @@ public:
 	}
 
 	bool
-	isPointer() { 
+	isPointer() {
 		return true;
 	}
 
@@ -98,29 +75,6 @@ protected:
 private:
 	Metatype & m_baseType;
 };
-/*
-class MetaReferenceType: public MetaIndirectedType {
-public:
-	MetaReferenceType(Metatype & baseType): MetaIndirectedType(baseType, "&")
-	{}
-
-	bool
-	isReference() { return true;}
-
-protected:
-	virtual
-	std::string
-	_toStr( const boost::any & value, bool formatForStreaming ){
-		return m_baseType._toStr( value, formatForStreaming );
-	}
-
-	virtual
-	boost::any
-	_fromStr( const boost::any& instance, const std::string& str ) {
-		return m_baseType._fromStr( instance, str );
-	}
-};
-*/
 
 // predefined std types
 class MetaInt: public Metatype {

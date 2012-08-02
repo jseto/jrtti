@@ -105,7 +105,5 @@ void useCase() {
 	//and set the s object from a string representation
 	mt.fromStr( &s, contens );
 	std::cout << contens << std::endl;
-
-	std::cin.ignore(1);
 }
 

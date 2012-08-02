@@ -439,6 +439,10 @@ TEST_F(MetaTypeTest, parentCheck) {
 	EXPECT_TRUE( jrtti::getType< SampleDerived >().isDerivedFrom< SampleBase >() );
 }
 
+TEST_F(MetaTypeTest, checkUseCase) {
+	useCase();
+}
+
 GTEST_API_ int main(int argc, char **argv) {
 	std::cout << "Running tests\n";
 
