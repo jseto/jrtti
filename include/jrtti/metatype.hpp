@@ -58,7 +58,16 @@ public:
 	 */
 	std::string
 	name()	{
-		return m_type_name;
+		return demangle( m_type_info.name() );
+	}
+
+	/**
+	 * \brief Get the native type_info of metatyp
+	 * \return the type_info structure
+	 */
+	const std::type_info&
+	typeInfo() {
+		return m_type_info;
 	}
 
 	/**
@@ -383,8 +392,8 @@ protected:
 	
 	template< typename C > friend class Metacollection;
 
-	Metatype( std::string name, const Annotations& annotations = Annotations() )
-		:	m_type_name(name),
+	Metatype( const std::type_info& typeinfo, const Annotations& annotations = Annotations() )
+		:	m_type_info( typeinfo ),
 			m_annotations( annotations ),
 			m_parentMetatype( NULL ) {}
 
@@ -493,7 +502,8 @@ protected:
 	}
 
 private:
-	std::string		m_type_name;
+//	std::string		m_type_name;
+	const std::type_info&	m_type_info;
 	MethodMap		m_methods;
 	MethodMap		m_ownedMethods;
 	PropertyMap		m_properties;

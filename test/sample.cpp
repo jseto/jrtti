@@ -64,19 +64,19 @@ void useCase() {
 	s.circularRef = &s; s.setDoubleProp( 344.23 ); s.setStdStringProp( "Hello!!!" );
 	
 	//set the property intMember of s object to 15
-	jrtti::getType( "Sample" ).property( "intMember" ).set( &s, 15 );
+	jrtti::getType< Sample >().property( "intMember" ).set( &s, 15 );
 	std::cout << s.intMember << " == " << 15 << std::endl;
 
 	//retrieve the value of intMember from s object
-	int i = jrtti::getType( "Sample" ).property( "intMember" ).get<int>( &s );
+	int i = jrtti::getType< Sample >().property( "intMember" ).get<int>( &s );
 	std::cout << s.intMember << " == " << i << std::endl;
 
 	//same as above using braket operator
-	i = jrtti::getType("Sample")[ "intMember" ].get<int>( &s );
+	i = jrtti::getType< Sample >()[ "intMember" ].get<int>( &s );
 	std::cout << s.intMember << " == " << i << std::endl;
 
 	//getting a Metatype object
-	jrtti::Metatype & mt = jrtti::getType("Sample");
+	jrtti::Metatype & mt = jrtti::getType< Sample >();
 
 	//and working with it
 	p.x = 23;

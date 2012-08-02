@@ -9,8 +9,8 @@ template <class ClassT, class IsAbstractT = boost::false_type>
 class CustomMetaclass : public Metatype
 {
 public:
-	CustomMetaclass( std::string name, const Annotations& annotations = Annotations() )
-		: Metatype( name, annotations ) {}
+	CustomMetaclass( const Annotations& annotations = Annotations() )
+		: Metatype( typeid( ClassT ), annotations ) {}
 
 	virtual
 	boost::any
@@ -52,7 +52,7 @@ public:
 		return *this;
 	}
 
-	/**
+	/* *
 	 * \brief Sets the parent class
 	 *
 	 * Use this method to denote the parent class from where this class
@@ -60,12 +60,12 @@ public:
 	 * \param parentName the parent name representation
 	 * \return this for chain calls
 	 */
-	CustomMetaclass&
+/*	CustomMetaclass&
 	derivesFrom( const std::string& parentName )
 	{
 		return derivesFrom( jrtti::getType( parentName ) );
 	}
-
+*/
 	/**
 	 * \brief Sets the parent class
 	 *

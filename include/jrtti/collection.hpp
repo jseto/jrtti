@@ -20,7 +20,7 @@ namespace jrtti {
 template< typename ClassT >
 class Metacollection: public CustomMetaclass< ClassT > {
 public:
-	Metacollection( std::string name, const Annotations& annotations = Annotations() ): CustomMetaclass< ClassT >( name, annotations ) {}
+	Metacollection( const Annotations& annotations = Annotations() ): CustomMetaclass< ClassT >( annotations ) {}
 
 protected:
 	virtual

@@ -121,7 +121,7 @@ TEST_F(MetaTypeTest, StdStringMutator) {
 
 TEST_F(MetaTypeTest, ByValType) {
 
-	EXPECT_EQ( "Date", jrtti::Reflector::instance().demangle( mClass()["date"].type().name() ) );
+	EXPECT_EQ( "Date", mClass()["date"].type().name() );
 }
 
 TEST_F(MetaTypeTest, ByValAccessor) {
