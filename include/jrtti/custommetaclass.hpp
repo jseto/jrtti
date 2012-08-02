@@ -52,20 +52,6 @@ public:
 		return *this;
 	}
 
-	/* *
-	 * \brief Sets the parent class
-	 *
-	 * Use this method to denote the parent class from where this class
-	 * inherits from. Parent class should be previously declared
-	 * \param parentName the parent name representation
-	 * \return this for chain calls
-	 */
-/*	CustomMetaclass&
-	derivesFrom( const std::string& parentName )
-	{
-		return derivesFrom( jrtti::getType( parentName ) );
-	}
-*/
 	/**
 	 * \brief Sets the parent class
 	 *

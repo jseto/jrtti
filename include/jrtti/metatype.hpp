@@ -103,18 +103,6 @@ public:
 	}
 
 	/**
-	 * \brief Check for reference type
-	 *
-	 * Check if the associated type is a reference. ex: declare< Class & >
-	 * \return true if reference
-	 */
-	virtual
-	bool
-	isReference() {
-		return false;
-	}
-
-	/**
 	 * \brief Check if this Metatype is the abstraction of a fundamental type
 	 * Fundamental types are bool, char, int, float, double and wchar_t
 	 * \return true if fundamental

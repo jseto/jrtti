@@ -59,10 +59,10 @@ int main()
 	pos.x = 10; pos.y = 40;
 
 	// set the ball position
-	jrtti::getType( "Ball" ).property( "position" ).set( &ball, pos );
+	jrtti::getType< Ball >().property( "position" ).set( &ball, pos );
 
 	//get a Metatype object
-	jrtti::Metatype & mt = jrtti::getType("Ball");
+	jrtti::Metatype & mt = jrtti::getType< Ball >();
 
 	//and working with it accessing properties as an array
 	std::cout << "Ball color: " << mt[ "color" ].get< std::string >( &ball ) << std::endl;
