@@ -5,6 +5,7 @@
 //---------------------------------------------------------------------------
 
 #include <jrtti/jrtti.hpp>
+#include <jrtti/base64.hpp>
 #include <iostream>
 #include <vector>
 #include <string.h>
@@ -49,7 +50,10 @@ public:
 class Sample : public SampleBase
 {
 public:
-	Sample(){ circularRef = this; }
+	Sample(){
+		circularRef = this;
+		m_arraySize = 5;
+	}
 
 	int intMember;
 	Sample * circularRef;
@@ -87,6 +91,30 @@ public:
 	Collection& getCollection(){ return _collection; }
 	void setCollection( Collection& col ){ _collection = col; }
 
+	char * getArray() {
+		return m_sampleArray;
+	}
+
+	std::string stringifier() {
+		return "\"" + jrtti::Base64::encode( (uint8_t *) m_sampleArray, m_arraySize ) + "\"";
+/*		std::string str = "[";
+		for (int i = 0; i < m_arraySize; ++i) {
+			str += jrtti::numToStr( (int)m_sampleArray[i] ) + ",";
+		}
+		str[str.length()-1]=']';
+		return str;
+*/
+	}
+
+	void deStringifier( std::string str ) {
+		jrtti::Base64::decode( str, (uint8_t *)m_sampleArray );
+/*		jrtti::JSONParser parser( str );
+		int i = 0;
+		for ( jrtti::JSONParser::iterator it = parser.begin(); it != parser.end(); ++it )
+			m_sampleArray[ i++ ] = jrtti::strToNum<int>( it->second );
+*/
+	}
+
 private:	// User declarations
 	double test;
 	Point * _point;
@@ -94,6 +122,8 @@ private:	// User declarations
 	std::string	_s;
 	bool boolVal;
 	Collection _collection;
+	char m_sampleArray[0xffff];
+	size_t m_arraySize;
 };
 
 class SampleDerived : public Sample

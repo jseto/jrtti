@@ -24,10 +24,6 @@ public:
 	typedef std::map< std::string, Property * > PropertyMap;
 	typedef std::map< std::string, Method * >	MethodMap;
 
-	Metatype( std::string name, const Annotations& annotations = Annotations() )
-		:	m_type_name(name),
-			m_annotations( annotations ) {}
-
 	~Metatype() {
 		for (PropertyMap::iterator it = m_ownedProperties.begin(); it != m_ownedProperties.end(); ++it) {
 			delete it->second;
@@ -36,6 +32,16 @@ public:
 		for (MethodMap::iterator it = m_ownedMethods.begin(); it != m_ownedMethods.end(); ++it) {
 			delete it->second;
 		}
+	}
+
+	bool
+	operator == ( const Metatype& mt ) {
+		return this == &mt;
+	}
+
+	bool
+	operator != ( const Metatype& mt ) {
+		return !( *this == mt );
 	}
 
 	/**
@@ -52,7 +58,16 @@ public:
 	 */
 	std::string
 	name()	{
-		return m_type_name;
+		return demangle( m_type_info.name() );
+	}
+
+	/**
+	 * \brief Get the native type_info of metatyp
+	 * \return the type_info structure
+	 */
+	const std::type_info&
+	typeInfo() {
+		return m_type_info;
 	}
 
 	/**
@@ -88,15 +103,29 @@ public:
 	}
 
 	/**
-	 * \brief Check for reference type
-	 *
-	 * Check if the associated type is a reference. ex: declare< Class & >
-	 * \return true if reference
+	 * \brief Check if this Metatype is the abstraction of a fundamental type
+	 * Fundamental types are bool, char, int, float, double and wchar_t
+	 * \return true if fundamental
 	 */
 	virtual
 	bool
-	isReference() {
+	isFundamental() {
 		return false;
+    }
+
+	bool 
+	isDerivedFrom( const Metatype& parent ) {
+		Metatype * derived = this;
+		while ( derived->m_parentMetatype && ( *derived->m_parentMetatype != parent ) ) {
+			derived = derived->m_parentMetatype;
+		}
+		return ( derived->m_parentMetatype != NULL );
+	}
+	
+	template< typename T >
+	bool 
+	isDerivedFrom() {
+		return isDerivedFrom( jrtti::getType< T >() );
 	}
 
 	/**
@@ -159,7 +188,7 @@ public:
 	template < class ReturnT, class ClassT >
 	ReturnT
 	call ( std::string methodName, ClassT * instance ) {
-		typedef typename TypedMethod< ClassT, ReturnT > MethodType;
+		typedef TypedMethod< ClassT, ReturnT > MethodType;
 
 		MethodType * ptr = static_cast< MethodType * >( m_methods[methodName] );
 		if (!ptr) {
@@ -184,7 +213,7 @@ public:
 	template <class ReturnT, class ClassT, class Param1>
 	ReturnT
 	call ( std::string methodName, ClassT * instance, Param1 p1 ) {
-		typedef typename TypedMethod< ClassT, ReturnT, Param1 > MethodType;
+		typedef TypedMethod< ClassT, ReturnT, Param1 > MethodType;
 
 		MethodType * ptr = static_cast< MethodType * >( m_methods[methodName] );
 		if (!ptr) {
@@ -211,7 +240,7 @@ public:
 	template <class ReturnT, class ClassT, class Param1, class Param2>
 	ReturnT
 	call ( std::string methodName, ClassT * instance, Param1 p1, Param2 p2 ) {
-		typedef typename TypedMethod< ClassT, ReturnT, Param1, Param2 > MethodType;
+		typedef TypedMethod< ClassT, ReturnT, Param1, Param2 > MethodType;
 
 		MethodType * ptr = static_cast< MethodType * >( m_methods[methodName] );
 		if (!ptr) {
@@ -348,7 +377,18 @@ public:
 protected:
 	friend class MetaReferenceType;
 	friend class MetaPointerType;
+	
 	template< typename C > friend class Metacollection;
+
+	Metatype( const std::type_info& typeinfo, const Annotations& annotations = Annotations() )
+		:	m_type_info( typeinfo ),
+			m_annotations( annotations ),
+			m_parentMetatype( NULL ) {}
+
+	void 
+	parentMetatype( Metatype * parent ) {
+		m_parentMetatype = parent;
+	}
 
 	virtual
 	std::string
@@ -367,14 +407,22 @@ protected:
 			need_nl = false;
 		}
 
-
 		for( PropertyMap::iterator it = properties().begin(); it != properties().end(); ++it) {
 			Property * prop = it->second;
 			if ( prop ) {
 				if ( !( formatForStreaming && prop->annotations().has< NoStreamable >() ) ) {
 					if (need_nl) result += ",\n";
 					need_nl = true;
-					result += ident( "\"" + prop->name() + "\"" + ": " + prop->type()._toStr( prop->get(inst), formatForStreaming ) );
+
+					std::string addToResult;
+					StringifyDelegateBase * stringifyDelegate = prop->annotations().getFirst< StringifyDelegateBase >();
+					if ( stringifyDelegate ) {
+						addToResult = stringifyDelegate->toStr( inst );
+					}
+					else {
+						addToResult = prop->type()._toStr( prop->get(inst), formatForStreaming );
+					}
+					result += ident( "\"" + prop->name() + "\"" + ": " + addToResult );
 				}
 			}
 		}
@@ -398,10 +446,16 @@ protected:
 			{
 				Property * prop = properties()[ it->first ];
 				if ( prop ) {
-					if ( prop->isWritable() ) {
-						const boost::any &mod = prop->type()._fromStr( prop->get( inst ), it->second );
-						if ( !mod.empty() ) {
-							prop->set( inst, mod );
+					if ( prop->isWritable() || prop->annotations().has< ForceStreamLoadable >() ) {
+						StringifyDelegateBase * stringifyDelegate = prop->annotations().getFirst< StringifyDelegateBase >();
+						if ( stringifyDelegate ) {
+                        	stringifyDelegate->fromStr( inst, it->second );
+						}
+						else {
+							const boost::any &mod = prop->type()._fromStr( prop->get( inst ), it->second );
+							if ( !mod.empty() ) {
+								prop->set( inst, mod );
+							}
 						}
 					}
 				}
@@ -436,12 +490,14 @@ protected:
 	}
 
 private:
-	std::string		m_type_name;
+//	std::string		m_type_name;
+	const std::type_info&	m_type_info;
 	MethodMap		m_methods;
 	MethodMap		m_ownedMethods;
 	PropertyMap		m_properties;
 	PropertyMap 	m_ownedProperties;
 	Annotations 	m_annotations;
+	Metatype *		m_parentMetatype;
 };
 
 //------------------------------------------------------------------------------

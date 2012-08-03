@@ -60,21 +60,12 @@ public:
 	}
 
 	/**
-	 * \brief Gets the type name of this property
-	 * \return the type name
-	 */
-	std::string
-	typeName() {
-		return _type_name;
-	}
-
-	/**
 	 * \brief Retrieves the Metatype of this property
 	 * \return the meta type
 	 */
 	Metatype &
 	type() {
-		return jrtti::getType( typeName() );
+		return *_metaType;
 	}
 
 	/**
@@ -153,14 +144,14 @@ public:
 	}
 
 protected:
-	void
-	typeName(std::string value) {
-		_type_name = value;
+	void 
+	setMetatype( Metatype * mt ) {
+		_metaType = mt;
 	}
 
 private:
 	Annotations	_annotations;
-	std::string	_type_name;
+	Metatype * _metaType;
 	std::string	_name;
 	Mode 	   	_mode;
 };
@@ -169,11 +160,11 @@ template <class ClassT, class PropT>
 class TypedProperty : public Property
 {
 public:
-	typedef typename boost::remove_reference< typename PropT >::type PropNoRefT;
+	typedef typename boost::remove_reference< PropT >::type PropNoRefT;
 
 	TypedProperty()
 	{
-		typeName( jrtti::nameOf<PropT>());
+		setMetatype( &jrtti::getType< PropT >() );
 	}
 
 	TypedProperty&
@@ -186,7 +177,6 @@ public:
 	}
 
 	TypedProperty&
-//	typename boost::disable_if< typename boost::is_reference< typename PropT >::type, TypedProperty& >::type
 	setter( PropNoRefT ClassT::* dataMember)
 	{
 		setMode( Writable );
@@ -215,32 +205,31 @@ public:
 	void
 	set( void * instance, const boost::any& val)	{
 		if (isWritable()) {
-//			typedef boost::remove_reference< PropT >::type PropTNoRef;
-			PropNoRefT p = boost::any_cast< typename PropNoRefT >( val );
+			PropNoRefT p = boost::any_cast< PropNoRefT >( val );
 			internal_set( (ClassT *)instance, p );
 		}
 	}
 
 private:
 	//SFINAE for pointers
-	template < typename PropT>
-	typename boost::enable_if< typename boost::is_pointer< typename PropT >::type, boost::any >::type
+	template < typename T>
+	typename boost::enable_if< typename boost::is_pointer< T >::type, boost::any >::type
 	internal_get(void * instance)	{
 		return  (void *)m_getter( (ClassT *)instance );
 	}
 
 	//SFINAE for references
-	template < typename PropT>
-	typename boost::enable_if< typename boost::is_reference< typename PropT >::type, boost::any >::type
+	template < typename T>
+	typename boost::enable_if< typename boost::is_reference< T >::type, boost::any >::type
 	internal_get(void * instance)	{
-		return boost::ref( (PropT)m_getter( (ClassT *)instance ) );
+		return boost::ref( (T) m_getter( (ClassT *)instance ) );
 	}
 
 	//SFINAE for values
-	template < typename PropT>
+	template < typename T>
 	typename boost::disable_if< boost::type_traits::ice_or<
-										boost::is_pointer< PropT >::value,
-										boost::is_reference< PropT >::value >, boost::any >::type
+										boost::is_pointer< T >::value,
+										boost::is_reference< T >::value >, boost::any >::type
 	internal_get(void * instance) {
 		PropT res = m_getter( (ClassT *)instance );
 		return res;

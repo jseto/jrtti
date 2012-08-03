@@ -1,6 +1,10 @@
 #ifndef jrttiannotationsH
 #define jrttiannotationsH
 
+#include <vector>
+#include <boost/shared_ptr.hpp>
+#include <boost/pointer_cast.hpp>
+#include <boost/function.hpp>
 
 namespace jrtti {
 
@@ -51,7 +55,7 @@ public:
 	T *
 	getFirst() {
 		for ( Container::iterator it = m_annotations.begin(); it != m_annotations.end(); ++it ) {
-			T * p = dynamic_cast< T* >( it->get() );
+			T * p = boost::dynamic_pointer_cast< T >( *it ).get();
 			if ( p )
 				return p;
 		}
@@ -69,7 +73,7 @@ public:
 	getAll() {
 		std::vector< T * > v;
 		for ( Container::iterator it = m_annotations.begin(); it != m_annotations.end(); ++it ) {
-			T * p = dynamic_cast< T* >( it->get() );
+			T * p = boost::dynamic_pointer_cast< T >( it->get() );
 			if ( p )
 				v.push_back( p );
 		}
@@ -99,6 +103,74 @@ private:
  * method Metatype::toStr with parameter formatForStreaming set to true
  */
 class NoStreamable : public Annotation {
+};
+
+class StringifyDelegateBase : public Annotation {
+public:
+	virtual std::string toStr( void * instance )=0;
+	virtual void fromStr( void * instance, std::string str )=0;
+};
+
+/**
+ * \brief Marks property for stream reading
+ * 
+ * Reference or pointer properties without setter are marked as ReadOnly. 
+ * Therefore, the fromStr method ignores such a property and it is not loaded.
+ * Non const references or pointers give access to it contens allowing to change 
+ * internal values. This often happens in streaming. This Annotation forces the 
+ * streaming mechanism to load data for such properties.
+ */
+class ForceStreamLoadable : public Annotation {
+	//TODO: consirering the constness of references and pointers, this may be unnecesary
+};
+
+/**
+ * \brief Delegates for toStr and fromStr
+ *
+ * Metatypes annotated with StrigifyDelegate delegate methods toStr and
+ * fromStr to stringifier and deStringifier methods.
+ * Write in the native class, methods to manage the way the class should be
+ * represented as a string. This is useful when the class has members that not
+ * fit with the standard JSON representation as, for example, memory dump.
+ * It is responsability of the programer that the stringifier function returns
+ * something compatible with JSON values, that means that the string returned
+ * has to be a JSON number, a JSON string surronded with quotes, a JSON object
+ * surround with braces ( {...} ) or a JSON collection surrounded by brakets ( [...] ).
+ * The contens of the produced JSON value is irrelevant to jrtti and jrtti will only return to
+ * the destrigifier the inner content of the JSON value.
+ * \tparam the class having to specialize some menbers
+ */
+template< typename T >
+class StringifyDelegate : public StringifyDelegateBase {
+	typedef boost::function< void ( T*, std::string ) > DeStringifier;
+	typedef boost::function< std::string ( T* ) > Stringifier;
+
+public:
+	/**
+	 * \brief Constructor to pass the delegated function members
+	 * \param stringifier the address of function member of T to produce a string representation with std::string f() signature
+	 * \param deStringifier the address of function member of T to reconstruct the class member from a string representation with void f( sdt::string ) signature
+	 */
+	StringifyDelegate( Stringifier stringifier, DeStringifier deStringifier ) {
+		m_deStringifier = deStringifier;
+		m_stringifier = stringifier;
+	}
+
+	virtual
+	std::string
+	toStr( void * instance ) {
+		return m_stringifier( (T*)instance );
+	}
+
+	virtual
+	void
+	fromStr( void * instance, std::string str ) {
+		m_deStringifier( (T*)instance, str );
+	}
+
+private:
+	DeStringifier m_deStringifier;
+	Stringifier m_stringifier;
 };
 
 }; //namespace jrtti

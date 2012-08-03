@@ -7,11 +7,11 @@
 
 namespace jrtti {
 
-class MetaIndirectedType: public Metatype	{
+class MetaPointerType: public Metatype {
 public:
-	MetaIndirectedType(Metatype & baseType, std::string name_sufix)
-		:	m_baseType(baseType), 
-			Metatype(baseType.name() + " " + name_sufix)
+	MetaPointerType ( const std::type_info& typeinfo, Metatype & baseType )
+		:	Metatype( typeinfo ),
+			m_baseType(baseType)
 	{}
 
 	virtual
@@ -25,17 +25,8 @@ public:
 		return m_baseType.properties();
 	}
 
-protected:
-	Metatype & m_baseType;
-};
-
-class MetaPointerType: public MetaIndirectedType {
-public:
-	MetaPointerType (Metatype & baseType): MetaIndirectedType(baseType, "*")
-	{}
-
 	bool
-	isPointer() { 
+	isPointer() {
 		return true;
 	}
 
@@ -47,7 +38,7 @@ protected:
 
 		AddressRefMap::iterator it = _addressRefMap().find( inst );
 		if ( it == _addressRefMap().end() ) {
-			return MetaIndirectedType::_toStr( value, formatForStreaming );
+			return Metatype::_toStr( value, formatForStreaming );
 		}
 		else {
 			return "{\n\t\"$ref\": \"" + it->second + "\"\n}";
@@ -60,15 +51,15 @@ protected:
 		JSONParser parser( str );
 		boost::any any_ptr;
 		if ( parser.begin()->first == "$ref" ) {
-			void * ptr = _nameRefMap()[ parser.begin()->second ];
-			any_ptr = m_baseType.copyFromInstanceAsPtr( ptr );
-		}
-		else {
-			any_ptr = create();
-			MetaIndirectedType::_fromStr( any_ptr, str );
-		}
-		return any_ptr;
-	}
+			void * ptr = _nameRefMap()[ parser.begin()->second ];
+			any_ptr = m_baseType.copyFromInstanceAsPtr( ptr );
+		}
+		else {
+			any_ptr = create();
+			Metatype::_fromStr( any_ptr, str );
+		}
+		return any_ptr;
+	}
 
 	virtual
 	void *
@@ -80,35 +71,21 @@ protected:
 			return m_baseType.get_instance_ptr( value );
 		}
 	}
+
+private:
+	Metatype & m_baseType;
 };
-
-class MetaReferenceType: public MetaIndirectedType {
-public:
-	MetaReferenceType(Metatype & baseType): MetaIndirectedType(baseType, "&")
-	{}
-
-	bool
-	isReference() { return true;}
-
-protected:
-	virtual
-	std::string
-	_toStr( const boost::any & value, bool formatForStreaming ){
-		return m_baseType._toStr( value, formatForStreaming );
-	}
-
-	virtual
-	boost::any
-	_fromStr( const boost::any& instance, const std::string& str ) {
-		return m_baseType._fromStr( instance, str );
-	}
-};
-
 
 // predefined std types
 class MetaInt: public Metatype {
 public:
-	MetaInt(): Metatype("int") {}
+	MetaInt(): Metatype( typeid( int ) ) {}
+
+	virtual
+	bool
+	isFundamental() {
+		return true;
+	}
 
 	virtual
 	std::string
@@ -129,10 +106,44 @@ public:
 	}
 };
 
-
-class MetaBool: public Metatype {
+class MetaChar: public Metatype {
 public:
-	MetaBool(): Metatype("bool") {}
+	MetaChar(): Metatype( typeid( char ) ) {}
+
+	virtual
+	bool
+	isFundamental() {
+		return true;
+	}
+
+	virtual
+	std::string
+	_toStr( const boost::any & value, bool formatForStreaming ){
+		return numToStr(boost::any_cast<char>(value));
+	}
+
+	boost::any
+	_fromStr( const boost::any& instance, const std::string& str ) {
+		return strToNum<char>( str );
+	}
+
+	virtual
+	boost::any
+	create()
+	{
+		return new char;
+	}
+};
+
+class MetaBool: public Metatype {
+public:
+	MetaBool(): Metatype( typeid( bool ) ) {}
+
+	virtual
+	bool
+	isFundamental() {
+		return true;
+	}
 
 	virtual
 	std::string
@@ -154,7 +165,13 @@ public:
 
 class MetaDouble: public Metatype {
 public:
-	MetaDouble(): Metatype("double") {}
+	MetaDouble(): Metatype( typeid( double ) ) {}
+
+	virtual
+	bool
+	isFundamental() {
+		return true;
+	}
 
 	virtual
 	std::string
@@ -176,7 +193,7 @@ public:
 
 class MetaString: public Metatype {
 public:
-	MetaString(): Metatype("std::string") {}
+	MetaString(): Metatype( typeid( std::string ) ) {}
 
 	virtual
 	std::string

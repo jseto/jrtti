@@ -4,7 +4,7 @@ jrtti - C++ Introspection			{#mainpage}
 Overview
 --------
 
-jrtti is a C++ template library providing reflection capabilities for C++ programing language
+jrtti is a C++ class template library providing reflection capabilities for C++ programing language.
 
 jrtti provides abstraction for standard and custom C++ types and classes.
 This abstraction exposes class members at run time, wich can be accessed by its string name.
@@ -57,6 +57,7 @@ For more detailed samples see sample.cpp and tests under the test directory.
 
 
 ~~~{.cpp}
+#include <iostream>
 #include <jrtti/jrtti.hpp>
 
 // Define C++ classes
@@ -118,10 +119,10 @@ int main()
 	pos.x = 10; pos.y = 40;
 
 	// set the ball position
-	jrtti::getType( "Ball" ).property( "position" ).set( &ball, pos );
+	jrtti::getType< Ball >().property( "position" ).set( &ball, pos );
 
 	//get a Metatype object
-	jrtti::Metatype & mt = jrtti::getType("Ball");
+	jrtti::Metatype & mt = jrtti::getType< Ball >();
 
 	//and working with it accessing properties as an array
 	std::cout << "Ball color: " << mt[ "color" ].get< std::string >( &ball ) << std::endl;
@@ -155,7 +156,8 @@ as boost libraries and add the following environment variables:
 	GTEST_ROOT -> points to your gtest directory
 
 ### Linux
-There are no makefiles for Linux compilers, but the setup should be straight forward.
+Make available jrtti/include path to the compiler include path. Install gtest, and make include and library
+files to the compiler and linker.
 
 
 Get help and collaborate

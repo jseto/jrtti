@@ -97,10 +97,13 @@
     <ClInclude Include="..\include\jrtti\annotations.hpp" />
     <ClInclude Include="..\include\jrtti\base64.hpp" />
     <ClInclude Include="..\include\jrtti\basetypes.hpp" />
+    <ClInclude Include="..\include\jrtti\collection.hpp" />
+    <ClInclude Include="..\include\jrtti\custommetaclass.hpp" />
     <ClInclude Include="..\include\jrtti\exception.hpp" />
     <ClInclude Include="..\include\jrtti\helpers.hpp" />
     <ClInclude Include="..\include\jrtti\jrtti.hpp" />
     <ClInclude Include="..\include\jrtti\jsonparser.hpp" />
+    <ClInclude Include="..\include\jrtti\metaobject.hpp" />
     <ClInclude Include="..\include\jrtti\metatype.hpp" />
     <ClInclude Include="..\include\jrtti\method.hpp" />
     <ClInclude Include="..\include\jrtti\property.hpp" />

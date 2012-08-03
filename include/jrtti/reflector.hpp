@@ -6,9 +6,12 @@
 	#include <cxxabi.h>
 #endif
 
+#include <set>
 #include "basetypes.hpp"
 #include "custommetaclass.hpp"
 #include "collection.hpp"
+#include "metaobject.hpp"
+#include <typeinfo>
 
 namespace jrtti {
 
@@ -18,16 +21,17 @@ namespace jrtti {
 class Reflector
 {
 public:
-	typedef std::map<std::string, Metatype * > TypeMap;
+	typedef std::map< std::string, Metatype * > TypeMap;
 
 	~Reflector()
 	{
+		std::set< Metatype * > pending;
 		for ( TypeMap::iterator it = _meta_types.begin(); it != _meta_types.end(); ++it) {
-			std::string demangledName = demangle( it->first );
-			if ( _meta_types[ demangledName ] ) {
-				delete _meta_types[ demangledName ];
-				_meta_types[ demangledName ] = NULL;
-			}
+			pending.insert( it->second );
+		}
+
+		for ( std::set< Metatype * >::iterator it = pending.begin(); it != pending.end(); ++it ) {
+			delete *it;
 		}
 	}
 
@@ -51,48 +55,28 @@ public:
 	CustomMetaclass<C>&
 	declare( const Annotations& annotations = Annotations() )
 	{
-		std::string name = nameOf<C>();
-		if ( _meta_types.count( name ) ) {
-			return *( dynamic_cast< CustomMetaclass<C> * >( &getType( name ) ) );
+		if ( _meta_types.count( typeid( C ).name() ) ) {
+			return *( dynamic_cast< CustomMetaclass<C> * >( &getType< C >() ) );
 		}
 
-		CustomMetaclass<C> * mc = new CustomMetaclass<C>( name, annotations );
-		internal_declare(name, mc);
+		CustomMetaclass<C> * mc = new CustomMetaclass<C>( annotations );
+		internal_declare< C >( mc );
 
 		return * mc;
 	}
-
-	template <typename C>
-	CustomMetaclass<C>&
-	declare( std::string alias, const Annotations& annotations = Annotations() )
-	{
-		this->alias<C>( alias );
-		return declare<C>( annotations );
-	}
-
 
 	template <typename C>
 	CustomMetaclass<C, boost::true_type>&
 	declareAbstract( const Annotations& annotations = Annotations() )
 	{
-		std::string name = nameOf<C>();
-		if ( _meta_types.count( name ) ) {
-			return *( dynamic_cast< CustomMetaclass<C, boost::true_type> * >( &getType( name ) ) );
+		if ( _meta_types.count( typeid( C ).name() ) ) {			// use find and avoid double search calling getType
+			return *( dynamic_cast< CustomMetaclass<C, boost::true_type> * >( &getType< C >() ) );
 		}
 
-		CustomMetaclass<C, boost::true_type> * mc = new CustomMetaclass<C, boost::true_type>( name, annotations );
-		internal_declare(name, mc);
+		CustomMetaclass<C, boost::true_type> * mc = new CustomMetaclass<C, boost::true_type>( annotations );
+		internal_declare< C >( mc );
 
 		return * mc;
-	}
-
-
-	template <typename C>
-	CustomMetaclass<C, boost::true_type>&
-	declareAbstract( std::string alias, const Annotations& annotations = Annotations() )
-	{
-		this->alias<C>( alias );
-		return declareAbstract<C>( annotations );
 	}
 
 	template <typename C>
@@ -100,32 +84,15 @@ public:
 	declareCollection( const Annotations& annotations = Annotations() )
 	{
 	//////////  COMPILER ERROR: Class C is not a Collection //// Class C should implement type iterator to be a collection
-		typedef C::iterator iterator;
-		std::string name = nameOf<C>();
-		if ( _meta_types.count( name ) ) {
-			return *( dynamic_cast< Metacollection<C> * >( &getType( name ) ) );
+		typedef typename C::iterator iterator;
+		if ( _meta_types.count( typeid( C ).name() ) ) {
+			return *( dynamic_cast< Metacollection<C> * >( &getType< C >( ) ) );
 		}
 
-		Metacollection<C> * mc = new Metacollection<C>( name, annotations );
-		internal_declare(name, mc);
+		Metacollection<C> * mc = new Metacollection<C>( annotations );
+		internal_declare< C >( mc );
 
 		return * mc;
-	}
-
-	template <typename C>
-	Metacollection<C>&
-	declareCollection( std::string alias, const Annotations& annotations = Annotations() )
-	{
-		this->alias<C>( alias );
-		return declareCollection<C>( annotations );
-	}
-
-	template <typename C>
-	void
-	alias( const std::string& new_name)
-	{
-		_alias[typeid(C).name()] = new_name;
-		_alias[typeid(C*).name()] = new_name + " *";
 	}
 
 	/**
@@ -141,55 +108,38 @@ public:
 		m_prefixDecorators.push_back( decorator );
 	}
 
-	template <typename C>
-	std::string
-	nameOf()
-	{
-		std::string name = typeid(C).name();
-		if (_alias.count(name) > 0)
-			return _alias[name];
-		return name;
-	}
-
-	Metatype &
-	getType( std::string name )
-	{
-		TypeMap::iterator it = _meta_types.find(name);
-		if ( it == _meta_types.end() ) {
-			throw error( "Metatype '" + name + "' not declared" );
-		}
-		return *it->second;
-	}
-
 	template < typename T >
 	Metatype &
 	getType()
 	{
-		return getType( typeid( T ).name() );
+		TypeMap::iterator it = _meta_types.find( typeid( typename boost::remove_reference < T >::type ).name() );
+		if ( it == _meta_types.end() ) {
+			throw error( "Metatype '" + demangle( typeid( T ).name() ) + "' not declared" );
+		}
+		return *it->second;
 	}
 
 	/**
 	 * \brief Removes type name decorators
 	 *
-	 * jrtti uses typeid( T ).name() to determine type names when using declare,
-	 * declareAbstract or declareContainer without passing the user type name.
+	 * This is a utility method to get human readable type names. It is used by
+	 * Metatype::name method and you can use to compare typenames.
 	 * The results of typeid().name() depend compiler implementations. Therefore
-	 * there is not a general rule to demangle shuch results. jrtti::demangle
+	 * there is not a general rule to demangle such results. jrtti::demangle
 	 * implementation manages GNU gcc++, MSC++ and Borland C++ compilers. If your
 	 * compiler is not on the list, it could still work. If not try to use
 	 * jrtti::registerPrefixDecorator to try to suit your compiler implementation.
-	 * If still not fixed, use user type names when declaring types.
 	 * \param name the name to demangle
 	 * \return the demangled name
 	 * \sa registerPrefixDecorator
 	 */
 	std::string
 	demangle( const std::string& name ) {
-#ifdef HAVE_CXA_DEMANGLE
+#ifdef __GNUG__
 		int status = -4;
 		char* res = abi::__cxa_demangle(name.c_str(), NULL, NULL, &status);
-		const char* const demangled_name = (status==0)?res:name;
-		string ret_val(demangled_name);
+		const char* const demangled_name = (status==0)?res:name.c_str();
+		std::string ret_val(demangled_name);
 		free(res);
 		return ret_val;
 #elif __BORLANDC__
@@ -210,7 +160,6 @@ public:
 	}
 
 private:
-	typedef std::map<std::string, std::string> AliasMap;
 	Reflector()
 	{
 		clear();
@@ -218,26 +167,27 @@ private:
 
 	void
 	register_defaults(){
-		alias<std::string>("std::string");
-		internal_declare("int", new MetaInt());
-		internal_declare("bool", new MetaBool());
-		internal_declare("double", new MetaDouble());
-		internal_declare("std::string", new MetaString());
+		internal_declare< int >( new MetaInt() );
+		internal_declare< char >( new MetaChar() );
+		internal_declare< bool >( new MetaBool() );
+		internal_declare< double >( new MetaDouble() );
+		internal_declare< std::string >( new MetaString() );
 	}
 
+	template< typename T >
 	void
-	internal_declare(std::string name, Metatype * mc)
+	internal_declare( Metatype * mc)
 	{
-		Metatype * ptr_mc = new MetaPointerType(*mc);
-		Metatype * ref_mc = new MetaReferenceType(*mc);
+		Metatype * ptr_mc;
 
-		_meta_types[name] = mc;
-		_meta_types[ptr_mc->name()] = ptr_mc;
-		_meta_types[ref_mc->name()] = ref_mc;
-
-		_meta_types[ demangle( name ) ] = mc;
-		_meta_types[ demangle( ptr_mc->name() ) ] = ptr_mc;
-		_meta_types[ demangle( ref_mc->name() ) ] = ref_mc;
+		if ( _meta_types.count( typeid( T ).name() ) == 0 ) {
+			ptr_mc = new MetaPointerType( typeid( T ), *mc);
+		}
+		else {
+			ptr_mc = &getType< T* >();
+		}
+		_meta_types[ typeid( T ).name() ] = mc;
+		_meta_types[ typeid( T* ).name() ] = ptr_mc;
 	}
 
 	friend AddressRefMap& _addressRefMap();
@@ -257,7 +207,6 @@ private:
 	}
 
 	TypeMap						_meta_types;
-	AliasMap					_alias;
 	AddressRefMap				m_addressRefs;
 	NameRefMap					m_nameRefs;
 	std::vector< std::string >	m_prefixDecorators;

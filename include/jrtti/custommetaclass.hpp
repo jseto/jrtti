@@ -9,8 +9,8 @@ template <class ClassT, class IsAbstractT = boost::false_type>
 class CustomMetaclass : public Metatype
 {
 public:
-	CustomMetaclass( std::string name, const Annotations& annotations = Annotations() )
-		: Metatype( name, annotations ) {}
+	CustomMetaclass( const Annotations& annotations = Annotations() )
+		: Metatype( typeid( ClassT ), annotations ) {}
 
 	virtual
 	boost::any
@@ -25,7 +25,7 @@ public:
 	struct detail
 	{
 		template <typename >
-		struct FunctionTypes;
+		struct FunctionTypes{};
 
 		template < typename R >
 		struct FunctionTypes< R ( ClassT::* )() >
@@ -44,25 +44,12 @@ public:
 	 * \return this for chain calls
 	 */
 	CustomMetaclass&
-	inheritsFrom( Metatype& parent )
+	derivesFrom( Metatype& parent )
 	{
+		parentMetatype( &parent );
 		PropertyMap& parentProps = parent.properties();
 		properties().insert( parentProps.begin(), parentProps.end() );
 		return *this;
-	}
-
-	/**
-	 * \brief Sets the parent class
-	 *
-	 * Use this method to denote the parent class from where this class
-	 * inherits from. Parent class should be previously declared
-	 * \param parentName the parent name representation
-	 * \return this for chain calls
-	 */
-	CustomMetaclass&
-	inheritsFrom( const std::string& parentName )
-	{
-		return inheritsFrom( jrtti::getType( parentName ) );
 	}
 
 	/**
@@ -75,9 +62,9 @@ public:
 	 */
 	template < typename C >
 	CustomMetaclass&
-	inheritsFrom()
+	derivesFrom()
 	{
-		return inheritsFrom( nameOf< C >() );
+		return derivesFrom( jrtti::getType< C >() );
 	}
 
 	/**
@@ -96,16 +83,15 @@ public:
 	property( std::string name, SetterT setter, GetterT getter, const Annotations& annotations = Annotations() )
 	{
 		////////// COMPILER ERROR   //// Setter or Getter are not proper accesor methods signatures.
-		typedef typename detail::FunctionTypes< GetterT >::result_type					PropT;
-//			typedef typename boost::remove_reference< typename PropT >::type				PropNoRefT
-		typedef typename boost::function< void (typename ClassT*, typename PropT ) >	BoostSetter;
-		typedef typename boost::function< typename PropT ( typename ClassT * ) >		BoostGetter;
+		typedef typename detail::template FunctionTypes< GetterT >::result_type	PropT;
+		typedef typename boost::function< void ( ClassT*, PropT ) >				BoostSetter;
+		typedef typename boost::function< PropT ( ClassT * ) >					BoostGetter;
 
-		return fillProperty< typename PropT, BoostSetter, BoostGetter >( name, boost::bind(setter,_1,_2), boost::bind(getter,_1), annotations );
+		return fillProperty< PropT, BoostSetter, BoostGetter >( name, boost::bind(setter,_1,_2), boost::bind(getter,_1), annotations );
 	}
 
 	/**
-	 * \brief Declares a property with only getter accessor method
+	 * \brief Declares a property with only a getter accessor method
 	 *
 	 * Declares a property with only a getter method.
 	 * A property is an abstraction of class members.
@@ -118,11 +104,37 @@ public:
 	CustomMetaclass&
 	property(std::string name,  PropT (ClassT::*getter)(), const Annotations& annotations = Annotations() )
 	{
-		typedef typename boost::function< void (typename ClassT*, typename PropT ) >	BoostSetter;
-		typedef typename boost::function< typename PropT ( typename ClassT * ) >		BoostGetter;
+		typedef typename boost::function< void ( ClassT*, PropT ) >	BoostSetter;
+		typedef typename boost::function< PropT ( ClassT * ) >		BoostGetter;
 
 		BoostSetter setter;       //setter empty is used by Property<>::isReadOnly()
-		return fillProperty< typename PropT, BoostSetter, BoostGetter >(name,  setter, getter, annotations );
+		return fillProperty< PropT, BoostSetter, BoostGetter >(name,  setter, getter, annotations );
+	}
+
+	/**
+	 * \brief Declares a property without accessors
+	 *
+	 * Declares a property without accessor, usualy used with StringifyDelegate
+	 * as most times this kind of properties use a set of non-standard native accessors.
+	 * Property is declared as read-write
+	 * A property is an abstraction of class members.
+	 * \param name property name
+	 * \param categories a container with property categories
+	 * \return this for chain calls
+	 */
+	CustomMetaclass&
+	property(std::string name, const Annotations& annotations = Annotations() )
+	{
+		if (  properties().find( name ) == properties().end() )
+		{
+			TypedProperty< ClassT, int > * p = new TypedProperty< ClassT, int >;
+			p->name(name);
+			p->setMode( Property::Writable );
+			p->setMode( Property::Readable );
+			p->annotations( annotations );
+			set_property(name, p);
+		}
+		return *this;
 	}
 
 	/**
@@ -140,10 +152,36 @@ public:
 	CustomMetaclass&
 	property(std::string name, PropT ClassT::* member, const Annotations& annotations = Annotations() )
 	{
-		typedef typename PropT ClassT::* 	MemberType;
+		typedef PropT ClassT::* 	MemberType;
 		return fillProperty< PropT, MemberType, MemberType >(name, member, member, annotations );
 	}
-		
+
+	/**
+	 * \brief Declares a property which is a collection
+	 *
+	 * Declares a property of a collection type and its getter method.
+	 * The collection type is automatically declared to jrtti and it
+	 * will be available as a Metacollection throught it.
+	 * A property is an abstraction of class members.
+	 * \param name property collection name
+	 * \param getter the address of the getter method. Should return a reference to the collection type to allow to be loaded from a stream
+	 * \param annotations a container with property annotations
+	 * \return this for chain calls
+	 * \sa Metacollection
+	 */
+	template <typename PropT>
+	CustomMetaclass&
+	collection( std::string name,  PropT (ClassT::*getter)(), const Annotations& annotations = Annotations() )
+	{
+		typedef typename boost::function< void ( ClassT*,  PropT ) >	BoostSetter;
+		typedef typename boost::function<  PropT (  ClassT * ) >		BoostGetter;
+
+		jrtti::declareCollection< typename boost::remove_reference< PropT >::type >();
+
+		BoostSetter setter;       //setter empty is used by Property<>::isReadOnly()
+		return fillProperty< PropT, BoostSetter, BoostGetter >(name,  setter, getter, annotations );
+	}
+
 	/**
 	 * \brief Declares a method without parameters
 	 *
@@ -179,10 +217,10 @@ public:
 	CustomMetaclass&
 	method( std::string name,boost::function<ReturnType (ClassT*, Param1)> f, const Annotations& annotations = Annotations() )
 	{
-		typedef typename TypedMethod<ClassT,ReturnType, Param1> MethodType;
-		typedef typename boost::function<ReturnType (ClassT*, Param1)> FunctionType;
+		typedef TypedMethod< ClassT, ReturnType, Param1 > MethodType;
+		typedef typename boost::function<ReturnType (ClassT*, Param1) > FunctionType;
 
-		return fillMethod<MethodType, FunctionType>( name, f, annotations );
+		return fillMethod< MethodType, FunctionType >( name, f, annotations );
 	}
 
 	/**
@@ -201,7 +239,7 @@ public:
 	CustomMetaclass&
 	method( std::string name,boost::function<ReturnType (ClassT*, Param1, Param2)> f, const Annotations& annotations = Annotations() )
 	{
-		typedef typename TypedMethod<ClassT,ReturnType, Param1, Param2> MethodType;
+		typedef TypedMethod<ClassT,ReturnType, Param1, Param2> MethodType;
 		typedef typename boost::function<ReturnType (ClassT*, Param1, Param2)> FunctionType;
 
 		return fillMethod<MethodType, FunctionType>( name, f, annotations );
@@ -216,7 +254,7 @@ public:
 	TypedMethod<ClassT,ReturnType, Param1, Param2>&
 	getMethod(std::string name)
 	{
-		typedef Method<ClassT,ReturnType, Param1, Param2> ElementType;
+		typedef TypedMethod< ClassT, ReturnType, Param1, Param2 > ElementType;
 		return * static_cast< ElementType * >( m_methods[name] );
 	}
 
@@ -245,12 +283,6 @@ protected:
 	{
 		ClassT * ptr = (ClassT *) inst;
 		return boost::any( ptr );
-		/*
-#ifdef BOOST_NO_IS_ABSTRACT
-		return _copyFromInstance< IsAbstractT >( inst );
-#else
-		return _copyFromInstance< ClassT >( inst );
-#endif        */
 	}
 
 private:
@@ -285,7 +317,7 @@ private:
 #ifdef BOOST_NO_IS_ABSTRACT
 #define __IS_ABSTRACT( t ) t
 #else
-#define __IS_ABSTRACT( t ) boost::is_abstract< typename t >::type
+#define __IS_ABSTRACT( t ) boost::is_abstract< t >::type
 #endif
 //SFINAE _get_instance_ptr for NON ABSTRACT
 	template< typename AbstT >
@@ -337,7 +369,7 @@ private:
 	typename boost::enable_if< typename __IS_ABSTRACT( AbstT ), boost::any >::type
 	_create()
 	{
-		return NULL;
+		return boost::any();
 	}
 };
 

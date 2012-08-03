@@ -1,11 +1,9 @@
 //---------------------------------------------------------------------------
-
 #include "sample.h"
-
 
 void declare()
 {
-	jrtti::declare<Point>( "aliasPoint" )
+	jrtti::declare<Point>()
 						.property("x", &Point::x)
 						.property("y", &Point::y);
 
@@ -26,9 +24,9 @@ void declare()
 #endif
 
 	jrtti::declare<Sample>( jrtti::Annotations() << new GUIAnnotation( "sample.ico" ) )
-				.inheritsFrom<SampleBase>()
+				.derivesFrom<SampleBase>()
 						.property("intMember", &Sample::intMember,
-									jrtti::Annotations() << new jrtti::NoStreamable())
+									jrtti::Annotations() << new jrtti::NoStreamable() )
 						.property("testDouble", &Sample::setDoubleProp, &Sample::getDoubleProp,
 									jrtti::Annotations() << new GUIAnnotation( "test.ico", false, true ) )
 						.property("point", &Sample::setByPtrProp, &Sample::getByPtrProp,
@@ -38,8 +36,9 @@ void declare()
 						.property("testStr", &Sample::setStdStringProp,&Sample::getStdStringProp)
 						.property("testRO", &Sample::testIntFunc)
 						.property("testBool", &Sample::setBool, &Sample::getBool)
-						.property("collection", &Sample::setCollection, &Sample::getCollection )
+						.collection("collection", /*&Sample::setCollection, */&Sample::getCollection, jrtti::Annotations() << new jrtti::ForceStreamLoadable() )
 						.property("circularRef", &Sample::circularRef )
+						.property("memoryDump", jrtti::Annotations() << new jrtti::StringifyDelegate<Sample>( &Sample::stringifier, &Sample::deStringifier) )
 
 						.method<void>("testMethod", &Sample::testFunc,
 									jrtti::Annotations() << new GUIAnnotation( "method.ico", false, false ) )
@@ -48,9 +47,9 @@ void declare()
 						.method<double,int,double>("testSum", &Sample::testSum);
 
 	jrtti::declare<SampleDerived>()
-				.inheritsFrom<Sample>();
+				.derivesFrom<Sample>();
 
-	jrtti::declareCollection< Sample::Collection >();
+	//jrtti::declareCollection< Sample::Collection >();
 }
 
 void useCase() {
@@ -65,19 +64,20 @@ void useCase() {
 	s.circularRef = &s; s.setDoubleProp( 344.23 ); s.setStdStringProp( "Hello!!!" );
 	
 	//set the property intMember of s object to 15
-	jrtti::getType( "Sample" ).property( "intMember" ).set( &s, 15 );
+	jrtti::getType< Sample >().property( "intMember" ).set( &s, 15 );
 	std::cout << s.intMember << " == " << 15 << std::endl;
 
 	//retrieve the value of intMember from s object
-	int i = jrtti::getType( "Sample" ).property( "intMember" ).get<int>( &s );
+	int i = jrtti::getType< Sample >().property( "intMember" ).get<int>( &s );
 	std::cout << s.intMember << " == " << i << std::endl;
 
 	//same as above using braket operator
-	i = jrtti::getType("Sample")[ "intMember" ].get<int>( &s );
+	i = jrtti::getType< Sample >()[ "intMember" ].get<int>( &s );
 	std::cout << s.intMember << " == " << i << std::endl;
 
 	//getting a Metatype object
-	jrtti::Metatype & mt = jrtti::getType("Sample");
+	jrtti::Metatype & mt = jrtti::getType< Sample >();
+
 	//and working with it
 	p.x = 23;
 	mt[ "point" ].set( &s, &p );
@@ -105,6 +105,5 @@ void useCase() {
 	//and set the s object from a string representation
 	mt.fromStr( &s, contens );
 	std::cout << contens << std::endl;
-
-	std::cin.ignore(1);
 }
+

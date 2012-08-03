@@ -20,17 +20,19 @@ namespace jrtti {
 template< typename ClassT >
 class Metacollection: public CustomMetaclass< ClassT > {
 public:
-	Metacollection( std::string name, const Annotations& annotations = Annotations() ): CustomMetaclass< ClassT >( name, annotations ) {}
+	Metacollection( const Annotations& annotations = Annotations() ): CustomMetaclass< ClassT >( annotations ) {}
 
 protected:
 	virtual
 		std::string
 		_toStr( const boost::any & value, bool formatForStreaming ){
 			ClassT& _collection = getReference( value );
-			Metatype & mt = jrtti::getType< ClassT::value_type >();
+			////////// COMPILER ERROR   //// Collections must declare a value_type type. See documentation for details. 
+			Metatype & mt = jrtti::getType< typename ClassT::value_type >();
 			std::string str = "[\n";
 			bool need_nl = false;
-			for ( ClassT::iterator it = _collection.begin() ; it != _collection.end(); ++it ) {
+			////////// COMPILER ERROR   //// Collections must declare a iterator type and a begin and end methods. See documentation for details.
+			for ( typename ClassT::iterator it = _collection.begin() ; it != _collection.end(); ++it ) {
 				if (need_nl) str += ",\n";
 				need_nl = true;
 				str += ident( mt._toStr( *it, formatForStreaming ) );
@@ -42,13 +44,15 @@ protected:
 		boost::any
 		_fromStr( const boost::any& instance, const std::string& str ) {
 			ClassT& _collection =  getReference( instance );
-			_collection.clear();
+			////////// COMPILER ERROR   //// Collections must declare a clear method. See documentation for details.
+			_collection.clear();
 			JSONParser parser( str );
-			Metatype& elemType = jrtti::getType< ClassT::value_type >();
+			Metatype& elemType = jrtti::getType< typename ClassT::value_type >();
 			for( JSONParser::iterator it = parser.begin(); it != parser.end(); ++it) {
-				ClassT::value_type elem;
+				typename ClassT::value_type elem;
 				const boost::any &mod = elemType._fromStr( &elem, it->second );
-				_collection.insert( _collection.end(), boost::any_cast< ClassT::value_type >( mod ) );
+				////////// COMPILER ERROR   //// Collections must declare an insert method. See documentation for details.
+				_collection.insert( _collection.end(), boost::any_cast< typename ClassT::value_type >( mod ) );
 			}
 			return boost::any();
 	}
@@ -94,15 +98,19 @@ protected:
  * You do not need to worry about this if you are using STL containers to implement 
  * your collection. If not, your collection has to expose an iterator wich implements
  * deference, prefix increment and inequality operators. In other words, your iterator
- * should implement an speciallization of this template for your collection elements
+ * should implement an specialization of this template for your collection elements
  * type.
  * \example test_jrtti.h for a use case.
  */
 template< typename T >
-struct iterator {
-	virtual	T& operator * () = 0;							/// \brief Deference operator
-	virtual iterator& operator ++ () = 0;					/// \brief prefix increment operator
-	virtual bool operator != ( const iterator& it ) = 0;	/// \brief inequality operator
+struct jrtti_iterator : public std::iterator< std::forward_iterator_tag, T > {
+	jrtti_iterator( T* x ) : p( x ){}
+	jrtti_iterator( const jrtti_iterator& jit ) : p( jit.p ){}
+	T& operator * () { return *p; };										/// \brief Deference operator
+	jrtti_iterator& operator ++ () { ++p; return *this; }				/// \brief prefix increment operator
+	bool operator != ( const jrtti_iterator& it ) { return p!= it.p; }	/// \brief inequality operator
+private:
+	T * p;
 };
 
 /**
@@ -115,7 +123,7 @@ struct iterator {
 template < typename T >
 class CollectionInterface {
 public:
-	typedef iterator< T > iterator;
+	typedef jrtti_iterator<T> iterator;
 	typedef T value_type;
 
 	/**
