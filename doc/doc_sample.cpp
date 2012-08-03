@@ -1,7 +1,7 @@
 #include <iostream>
 #include <jrtti/jrtti.hpp>
 
-// Define C++ classes
+// Define C++ classes for reflection
 struct Position {
 	int x;
 	int y;
@@ -43,32 +43,32 @@ private:
 
 int main()
 {
-	// Make Position class available to jrtti
+	// Make Position class available to jrtti for reflection
 	jrtti::declare< Position >()
 		.property( "x", &Position::x )
 		.property( "y", &Position::y );
 
-	// Make Ball class available to jrtti
+	// Make Ball class available to jrtti  for reflection
 	jrtti::declare< Ball >()
 		.property( "color", &Ball::getColor )
 		.property( "position", &Ball::setPosition, &Ball::getPosition )
 		.method< void >( "kick", &Ball::kick );
 
-	// Use jrtti
+	// Use jrtti and its reflection capabilities
 	Ball ball;
 	Position pos;
 	pos.x = 10; pos.y = 40;
 
-	// set the ball position
+	// set the ball position using reflection
 	jrtti::getType< Ball >().property( "position" ).set( &ball, pos );
 
-	//get a Metatype object
+	//get a Metatype object from reflection database
 	jrtti::Metatype & mt = jrtti::getType< Ball >();
 
 	//and working with it accessing properties as an array
 	std::cout << "Ball color: " << mt[ "color" ].get< std::string >( &ball ) << std::endl;
 
-	//call a method
+	//call a reflected method
 	mt.call< void >( "kick", &ball );
 
 	//change the property value by full categorized name
