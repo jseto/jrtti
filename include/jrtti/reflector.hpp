@@ -110,11 +110,21 @@ public:
 
 	template < typename T >
 	Metatype &
-	getType()
-	{
-		TypeMap::iterator it = _meta_types.find( typeid( typename boost::remove_reference < T >::type ).name() );
+	getType() {
+		return getType( typeid( T ) );
+	}
+
+	Metatype &
+	getType( const std::type_info& tInfo ) {
+		std::string name = tInfo.name();
+#ifdef __BORLANDC__
+		if ( name[name.length()-1]=='&' ) {
+			name = name.substr( 0, name.length()-2 );
+		}
+#endif
+		TypeMap::iterator it = _meta_types.find( name );
 		if ( it == _meta_types.end() ) {
-			throw error( "Metatype '" + demangle( typeid( T ).name() ) + "' not declared" );
+			throw error( "Metatype '" + demangle( name ) + "' not declared" );
 		}
 		return *it->second;
 	}
