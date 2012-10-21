@@ -18,6 +18,7 @@ namespace jrtti {
 	class Reflector;
 	std::string demangle( const std::string& name );
 	template< typename T > Metatype& getType();
+	Metatype& getType( const std::type_info& tInfo );
 	template< typename C > class Metacollection;
 	template <typename C> Metacollection<C>& declareCollection( const Annotations& annotations = Annotations() );
 
@@ -51,6 +52,19 @@ namespace jrtti {
 	inline Metatype &
 	getType() {
 		return Reflector::instance().getType< T >();
+	}
+
+	/**
+	 * \brief Retrieve Metatype
+	 *
+	 * Looks for a Metatype of typeid tInfo in the reflection database
+	 * \param tInfo the type_info structure to retrieve its Metatype
+	 * \return the found Metatype.
+	 * \throws Error if not found
+	 */
+	Metatype&
+	getType( const std::type_info& tInfo ) {
+		return Reflector::instance().getType( tInfo );
 	}
 
 	/**
