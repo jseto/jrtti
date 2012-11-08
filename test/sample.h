@@ -62,7 +62,7 @@ public:
 	virtual int getIntOverloaded() {return 87;}
 
 	void setDoubleProp(double d) { test = d; }
-	double getDoubleProp() { return test; }
+	double getDoubleProp() const { return test; }
 
 	std::string getStdStringProp(){ return _s; }
 	void	setStdStringProp(std::string str) { _s = str; }

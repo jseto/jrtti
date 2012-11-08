@@ -33,6 +33,13 @@ public:
 			typedef R 		result_type;
 			typedef void 	param_type;
 		};
+
+		template < typename R >
+		struct FunctionTypes< R ( ClassT::* )() const >
+		{
+			typedef R 		result_type;
+			typedef void 	param_type;
+		};
 	};
 
 	/**
