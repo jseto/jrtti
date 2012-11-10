@@ -52,7 +52,7 @@ namespace jrtti {
 	inline 
 	Metatype &
 	getType() {
-		return getType( typeid( T ) );
+		return Reflector::instance().getType< T >();
 	}
 
 	/**

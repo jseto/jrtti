@@ -119,9 +119,10 @@ public:
 	}
 
 	/**
-	 * \brief Declares a property without accessors
+	 * \brief Declares a property manged by Annotations
 	 *
-	 * Declares a property without accessor, usualy used with StringifyDelegate
+	 * Declares a property without accessor. Accesors are managed by the associated Annotations.
+	 * It is usualy used with StringifyDelegate
 	 * as most times this kind of properties use a set of non-standard native accessors.
 	 * Property is declared as read-write
 	 * A property is an abstraction of class members.
@@ -182,11 +183,11 @@ public:
 	{
 		typedef typename boost::function< void ( ClassT*,  PropT ) >	BoostSetter;
 		typedef typename boost::function<  PropT (  ClassT * ) >		BoostGetter;
-
-		jrtti::declareCollection< typename boost::remove_reference< PropT >::type >();
+		typedef typename boost::remove_reference< PropT >::type			PropTNoRef;
+		jrtti::declareCollection< PropTNoRef >();
 
 		BoostSetter setter;       //setter empty is used by Property<>::isReadOnly()
-		return fillProperty< PropT, BoostSetter, BoostGetter >(name,  setter, getter, annotations );
+		return fillProperty< PropTNoRef, BoostSetter, BoostGetter >(name,  setter, getter, annotations );
 	}
 
 	/**
