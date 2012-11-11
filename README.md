@@ -120,10 +120,10 @@ int main()
 	pos.x = 10; pos.y = 40;
 
 	// set the ball position using reflection
-	jrtti::getType< Ball >().property( "position" ).set( &ball, pos );
+	jrtti::metaType< Ball >().property( "position" ).set( &ball, pos );
 
 	//get a Metatype object from reflection database
-	jrtti::Metatype & mt = jrtti::getType< Ball >();
+	jrtti::Metatype & mt = jrtti::metaType< Ball >();
 
 	//and working with it accessing properties as an array
 	std::cout << "Ball color: " << mt[ "color" ].get< std::string >( &ball ) << std::endl;
