@@ -30,11 +30,11 @@ class MetaTypeTest : public testing::Test {
 	}
 
 	Metatype & mClass(){
-		return jrtti::getType<Sample>();
+		return jrtti::metaType<Sample>();
 	}
 
 	Metatype & derivedClass(){
-		return jrtti::getType<SampleDerived>();
+		return jrtti::metaType<SampleDerived>();
 	}
 
 	// Declares the variables your tests want to use.
@@ -42,8 +42,28 @@ class MetaTypeTest : public testing::Test {
 		SampleDerived sampleDerived;
 };
 
+TEST_F(MetaTypeTest, InvertedDeclaration) {
+	Point p;
+	p.x = 45;
+	p.y = 80;
+	
+	Rect r;
+	r.tl = &p;
+	r.br = &p;
+
+	Date d;
+	d.place.x = 12;
+	d.place.y = 21;
+
+	double x = jrtti::metaType< Rect >().eval<double>( &r, "tl.x" );
+	EXPECT_EQ( x, r.tl->x );
+
+	double y = jrtti::metaType< Date >().eval<double>( &d, "place.x" );
+	EXPECT_EQ( y, d.place.x );
+}
+
 TEST_F(MetaTypeTest, DoubleType) {
-	EXPECT_EQ("double", mClass()["testDouble"].type().name());
+	EXPECT_EQ("double", mClass()["testDouble"].metaType().name());
 }
 
 TEST_F(MetaTypeTest, DoubleAccessor) {
@@ -82,7 +102,7 @@ TEST_F(MetaTypeTest, DoubleMutator) {
 
 TEST_F(MetaTypeTest, IntMemberType) {
 
-	EXPECT_EQ("int", mClass()["intMember"].type().name());
+	EXPECT_EQ("int", mClass()["intMember"].metaType().name());
 }
 
 TEST_F(MetaTypeTest, BoolMutator) {
@@ -121,7 +141,7 @@ TEST_F(MetaTypeTest, StdStringMutator) {
 
 TEST_F(MetaTypeTest, ByValType) {
 
-	EXPECT_EQ( "Date", mClass()["date"].type().name() );
+	EXPECT_EQ( "Date", mClass()["date"].metaType().name() );
 }
 
 TEST_F(MetaTypeTest, ByValAccessor) {
@@ -245,7 +265,7 @@ TEST_F(MetaTypeTest, testPropsRO) {
 
 	EXPECT_TRUE(mClass()["testDouble"].isReadWrite());
 	EXPECT_FALSE(mClass()["testRO"].isWritable());
-	EXPECT_TRUE( jrtti::getType<Date>().property("d").isWritable() );
+	EXPECT_TRUE( jrtti::metaType<Date>().property("d").isWritable() );
 
 	int result = (mClass()["testRO"].get<int>(&sample));
 	EXPECT_EQ(23, result);
@@ -347,7 +367,7 @@ TEST_F(MetaTypeTest, testMethodAnnotation) {
 }
 
 TEST_F(MetaTypeTest, testCreate) {
-	Point * p = boost::any_cast< Point * >( mClass()[ "point" ].type().create() );
+	Point * p = boost::any_cast< Point * >( mClass()[ "point" ].metaType().create() );
 	EXPECT_TRUE( (p->x == -1) && (p->y == -1) );
 }
 
@@ -401,11 +421,11 @@ TEST_F(MetaTypeTest, testCollectionInterface) {
 		++it;
 	}
 
-	std::string res = jrtti::getType< MyCollection >().toStr( &col );
+	std::string res = jrtti::metaType< MyCollection >().toStr( &col );
 
-	jrtti::getType< MyCollection >().fromStr( &col, res );
+	jrtti::metaType< MyCollection >().fromStr( &col, res );
 
-	EXPECT_EQ( res.length(), jrtti::getType< MyCollection >().toStr( &col ).length() );
+	EXPECT_EQ( res.length(), jrtti::metaType< MyCollection >().toStr( &col ).length() );
 }
 
 TEST_F(MetaTypeTest, testMetaobject) {
@@ -421,22 +441,22 @@ TEST_F(MetaTypeTest, testMetaobject) {
 }
 
 TEST_F(MetaTypeTest, comparationOperators) {
-	Metatype &mt_sample = jrtti::getType<Sample>();
-	Metatype &mt_date = jrtti::getType<Date>();
-	Metatype &mt_point = jrtti::getType<Point>();
+	Metatype &mt_sample = jrtti::metaType<Sample>();
+	Metatype &mt_date = jrtti::metaType<Date>();
+	Metatype &mt_point = jrtti::metaType<Point>();
 
-	EXPECT_TRUE( ( mt_date == mt_sample["date"].type() ) );
-	EXPECT_TRUE( ( mt_date == mt_sample["refToDate"].type() ) );
-	EXPECT_TRUE( ( mt_point != mt_sample["point"].type() ) );
+	EXPECT_TRUE( ( mt_date == mt_sample["date"].metaType() ) );
+	EXPECT_TRUE( ( mt_date == mt_sample["refToDate"].metaType() ) );
+	EXPECT_TRUE( ( mt_point != mt_sample["point"].metaType() ) );
 }
 
 TEST_F(MetaTypeTest, parentCheck) {
-	Metatype &mt_sample = jrtti::getType<Sample>();
-	Metatype &mt_date = jrtti::getType<Date>();
+	Metatype &mt_sample = jrtti::metaType<Sample>();
+	Metatype &mt_date = jrtti::metaType<Date>();
 
 	EXPECT_FALSE( mt_date.isDerivedFrom( mt_sample ) );
-	EXPECT_TRUE( jrtti::getType< SampleDerived >().isDerivedFrom( mt_sample ) );
-	EXPECT_TRUE( jrtti::getType< SampleDerived >().isDerivedFrom< SampleBase >() );
+	EXPECT_TRUE( jrtti::metaType< SampleDerived >().isDerivedFrom( mt_sample ) );
+	EXPECT_TRUE( jrtti::metaType< SampleDerived >().isDerivedFrom< SampleBase >() );
 }
 
 TEST_F(MetaTypeTest, checkUseCase) {

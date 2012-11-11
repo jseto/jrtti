@@ -14,6 +14,7 @@ namespace jrtti {
  */
 class Property
 {
+	friend class Reflector;
 public:
 	enum Mode {Readable=1, Writable=2};
 
@@ -63,8 +64,8 @@ public:
 	 * \brief Retrieves the Metatype of this property
 	 * \return the meta type
 	 */
-	Metatype &
-	type() {
+	Metatype&
+	metaType() {
 		return *_metaType;
 	}
 
@@ -164,7 +165,12 @@ public:
 
 	TypedProperty()
 	{
-		setMetatype( &jrtti::getType< PropT >() );
+		try {
+			setMetatype( &jrtti::metaType< PropT >() );
+		} catch ( Error ) {
+			setMetatype( NULL );
+        	Reflector::instance().addPendingProperty( typeid( PropT ).name(), this );
+		}
 	}
 
 	TypedProperty&

@@ -71,7 +71,7 @@ public:
 	CustomMetaclass&
 	derivesFrom()
 	{
-		return derivesFrom( jrtti::getType< C >() );
+		return derivesFrom( jrtti::metaType< C >() );
 	}
 
 	/**

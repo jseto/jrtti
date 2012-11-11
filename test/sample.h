@@ -28,6 +28,11 @@ struct Point
 	}
 };
 
+struct Rect {
+	Point * tl;
+	Point * br;
+};
+
 struct Date
 {
 	int d, m, y;

@@ -56,7 +56,7 @@ public:
 	declare( const Annotations& annotations = Annotations() )
 	{
 		if ( _meta_types.count( typeid( C ).name() ) ) {
-			return *( dynamic_cast< CustomMetaclass<C> * >( &getType< C >() ) );
+			return *( dynamic_cast< CustomMetaclass<C> * >( &metaType< C >() ) );
 		}
 
 		CustomMetaclass<C> * mc = new CustomMetaclass<C>( annotations );
@@ -69,8 +69,8 @@ public:
 	CustomMetaclass<C, boost::true_type>&
 	declareAbstract( const Annotations& annotations = Annotations() )
 	{
-		if ( _meta_types.count( typeid( C ).name() ) ) {			// use find and avoid double search calling getType
-			return *( dynamic_cast< CustomMetaclass<C, boost::true_type> * >( &getType< C >() ) );
+		if ( _meta_types.count( typeid( C ).name() ) ) {			// use find and avoid double search calling metaType
+			return *( dynamic_cast< CustomMetaclass<C, boost::true_type> * >( &metaType< C >() ) );
 		}
 
 		CustomMetaclass<C, boost::true_type> * mc = new CustomMetaclass<C, boost::true_type>( annotations );
@@ -86,7 +86,7 @@ public:
 	//////////  COMPILER ERROR: Class C is not a Collection //// Class C should implement type iterator to be a collection
 		typedef typename C::iterator iterator;
 		if ( _meta_types.count( typeid( C ).name() ) ) {
-			return *( dynamic_cast< Metacollection<C> * >( &getType< C >( ) ) );
+			return *( dynamic_cast< Metacollection<C> * >( &metaType< C >( ) ) );
 		}
 
 		Metacollection<C> * mc = new Metacollection<C>( annotations );
@@ -110,12 +110,12 @@ public:
 
 	template < typename T >
 	Metatype &
-	getType() {
-		return getType( typeid( T ) );
+	metaType() {
+		return metaType( typeid( T ) );
 	}
 
 	Metatype &
-	getType( const std::type_info& tInfo ) {
+	metaType( const std::type_info& tInfo ) {
 		std::string name = tInfo.name();
 #ifdef __BORLANDC__
 		if ( name[name.length()-1]=='&' ) {
@@ -169,7 +169,14 @@ public:
 #endif
 	}
 
+	void
+	addPendingProperty( std::string tname, Property * prop ) {
+		m_pendingProperties.insert( PendingProps::value_type( tname, prop ) );
+	}
+
 private:
+	typedef std::multimap< std::string, Property * > PendingProps;
+
 	Reflector()
 	{
 		clear();
@@ -191,13 +198,25 @@ private:
 		Metatype * ptr_mc;
 
 		if ( _meta_types.count( typeid( T ).name() ) == 0 ) {
-			ptr_mc = new MetaPointerType( typeid( T ), *mc);
+			ptr_mc = new MetaPointerType( typeid( T* ), *mc);
 		}
 		else {
-			ptr_mc = &getType< T* >();
+			ptr_mc = &metaType< T* >();
 		}
 		_meta_types[ typeid( T ).name() ] = mc;
 		_meta_types[ typeid( T* ).name() ] = ptr_mc;
+		updatePendingProperties( mc );
+		updatePendingProperties( ptr_mc );
+	}
+
+	void
+	updatePendingProperties( Metatype * mc ) {
+		std::pair< PendingProps::iterator, PendingProps::iterator > ret;
+		ret = m_pendingProperties.equal_range( mc->typeInfo().name() );
+		for ( PendingProps::iterator it = ret.first; it != ret.second; ++it ) {
+			it->second->setMetatype( mc );
+		}
+		m_pendingProperties.erase( ret.first, ret.second );
 	}
 
 	friend AddressRefMap& _addressRefMap();
@@ -220,6 +239,7 @@ private:
 	AddressRefMap				m_addressRefs;
 	NameRefMap					m_nameRefs;
 	std::vector< std::string >	m_prefixDecorators;
+	PendingProps				m_pendingProperties;
 };
 
 //------------------------------------------------------------------------------

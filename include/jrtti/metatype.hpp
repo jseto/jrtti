@@ -53,7 +53,7 @@ public:
 	create() = 0;
 
 	/**
-	 * Return the type name of this Metatype
+	 * Return the demangled type name of this Metatype
 	 * \return the type name
 	 */
 	std::string
@@ -62,7 +62,7 @@ public:
 	}
 
 	/**
-	 * \brief Get the native type_info of metatyp
+	 * \brief Get the native type_info of this Metatype
 	 * \return the type_info structure
 	 */
 	const std::type_info&
@@ -125,7 +125,7 @@ public:
 	template< typename T >
 	bool 
 	isDerivedFrom() {
-		return isDerivedFrom( jrtti::getType< T >() );
+		return isDerivedFrom( jrtti::metaType< T >() );
 	}
 
 	/**
@@ -268,7 +268,7 @@ public:
 		if (pos == std::string::npos)
 			return prop.get(inst);
 		else {
-			return prop.type().eval( prop.get( inst ), path.substr( pos + 1 ));
+			return prop.metaType().eval( prop.get( inst ), path.substr( pos + 1 ));
 		}
 	}
 
@@ -307,8 +307,8 @@ public:
 			prop.set( inst, value );
 		}
 		else {
-			const boost::any &mod = prop.type().apply( prop.get(inst), path.substr( pos + 1 ), value );
-			if ( !prop.type().isPointer() ) {
+			const boost::any &mod = prop.metaType().apply( prop.get(inst), path.substr( pos + 1 ), value );
+			if ( !prop.metaType().isPointer() ) {
 				prop.set( inst, mod );
 			}
 		}
@@ -420,7 +420,7 @@ protected:
 						addToResult = stringifyDelegate->toStr( inst );
 					}
 					else {
-						addToResult = prop->type()._toStr( prop->get(inst), formatForStreaming );
+						addToResult = prop->metaType()._toStr( prop->get(inst), formatForStreaming );
 					}
 					result += ident( "\"" + prop->name() + "\"" + ": " + addToResult );
 				}
@@ -452,7 +452,7 @@ protected:
                         	stringifyDelegate->fromStr( inst, it->second );
 						}
 						else {
-							const boost::any &mod = prop->type()._fromStr( prop->get( inst ), it->second );
+							const boost::any &mod = prop->metaType()._fromStr( prop->get( inst ), it->second );
 							if ( !mod.empty() ) {
 								prop->set( inst, mod );
 							}
