@@ -39,14 +39,7 @@
         <ul></ul>
       </nav>
       <section>
-         <h1>jrtti - C++ Introspection
-               <iframe allowtransparency="true" frameborder="0" scrolling="no"
-                    src="//platform.twitter.com/widgets/follow_button.html?screen_name=jrtti_cpp&show_count=false&show_screen_name=false"
-                    style="width:75px; height:20px;" align="right"></iframe>
-              <iframe allowtransparency="true" frameborder="0" scrolling="no"
-                    src="https://platform.twitter.com/widgets/tweet_button.html?show_count=false&text=C++%20Reflection%20Library%20-"
-                    style="width:60px; height:20px;" align="right"></iframe></td>
-      </h1>
+        <h1>jrtti - C++ Introspection           {#mainpage}</h1>
 
 <h2>Overview</h2>
 
@@ -160,10 +153,10 @@ For more detailed samples see sample.cpp and tests under the test directory.</p>
     <span class="n">pos</span><span class="p">.</span><span class="n">x</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span> <span class="n">pos</span><span class="p">.</span><span class="n">y</span> <span class="o">=</span> <span class="mi">40</span><span class="p">;</span>
 
     <span class="c1">// set the ball position using reflection</span>
-    <span class="n">jrtti</span><span class="o">::</span><span class="n">getType</span><span class="o">&lt;</span> <span class="n">Ball</span> <span class="o">&gt;</span><span class="p">().</span><span class="n">property</span><span class="p">(</span> <span class="s">"position"</span> <span class="p">).</span><span class="n">set</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">ball</span><span class="p">,</span> <span class="n">pos</span> <span class="p">);</span>
+    <span class="n">jrtti</span><span class="o">::</span><span class="n">metaType</span><span class="o">&lt;</span> <span class="n">Ball</span> <span class="o">&gt;</span><span class="p">().</span><span class="n">property</span><span class="p">(</span> <span class="s">"position"</span> <span class="p">).</span><span class="n">set</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">ball</span><span class="p">,</span> <span class="n">pos</span> <span class="p">);</span>
 
     <span class="c1">//get a Metatype object from reflection database</span>
-    <span class="n">jrtti</span><span class="o">::</span><span class="n">Metatype</span> <span class="o">&amp;</span> <span class="n">mt</span> <span class="o">=</span> <span class="n">jrtti</span><span class="o">::</span><span class="n">getType</span><span class="o">&lt;</span> <span class="n">Ball</span> <span class="o">&gt;</span><span class="p">();</span>
+    <span class="n">jrtti</span><span class="o">::</span><span class="n">Metatype</span> <span class="o">&amp;</span> <span class="n">mt</span> <span class="o">=</span> <span class="n">jrtti</span><span class="o">::</span><span class="n">metaType</span><span class="o">&lt;</span> <span class="n">Ball</span> <span class="o">&gt;</span><span class="p">();</span>
 
     <span class="c1">//and working with it accessing properties as an array</span>
     <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Ball color: "</span> <span class="o">&lt;&lt;</span> <span class="n">mt</span><span class="p">[</span> <span class="s">"color"</span> <span class="p">].</span><span class="n">get</span><span class="o">&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="o">&gt;</span><span class="p">(</span> <span class="o">&amp;</span><span class="n">ball</span> <span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
