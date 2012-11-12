@@ -187,7 +187,7 @@ public:
 		jrtti::declareCollection< PropTNoRef >();
 
 		BoostSetter setter;       //setter empty is used by Property<>::isReadOnly()
-		return fillProperty< PropTNoRef, BoostSetter, BoostGetter >(name,  setter, getter, annotations );
+		return fillProperty< PropT, BoostSetter, BoostGetter >(name,  setter, getter, annotations );
 	}
 
 	/**

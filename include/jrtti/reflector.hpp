@@ -25,23 +25,16 @@ public:
 
 	~Reflector()
 	{
-		std::set< Metatype * > pending;
-		for ( TypeMap::iterator it = _meta_types.begin(); it != _meta_types.end(); ++it) {
-			pending.insert( it->second );
-		}
-
-		for ( std::set< Metatype * >::iterator it = pending.begin(); it != pending.end(); ++it ) {
-			delete *it;
-		}
+    	eraseMetatypes();
 	}
 
 	void
 	clear()
 	{
+		eraseMetatypes();
 		m_prefixDecorators.clear();
 		registerPrefixDecorator( "struct" );
 		registerPrefixDecorator( "class" );
-		_meta_types.clear();
 		register_defaults();
 	}
 
@@ -181,6 +174,18 @@ private:
 	{
 		clear();
 	};
+
+	void eraseMetatypes() {
+		std::set< Metatype * > pending;
+		for ( TypeMap::iterator it = _meta_types.begin(); it != _meta_types.end(); ++it) {
+			pending.insert( it->second );
+		}
+
+		for ( std::set< Metatype * >::iterator it = pending.begin(); it != pending.end(); ++it ) {
+			delete *it;
+		}
+		_meta_types.clear();
+	}
 
 	void
 	register_defaults(){

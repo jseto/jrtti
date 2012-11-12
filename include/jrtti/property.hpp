@@ -176,9 +176,11 @@ public:
 	TypedProperty&
 	setter( boost::function<void ( ClassT*, PropT ) > functor)
 	{
-		if (!functor.empty()) setMode( Writable );
+		if (!functor.empty()) {
+			setMode( Writable );
+			m_setter = functor;
+		}
 		m_dataMember = NULL;
-		m_setter = functor;
 		return *this;
 	}
 
