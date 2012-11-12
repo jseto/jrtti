@@ -28,7 +28,7 @@ protected:
 		_toStr( const boost::any & value, bool formatForStreaming ){
 			ClassT& _collection = getReference( value );
 			////////// COMPILER ERROR   //// Collections must declare a value_type type. See documentation for details. 
-			Metatype & mt = jrtti::metaType< typename ClassT::value_type >();
+			Metatype & mt = jrtti::metatype< typename ClassT::value_type >();
 			std::string str = "[\n";
 			bool need_nl = false;
 			////////// COMPILER ERROR   //// Collections must declare a iterator type and a begin and end methods. See documentation for details.
@@ -47,7 +47,7 @@ protected:
 			////////// COMPILER ERROR   //// Collections must declare a clear method. See documentation for details.
 			_collection.clear();
 			JSONParser parser( str );
-			Metatype& elemType = jrtti::metaType< typename ClassT::value_type >();
+			Metatype& elemType = jrtti::metatype< typename ClassT::value_type >();
 			for( JSONParser::iterator it = parser.begin(); it != parser.end(); ++it) {
 				typename ClassT::value_type elem;
 				const boost::any &mod = elemType._fromStr( &elem, it->second );

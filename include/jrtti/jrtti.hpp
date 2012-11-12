@@ -17,8 +17,8 @@ namespace jrtti {
 	class Metatype;
 	class Reflector;
 	std::string demangle( const std::string& name );
-//	template< typename T > Metatype& metaType();
-//	Metatype& metaType( const std::type_info& tInfo );
+//	template< typename T > Metatype& metatype();
+//	Metatype& metatype( const std::type_info& tInfo );
 	template< typename C > class Metacollection;
 	template <typename C> Metacollection<C>& declareCollection( const Annotations& annotations = Annotations() );
 
@@ -51,8 +51,8 @@ namespace jrtti {
 	template< typename T >
 	inline 
 	Metatype &
-	metaType() {
-		return Reflector::instance().metaType< T >();
+	metatype() {
+		return Reflector::instance().metatype< T >();
 	}
 
 	/**
@@ -65,8 +65,8 @@ namespace jrtti {
 	 */
 	inline
 	Metatype&
-	metaType( const std::type_info& tInfo ) {
-		return Reflector::instance().metaType( tInfo );
+	metatype( const std::type_info& tInfo ) {
+		return Reflector::instance().metatype( tInfo );
 	}
 
 	/**

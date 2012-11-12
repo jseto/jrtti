@@ -49,7 +49,7 @@ public:
 	declare( const Annotations& annotations = Annotations() )
 	{
 		if ( _meta_types.count( typeid( C ).name() ) ) {
-			return *( dynamic_cast< CustomMetaclass<C> * >( &metaType< C >() ) );
+			return *( dynamic_cast< CustomMetaclass<C> * >( &metatype< C >() ) );
 		}
 
 		CustomMetaclass<C> * mc = new CustomMetaclass<C>( annotations );
@@ -62,8 +62,8 @@ public:
 	CustomMetaclass<C, boost::true_type>&
 	declareAbstract( const Annotations& annotations = Annotations() )
 	{
-		if ( _meta_types.count( typeid( C ).name() ) ) {			// use find and avoid double search calling metaType
-			return *( dynamic_cast< CustomMetaclass<C, boost::true_type> * >( &metaType< C >() ) );
+		if ( _meta_types.count( typeid( C ).name() ) ) {			// use find and avoid double search calling metatype
+			return *( dynamic_cast< CustomMetaclass<C, boost::true_type> * >( &metatype< C >() ) );
 		}
 
 		CustomMetaclass<C, boost::true_type> * mc = new CustomMetaclass<C, boost::true_type>( annotations );
@@ -79,7 +79,7 @@ public:
 	//////////  COMPILER ERROR: Class C is not a Collection //// Class C should implement type iterator to be a collection
 		typedef typename C::iterator iterator;
 		if ( _meta_types.count( typeid( C ).name() ) ) {
-			return *( dynamic_cast< Metacollection<C> * >( &metaType< C >( ) ) );
+			return *( dynamic_cast< Metacollection<C> * >( &metatype< C >( ) ) );
 		}
 
 		Metacollection<C> * mc = new Metacollection<C>( annotations );
@@ -103,12 +103,12 @@ public:
 
 	template < typename T >
 	Metatype &
-	metaType() {
-		return metaType( typeid( T ) );
+	metatype() {
+		return metatype( typeid( T ) );
 	}
 
 	Metatype &
-	metaType( const std::type_info& tInfo ) {
+	metatype( const std::type_info& tInfo ) {
 		std::string name = tInfo.name();
 #ifdef __BORLANDC__
 		if ( name[name.length()-1]=='&' ) {
@@ -206,7 +206,7 @@ private:
 			ptr_mc = new MetaPointerType( typeid( T* ), *mc);
 		}
 		else {
-			ptr_mc = &metaType< T* >();
+			ptr_mc = &metatype< T* >();
 		}
 		_meta_types[ typeid( T ).name() ] = mc;
 		_meta_types[ typeid( T* ).name() ] = ptr_mc;

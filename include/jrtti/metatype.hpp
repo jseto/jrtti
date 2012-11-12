@@ -125,7 +125,7 @@ public:
 	template< typename T >
 	bool 
 	isDerivedFrom() {
-		return isDerivedFrom( jrtti::metaType< T >() );
+		return isDerivedFrom( jrtti::metatype< T >() );
 	}
 
 	/**
@@ -268,7 +268,7 @@ public:
 		if (pos == std::string::npos)
 			return prop.get(inst);
 		else {
-			return prop.metaType().eval( prop.get( inst ), path.substr( pos + 1 ));
+			return prop.metatype().eval( prop.get( inst ), path.substr( pos + 1 ));
 		}
 	}
 
@@ -307,8 +307,8 @@ public:
 			prop.set( inst, value );
 		}
 		else {
-			const boost::any &mod = prop.metaType().apply( prop.get(inst), path.substr( pos + 1 ), value );
-			if ( !prop.metaType().isPointer() ) {
+			const boost::any &mod = prop.metatype().apply( prop.get(inst), path.substr( pos + 1 ), value );
+			if ( !prop.metatype().isPointer() ) {
 				prop.set( inst, mod );
 			}
 		}
@@ -420,7 +420,7 @@ protected:
 						addToResult = stringifyDelegate->toStr( inst );
 					}
 					else {
-						addToResult = prop->metaType()._toStr( prop->get(inst), formatForStreaming );
+						addToResult = prop->metatype()._toStr( prop->get(inst), formatForStreaming );
 					}
 					result += ident( "\"" + prop->name() + "\"" + ": " + addToResult );
 				}
@@ -452,7 +452,7 @@ protected:
                         	stringifyDelegate->fromStr( inst, it->second );
 						}
 						else {
-							const boost::any &mod = prop->metaType()._fromStr( prop->get( inst ), it->second );
+							const boost::any &mod = prop->metatype()._fromStr( prop->get( inst ), it->second );
 							if ( !mod.empty() ) {
 								prop->set( inst, mod );
 							}

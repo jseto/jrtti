@@ -65,7 +65,7 @@ public:
 	 * \return the meta type
 	 */
 	Metatype&
-	metaType() {
+	metatype() {
 		return *_metaType;
 	}
 
@@ -166,7 +166,7 @@ public:
 	TypedProperty()
 	{
 		try {
-			setMetatype( &jrtti::metaType< PropT >() );
+			setMetatype( &jrtti::metatype< PropT >() );
 		} catch ( Error ) {
 			setMetatype( NULL );
         	Reflector::instance().addPendingProperty( typeid( PropT ).name(), this );
