@@ -22,7 +22,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">jrtti C++ Introspection
-   &#160;<span id="projectnumber">0.7</span>
+   &#160;<span id="projectnumber">0.8</span>
    </div>
    <div id="projectbrief">Reflection for C++</div>
   </td>
@@ -150,19 +150,19 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line">    s.circularRef = &amp;s; s.setDoubleProp( 344.23 ); s.setStdStringProp( <span class="stringliteral">&quot;Hello!!!&quot;</span> );</div>
 <div class="line">    </div>
 <div class="line">    <span class="comment">//set the property intMember of s object to 15</span></div>
-<div class="line">    jrtti::metaType&lt; Sample &gt;().property( <span class="stringliteral">&quot;intMember&quot;</span> ).set( &amp;s, 15 );</div>
+<div class="line">    jrtti::metatype&lt; Sample &gt;().property( <span class="stringliteral">&quot;intMember&quot;</span> ).set( &amp;s, 15 );</div>
 <div class="line">    std::cout &lt;&lt; s.intMember &lt;&lt; <span class="stringliteral">&quot; == &quot;</span> &lt;&lt; 15 &lt;&lt; std::endl;</div>
 <div class="line"></div>
 <div class="line">    <span class="comment">//retrieve the value of intMember from s object</span></div>
-<div class="line">    <span class="keywordtype">int</span> i = jrtti::metaType&lt; Sample &gt;().property( <span class="stringliteral">&quot;intMember&quot;</span> ).get&lt;<span class="keywordtype">int</span>&gt;( &amp;s );</div>
+<div class="line">    <span class="keywordtype">int</span> i = jrtti::metatype&lt; Sample &gt;().property( <span class="stringliteral">&quot;intMember&quot;</span> ).get&lt;<span class="keywordtype">int</span>&gt;( &amp;s );</div>
 <div class="line">    std::cout &lt;&lt; s.intMember &lt;&lt; <span class="stringliteral">&quot; == &quot;</span> &lt;&lt; i &lt;&lt; std::endl;</div>
 <div class="line"></div>
 <div class="line">    <span class="comment">//same as above using braket operator</span></div>
-<div class="line">    i = jrtti::metaType&lt; Sample &gt;()[ <span class="stringliteral">&quot;intMember&quot;</span> ].get&lt;int&gt;( &amp;s );</div>
+<div class="line">    i = jrtti::metatype&lt; Sample &gt;()[ <span class="stringliteral">&quot;intMember&quot;</span> ].get&lt;int&gt;( &amp;s );</div>
 <div class="line">    std::cout &lt;&lt; s.intMember &lt;&lt; <span class="stringliteral">&quot; == &quot;</span> &lt;&lt; i &lt;&lt; std::endl;</div>
 <div class="line"></div>
 <div class="line">    <span class="comment">//getting a Metatype object</span></div>
-<div class="line">    <a name="_a4"></a><a class="code" href="classjrtti_1_1_metatype.html" title="Abstraction for classes and types.">jrtti::Metatype</a> &amp; mt = jrtti::metaType&lt; Sample &gt;();</div>
+<div class="line">    <a name="_a4"></a><a class="code" href="classjrtti_1_1_metatype.html" title="Abstraction for classes and types.">jrtti::Metatype</a> &amp; mt = jrtti::metatype&lt; Sample &gt;();</div>
 <div class="line"></div>
 <div class="line">    <span class="comment">//and working with it</span></div>
 <div class="line">    p.x = 23;</div>
@@ -196,7 +196,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!-- fragment --> </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Sun Nov 11 2012 22:47:28 for jrtti C++ Introspection by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Mon Nov 12 2012 12:17:47 for jrtti C++ Introspection by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1.1
 </small></address>

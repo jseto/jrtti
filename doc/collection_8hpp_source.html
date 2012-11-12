@@ -22,7 +22,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">jrtti C++ Introspection
-   &#160;<span id="projectnumber">0.7</span>
+   &#160;<span id="projectnumber">0.8</span>
    </div>
    <div id="projectbrief">Reflection for C++</div>
   </td>
@@ -106,7 +106,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;        std::string</div>
 <div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;        _toStr( <span class="keyword">const</span> boost::any &amp; value, <span class="keywordtype">bool</span> formatForStreaming ){</div>
 <div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;            ClassT&amp; _collection = getReference( value );</div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;            <a class="code" href="classjrtti_1_1_metatype.html" title="Abstraction for classes and types.">Metatype</a> &amp; mt = jrtti::metaType&lt; typename ClassT::value_type &gt;();</div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;            <a class="code" href="classjrtti_1_1_metatype.html" title="Abstraction for classes and types.">Metatype</a> &amp; mt = jrtti::metatype&lt; typename ClassT::value_type &gt;();</div>
 <div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;            std::string str = <span class="stringliteral">&quot;[\n&quot;</span>;</div>
 <div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;            <span class="keywordtype">bool</span> need_nl = <span class="keyword">false</span>;</div>
 <div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;            <span class="keywordflow">for</span> ( <span class="keyword">typename</span> ClassT::iterator it = _collection.begin() ; it != _collection.end(); ++it ) {</div>
@@ -125,7 +125,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;            _collection.clear();</div>
 <div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;</div>
 <div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;            JSONParser parser( str );</div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;            <a class="code" href="classjrtti_1_1_metatype.html" title="Abstraction for classes and types.">Metatype</a>&amp; elemType = jrtti::metaType&lt; typename ClassT::value_type &gt;();</div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;            <a class="code" href="classjrtti_1_1_metatype.html" title="Abstraction for classes and types.">Metatype</a>&amp; elemType = jrtti::metatype&lt; typename ClassT::value_type &gt;();</div>
 <div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;            <span class="keywordflow">for</span>( JSONParser::iterator it = parser.begin(); it != parser.end(); ++it) {</div>
 <div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;                <span class="keyword">typename</span> ClassT::value_type elem;</div>
 <div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;                <span class="keyword">const</span> boost::any &amp;mod = elemType._fromStr( &amp;elem, it-&gt;second );</div>
@@ -201,7 +201,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Sun Nov 11 2012 22:47:29 for jrtti C++ Introspection by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Mon Nov 12 2012 12:17:47 for jrtti C++ Introspection by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1.1
 </small></address>

@@ -22,7 +22,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">jrtti C++ Introspection
-   &#160;<span id="projectnumber">0.7</span>
+   &#160;<span id="projectnumber">0.8</span>
    </div>
    <div id="projectbrief">Reflection for C++</div>
   </td>
@@ -146,7 +146,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;    CustomMetaclass&amp;</div>
 <div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;    derivesFrom()</div>
 <div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;    {</div>
-<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;        <span class="keywordflow">return</span> derivesFrom( jrtti::metaType&lt; C &gt;() );</div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;        <span class="keywordflow">return</span> derivesFrom( jrtti::metatype&lt; C &gt;() );</div>
 <div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;    }</div>
 <div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;</div>
 <div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;    <span class="keyword">template</span> &lt; <span class="keyword">typename</span> SetterT, <span class="keyword">typename</span> GetterT &gt;</div>
@@ -204,7 +204,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00187"></a><span class="lineno">  187</span>&#160;        jrtti::declareCollection&lt; PropTNoRef &gt;();</div>
 <div class="line"><a name="l00188"></a><span class="lineno">  188</span>&#160;</div>
 <div class="line"><a name="l00189"></a><span class="lineno">  189</span>&#160;        BoostSetter setter;       <span class="comment">//setter empty is used by Property&lt;&gt;::isReadOnly()</span></div>
-<div class="line"><a name="l00190"></a><span class="lineno">  190</span>&#160;        <span class="keywordflow">return</span> fillProperty&lt; PropTNoRef, BoostSetter, BoostGetter &gt;(name,  setter, getter, <a class="code" href="classjrtti_1_1_metatype.html#a3a5ba7a40eee66704f53e74fbf82f620" title="Assigns an annotation container to this property.">annotations</a> );</div>
+<div class="line"><a name="l00190"></a><span class="lineno">  190</span>&#160;        <span class="keywordflow">return</span> fillProperty&lt; PropT, BoostSetter, BoostGetter &gt;(name,  setter, getter, <a class="code" href="classjrtti_1_1_metatype.html#a3a5ba7a40eee66704f53e74fbf82f620" title="Assigns an annotation container to this property.">annotations</a> );</div>
 <div class="line"><a name="l00191"></a><span class="lineno">  191</span>&#160;    }</div>
 <div class="line"><a name="l00192"></a><span class="lineno">  192</span>&#160;</div>
 <div class="line"><a name="l00203"></a><span class="lineno">  203</span>&#160;    <span class="keyword">template</span> &lt;<span class="keyword">typename</span> ReturnType&gt;</div>
@@ -365,7 +365,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Sun Nov 11 2012 22:47:29 for jrtti C++ Introspection by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Mon Nov 12 2012 12:17:47 for jrtti C++ Introspection by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1.1
 </small></address>

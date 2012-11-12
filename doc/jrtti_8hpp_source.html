@@ -22,7 +22,7 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">jrtti C++ Introspection
-   &#160;<span id="projectnumber">0.7</span>
+   &#160;<span id="projectnumber">0.8</span>
    </div>
    <div id="projectbrief">Reflection for C++</div>
   </td>
@@ -106,8 +106,8 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;    <span class="keyword">class </span>Metatype;</div>
 <div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;    <span class="keyword">class </span>Reflector;</div>
 <div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;    std::string demangle( <span class="keyword">const</span> std::string&amp; name );</div>
-<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;<span class="comment">//  template&lt; typename T &gt; Metatype&amp; metaType();</span></div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;<span class="comment">//  Metatype&amp; metaType( const std::type_info&amp; tInfo );</span></div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;<span class="comment">//  template&lt; typename T &gt; Metatype&amp; metatype();</span></div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;<span class="comment">//  Metatype&amp; metatype( const std::type_info&amp; tInfo );</span></div>
 <div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;    <span class="keyword">template</span>&lt; <span class="keyword">typename</span> C &gt; <span class="keyword">class </span>Metacollection;</div>
 <div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;    <span class="keyword">template</span> &lt;<span class="keyword">typename</span> C&gt; Metacollection&lt;C&gt;&amp; <a class="code" href="namespacejrtti.html#a4ed1c520a408b59ff6f66095e701bb60" title="Declare a collection.">declareCollection</a>( <span class="keyword">const</span> Annotations&amp; annotations = Annotations() );</div>
 <div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;</div>
@@ -129,14 +129,14 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;    <span class="keyword">template</span>&lt; <span class="keyword">typename</span> T &gt;</div>
 <div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;    <span class="keyword">inline</span> </div>
 <div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;    Metatype &amp;</div>
-<div class="line"><a name="l00054"></a><span class="lineno"><a class="code" href="namespacejrtti.html#a3811ceacc086968a66a294841c0ba85b">   54</a></span>&#160;    <a class="code" href="namespacejrtti.html#a3811ceacc086968a66a294841c0ba85b" title="Retrieve Metatype.">metaType</a>() {</div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;        <span class="keywordflow">return</span> Reflector::instance().metaType&lt; T &gt;();</div>
+<div class="line"><a name="l00054"></a><span class="lineno"><a class="code" href="namespacejrtti.html#acc19c2b1d42b031240febb2bc90eba2f">   54</a></span>&#160;    <a class="code" href="namespacejrtti.html#acc19c2b1d42b031240febb2bc90eba2f" title="Retrieve Metatype.">metatype</a>() {</div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;        <span class="keywordflow">return</span> Reflector::instance().metatype&lt; T &gt;();</div>
 <div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;    }</div>
 <div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;</div>
 <div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;    <span class="keyword">inline</span></div>
 <div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;    Metatype&amp;</div>
-<div class="line"><a name="l00068"></a><span class="lineno"><a class="code" href="namespacejrtti.html#a48855b4e53f34430cfe062804cad1a09">   68</a></span>&#160;    <a class="code" href="namespacejrtti.html#a3811ceacc086968a66a294841c0ba85b" title="Retrieve Metatype.">metaType</a>( <span class="keyword">const</span> std::type_info&amp; tInfo ) {</div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;        <span class="keywordflow">return</span> Reflector::instance().metaType( tInfo );</div>
+<div class="line"><a name="l00068"></a><span class="lineno"><a class="code" href="namespacejrtti.html#ac8e5480e8b46f9cc920d1620eb076ed9">   68</a></span>&#160;    <a class="code" href="namespacejrtti.html#acc19c2b1d42b031240febb2bc90eba2f" title="Retrieve Metatype.">metatype</a>( <span class="keyword">const</span> std::type_info&amp; tInfo ) {</div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;        <span class="keywordflow">return</span> Reflector::instance().metatype( tInfo );</div>
 <div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;    }</div>
 <div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;</div>
 <div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;    <span class="keyword">template</span> &lt;<span class="keyword">typename</span> C&gt;</div>
@@ -180,7 +180,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Sun Nov 11 2012 22:47:29 for jrtti C++ Introspection by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Mon Nov 12 2012 12:17:47 for jrtti C++ Introspection by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1.1
 </small></address>
