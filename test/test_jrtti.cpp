@@ -430,7 +430,7 @@ TEST_F(MetaTypeTest, testCollectionInterface) {
 
 TEST_F(MetaTypeTest, testMetaobject) {
 	Sample sample;
-	Metaobject mo = Metaobject( &mClass(), &sample );
+	Metaobject mo = Metaobject( mClass(), &sample );
 
 	mo.set( "date.d", 34 );
 	EXPECT_EQ( 34, mo.get<int>( "date.d" ) );
