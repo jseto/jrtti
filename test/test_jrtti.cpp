@@ -429,6 +429,7 @@ TEST_F(MetaTypeTest, testCollectionInterface) {
 }
 
 TEST_F(MetaTypeTest, testMetaobject) {
+	Sample sample;
 	Metaobject mo = Metaobject( &mClass(), &sample );
 
 	mo.set( "date.d", 34 );
@@ -436,6 +437,9 @@ TEST_F(MetaTypeTest, testMetaobject) {
 
 	mo.set( "testDouble", 34.8 );
 	EXPECT_EQ( 34.8, mo.get<double>( "testDouble" ) );
+
+	mo.set( "date.y", mo.get( "date.d" ) );
+	EXPECT_EQ( sample.getByValProp().d, sample.getByValProp().y );
 
 //	std::cout << mo.toStr() << std::endl;
 }

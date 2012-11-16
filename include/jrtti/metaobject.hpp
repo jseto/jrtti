@@ -53,6 +53,19 @@ public:
 	}
 
 	/**
+	 * \brief Returns the boost::any value of property
+	 *
+	 * Returns the boost::any value of a property or full categorized property
+	 * \tparam the expected type of the property
+	 * \param name full categorized property name dotted separated. ex: "pont.x"
+	 * \return the property value
+	 */
+	boost::any
+	get( const std::string& name ) const {
+		return m_metatype->eval( m_instance, name );
+	}
+
+	/**
 	 * \brief Retrieves a string representation of the metaobject
 	 *
 	 * Retrieves a string representation of the metaobject contens in a JSON format.
@@ -71,6 +84,14 @@ public:
 	type() {
 		return *m_metatype;
 	}
+
+	/**
+	 * \brief Compares two Metaobjects for equality
+	 */
+	bool
+	operator == ( const Metaobject& mo ) const {
+		return boost::unsafe_any_cast< void * >( &m_instance ) == boost::unsafe_any_cast< void * >( &mo.m_instance );
+	}
 
 private:
 	boost::any m_instance;
