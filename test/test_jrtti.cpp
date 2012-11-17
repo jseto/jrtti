@@ -441,6 +441,9 @@ TEST_F(MetaTypeTest, testMetaobject) {
 	mo.set( "date.y", mo.get( "date.d" ) );
 	EXPECT_EQ( sample.getByValProp().d, sample.getByValProp().y );
 
+	SampleBase * samplePtr = mo.objectInstance< SampleBase >();
+	EXPECT_TRUE( samplePtr == &sample );
+
 //	std::cout << mo.toStr() << std::endl;
 }
 

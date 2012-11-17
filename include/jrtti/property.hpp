@@ -27,7 +27,7 @@ public:
 	 * \return the property name
 	 */
 	std::string
-	name() {
+	name() const {
 		return _name;
 	}
 
@@ -45,8 +45,7 @@ public:
 	 * \param annotationsContainer the annotation container
 	 */
 	void
-	annotations( const Annotations& annotationsContainer )
-	{
+	annotations( const Annotations& annotationsContainer ) {
 		_annotations = annotationsContainer;
 	}
 
@@ -55,8 +54,7 @@ public:
 	 * \return the associated annotations container of this property
 	 */
 	Annotations&
-	annotations()
-	{
+	annotations() {
 		return _annotations;
 	}
 
@@ -65,7 +63,7 @@ public:
 	 * \return the meta type
 	 */
 	Metatype&
-	metatype() {
+	metatype() const {
 		return *_metaType;
 	}
 
@@ -76,7 +74,7 @@ public:
 	 * \return true if its value can be retrieved
 	 */
 	bool
-	isReadable() {
+	isReadable() const {
 		return (_mode & Readable);
 	}
 
@@ -87,7 +85,7 @@ public:
 	 * \return true if its value can be set
 	 */
 	bool
-	isWritable()	{
+	isWritable() const {
 		return (_mode & Writable) != 0;
 	}
 
@@ -96,7 +94,7 @@ public:
 	 * \return true if property is writable and readable
 	 */
 	bool
-	isReadWrite()	{
+	isReadWrite() const {
 		return isReadable() & isWritable();
 	}
 
@@ -105,7 +103,7 @@ public:
 	 * \return true if property is read-only
 	 */
 	bool
-	isReadOnly()	{
+	isReadOnly() const {
 		return isReadable() & !isWritable();
 	}
 
@@ -145,7 +143,7 @@ public:
 	}
 
 protected:
-	void 
+	void
 	setMetatype( Metatype * mt ) {
 		_metaType = mt;
 	}

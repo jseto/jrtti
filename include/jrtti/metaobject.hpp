@@ -12,9 +12,17 @@ class Metaobject {
 public:
 	Metaobject(){}
 
-	Metaobject( const Metaobject& mo ) {
-		m_instance = mo.m_instance;
-		m_metatype = mo.m_metatype;
+	Metaobject( const Metaobject& mo )
+		: m_instance( mo.m_instance ),
+		  m_metatype( mo.m_metatype ){}
+
+	Metaobject&
+	operator = ( const Metaobject& mo ) {
+		if (*this != mo) {
+			m_instance = mo.m_instance;
+			m_metatype = m_metatype;
+		}
+		return *this;
 	}
 
 	/**
@@ -81,9 +89,26 @@ public:
 	 * \return the associated Metatype
 	 */
 	Metatype&
-	type() {
+	metatype() {
 		return *m_metatype;
 	}
+
+	/**
+	 * \brief Get the associated object instance
+	 * \tparam native type of associated object
+	 * \throw boost::bad_any_cast if
+	 * \return the asociated object instance
+	 */
+	 template< typename T >
+	 T *
+	 objectInstance() {
+		if ( m_metatype->isDerivedFrom< T >() ) {
+			return *boost::unsafe_any_cast< T * >( &m_instance );
+		}
+		else {
+			return boost::any_cast< T * >( m_instance );
+		}
+	 }
 
 	/**
 	 * \brief Compares two Metaobjects for equality
@@ -93,7 +118,15 @@ public:
 		return boost::unsafe_any_cast< void * >( &m_instance ) == boost::unsafe_any_cast< void * >( &mo.m_instance );
 	}
 
-private:
+	/**
+	 * \brief Compares two Metaobjects for inequality
+	 */
+	bool
+	operator != ( const Metaobject& mo ) const {
+		return !( *this == mo );
+	}
+
+private:
 	boost::any m_instance;
 	Metatype * m_metatype;
 };
