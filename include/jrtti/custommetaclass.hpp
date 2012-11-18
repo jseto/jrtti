@@ -339,7 +339,8 @@ private:
 		if ( content.type() == typeid( boost::reference_wrapper< ClassT > ) ) {
 			return boost::any_cast< boost::reference_wrapper< ClassT > >( content ).get_pointer();
 		}
-		return (void *) boost::any_cast< ClassT * >(content);
+//		return (void *) boost::any_cast< ClassT * >(content);
+		return (void *) *boost::unsafe_any_cast< ClassT * >(&content);
 	}
 
 //SFINAE _get_instance_ptr for ABSTRACT

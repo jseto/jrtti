@@ -444,6 +444,10 @@ TEST_F(MetaTypeTest, testMetaobject) {
 	SampleBase * samplePtr = mo.objectInstance< SampleBase >();
 	EXPECT_TRUE( samplePtr == &sample );
 
+	sample.intMember = 12;
+	Metaobject moInt = Metaobject( mClass(), samplePtr );
+	EXPECT_EQ( moInt.get<int>("intMember"), 12 );
+
 //	std::cout << mo.toStr() << std::endl;
 }
 

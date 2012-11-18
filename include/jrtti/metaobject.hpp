@@ -20,7 +20,7 @@ public:
 	operator = ( const Metaobject& mo ) {
 		if (*this != mo) {
 			m_instance = mo.m_instance;
-			m_metatype = m_metatype;
+			m_metatype = mo.m_metatype;
 		}
 		return *this;
 	}
@@ -70,7 +70,7 @@ public:
 	 */
 	boost::any
 	get( const std::string& name ) const {
-		return m_metatype->eval( m_instance, name );
+ 		return m_metatype->eval( m_instance, name );
 	}
 
 	/**
@@ -96,7 +96,6 @@ public:
 	/**
 	 * \brief Get the associated object instance
 	 * \tparam native type of associated object
-	 * \throw boost::bad_any_cast if
 	 * \return the asociated object instance
 	 */
 	 template< typename T >
