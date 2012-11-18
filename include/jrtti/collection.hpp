@@ -24,64 +24,63 @@ public:
 
 protected:
 	virtual
-		std::string
-		_toStr( const boost::any & value, bool formatForStreaming ){
-			ClassT& _collection = getReference( value );
-			////////// COMPILER ERROR   //// Collections must declare a value_type type. See documentation for details. 
-			Metatype & mt = jrtti::metatype< typename ClassT::value_type >();
-			std::string str = "[\n";
-			bool need_nl = false;
-			////////// COMPILER ERROR   //// Collections must declare a iterator type and a begin and end methods. See documentation for details.
-			for ( typename ClassT::iterator it = _collection.begin() ; it != _collection.end(); ++it ) {
-				if (need_nl) str += ",\n";
-				need_nl = true;
-				str += ident( mt._toStr( *it, formatForStreaming ) );
-			}
-			return str += "\n]";
+	std::string
+	_toStr( const boost::any & value, bool formatForStreaming ){
+		ClassT& _collection = getReference( value );
+		////////// COMPILER ERROR   //// Collections must declare a value_type type. See documentation for details. 
+		Metatype & mt = jrtti::metatype< typename ClassT::value_type >();
+		std::string str = "[\n";
+		bool need_nl = false;
+		////////// COMPILER ERROR   //// Collections must declare a iterator type and a begin and end methods. See documentation for details.
+		for ( typename ClassT::iterator it = _collection.begin() ; it != _collection.end(); ++it ) {
+			if (need_nl) str += ",\n";
+			need_nl = true;
+			str += ident( mt._toStr( *it, formatForStreaming ) );
+		}
+		return str += "\n]";
 	}
 
 	virtual
-		boost::any
-		_fromStr( const boost::any& instance, const std::string& str ) {
-			ClassT& _collection =  getReference( instance );
-			////////// COMPILER ERROR   //// Collections must declare a clear method. See documentation for details.
-			_collection.clear();
-			JSONParser parser( str );
-			Metatype& elemType = jrtti::metatype< typename ClassT::value_type >();
-			for( JSONParser::iterator it = parser.begin(); it != parser.end(); ++it) {
-				typename ClassT::value_type elem;
-				const boost::any &mod = elemType._fromStr( &elem, it->second );
-				////////// COMPILER ERROR   //// Collections must declare an insert method. See documentation for details.
-				_collection.insert( _collection.end(), boost::any_cast< typename ClassT::value_type >( mod ) );
-			}
-			return boost::any();
+	boost::any
+	_fromStr( const boost::any& instance, const std::string& str ) {
+		ClassT& _collection =  getReference( instance );
+		////////// COMPILER ERROR   //// Collections must declare a clear method. See documentation for details.
+		_collection.clear();
+		JSONParser parser( str );
+		Metatype& elemType = jrtti::metatype< typename ClassT::value_type >();
+		for( JSONParser::iterator it = parser.begin(); it != parser.end(); ++it) {
+			typename ClassT::value_type elem;
+			const boost::any &mod = elemType._fromStr( &elem, it->second );
+			////////// COMPILER ERROR   //// Collections must declare an insert method. See documentation for details.
+			_collection.insert( _collection.end(), boost::any_cast< typename ClassT::value_type >( mod ) );
+		}
+		return boost::any();
 	}
 
 	virtual
-		boost::any
-		create()
-	{
+	boost::any
+	create() {
 		return new ClassT();
 	}
 
 	virtual
-		void *
-		get_instance_ptr( const boost::any & value ) {
-			return boost::any_cast< boost::reference_wrapper< boost::remove_reference< ClassT > > >( value ).get_pointer();
+	void *
+	get_instance_ptr( const boost::any & value ) {
+		return boost::any_cast< boost::reference_wrapper< boost::remove_reference< ClassT > > >( value ).get_pointer();
 	}
 
 	ClassT&
-		getReference( const boost::any value ) {
-			if ( value.type() == typeid( ClassT ) ) {
-				static ClassT ref = boost::any_cast< ClassT >( value );
-				return ref;
-			}
-			if ( value.type() == typeid( ClassT * ) ) {
-				return * boost::any_cast< ClassT * >( value );
-			}
-			else {
-				return boost::any_cast< boost::reference_wrapper< ClassT > >( value ).get();
-			}
+	getReference( const boost::any value ) {
+		if ( value.type() == typeid( ClassT ) ) {
+			static ClassT ref = boost::any_cast< ClassT >( value );
+			return ref;
+		}
+		if ( value.type() == typeid( ClassT * ) ) {
+			return * boost::any_cast< ClassT * >( value );
+		}
+		else {
+			return boost::any_cast< boost::reference_wrapper< ClassT > >( value ).get();
+		}
 	}
 };
 

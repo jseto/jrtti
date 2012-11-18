@@ -69,7 +69,7 @@ public:
 	 * \return the property value
 	 */
 	boost::any
-	get( const std::string& name ) const {
+	get( const std::string& name ) {
  		return m_metatype->eval( m_instance, name );
 	}
 

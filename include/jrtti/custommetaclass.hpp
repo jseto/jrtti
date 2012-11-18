@@ -119,7 +119,28 @@ public:
 	}
 
 	/**
-	 * \brief Declares a property manged by Annotations
+	 * \brief Declares a property with only a setter accessor method
+	 *
+	 * Declares a property with only a setter method.
+	 * A property is an abstraction of class members.
+	 * \param name property name
+	 * \param setter the address of the setter method
+	 * \param categories a container with property categories
+	 * \return this for chain calls
+	 */
+	template < typename PropT >
+	CustomMetaclass&
+	property(std::string name,  void ( ClassT::*setter)( PropT ), const Annotations& annotations = Annotations() )
+	{
+		typedef typename boost::function< void ( ClassT*, PropT ) >	BoostSetter;
+		typedef typename boost::function< PropT ( ClassT * ) >		BoostGetter;
+
+		BoostGetter getter;       //getter empty is used by Property<>::isReadOnly()
+		return fillProperty< PropT, BoostSetter, BoostGetter >(name,  setter, getter, annotations );
+	}
+
+	/**
+	 * \brief Declares a property managed by Annotations
 	 *
 	 * Declares a property without accessor. Accesors are managed by the associated Annotations.
 	 * It is usualy used with StringifyDelegate

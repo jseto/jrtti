@@ -409,7 +409,7 @@ protected:
 
 		for( PropertyMap::iterator it = properties().begin(); it != properties().end(); ++it) {
 			Property * prop = it->second;
-			if ( prop ) {
+			if ( prop && prop->isReadable() ) {
 				if ( !( formatForStreaming && prop->annotations().has< NoStreamable >() ) ) {
 					if (need_nl) result += ",\n";
 					need_nl = true;

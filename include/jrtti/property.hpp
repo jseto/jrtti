@@ -196,8 +196,11 @@ public:
 	getter( boost::function< PropT (ClassT*) > functor )	{
 		if ( !functor.empty() ) {
 			setMode( Readable );
+			m_getter = functor;
 		}
-		m_getter = functor;
+		else {
+			m_getter = NULL;
+		}
 		return *this;
 	}
 
