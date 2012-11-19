@@ -140,7 +140,6 @@ TEST_F(MetaTypeTest, StdStringMutator) {
 }
 
 TEST_F(MetaTypeTest, ByValType) {
-
 	EXPECT_EQ( "Date", mClass()["date"].metatype().name() );
 }
 
