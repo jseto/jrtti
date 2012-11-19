@@ -56,7 +56,7 @@ public:
 	 */
 	template< typename T >
 	T
-	get( const std::string& name ) {
+	get( const std::string& name ) const {
 		return m_metatype->eval<T>( m_instance, name );
 	}
 
@@ -69,7 +69,7 @@ public:
 	 * \return the property value
 	 */
 	boost::any
-	get( const std::string& name ) {
+	get( const std::string& name ) const {
  		return m_metatype->eval( m_instance, name );
 	}
 

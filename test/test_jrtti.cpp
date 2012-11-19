@@ -412,7 +412,8 @@ TEST_F(MetaTypeTest, base64) {
 
 TEST_F(MetaTypeTest, testCollectionInterface) {
 	MyCollection col;
-	jrtti::declareCollection< MyCollection >();
+	jrtti::declareCollection< MyCollection >()
+		.property( "intMember", &MyCollection::intMember );
 
 	MyCollection::iterator it = col.begin();
 

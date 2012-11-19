@@ -71,15 +71,18 @@ protected:
 
 	ClassT&
 	getReference( const boost::any value ) {
-		if ( value.type() == typeid( ClassT ) ) {
+ 		if ( value.type() == typeid( ClassT ) ) {
 			static ClassT ref = boost::any_cast< ClassT >( value );
 			return ref;
 		}
 		if ( value.type() == typeid( ClassT * ) ) {
 			return * boost::any_cast< ClassT * >( value );
 		}
-		else {
+		if ( value.type() == typeid( boost::reference_wrapper< ClassT > ) ) {
 			return boost::any_cast< boost::reference_wrapper< ClassT > >( value ).get();
+		}
+		else {
+			return **boost::unsafe_any_cast< ClassT * >( &value );
 		}
 	}
 };
