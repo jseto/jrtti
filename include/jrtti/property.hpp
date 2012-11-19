@@ -224,7 +224,7 @@ private:
 	template < typename T>
 	typename boost::enable_if< typename boost::is_pointer< T >::type, boost::any >::type
 	internal_get(void * instance)	{
-		return  (void *)m_getter( (ClassT *)instance );
+		return  (T)m_getter( (ClassT *)instance );
 	}
 
 	//SFINAE for references

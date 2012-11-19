@@ -27,7 +27,7 @@ protected:
 	std::string
 	_toStr( const boost::any & value, bool formatForStreaming ){
 		ClassT& _collection = getReference( value );
-		////////// COMPILER ERROR   //// Collections must declare a value_type type. See documentation for details. 
+		////////// COMPILER ERROR   //// Collections must declare a value_type type. See documentation for details.
 		Metatype & mt = jrtti::metatype< typename ClassT::value_type >();
 		std::string str = "[\n";
 		bool need_nl = false;

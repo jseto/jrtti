@@ -1,4 +1,3 @@
-
 #include <algorithm>
 #include <fstream>
 #include <time.h>
@@ -187,7 +186,7 @@ TEST_F(MetaTypeTest, ByPtrAccessor) {
 	p->y = 80;
 	sample.setByPtrProp(p);
 //TODO: improve access by proper type instead void *
-	Point * result = static_cast<Point*>(mClass()["point"].get<void *>(&sample));
+	Point * result = mClass()["point"].get<Point *>(&sample);
 
 	EXPECT_TRUE(p == result);
 }
