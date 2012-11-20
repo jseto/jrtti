@@ -26,31 +26,39 @@ protected:
 	virtual
 	std::string
 	_toStr( const boost::any & value, bool formatForStreaming ){
+		std::string props_str = Metatype::_toStr( value, formatForStreaming );
 		ClassT& _collection = getReference( value );
+
 		////////// COMPILER ERROR   //// Collections must declare a value_type type. See documentation for details.
 		Metatype & mt = jrtti::metatype< typename ClassT::value_type >();
 		std::string str = "[\n";
 		bool need_nl = false;
+
 		////////// COMPILER ERROR   //// Collections must declare a iterator type and a begin and end methods. See documentation for details.
 		for ( typename ClassT::iterator it = _collection.begin() ; it != _collection.end(); ++it ) {
 			if (need_nl) str += ",\n";
 			need_nl = true;
 			str += ident( mt._toStr( *it, formatForStreaming ) );
 		}
-		return str += "\n]";
+		str += "\n]";
+		return "{\n" + ident( "\"properties\": " +props_str ) + ",\n" + ident( "\"elements\": " + str ) + "\n}";
 	}
 
 	virtual
 	boost::any
 	_fromStr( const boost::any& instance, const std::string& str ) {
+		JSONParser pre_parser( str );
+		Metatype::_fromStr( instance, pre_parser[ "properties" ] );
 		ClassT& _collection =  getReference( instance );
+
 		////////// COMPILER ERROR   //// Collections must declare a clear method. See documentation for details.
-		_collection.clear();
-		JSONParser parser( str );
+		_collection.clear();
+		JSONParser parser( pre_parser["elements"] );
 		Metatype& elemType = jrtti::metatype< typename ClassT::value_type >();
 		for( JSONParser::iterator it = parser.begin(); it != parser.end(); ++it) {
 			typename ClassT::value_type elem;
 			const boost::any &mod = elemType._fromStr( &elem, it->second );
+
 			////////// COMPILER ERROR   //// Collections must declare an insert method. See documentation for details.
 			_collection.insert( _collection.end(), boost::any_cast< typename ClassT::value_type >( mod ) );
 		}
@@ -62,13 +70,13 @@ protected:
 	create() {
 		return new ClassT();
 	}
-
+/*
 	virtual
 	void *
 	get_instance_ptr( const boost::any & value ) {
 		return boost::any_cast< boost::reference_wrapper< boost::remove_reference< ClassT > > >( value ).get_pointer();
 	}
-
+  */
 	ClassT&
 	getReference( const boost::any value ) {
  		if ( value.type() == typeid( ClassT ) ) {
