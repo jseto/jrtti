@@ -56,6 +56,8 @@ public:
 		parentMetatype( &parent );
 		PropertyMap& parentProps = parent.properties();
 		properties().insert( parentProps.begin(), parentProps.end() );
+		MethodMap& parentMeth = parent.methods();
+		methods().insert( parentMeth.begin(), parentMeth.end() );
 		return *this;
 	}
 

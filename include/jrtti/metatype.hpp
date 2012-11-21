@@ -4,6 +4,7 @@
 #include <map>
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
+#include <boost/type_traits/remove_pointer.hpp>
 
 #include "helpers.hpp"
 #include "property.hpp"
@@ -188,9 +189,9 @@ public:
 	template < class ReturnT, class ClassT >
 	ReturnT
 	call ( std::string methodName, ClassT * instance ) {
-		typedef TypedMethod< ClassT, ReturnT > MethodType;
+		typedef TypedMethod< boost::remove_pointer< ClassT >::type, ReturnT > MethodType;
 
-		MethodType * ptr = static_cast< MethodType * >( m_methods[methodName] );
+		MethodType * ptr = static_cast< MethodType * >( methods()[methodName] );
 		if (!ptr) {
 			throw error("Method '" + methodName + "' not found in '" + name() + "' metaclass");
 		}
@@ -341,7 +342,7 @@ public:
 	void
 	fromStr( const boost::any & instance, const std::string& str ) {
 		_nameRefMap().clear();
-		_fromStr( instance, str );
+		_fromStr( instance, str, false );
 	}
 
 	virtual
@@ -431,8 +432,8 @@ protected:
 
 	virtual
 	boost::any
-	_fromStr( const boost::any & instance, const std::string& str ) {
-		void * inst = get_instance_ptr(instance);
+	_fromStr( const boost::any & instance, const std::string& str, bool doCopyFromInstance = true ) {
+		void * inst = get_instance_ptr(instance);
 		JSONParser parser( str );
 
 		for( JSONParser::iterator it = parser.begin(); it != parser.end(); ++it) {
@@ -461,7 +462,10 @@ protected:
 				}
 			}
 		}
-		return copyFromInstance( inst );
+		if ( doCopyFromInstance )
+			return copyFromInstance( inst );
+		else
+        	return boost::any();
 	}
 
 	void
@@ -490,7 +494,6 @@ protected:
 	}
 
 private:
-//	std::string		m_type_name;
 	const std::type_info&	m_type_info;
 	MethodMap		m_methods;
 	MethodMap		m_ownedMethods;

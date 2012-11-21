@@ -12,6 +12,9 @@ namespace jrtti {
 * Collections should expose both, an iterator named iterator and a public type
 * exposing the the type of the contained elements named value_type. Additionally should 
 * also expose member functions begin(), end(), clear() and insert().
+* If contained elements are derived objects from a common ancestor, a property named 
+* __typeInfoName shoud be declare to jrtti so jrtti can stream elements properly.
+* This property should return typeid( *this ).name().
 * In esence, a native collection type should implement the provided
 * interface CollectionInterface. Most STL container implementation are compatible
 * with CollectionInterface. That means you can directly use STL containers.
@@ -30,7 +33,7 @@ protected:
 		ClassT& _collection = getReference( value );
 
 		////////// COMPILER ERROR   //// Collections must declare a value_type type. See documentation for details.
-		Metatype & mt = jrtti::metatype< typename ClassT::value_type >();
+		Metatype * mt = &jrtti::metatype< typename ClassT::value_type >();
 		std::string str = "[\n";
 		bool need_nl = false;
 
@@ -38,7 +41,12 @@ protected:
 		for ( typename ClassT::iterator it = _collection.begin() ; it != _collection.end(); ++it ) {
 			if (need_nl) str += ",\n";
 			need_nl = true;
-			str += ident( mt._toStr( *it, formatForStreaming ) );
+
+			PropertyMap::iterator pmit = mt->properties().find( "__typeInfoName" );
+			if ( pmit != mt->properties().end() ) {
+				mt = &Reflector::instance().metatype( pmit->second->get< std::string >( getElementPtr( *it ) ) );
+			}
+			str += ident( mt->_toStr( *it, formatForStreaming ) );
 		}
 		str += "\n]";
 		return "{\n" + ident( "\"properties\": " +props_str ) + ",\n" + ident( "\"elements\": " + str ) + "\n}";
@@ -46,21 +54,35 @@ protected:
 
 	virtual
 	boost::any
-	_fromStr( const boost::any& instance, const std::string& str ) {
+	_fromStr( const boost::any& instance, const std::string& str, bool doCopyFromInstance = true ) {
 		JSONParser pre_parser( str );
-		Metatype::_fromStr( instance, pre_parser[ "properties" ] );
+		Metatype::_fromStr( instance, pre_parser[ "properties" ], false );
 		ClassT& _collection =  getReference( instance );
 
 		////////// COMPILER ERROR   //// Collections must declare a clear method. See documentation for details.
 		_collection.clear();
 		JSONParser parser( pre_parser["elements"] );
-		Metatype& elemType = jrtti::metatype< typename ClassT::value_type >();
 		for( JSONParser::iterator it = parser.begin(); it != parser.end(); ++it) {
+			Metatype * elemType;
+			JSONParser elemParser( it->second );
+			JSONParser::iterator found = elemParser.find( "__typeInfoName" );
+			if ( found != elemParser.end() ) {
+				elemType = &Reflector::instance().metatype( found->second );
+			}
+			else {
+				elemType = &Reflector::instance().metatype< ClassT::value_type >();
+			}
 			typename ClassT::value_type elem;
-			const boost::any &mod = elemType._fromStr( &elem, it->second );
-
-			////////// COMPILER ERROR   //// Collections must declare an insert method. See documentation for details.
-			_collection.insert( _collection.end(), boost::any_cast< typename ClassT::value_type >( mod ) );
+			if ( boost::is_pointer< ClassT::value_type >::value ) {
+				elem = *boost::unsafe_any_cast< ClassT::value_type >( &elemType->create() );
+				elemType->_fromStr( elem, it->second, false );
+				_collection.insert( _collection.end(), elem );
+			}
+			else {
+				const boost::any &mod = elemType->_fromStr( elem, it->second );
+				////////// COMPILER ERROR   //// Collections must declare an insert method. See documentation for details.
+				_collection.insert( _collection.end(), *boost::unsafe_any_cast< typename ClassT::value_type >( &mod ) );
+			}
 		}
 		return boost::any();
 	}
@@ -70,13 +92,7 @@ protected:
 	create() {
 		return new ClassT();
 	}
-/*
-	virtual
-	void *
-	get_instance_ptr( const boost::any & value ) {
-		return boost::any_cast< boost::reference_wrapper< boost::remove_reference< ClassT > > >( value ).get_pointer();
-	}
-  */
+
 	ClassT&
 	getReference( const boost::any value ) {
  		if ( value.type() == typeid( ClassT ) ) {
@@ -93,8 +109,21 @@ protected:
 			return **boost::unsafe_any_cast< ClassT * >( &value );
 		}
 	}
-};
 
+//SFINAE getElementPtr for pointer elements
+	template< typename ElemT >
+	typename boost::enable_if< typename boost::is_pointer< ElemT >::type, ElemT >::type
+	getElementPtr( ElemT e ){
+		return e;
+	}
+
+//SFINAE getElementPtr for non-pointer elements
+	template< typename ElemT >
+	typename boost::disable_if< typename boost::is_pointer< ElemT >::type, ElemT * >::type
+	getElementPtr( ElemT& e ){
+		return &e;
+	}
+};
 
 
 

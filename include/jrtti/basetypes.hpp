@@ -21,8 +21,13 @@ public:
 	}
 
 	PropertyMap &
-	properties(){
+	properties() {
 		return m_baseType.properties();
+	}
+
+	MethodMap&
+	methods() {
+		return m_baseType.methods();
 	}
 
 	bool
@@ -47,7 +52,7 @@ protected:
 
 	virtual
 	boost::any
-	_fromStr( const boost::any& instance, const std::string& str ) {
+	_fromStr( const boost::any& instance, const std::string& str, bool doCopyFromInstance = true ) {
 		JSONParser parser( str );
 		boost::any any_ptr;
 		if ( parser.begin()->first == "$ref" ) {
@@ -94,7 +99,7 @@ public:
 	}
 
 	boost::any
-	_fromStr( const boost::any& instance, const std::string& str ) {
+	_fromStr( const boost::any& instance, const std::string& str, bool doCopyFromInstance = true ) {
 		return strToNum<int>( str );
 	}
 
@@ -123,7 +128,7 @@ public:
 	}
 
 	boost::any
-	_fromStr( const boost::any& instance, const std::string& str ) {
+	_fromStr( const boost::any& instance, const std::string& str, bool doCopyFromInstance = true ) {
 		return strToNum<char>( str );
 	}
 
@@ -152,7 +157,7 @@ public:
 	}
 
 	boost::any
-	_fromStr( const boost::any& instance, const std::string& str ) {
+	_fromStr( const boost::any& instance, const std::string& str, bool doCopyFromInstance = true ) {
 		return str == "true";
 	}
 
@@ -180,7 +185,7 @@ public:
 	}
 
 	boost::any
-	_fromStr( const boost::any& instance, const std::string& str ) {
+	_fromStr( const boost::any& instance, const std::string& str, bool doCopyFromInstance = true ) {
 		return strToNum<double>( str );
 	}
 
@@ -202,7 +207,7 @@ public:
 	}
 
 	boost::any
-	_fromStr( const boost::any& instance, const std::string& str ) {
+	_fromStr( const boost::any& instance, const std::string& str, bool doCopyFromInstance = true ) {
 		return removeEscapeSeq( str );
 	}
 

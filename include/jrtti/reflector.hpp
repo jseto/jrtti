@@ -109,7 +109,12 @@ public:
 
 	Metatype &
 	metatype( const std::type_info& tInfo ) {
-		std::string name = tInfo.name();
+		return metatype( tInfo.name() );
+	}
+
+	Metatype &
+	metatype( const std::string& pname ) {
+		std::string name = pname;
 #ifdef __BORLANDC__
 		if ( name[name.length()-1]=='&' ) {
 			name = name.substr( 0, name.length()-2 );
