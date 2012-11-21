@@ -112,9 +112,9 @@ public:
 	bool
 	isFundamental() {
 		return false;
-    }
+	}
 
-	bool 
+	bool
 	isDerivedFrom( const Metatype& parent ) {
 		Metatype * derived = this;
 		while ( derived->m_parentMetatype && ( *derived->m_parentMetatype != parent ) ) {
@@ -122,9 +122,9 @@ public:
 		}
 		return ( derived->m_parentMetatype != NULL );
 	}
-	
+
 	template< typename T >
-	bool 
+	bool
 	isDerivedFrom() {
 		return isDerivedFrom( jrtti::metatype< T >() );
 	}
@@ -378,7 +378,7 @@ public:
 protected:
 	friend class MetaReferenceType;
 	friend class MetaPointerType;
-	
+
 	template< typename C > friend class Metacollection;
 
 	Metatype( const std::type_info& typeinfo, const Annotations& annotations = Annotations() )
@@ -386,7 +386,7 @@ protected:
 			m_annotations( annotations ),
 			m_parentMetatype( NULL ) {}
 
-	void 
+	void
 	parentMetatype( Metatype * parent ) {
 		m_parentMetatype = parent;
 	}
@@ -450,7 +450,7 @@ protected:
 					if ( prop->isWritable() || prop->annotations().has< ForceStreamLoadable >() ) {
 						StringifyDelegateBase * stringifyDelegate = prop->annotations().getFirst< StringifyDelegateBase >();
 						if ( stringifyDelegate ) {
-                        	stringifyDelegate->fromStr( inst, it->second );
+							stringifyDelegate->fromStr( inst, it->second );
 						}
 						else {
 							const boost::any &mod = prop->metatype()._fromStr( prop->get( inst ), it->second );
@@ -465,7 +465,7 @@ protected:
 		if ( doCopyFromInstance )
 			return copyFromInstance( inst );
 		else
-        	return boost::any();
+			return boost::any();
 	}
 
 	void
@@ -491,6 +491,12 @@ protected:
 				result += *it;
 		}
 		return result;
+	}
+
+	virtual
+	boost::any
+	createAsNullPtr() {
+		return NULL;
 	}
 
 private:

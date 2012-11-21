@@ -316,6 +316,12 @@ protected:
 		return boost::any( ptr );
 	}
 
+	virtual
+	boost::any
+	createAsNullPtr() {
+		return ( ClassT * )0;
+	}
+
 private:
 	template <typename MethodType, typename FunctionType>
 	CustomMetaclass&
