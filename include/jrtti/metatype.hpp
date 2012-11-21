@@ -266,6 +266,8 @@ public:
 		Property& prop = property(name);
 
 		void * inst = get_instance_ptr(instance);
+		if ( !inst )
+        	throw NullPtrError( path ); 
 		if (pos == std::string::npos)
 			return prop.get(inst);
 		else {
