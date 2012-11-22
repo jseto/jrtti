@@ -49,7 +49,10 @@ protected:
 			return Metatype::_toStr( value, formatForStreaming );
 		}
 		else {
-			return "{\n\t\"$ref\": \"" + it->second + "\"\n}";
+			if ( formatForStreaming )
+				return "{\n\t\"$ref\": \"" + it->second + "\"\n}";
+			else 
+				return "{}";
 		}
 	}
 
