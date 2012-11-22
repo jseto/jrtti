@@ -260,6 +260,39 @@ private:
 	PropNoRefT ClassT::*					m_dataMember;
 };
 
+template< typename ClassT >
+class UntypedProperty : public Property 
+{
+public:
+	UntypedProperty( Metatype& mt, const std::string pname ) {
+		setMetatype( &mt );
+		name( pname );
+		setMode( Readable );
+		setMode( Writable );
+	}
+
+	UntypedProperty&
+	member( void * ClassT::* dataMember )
+	{
+		m_dataMember = dataMember;
+		return *this;
+	}
+
+	void
+	set( void * instance, const boost::any& value ) {
+		ClassT * p = static_cast<ClassT *>(instance);
+		p->*m_dataMember = *boost::unsafe_any_cast< void * >( &value );
+	}
+
+	boost::any
+	get( void * instance ) {
+		ClassT * p = static_cast<ClassT *>(instance);
+		return p->*m_dataMember;
+	}
+
+private:
+	void * ClassT::*	m_dataMember;
+};
 //------------------------------------------------------------------------------
 }; //namespace jrtti
 #endif  //propertyH

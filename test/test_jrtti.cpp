@@ -473,6 +473,27 @@ TEST_F(MetaTypeTest, parentCheck) {
 	EXPECT_TRUE( jrtti::metatype< SampleDerived >().isDerivedFrom< SampleBase >() );
 }
 
+TEST_F(MetaTypeTest, untypedProperty) {
+	struct TestUntyped {
+		void * ptr;
+	};
+
+	TestUntyped testUntyped;
+
+	Metatype& mt = declare< TestUntyped >();
+	UntypedProperty< TestUntyped > * prop = new UntypedProperty< TestUntyped >( metatype< Point >(), "untyped" );
+	prop->member( &TestUntyped::ptr );
+	mt.properties()[ "untyped" ] = prop;
+
+	Point p;
+	p.x = 2;
+	p.y = 3;
+
+	testUntyped.ptr = &p;
+
+	std::string s = mt.toStr( &testUntyped );
+}
+
 TEST_F(MetaTypeTest, checkUseCase) {
 	useCase();
 }
