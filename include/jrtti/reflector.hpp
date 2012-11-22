@@ -122,7 +122,7 @@ public:
 #endif
 		TypeMap::iterator it = _meta_types.find( name );
 		if ( it == _meta_types.end() ) {
-			throw error( "Metatype '" + demangle( name ) + "' not declared" );
+			throw Error( "Metatype '" + demangle( name ) + "' not declared" );
 		}
 		return *it->second;
 	}

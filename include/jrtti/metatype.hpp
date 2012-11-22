@@ -398,16 +398,16 @@ protected:
 	_toStr( const boost::any & instance, bool formatForStreaming ) {
 		void * inst = get_instance_ptr(instance);
 		std::string result = "{\n";
-		bool need_nl = true;
+		bool need_nl = false;
 
 		AddressRefMap::iterator it = _addressRefMap().find( inst );
 		if ( it == _addressRefMap().end() ) {
 			std::string idStr = numToStr<int>( _addressRefMap().size() );
 			_addressRefMap()[ inst ] = idStr;
-			result += "\t\"$id\": \"" + idStr + "\"";
-		}
-		else {
-			need_nl = false;
+			if ( formatForStreaming ) {
+				need_nl = true;
+				result += "\t\"$id\": \"" + idStr + "\"";
+			}
 		}
 
 		for( PropertyMap::iterator it = properties().begin(); it != properties().end(); ++it) {
