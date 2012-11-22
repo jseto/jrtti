@@ -356,6 +356,7 @@ private:
 #else
 #define __IS_ABSTRACT( t ) boost::is_abstract< t >::type
 #endif
+
 //SFINAE _get_instance_ptr for NON ABSTRACT
 	template< typename AbstT >
 	typename boost::disable_if< typename __IS_ABSTRACT( AbstT ), void * >::type
@@ -394,7 +395,7 @@ private:
 		return boost::any();
 	}
 
-//SFINAE _create
+//SFINAE _create for NON ABSTRACT
 	template< typename AbstT >
 	typename boost::disable_if< typename __IS_ABSTRACT( AbstT ), boost::any >::type
 	_create()
@@ -402,7 +403,7 @@ private:
 		return new ClassT();
 	}
 
-//SFINAE _create
+//SFINAE _create for ABSTRACT
 	template< typename AbstT >
 	typename boost::enable_if< typename __IS_ABSTRACT( AbstT ), boost::any >::type
 	_create()

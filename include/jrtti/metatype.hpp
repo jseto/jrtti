@@ -137,7 +137,7 @@ public:
 	 * \return the found property abstraction
 	 * \sa property
 	 */
-	Property& operator [](std::string name) {
+	Property& operator []( const std::string& name) {
 		return property(name);
 	}
 
@@ -151,7 +151,7 @@ public:
 	 */
 	virtual
 	Property&
-	property( std::string name) {
+	property( const std::string& name) {
 		PropertyMap::iterator it = properties().find(name);
 		if ( it == properties().end() ) {
 			throw error( "Property '" + name + "' not declared in '" + Metatype::name() + "' metaclass" );

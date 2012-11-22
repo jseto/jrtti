@@ -3,6 +3,7 @@
 
 
 #include <sstream>
+#include <boost/any.hpp>
 
 namespace jrtti {
 	template <typename T>
@@ -20,5 +21,35 @@ namespace jrtti {
 		T result;
 		return ss >> result ? result : 0;
 	}
+
+		//jrtti_cast SFINAE for pointers 
+	template< typename T >
+	typename boost::enable_if< typename boost::is_pointer< T >::type, T >::type
+	jrtti_cast( const boost::any& value ) {
+		if ( value.type() == typeid( void * ) ) {
+			return ( T )boost::any_cast< void * >( value );
+		}
+		if ( value.type() == typeid( T ) ) {
+			return boost::any_cast< T >( value );
+		}
+		throw BadCast( typeid( T ).name() );
+	}
+
+	//jrtti_cast SFINAE for non-pointers 
+	template< typename T >
+	typename boost::disable_if< typename boost::is_pointer< T >::type, T >::type
+	jrtti_cast( const boost::any& value ) {
+		if ( value.type() == typeid( T ) ) {
+			return ( T )boost::any_cast< T >( value );
+		}
+		if ( value.type() == typeid( T * ) ) {
+			return * ( T * )boost::any_cast< T * >( value );
+		}
+		if ( value.type() == typeid( void * ) ) {
+			return * ( T * )boost::any_cast< void * >( value );
+		}
+		throw BadCast( typeid( T ).name() );
+	}
+
 }; // namespace jrtti
 #endif //jrttihelpersH

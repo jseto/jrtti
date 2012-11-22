@@ -477,13 +477,14 @@ TEST_F(MetaTypeTest, parentCheck) {
 
 TEST_F(MetaTypeTest, untypedProperty) {
 	struct TestUntyped {
+		int i;
 		void * ptr;
 	};
 
 	TestUntyped testUntyped;
 
 	Metatype& mt = declare< TestUntyped >();
-	UntypedProperty< TestUntyped > * prop = new UntypedProperty< TestUntyped >( metatype< Point >(), "untyped" );
+	UntypedProperty< TestUntyped > * prop = new UntypedProperty< TestUntyped >( metatype< Point * >(), "untyped" );
 	prop->member( &TestUntyped::ptr );
 	mt.properties()[ "untyped" ] = prop;
 
@@ -491,9 +492,24 @@ TEST_F(MetaTypeTest, untypedProperty) {
 	p.x = 2;
 	p.y = 3;
 
-	testUntyped.ptr = &p;
+	mt[ "untyped" ].set( &testUntyped, &p );
 
 	std::string s = mt.toStr( &testUntyped );
+	s.erase( std::remove_if( s.begin(), s.end(), ::isspace ), s.end() );
+	EXPECT_EQ( s, "{\"untyped\":{\"x\":2,\"y\":3}}" );
+
+	s = mt[ "untyped" ].metatype().toStr( testUntyped.ptr ); 
+	s.erase( std::remove_if( s.begin(), s.end(), ::isspace ), s.end() );
+	EXPECT_EQ( s, "{\"x\":2,\"y\":3}" );
+	
+	Point p1 = jrtti_cast< Point >( mt[ "untyped" ].get( &testUntyped ) );
+
+	Sample sample;
+	mClass()[ "point" ].set( &sample, mt[ "untyped" ].get( &testUntyped ) );
+	EXPECT_EQ( sample.getByPtrProp()->y, 3 );
+
+	mClass().apply( &sample, "date.place", mt[ "untyped" ].get( &testUntyped ) );
+	EXPECT_EQ( sample.getByRefProp().place.y, 3 );
 }
 
 TEST_F(MetaTypeTest, checkUseCase) {
