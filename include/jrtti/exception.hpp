@@ -2,6 +2,7 @@
 #define jrtti_exceptionH
 
 #include <stdexcept>
+#include <string>
 
 namespace jrtti
 {
@@ -13,6 +14,14 @@ namespace jrtti
 	public:
 		Error(std::string message)
 			: std::logic_error(message)
+		{}
+	};
+
+	class NullPtrError : public Error
+	{
+	public:
+		NullPtrError( std::string message )
+			: Error( "Null pointer found" + ( message.length()? " at " + message : std::string() ) )
 		{}
 	};
 

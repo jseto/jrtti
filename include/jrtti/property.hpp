@@ -14,6 +14,7 @@ namespace jrtti {
  */
 class Property
 {
+	friend class Reflector;
 public:
 	enum Mode {Readable=1, Writable=2};
 
@@ -26,7 +27,7 @@ public:
 	 * \return the property name
 	 */
 	std::string
-	name() {
+	name() const {
 		return _name;
 	}
 
@@ -44,8 +45,7 @@ public:
 	 * \param annotationsContainer the annotation container
 	 */
 	void
-	annotations( const Annotations& annotationsContainer )
-	{
+	annotations( const Annotations& annotationsContainer ) {
 		_annotations = annotationsContainer;
 	}
 
@@ -54,8 +54,7 @@ public:
 	 * \return the associated annotations container of this property
 	 */
 	Annotations&
-	annotations()
-	{
+	annotations() {
 		return _annotations;
 	}
 
@@ -63,8 +62,8 @@ public:
 	 * \brief Retrieves the Metatype of this property
 	 * \return the meta type
 	 */
-	Metatype &
-	type() {
+	Metatype&
+	metatype() const {
 		return *_metaType;
 	}
 
@@ -75,7 +74,7 @@ public:
 	 * \return true if its value can be retrieved
 	 */
 	bool
-	isReadable() {
+	isReadable() const {
 		return (_mode & Readable);
 	}
 
@@ -86,7 +85,7 @@ public:
 	 * \return true if its value can be set
 	 */
 	bool
-	isWritable()	{
+	isWritable() const {
 		return (_mode & Writable) != 0;
 	}
 
@@ -95,7 +94,7 @@ public:
 	 * \return true if property is writable and readable
 	 */
 	bool
-	isReadWrite()	{
+	isReadWrite() const {
 		return isReadable() & isWritable();
 	}
 
@@ -104,7 +103,7 @@ public:
 	 * \return true if property is read-only
 	 */
 	bool
-	isReadOnly()	{
+	isReadOnly() const {
 		return isReadable() & !isWritable();
 	}
 
@@ -144,7 +143,7 @@ public:
 	}
 
 protected:
-	void 
+	void
 	setMetatype( Metatype * mt ) {
 		_metaType = mt;
 	}
@@ -164,15 +163,22 @@ public:
 
 	TypedProperty()
 	{
-		setMetatype( &jrtti::getType< PropT >() );
+		try {
+			setMetatype( &jrtti::metatype< PropT >() );
+		} catch ( Error ) {
+			setMetatype( NULL );
+        	Reflector::instance().addPendingProperty( typeid( PropT ).name(), this );
+		}
 	}
 
 	TypedProperty&
 	setter( boost::function<void ( ClassT*, PropT ) > functor)
 	{
-		if (!functor.empty()) setMode( Writable );
+		if (!functor.empty()) {
+			setMode( Writable );
+			m_setter = functor;
+		}
 		m_dataMember = NULL;
-		m_setter = functor;
 		return *this;
 	}
 
@@ -190,8 +196,11 @@ public:
 	getter( boost::function< PropT (ClassT*) > functor )	{
 		if ( !functor.empty() ) {
 			setMode( Readable );
+			m_getter = functor;
 		}
-		m_getter = functor;
+		else {
+			m_getter = NULL;
+		}
 		return *this;
 	}
 
@@ -215,7 +224,7 @@ private:
 	template < typename T>
 	typename boost::enable_if< typename boost::is_pointer< T >::type, boost::any >::type
 	internal_get(void * instance)	{
-		return  (void *)m_getter( (ClassT *)instance );
+		return  (T)m_getter( (ClassT *)instance );
 	}
 
 	//SFINAE for references

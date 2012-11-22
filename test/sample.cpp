@@ -3,15 +3,15 @@
 
 void declare()
 {
-	jrtti::declare<Point>()
-						.property("x", &Point::x)
-						.property("y", &Point::y);
-
 	jrtti::declare<Date>()
 						.property("d", &Date::d)
 						.property("m", &Date::m)
 						.property("y", &Date::y)
 						.property("place", &Date::place);
+
+	jrtti::declare< Rect >()
+						.property( "tl", &Rect::tl )
+						.property( "bl", &Rect::br );
 
 #ifdef BOOST_NO_IS_ABSTRACT
 	jrtti::declareAbstract<SampleBase>()			// declare abstract for generic compilers
@@ -39,12 +39,17 @@ void declare()
 						.collection("collection", /*&Sample::setCollection, */&Sample::getCollection, jrtti::Annotations() << new jrtti::ForceStreamLoadable() )
 						.property("circularRef", &Sample::circularRef )
 						.property("memoryDump", jrtti::Annotations() << new jrtti::StringifyDelegate<Sample>( &Sample::stringifier, &Sample::deStringifier) )
+						.property("onlySetter", &Sample::setDoubleProp )
 
 						.method<void>("testMethod", &Sample::testFunc,
 									jrtti::Annotations() << new GUIAnnotation( "method.ico", false, false ) )
 						.method<int>("testIntMethod", &Sample::testIntFunc)
 						.method<double,double>("testSquare", &Sample::testSquare)
 						.method<double,int,double>("testSum", &Sample::testSum);
+
+	jrtti::declare<Point>()
+						.property("x", &Point::x)
+						.property("y", &Point::y);
 
 	jrtti::declare<SampleDerived>()
 				.derivesFrom<Sample>();
@@ -64,19 +69,19 @@ void useCase() {
 	s.circularRef = &s; s.setDoubleProp( 344.23 ); s.setStdStringProp( "Hello!!!" );
 	
 	//set the property intMember of s object to 15
-	jrtti::getType< Sample >().property( "intMember" ).set( &s, 15 );
+	jrtti::metatype< Sample >().property( "intMember" ).set( &s, 15 );
 	std::cout << s.intMember << " == " << 15 << std::endl;
 
 	//retrieve the value of intMember from s object
-	int i = jrtti::getType< Sample >().property( "intMember" ).get<int>( &s );
+	int i = jrtti::metatype< Sample >().property( "intMember" ).get<int>( &s );
 	std::cout << s.intMember << " == " << i << std::endl;
 
 	//same as above using braket operator
-	i = jrtti::getType< Sample >()[ "intMember" ].get<int>( &s );
+	i = jrtti::metatype< Sample >()[ "intMember" ].get<int>( &s );
 	std::cout << s.intMember << " == " << i << std::endl;
 
 	//getting a Metatype object
-	jrtti::Metatype & mt = jrtti::getType< Sample >();
+	jrtti::Metatype & mt = jrtti::metatype< Sample >();
 
 	//and working with it
 	p.x = 23;

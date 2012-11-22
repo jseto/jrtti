@@ -1,4 +1,3 @@
-
 #include <algorithm>
 #include <fstream>
 #include <time.h>
@@ -30,11 +29,11 @@ class MetaTypeTest : public testing::Test {
 	}
 
 	Metatype & mClass(){
-		return jrtti::getType<Sample>();
+		return jrtti::metatype<Sample>();
 	}
 
 	Metatype & derivedClass(){
-		return jrtti::getType<SampleDerived>();
+		return jrtti::metatype<SampleDerived>();
 	}
 
 	// Declares the variables your tests want to use.
@@ -42,8 +41,28 @@ class MetaTypeTest : public testing::Test {
 		SampleDerived sampleDerived;
 };
 
+TEST_F(MetaTypeTest, InvertedDeclaration) {
+	Point p;
+	p.x = 45;
+	p.y = 80;
+	
+	Rect r;
+	r.tl = &p;
+	r.br = &p;
+
+	Date d;
+	d.place.x = 12;
+	d.place.y = 21;
+
+	double x = jrtti::metatype< Rect >().eval<double>( &r, "tl.x" );
+	EXPECT_EQ( x, r.tl->x );
+
+	double y = jrtti::metatype< Date >().eval<double>( &d, "place.x" );
+	EXPECT_EQ( y, d.place.x );
+}
+
 TEST_F(MetaTypeTest, DoubleType) {
-	EXPECT_EQ("double", mClass()["testDouble"].type().name());
+	EXPECT_EQ("double", mClass()["testDouble"].metatype().name());
 }
 
 TEST_F(MetaTypeTest, DoubleAccessor) {
@@ -82,7 +101,7 @@ TEST_F(MetaTypeTest, DoubleMutator) {
 
 TEST_F(MetaTypeTest, IntMemberType) {
 
-	EXPECT_EQ("int", mClass()["intMember"].type().name());
+	EXPECT_EQ("int", mClass()["intMember"].metatype().name());
 }
 
 TEST_F(MetaTypeTest, BoolMutator) {
@@ -120,8 +139,7 @@ TEST_F(MetaTypeTest, StdStringMutator) {
 }
 
 TEST_F(MetaTypeTest, ByValType) {
-
-	EXPECT_EQ( "Date", mClass()["date"].type().name() );
+	EXPECT_EQ( "Date", mClass()["date"].metatype().name() );
 }
 
 TEST_F(MetaTypeTest, ByValAccessor) {
@@ -168,7 +186,7 @@ TEST_F(MetaTypeTest, ByPtrAccessor) {
 	p->y = 80;
 	sample.setByPtrProp(p);
 //TODO: improve access by proper type instead void *
-	Point * result = static_cast<Point*>(mClass()["point"].get<void *>(&sample));
+	Point * result = mClass()["point"].get<Point *>(&sample);
 
 	EXPECT_TRUE(p == result);
 }
@@ -245,7 +263,7 @@ TEST_F(MetaTypeTest, testPropsRO) {
 
 	EXPECT_TRUE(mClass()["testDouble"].isReadWrite());
 	EXPECT_FALSE(mClass()["testRO"].isWritable());
-	EXPECT_TRUE( jrtti::getType<Date>().property("d").isWritable() );
+	EXPECT_TRUE( jrtti::metatype<Date>().property("d").isWritable() );
 
 	int result = (mClass()["testRO"].get<int>(&sample));
 	EXPECT_EQ(23, result);
@@ -281,13 +299,13 @@ TEST_F(MetaTypeTest, Serialize) {
 	f << ss;
 
 	ss.erase( std::remove_if( ss.begin(), ss.end(), ::isspace ), ss.end() );
-	std::string serialized = "{\"$id\":\"0\",\"circularRef\":{\"$ref\":\"0\"},\"collection\":[{\"$id\":\"1\",\"d\":1,\"m\":4,\"place\":{\"$id\":\"2\",\"x\":98,\"y\":93},\"y\":2012},{\"d\":1,\"m\":4,\"place\":{\"x\":98,\"y\":93},\"y\":2013}],\"date\":{\"d\":1,\"m\":4,\"place\":{\"x\":98,\"y\":93},\"y\":2011},\"intAbstract\":34,\"intMember\":128,\"intOverloaded\":87,\"memoryDump\":\"CgsMDQ4=\",\"point\":{\"$id\":\"3\",\"x\":45,\"y\":80},\"refToDate\":{\"$id\":\"4\",\"d\":1,\"m\":4,\"place\":{\"x\":98,\"y\":93},\"y\":2011},\"testBool\":true,\"testDouble\":65,\"testRO\":23,\"testStr\":\"Hello,\\\"world\\\"!\\nThisisanewlinewithnonprintablechar\\u0011\"}";
+	std::string serialized = "{\"$id\":\"0\",\"circularRef\":{\"$ref\":\"0\"},\"collection\":{\"properties\":{\"$id\":\"1\"},\"elements\":[{\"$id\":\"2\",\"d\":1,\"m\":4,\"place\":{\"$id\":\"3\",\"x\":98,\"y\":93},\"y\":2012},{\"d\":1,\"m\":4,\"place\":{\"x\":98,\"y\":93},\"y\":2013}]},\"date\":{\"d\":1,\"m\":4,\"place\":{\"x\":98,\"y\":93},\"y\":2011},\"intAbstract\":34,\"intMember\":128,\"intOverloaded\":87,\"memoryDump\":\"CgsMDQ4=\",\"point\":{\"$id\":\"4\",\"x\":45,\"y\":80},\"refToDate\":{\"$id\":\"5\",\"d\":1,\"m\":4,\"place\":{\"x\":98,\"y\":93},\"y\":2011},\"testBool\":true,\"testDouble\":65,\"testRO\":23,\"testStr\":\"Hello,\\\"world\\\"!\\nThisisanewlinewithnonprintablechar\\u0011\"}";
 	EXPECT_EQ(serialized, ss);
 
 	//test for streamable
 	ss = mClass().toStr( &sample, true );
 	ss.erase( std::remove_if( ss.begin(), ss.end(), ::isspace ), ss.end() );
-	serialized = "{\"$id\":\"0\",\"circularRef\":{\"$ref\":\"0\"},\"collection\":[{\"$id\":\"1\",\"d\":1,\"m\":4,\"place\":{\"$id\":\"2\",\"x\":98,\"y\":93},\"y\":2012},{\"d\":1,\"m\":4,\"place\":{\"x\":98,\"y\":93},\"y\":2013}],\"date\":{\"d\":1,\"m\":4,\"place\":{\"x\":98,\"y\":93},\"y\":2011},\"intAbstract\":34,\"intOverloaded\":87,\"memoryDump\":\"CgsMDQ4=\",\"point\":{\"$id\":\"3\",\"x\":45,\"y\":80},\"refToDate\":{\"$id\":\"4\",\"d\":1,\"m\":4,\"place\":{\"x\":98,\"y\":93},\"y\":2011},\"testBool\":true,\"testDouble\":65,\"testRO\":23,\"testStr\":\"Hello,\\\"world\\\"!\\nThisisanewlinewithnonprintablechar\\u0011\"}";
+	serialized =             "{\"$id\":\"0\",\"circularRef\":{\"$ref\":\"0\"},\"collection\":{\"properties\":{\"$id\":\"1\"},\"elements\":[{\"$id\":\"2\",\"d\":1,\"m\":4,\"place\":{\"$id\":\"3\",\"x\":98,\"y\":93},\"y\":2012},{\"d\":1,\"m\":4,\"place\":{\"x\":98,\"y\":93},\"y\":2013}]},\"date\":{\"d\":1,\"m\":4,\"place\":{\"x\":98,\"y\":93},\"y\":2011},\"intAbstract\":34,\"intOverloaded\":87,\"memoryDump\":\"CgsMDQ4=\",\"point\":{\"$id\":\"4\",\"x\":45,\"y\":80},\"refToDate\":{\"$id\":\"5\",\"d\":1,\"m\":4,\"place\":{\"x\":98,\"y\":93},\"y\":2011},\"testBool\":true,\"testDouble\":65,\"testRO\":23,\"testStr\":\"Hello,\\\"world\\\"!\\nThisisanewlinewithnonprintablechar\\u0011\"}";
 	EXPECT_EQ( serialized, ss );
 	delete point;
 }
@@ -347,7 +365,7 @@ TEST_F(MetaTypeTest, testMethodAnnotation) {
 }
 
 TEST_F(MetaTypeTest, testCreate) {
-	Point * p = boost::any_cast< Point * >( mClass()[ "point" ].type().create() );
+	Point * p = boost::any_cast< Point * >( mClass()[ "point" ].metatype().create() );
 	EXPECT_TRUE( (p->x == -1) && (p->y == -1) );
 }
 
@@ -392,7 +410,10 @@ TEST_F(MetaTypeTest, base64) {
 
 TEST_F(MetaTypeTest, testCollectionInterface) {
 	MyCollection col;
-	jrtti::declareCollection< MyCollection >();
+	col.intMember = 153;
+
+	jrtti::declareCollection< MyCollection >()
+		.property( "intMember", &MyCollection::intMember );
 
 	MyCollection::iterator it = col.begin();
 
@@ -401,15 +422,18 @@ TEST_F(MetaTypeTest, testCollectionInterface) {
 		++it;
 	}
 
-	std::string res = jrtti::getType< MyCollection >().toStr( &col );
+	std::string res = jrtti::metatype< MyCollection >().toStr( &col );
 
-	jrtti::getType< MyCollection >().fromStr( &col, res );
+	col.intMember = 0;
+	jrtti::metatype< MyCollection >().fromStr( &col, res );
 
-	EXPECT_EQ( res.length(), jrtti::getType< MyCollection >().toStr( &col ).length() );
+	EXPECT_EQ( res.length(), jrtti::metatype< MyCollection >().toStr( &col ).length() );
+	EXPECT_EQ( col.intMember, 153 ); 
 }
 
 TEST_F(MetaTypeTest, testMetaobject) {
-	Metaobject mo = Metaobject( &mClass(), &sample );
+	Sample sample;
+	Metaobject mo = Metaobject( mClass(), &sample );
 
 	mo.set( "date.d", 34 );
 	EXPECT_EQ( 34, mo.get<int>( "date.d" ) );
@@ -417,26 +441,36 @@ TEST_F(MetaTypeTest, testMetaobject) {
 	mo.set( "testDouble", 34.8 );
 	EXPECT_EQ( 34.8, mo.get<double>( "testDouble" ) );
 
+	mo.set( "date.y", mo.get( "date.d" ) );
+	EXPECT_EQ( sample.getByValProp().d, sample.getByValProp().y );
+
+	SampleBase * samplePtr = mo.objectInstance< SampleBase >();
+	EXPECT_TRUE( samplePtr == &sample );
+
+	sample.intMember = 12;
+	Metaobject moInt = Metaobject( mClass(), samplePtr );
+	EXPECT_EQ( moInt.get<int>("intMember"), 12 );
+
 //	std::cout << mo.toStr() << std::endl;
 }
 
 TEST_F(MetaTypeTest, comparationOperators) {
-	Metatype &mt_sample = jrtti::getType<Sample>();
-	Metatype &mt_date = jrtti::getType<Date>();
-	Metatype &mt_point = jrtti::getType<Point>();
+	Metatype &mt_sample = jrtti::metatype<Sample>();
+	Metatype &mt_date = jrtti::metatype<Date>();
+	Metatype &mt_point = jrtti::metatype<Point>();
 
-	EXPECT_TRUE( ( mt_date == mt_sample["date"].type() ) );
-	EXPECT_TRUE( ( mt_date == mt_sample["refToDate"].type() ) );
-	EXPECT_TRUE( ( mt_point != mt_sample["point"].type() ) );
+	EXPECT_TRUE( ( mt_date == mt_sample["date"].metatype() ) );
+	EXPECT_TRUE( ( mt_date == mt_sample["refToDate"].metatype() ) );
+	EXPECT_TRUE( ( mt_point != mt_sample["point"].metatype() ) );
 }
 
 TEST_F(MetaTypeTest, parentCheck) {
-	Metatype &mt_sample = jrtti::getType<Sample>();
-	Metatype &mt_date = jrtti::getType<Date>();
+	Metatype &mt_sample = jrtti::metatype<Sample>();
+	Metatype &mt_date = jrtti::metatype<Date>();
 
 	EXPECT_FALSE( mt_date.isDerivedFrom( mt_sample ) );
-	EXPECT_TRUE( jrtti::getType< SampleDerived >().isDerivedFrom( mt_sample ) );
-	EXPECT_TRUE( jrtti::getType< SampleDerived >().isDerivedFrom< SampleBase >() );
+	EXPECT_TRUE( jrtti::metatype< SampleDerived >().isDerivedFrom( mt_sample ) );
+	EXPECT_TRUE( jrtti::metatype< SampleDerived >().isDerivedFrom< SampleBase >() );
 }
 
 TEST_F(MetaTypeTest, checkUseCase) {

@@ -27,6 +27,8 @@ public:
 		m_elemCount = 0;
 	}
 
+	int intMember;
+
 private:
 	value_type m_elements[200];
 	size_t m_elemCount;

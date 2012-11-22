@@ -29,6 +29,7 @@ public:
 			insert( std::pair< std::string, std::string >( key, value ) );
 			if ( keyCount && ( m_jsonStr[ pos ] == ',' || m_jsonStr[ pos ] == ']' ) ) {
 				++pos;
+				skipSpaces();
 			}
 			else {
 				moveToEndChar();

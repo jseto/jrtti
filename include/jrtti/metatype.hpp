@@ -4,6 +4,7 @@
 #include <map>
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
+#include <boost/type_traits/remove_pointer.hpp>
 
 #include "helpers.hpp"
 #include "property.hpp"
@@ -53,7 +54,7 @@ public:
 	create() = 0;
 
 	/**
-	 * Return the type name of this Metatype
+	 * Return the demangled type name of this Metatype
 	 * \return the type name
 	 */
 	std::string
@@ -62,7 +63,7 @@ public:
 	}
 
 	/**
-	 * \brief Get the native type_info of metatyp
+	 * \brief Get the native type_info of this Metatype
 	 * \return the type_info structure
 	 */
 	const std::type_info&
@@ -111,9 +112,9 @@ public:
 	bool
 	isFundamental() {
 		return false;
-    }
+	}
 
-	bool 
+	bool
 	isDerivedFrom( const Metatype& parent ) {
 		Metatype * derived = this;
 		while ( derived->m_parentMetatype && ( *derived->m_parentMetatype != parent ) ) {
@@ -121,11 +122,11 @@ public:
 		}
 		return ( derived->m_parentMetatype != NULL );
 	}
-	
+
 	template< typename T >
-	bool 
+	bool
 	isDerivedFrom() {
-		return isDerivedFrom( jrtti::getType< T >() );
+		return isDerivedFrom( jrtti::metatype< T >() );
 	}
 
 	/**
@@ -188,9 +189,9 @@ public:
 	template < class ReturnT, class ClassT >
 	ReturnT
 	call ( std::string methodName, ClassT * instance ) {
-		typedef TypedMethod< ClassT, ReturnT > MethodType;
+		typedef TypedMethod< boost::remove_pointer< ClassT >::type, ReturnT > MethodType;
 
-		MethodType * ptr = static_cast< MethodType * >( m_methods[methodName] );
+		MethodType * ptr = static_cast< MethodType * >( methods()[methodName] );
 		if (!ptr) {
 			throw error("Method '" + methodName + "' not found in '" + name() + "' metaclass");
 		}
@@ -265,10 +266,12 @@ public:
 		Property& prop = property(name);
 
 		void * inst = get_instance_ptr(instance);
+		if ( !inst )
+        	throw NullPtrError( path ); 
 		if (pos == std::string::npos)
 			return prop.get(inst);
 		else {
-			return prop.type().eval( prop.get( inst ), path.substr( pos + 1 ));
+			return prop.metatype().eval( prop.get( inst ), path.substr( pos + 1 ));
 		}
 	}
 
@@ -307,8 +310,8 @@ public:
 			prop.set( inst, value );
 		}
 		else {
-			const boost::any &mod = prop.type().apply( prop.get(inst), path.substr( pos + 1 ), value );
-			if ( !prop.type().isPointer() ) {
+			const boost::any &mod = prop.metatype().apply( prop.get(inst), path.substr( pos + 1 ), value );
+			if ( !prop.metatype().isPointer() ) {
 				prop.set( inst, mod );
 			}
 		}
@@ -341,7 +344,7 @@ public:
 	void
 	fromStr( const boost::any & instance, const std::string& str ) {
 		_nameRefMap().clear();
-		_fromStr( instance, str );
+		_fromStr( instance, str, false );
 	}
 
 	virtual
@@ -377,7 +380,7 @@ public:
 protected:
 	friend class MetaReferenceType;
 	friend class MetaPointerType;
-	
+
 	template< typename C > friend class Metacollection;
 
 	Metatype( const std::type_info& typeinfo, const Annotations& annotations = Annotations() )
@@ -385,7 +388,7 @@ protected:
 			m_annotations( annotations ),
 			m_parentMetatype( NULL ) {}
 
-	void 
+	void
 	parentMetatype( Metatype * parent ) {
 		m_parentMetatype = parent;
 	}
@@ -409,7 +412,7 @@ protected:
 
 		for( PropertyMap::iterator it = properties().begin(); it != properties().end(); ++it) {
 			Property * prop = it->second;
-			if ( prop ) {
+			if ( prop && prop->isReadable() ) {
 				if ( !( formatForStreaming && prop->annotations().has< NoStreamable >() ) ) {
 					if (need_nl) result += ",\n";
 					need_nl = true;
@@ -420,7 +423,7 @@ protected:
 						addToResult = stringifyDelegate->toStr( inst );
 					}
 					else {
-						addToResult = prop->type()._toStr( prop->get(inst), formatForStreaming );
+						addToResult = prop->metatype()._toStr( prop->get(inst), formatForStreaming );
 					}
 					result += ident( "\"" + prop->name() + "\"" + ": " + addToResult );
 				}
@@ -431,8 +434,8 @@ protected:
 
 	virtual
 	boost::any
-	_fromStr( const boost::any & instance, const std::string& str ) {
-		void * inst = get_instance_ptr(instance);
+	_fromStr( const boost::any & instance, const std::string& str, bool doCopyFromInstance = true ) {
+		void * inst = get_instance_ptr(instance);
 		JSONParser parser( str );
 
 		for( JSONParser::iterator it = parser.begin(); it != parser.end(); ++it) {
@@ -449,10 +452,10 @@ protected:
 					if ( prop->isWritable() || prop->annotations().has< ForceStreamLoadable >() ) {
 						StringifyDelegateBase * stringifyDelegate = prop->annotations().getFirst< StringifyDelegateBase >();
 						if ( stringifyDelegate ) {
-                        	stringifyDelegate->fromStr( inst, it->second );
+							stringifyDelegate->fromStr( inst, it->second );
 						}
 						else {
-							const boost::any &mod = prop->type()._fromStr( prop->get( inst ), it->second );
+							const boost::any &mod = prop->metatype()._fromStr( prop->get( inst ), it->second );
 							if ( !mod.empty() ) {
 								prop->set( inst, mod );
 							}
@@ -461,7 +464,10 @@ protected:
 				}
 			}
 		}
-		return copyFromInstance( inst );
+		if ( doCopyFromInstance )
+			return copyFromInstance( inst );
+		else
+			return boost::any();
 	}
 
 	void
@@ -489,8 +495,13 @@ protected:
 		return result;
 	}
 
+	virtual
+	boost::any
+	createAsNullPtr() {
+		return NULL;
+	}
+
 private:
-//	std::string		m_type_name;
 	const std::type_info&	m_type_info;
 	MethodMap		m_methods;
 	MethodMap		m_ownedMethods;

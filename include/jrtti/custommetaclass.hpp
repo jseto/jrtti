@@ -33,6 +33,13 @@ public:
 			typedef R 		result_type;
 			typedef void 	param_type;
 		};
+
+		template < typename R >
+		struct FunctionTypes< R ( ClassT::* )() const >
+		{
+			typedef R 		result_type;
+			typedef void 	param_type;
+		};
 	};
 
 	/**
@@ -49,6 +56,8 @@ public:
 		parentMetatype( &parent );
 		PropertyMap& parentProps = parent.properties();
 		properties().insert( parentProps.begin(), parentProps.end() );
+		MethodMap& parentMeth = parent.methods();
+		methods().insert( parentMeth.begin(), parentMeth.end() );
 		return *this;
 	}
 
@@ -64,7 +73,7 @@ public:
 	CustomMetaclass&
 	derivesFrom()
 	{
-		return derivesFrom( jrtti::getType< C >() );
+		return derivesFrom( jrtti::metatype< C >() );
 	}
 
 	/**
@@ -112,9 +121,31 @@ public:
 	}
 
 	/**
-	 * \brief Declares a property without accessors
+	 * \brief Declares a property with only a setter accessor method
 	 *
-	 * Declares a property without accessor, usualy used with StringifyDelegate
+	 * Declares a property with only a setter method.
+	 * A property is an abstraction of class members.
+	 * \param name property name
+	 * \param setter the address of the setter method
+	 * \param categories a container with property categories
+	 * \return this for chain calls
+	 */
+	template < typename PropT >
+	CustomMetaclass&
+	property(std::string name,  void ( ClassT::*setter)( PropT ), const Annotations& annotations = Annotations() )
+	{
+		typedef typename boost::function< void ( ClassT*, PropT ) >	BoostSetter;
+		typedef typename boost::function< PropT ( ClassT * ) >		BoostGetter;
+
+		BoostGetter getter;       //getter empty is used by Property<>::isReadOnly()
+		return fillProperty< PropT, BoostSetter, BoostGetter >(name,  setter, getter, annotations );
+	}
+
+	/**
+	 * \brief Declares a property managed by Annotations
+	 *
+	 * Declares a property without accessor. Accesors are managed by the associated Annotations.
+	 * It is usualy used with StringifyDelegate
 	 * as most times this kind of properties use a set of non-standard native accessors.
 	 * Property is declared as read-write
 	 * A property is an abstraction of class members.
@@ -175,8 +206,8 @@ public:
 	{
 		typedef typename boost::function< void ( ClassT*,  PropT ) >	BoostSetter;
 		typedef typename boost::function<  PropT (  ClassT * ) >		BoostGetter;
-
-		jrtti::declareCollection< typename boost::remove_reference< PropT >::type >();
+		typedef typename boost::remove_reference< PropT >::type			PropTNoRef;
+		jrtti::declareCollection< PropTNoRef >();
 
 		BoostSetter setter;       //setter empty is used by Property<>::isReadOnly()
 		return fillProperty< PropT, BoostSetter, BoostGetter >(name,  setter, getter, annotations );
@@ -285,6 +316,12 @@ protected:
 		return boost::any( ptr );
 	}
 
+	virtual
+	boost::any
+	createAsNullPtr() {
+		return ( ClassT * )0;
+	}
+
 private:
 	template <typename MethodType, typename FunctionType>
 	CustomMetaclass&
@@ -331,14 +368,15 @@ private:
 		if ( content.type() == typeid( boost::reference_wrapper< ClassT > ) ) {
 			return boost::any_cast< boost::reference_wrapper< ClassT > >( content ).get_pointer();
 		}
-		return (void *) boost::any_cast< ClassT * >(content);
+//		return (void *) boost::any_cast< ClassT * >(content);
+		return (void *) *boost::unsafe_any_cast< void * >(&content);
 	}
 
 //SFINAE _get_instance_ptr for ABSTRACT
 	template< typename AbstT >
 	typename boost::enable_if< typename __IS_ABSTRACT( AbstT ), void * >::type
 	_get_instance_ptr(const boost::any & content){
-		return NULL;
+		return (void *) *boost::unsafe_any_cast< void * >(&content);
 	}
 
 //SFINAE _copyFromInstance for NON ABSTRACT
