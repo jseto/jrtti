@@ -475,12 +475,12 @@ TEST_F(MetaTypeTest, parentCheck) {
 	EXPECT_TRUE( jrtti::metatype< SampleDerived >().isDerivedFrom< SampleBase >() );
 }
 
-TEST_F(MetaTypeTest, untypedProperty) {
-	struct TestUntyped {
-		int i;
-		void * ptr;
-	};
+struct TestUntyped {
+	int i;
+	void * ptr;
+};
 
+TEST_F(MetaTypeTest, untypedProperty) {
 	TestUntyped testUntyped;
 
 	Metatype& mt = declare< TestUntyped >();
