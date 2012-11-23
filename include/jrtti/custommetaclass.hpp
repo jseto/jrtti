@@ -58,6 +58,7 @@ public:
 		properties().insert( parentProps.begin(), parentProps.end() );
 		MethodMap& parentMeth = parent.methods();
 		methods().insert( parentMeth.begin(), parentMeth.end() );
+		pointerMetatype()->parentMetatype( parent.pointerMetatype() );
 		return *this;
 	}
 
@@ -356,6 +357,7 @@ private:
 #else
 #define __IS_ABSTRACT( t ) boost::is_abstract< t >::type
 #endif
+
 //SFINAE _get_instance_ptr for NON ABSTRACT
 	template< typename AbstT >
 	typename boost::disable_if< typename __IS_ABSTRACT( AbstT ), void * >::type
@@ -368,15 +370,16 @@ private:
 		if ( content.type() == typeid( boost::reference_wrapper< ClassT > ) ) {
 			return boost::any_cast< boost::reference_wrapper< ClassT > >( content ).get_pointer();
 		}
-//		return (void *) boost::any_cast< ClassT * >(content);
-		return (void *) *boost::unsafe_any_cast< void * >(&content);
+//		return (void *) *boost::unsafe_any_cast< void * >(&content);
+		return jrtti_cast< void * >( content );
 	}
 
 //SFINAE _get_instance_ptr for ABSTRACT
 	template< typename AbstT >
 	typename boost::enable_if< typename __IS_ABSTRACT( AbstT ), void * >::type
 	_get_instance_ptr(const boost::any & content){
-		return (void *) *boost::unsafe_any_cast< void * >(&content);
+//		return (void *) *boost::unsafe_any_cast< void * >(&content);
+		return jrtti_cast< void * >( content );
 	}
 
 //SFINAE _copyFromInstance for NON ABSTRACT
@@ -394,7 +397,7 @@ private:
 		return boost::any();
 	}
 
-//SFINAE _create
+//SFINAE _create for NON ABSTRACT
 	template< typename AbstT >
 	typename boost::disable_if< typename __IS_ABSTRACT( AbstT ), boost::any >::type
 	_create()
@@ -402,7 +405,7 @@ private:
 		return new ClassT();
 	}
 
-//SFINAE _create
+//SFINAE _create for ABSTRACT
 	template< typename AbstT >
 	typename boost::enable_if< typename __IS_ABSTRACT( AbstT ), boost::any >::type
 	_create()

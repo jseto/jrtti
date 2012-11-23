@@ -214,8 +214,8 @@ public:
 	void
 	set( void * instance, const boost::any& val)	{
 		if (isWritable()) {
-			PropNoRefT p = boost::any_cast< PropNoRefT >( val );
-			internal_set( (ClassT *)instance, p );
+			PropNoRefT p = jrtti_cast< PropNoRefT >( val );
+			return internal_set( (ClassT *)instance, p );
 		}
 	}
 
@@ -260,6 +260,44 @@ private:
 	PropNoRefT ClassT::*					m_dataMember;
 };
 
+template< typename ClassT >
+class UntypedProperty : public Property 
+{
+public:
+	UntypedProperty( Metatype& mt, const std::string pname ) {
+		if ( !mt.isPointer() ) {
+			throw Error( "Metatype of '" + pname + "' must be a pointer type" );
+		}
+		setMetatype( &mt );
+		name( pname );
+		setMode( Readable );
+		setMode( Writable );
+	}
+
+	UntypedProperty&
+	member( void * ClassT::* dataMember )
+	{
+		m_dataMember = dataMember;
+		return *this;
+	}
+
+	void
+	set( void * instance, const boost::any& value ) {
+		if ( !( metatype().typeInfo() == value.type() || value.type() == typeid( void * ) ) )
+			throw Error( "pointer required for parameter value" );
+		ClassT * p = static_cast<ClassT *>(instance);
+		p->*m_dataMember = jrtti_cast< void * >( value );
+	}
+
+	boost::any
+	get( void * instance ) {
+		ClassT * p = static_cast<ClassT *>(instance);
+		return p->*m_dataMember;
+	}
+
+private:
+	void * ClassT::*	m_dataMember;
+};
 //------------------------------------------------------------------------------
 }; //namespace jrtti
 #endif  //propertyH

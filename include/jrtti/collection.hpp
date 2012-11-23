@@ -74,14 +74,16 @@ protected:
 			}
 			typename ClassT::value_type elem;
 			if ( boost::is_pointer< ClassT::value_type >::value ) {
-				elem = *boost::unsafe_any_cast< ClassT::value_type >( &elemType->create() );
+//				elem = *boost::unsafe_any_cast< ClassT::value_type >( &elemType->create() );
+				elem = jrtti_cast< ClassT::value_type >( elemType->create() );
 				elemType->_fromStr( elem, it->second, false );
 				_collection.insert( _collection.end(), elem );
 			}
 			else {
 				const boost::any &mod = elemType->_fromStr( elem, it->second );
 				////////// COMPILER ERROR   //// Collections must declare an insert method. See documentation for details.
-				_collection.insert( _collection.end(), *boost::unsafe_any_cast< typename ClassT::value_type >( &mod ) );
+//				_collection.insert( _collection.end(), *boost::unsafe_any_cast< typename ClassT::value_type >( &mod ) );
+				_collection.insert( _collection.end(), jrtti_cast< typename ClassT::value_type >( mod ) );
 			}
 		}
 		return boost::any();
@@ -106,7 +108,8 @@ protected:
 			return boost::any_cast< boost::reference_wrapper< ClassT > >( value ).get();
 		}
 		else {
-			return **boost::unsafe_any_cast< ClassT * >( &value );
+//			return **boost::unsafe_any_cast< ClassT * >( &value );
+			return *jrtti_cast< ClassT * >( value );
 		}
 	}
 

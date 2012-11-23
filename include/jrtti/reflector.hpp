@@ -215,6 +215,7 @@ private:
 		}
 		_meta_types[ typeid( T ).name() ] = mc;
 		_meta_types[ typeid( T* ).name() ] = ptr_mc;
+		mc->pointerMetatype( ptr_mc );
 		updatePendingProperties( mc );
 		updatePendingProperties( ptr_mc );
 	}

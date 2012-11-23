@@ -21,9 +21,16 @@ namespace jrtti
 	{
 	public:
 		NullPtrError( std::string message )
-			: Error( "Null pointer found" + ( message.length()? " at " + message : std::string() ) )
+			: Error( "Null pointer found" + ( message.length()? " at " + message : message ) )
 		{}
 	};
 
+	class BadCast : public Error
+	{
+	public:
+		BadCast( std::string message )
+			: Error( "Bad cast attempt" + ( message.length()? " with type " + message : message ) )
+		{}
+	};
 }; //namespace jrtti
 #endif //jrtti_exceptionH

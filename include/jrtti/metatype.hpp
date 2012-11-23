@@ -114,8 +114,18 @@ public:
 		return false;
 	}
 
+	/**
+	 * \brief Check for inheritance
+	 *
+	 * Checks if the associated class of this Metatype inherits from 
+	 * the passed metatype associated class
+	 * \param parent the metaclass to check
+	 * \return true if parent associated class is base class of this or is the same associated class
+	 */
 	bool
 	isDerivedFrom( const Metatype& parent ) {
+		if ( this == &parent )
+        	return true;
 		Metatype * derived = this;
 		while ( derived->m_parentMetatype && ( *derived->m_parentMetatype != parent ) ) {
 			derived = derived->m_parentMetatype;
@@ -123,6 +133,14 @@ public:
 		return ( derived->m_parentMetatype != NULL );
 	}
 
+	/**
+	 * \brief Check for inheritance
+	 *
+	 * Checks if the associated class of this Metatype inherits from 
+	 * the template parameter class
+	 * \tparam T class to check
+	 * \return true if class T is base class of this associated class or is the same class
+	 */
 	template< typename T >
 	bool
 	isDerivedFrom() {
@@ -137,7 +155,7 @@ public:
 	 * \return the found property abstraction
 	 * \sa property
 	 */
-	Property& operator [](std::string name) {
+	Property& operator []( const std::string& name) {
 		return property(name);
 	}
 
@@ -151,7 +169,7 @@ public:
 	 */
 	virtual
 	Property&
-	property( std::string name) {
+	property( const std::string& name) {
 		PropertyMap::iterator it = properties().find(name);
 		if ( it == properties().end() ) {
 			throw error( "Property '" + name + "' not declared in '" + Metatype::name() + "' metaclass" );
@@ -378,19 +396,31 @@ public:
 	}
 
 protected:
-	friend class MetaReferenceType;
+	friend class Reflector;
 	friend class MetaPointerType;
-
 	template< typename C > friend class Metacollection;
+	template< typename C, typename A > friend class CustomMetaclass;
 
 	Metatype( const std::type_info& typeinfo, const Annotations& annotations = Annotations() )
 		:	m_type_info( typeinfo ),
 			m_annotations( annotations ),
 			m_parentMetatype( NULL ) {}
 
+
 	void
 	parentMetatype( Metatype * parent ) {
 		m_parentMetatype = parent;
+	}
+
+	void 
+	pointerMetatype( Metatype * mt ) {
+		m_pointerMetatype = mt;
+	}
+
+	virtual
+	Metatype *
+	pointerMetatype() {
+		return m_pointerMetatype;
 	}
 
 	virtual
@@ -509,6 +539,7 @@ private:
 	PropertyMap 	m_ownedProperties;
 	Annotations 	m_annotations;
 	Metatype *		m_parentMetatype;
+	Metatype *		m_pointerMetatype;
 };
 
 //------------------------------------------------------------------------------
