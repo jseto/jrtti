@@ -116,6 +116,8 @@ public:
 
 	bool
 	isDerivedFrom( const Metatype& parent ) {
+		if ( this == &parent )
+        	return true;
 		Metatype * derived = this;
 		while ( derived->m_parentMetatype && ( *derived->m_parentMetatype != parent ) ) {
 			derived = derived->m_parentMetatype;
@@ -378,19 +380,31 @@ public:
 	}
 
 protected:
-	friend class MetaReferenceType;
+	friend class Reflector;
 	friend class MetaPointerType;
-
 	template< typename C > friend class Metacollection;
+	template< typename C, typename A > friend class CustomMetaclass;
 
 	Metatype( const std::type_info& typeinfo, const Annotations& annotations = Annotations() )
 		:	m_type_info( typeinfo ),
 			m_annotations( annotations ),
 			m_parentMetatype( NULL ) {}
 
+
 	void
 	parentMetatype( Metatype * parent ) {
 		m_parentMetatype = parent;
+	}
+
+	void 
+	pointerMetatype( Metatype * mt ) {
+		m_pointerMetatype = mt;
+	}
+
+	virtual
+	Metatype *
+	pointerMetatype() {
+		return m_pointerMetatype;
 	}
 
 	virtual
@@ -509,6 +523,7 @@ private:
 	PropertyMap 	m_ownedProperties;
 	Annotations 	m_annotations;
 	Metatype *		m_parentMetatype;
+	Metatype *		m_pointerMetatype;
 };
 
 //------------------------------------------------------------------------------

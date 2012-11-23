@@ -26,16 +26,28 @@ namespace jrtti {
 	template< typename T >
 	typename boost::enable_if< typename boost::is_pointer< T >::type, T >::type
 	jrtti_cast( const boost::any& value ) {
+		if ( value.empty() ) {
+			return NULL;
+		}
+		
 		if ( value.type() == typeid( void * ) ) {
 			return ( T )boost::any_cast< void * >( value );
 		}
+
 		if ( value.type() == typeid( T ) ) {
 			return boost::any_cast< T >( value );
 		}
-		if ( ( typeid( T ) == typeid( void * ) )
-					|| ( Reflector::instance().metatype( value.type() ).isDerivedFrom< T >() ) ) {
+		
+		if ( ( typeid( T ) == typeid( void * ) ) ) {
 			return (T)*boost::unsafe_any_cast< void * >( &value );
 		}
+
+		Metatype& value_mt = Reflector::instance().metatype( value.type() );
+		Metatype& templT_mt = Reflector::instance().metatype< T >();
+		if ( value_mt.isDerivedFrom( templT_mt ) || templT_mt.isDerivedFrom( value_mt ) ) {
+			return (T)*boost::unsafe_any_cast< void * >( &value );
+		}
+
 		throw BadCast( typeid( T ).name() );
 	}
 
@@ -54,6 +66,5 @@ namespace jrtti {
 		}
 		throw BadCast( typeid( T ).name() );
 	}
-
 }; // namespace jrtti
 #endif //jrttihelpersH

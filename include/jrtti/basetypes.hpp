@@ -36,6 +36,11 @@ public:
 	}
 
 protected:
+	Metatype *
+	pointerMetatype() {
+		return this;
+	}
+
 	virtual
 	std::string
 	_toStr( const boost::any & value, bool formatForStreaming ){
