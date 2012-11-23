@@ -99,7 +99,7 @@ public:
 	 */
 	virtual
 	bool
-	isPointer() {
+	isPointer() const {
 		return false;
 	}
 
@@ -110,7 +110,7 @@ public:
 	 */
 	virtual
 	bool
-	isFundamental() {
+	isFundamental() const {
 		return false;
 	}
 
@@ -172,7 +172,7 @@ public:
 	property( const std::string& name) {
 		PropertyMap::iterator it = properties().find(name);
 		if ( it == properties().end() ) {
-			throw error( "Property '" + name + "' not declared in '" + Metatype::name() + "' metaclass" );
+			throw Error( "Property '" + name + "' not declared in '" + Metatype::name() + "' metaclass" );
 		}
 		return *it->second;
 	}
@@ -188,7 +188,7 @@ public:
 	method(std::string name) {
 		MethodMap::iterator it = methods().find(name);
 		if ( it == methods().end() ) {
-			throw error( "Method '" + name + "' not declared in '" + Metatype::name() + "' metaclass" );
+			throw Error( "Method '" + name + "' not declared in '" + Metatype::name() + "' metaclass" );
 		}
 		return *it->second;
 	}
@@ -211,7 +211,7 @@ public:
 
 		MethodType * ptr = static_cast< MethodType * >( methods()[methodName] );
 		if (!ptr) {
-			throw error("Method '" + methodName + "' not found in '" + name() + "' metaclass");
+			throw Error("Method '" + methodName + "' not found in '" + name() + "' metaclass");
 		}
 		return ptr->call(instance);
 	}
@@ -236,7 +236,7 @@ public:
 
 		MethodType * ptr = static_cast< MethodType * >( m_methods[methodName] );
 		if (!ptr) {
-			throw error("Method '" + methodName + "' not found in '" + name() + "' metaclass");
+			throw Error("Method '" + methodName + "' not found in '" + name() + "' metaclass");
 		}
 		return ptr->call(instance,p1);
 	}
@@ -263,7 +263,7 @@ public:
 
 		MethodType * ptr = static_cast< MethodType * >( m_methods[methodName] );
 		if (!ptr) {
-			throw error("Method '" + methodName + "' not found in '" + name() + "' metaclass");
+			throw Error("Method '" + methodName + "' not found in '" + name() + "' metaclass");
 		}
 		return ptr->call(instance,p1,p2);
 	}

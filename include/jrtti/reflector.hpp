@@ -11,9 +11,12 @@
 #include "custommetaclass.hpp"
 #include "collection.hpp"
 #include "metaobject.hpp"
+#include "property.hpp"
 #include <typeinfo>
 
 namespace jrtti {
+
+typedef std::map< std::string, Metatype * > TypeMap;
 
 /**
  * \brief The jrtti engine
@@ -21,7 +24,6 @@ namespace jrtti {
 class Reflector
 {
 public:
-	typedef std::map< std::string, Metatype * > TypeMap;
 
 	~Reflector()
 	{
@@ -36,6 +38,11 @@ public:
 		registerPrefixDecorator( "struct" );
 		registerPrefixDecorator( "class" );
 		register_defaults();
+	}
+
+	const TypeMap&
+	metatypes() {
+		return _meta_types;
 	}
 
 	static Reflector&

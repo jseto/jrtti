@@ -31,7 +31,7 @@ public:
 	}
 
 	bool
-	isPointer() {
+	isPointer() const {
 		return true;
 	}
 
@@ -110,7 +110,7 @@ public:
 
 	virtual
 	bool
-	isFundamental() {
+	isFundamental() const {
 		return true;
 	}
 
@@ -139,7 +139,7 @@ public:
 
 	virtual
 	bool
-	isFundamental() {
+	isFundamental() const {
 		return true;
 	}
 
@@ -168,7 +168,7 @@ public:
 
 	virtual
 	bool
-	isFundamental() {
+	isFundamental() const {
 		return true;
 	}
 
@@ -196,7 +196,7 @@ public:
 
 	virtual
 	bool
-	isFundamental() {
+	isFundamental() const {
 		return true;
 	}
 

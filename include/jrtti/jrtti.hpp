@@ -17,12 +17,8 @@ namespace jrtti {
 	class Metatype;
 	class Reflector;
 	std::string demangle( const std::string& name );
-//	template< typename T > Metatype& metatype();
-//	Metatype& metatype( const std::type_info& tInfo );
 	template< typename C > class Metacollection;
 	template <typename C> Metacollection<C>& declareCollection( const Annotations& annotations = Annotations() );
-
-	Error	error(std::string message);
 
 	AddressRefMap&	_addressRefMap();
 	NameRefMap&	_nameRefMap();
@@ -34,10 +30,14 @@ namespace jrtti {
  * \brief jrtti top level functions
  */
 namespace jrtti {
-
-	inline Error
-	error(std::string message)	{
-		return Error(message);
+	/**
+	 * Returns the list of registered metatypes
+	 * \return the metatype list
+	 */
+	inline
+	const TypeMap& 
+	metatypes() {
+		return Reflector::instance().metatypes();
 	}
 
 	/**
