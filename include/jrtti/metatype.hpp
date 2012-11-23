@@ -114,6 +114,14 @@ public:
 		return false;
 	}
 
+	/**
+	 * \brief Check for inheritance
+	 *
+	 * Checks if the associated class of this Metatype inherits from 
+	 * the passed metatype associated class
+	 * \param parent the metaclass to check
+	 * \return true if parent associated class is base class of this or is the same associated class
+	 */
 	bool
 	isDerivedFrom( const Metatype& parent ) {
 		if ( this == &parent )
@@ -125,6 +133,14 @@ public:
 		return ( derived->m_parentMetatype != NULL );
 	}
 
+	/**
+	 * \brief Check for inheritance
+	 *
+	 * Checks if the associated class of this Metatype inherits from 
+	 * the template parameter class
+	 * \tparam T class to check
+	 * \return true if class T is base class of this associated class or is the same class
+	 */
 	template< typename T >
 	bool
 	isDerivedFrom() {
