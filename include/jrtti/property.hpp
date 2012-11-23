@@ -286,7 +286,7 @@ public:
 		if ( !( metatype().typeInfo() == value.type() || value.type() == typeid( void * ) ) )
 			throw Error( "pointer required for parameter value" );
 		ClassT * p = static_cast<ClassT *>(instance);
-		p->*m_dataMember = *boost::unsafe_any_cast< void * >( &value );
+		p->*m_dataMember = jrtti_cast< void * >( value );
 	}
 
 	boost::any

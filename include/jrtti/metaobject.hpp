@@ -84,47 +84,45 @@ public:
 		return m_metatype->toStr( m_instance );
 	}
 
-	/**
-	 * \brief Returns the associated Metatype
-	 * \return the associated Metatype
-	 */
-	Metatype&
-	metatype() {
-		return *m_metatype;
+	/**
+	 * \brief Returns the associated Metatype
+	 * \return the associated Metatype
+	 */
+	Metatype&
+	metatype() {
+		return *m_metatype;
 	}
-
 	/**
-	 * \brief Get the associated object instance
-	 * \tparam native type of associated object
-	 * \return the asociated object instance
-	 */
-	 template< typename T >
-	 T *
-	 objectInstance() {
-		if ( m_metatype->isDerivedFrom< T >() ) {
-			return *boost::unsafe_any_cast< T * >( &m_instance );
-		}
-		else {
-			return boost::any_cast< T * >( m_instance );
-		}
-	 }
-
+	 * \brief Get the associated object instance
+	 * \tparam native type of associated object
+	 * \return the asociated object instance
+	 */
+	 template< typename T >
+	 T *
+	 objectInstance() {
+		if ( m_metatype->isDerivedFrom< T >() ) {
+//			return *boost::unsafe_any_cast< T * >( &m_instance );
+			return jrtti_cast< T * >( m_instance );
+		}
+		else {
+			return boost::any_cast< T * >( m_instance );
+		}
+	 }
 	/**
-	 * \brief Compares two Metaobjects for equality
-	 */
-	bool
-	operator == ( const Metaobject& mo ) const {
-		return boost::unsafe_any_cast< void * >( &m_instance ) == boost::unsafe_any_cast< void * >( &mo.m_instance );
-	}
-
+	 * \brief Compares two Metaobjects for equality
+	 */
+	bool
+	operator == ( const Metaobject& mo ) const {
+//		return boost::unsafe_any_cast< void * >( &m_instance ) == boost::unsafe_any_cast< void * >( &mo.m_instance );
+		return jrtti_cast< void * >( m_instance ) == jrtti_cast< void * >( mo.m_instance );
+	}
 	/**
-	 * \brief Compares two Metaobjects for inequality
-	 */
-	bool
-	operator != ( const Metaobject& mo ) const {
-		return !( *this == mo );
-	}
-
+	 * \brief Compares two Metaobjects for inequality
+	 */
+	bool
+	operator != ( const Metaobject& mo ) const {
+		return !( *this == mo );
+	}
 private:
 	boost::any m_instance;
 	Metatype * m_metatype;

@@ -369,15 +369,16 @@ private:
 		if ( content.type() == typeid( boost::reference_wrapper< ClassT > ) ) {
 			return boost::any_cast< boost::reference_wrapper< ClassT > >( content ).get_pointer();
 		}
-//		return (void *) boost::any_cast< ClassT * >(content);
-		return (void *) *boost::unsafe_any_cast< void * >(&content);
+//		return (void *) *boost::unsafe_any_cast< void * >(&content);
+		return jrtti_cast< void * >( content );
 	}
 
 //SFINAE _get_instance_ptr for ABSTRACT
 	template< typename AbstT >
 	typename boost::enable_if< typename __IS_ABSTRACT( AbstT ), void * >::type
 	_get_instance_ptr(const boost::any & content){
-		return (void *) *boost::unsafe_any_cast< void * >(&content);
+//		return (void *) *boost::unsafe_any_cast< void * >(&content);
+		return jrtti_cast< void * >( content );
 	}
 
 //SFINAE _copyFromInstance for NON ABSTRACT

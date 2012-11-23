@@ -22,7 +22,7 @@ namespace jrtti {
 		return ss >> result ? result : 0;
 	}
 
-		//jrtti_cast SFINAE for pointers 
+	//jrtti_cast SFINAE for pointers 
 	template< typename T >
 	typename boost::enable_if< typename boost::is_pointer< T >::type, T >::type
 	jrtti_cast( const boost::any& value ) {
@@ -31,6 +31,10 @@ namespace jrtti {
 		}
 		if ( value.type() == typeid( T ) ) {
 			return boost::any_cast< T >( value );
+		}
+		if ( ( typeid( T ) == typeid( void * ) )
+					|| ( Reflector::instance().metatype( value.type() ).isDerivedFrom< T >() ) ) {
+			return (T)*boost::unsafe_any_cast< void * >( &value );
 		}
 		throw BadCast( typeid( T ).name() );
 	}
