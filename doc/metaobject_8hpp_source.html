@@ -98,52 +98,85 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;<span class="keyword">public</span>:</div>
 <div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;    <a class="code" href="classjrtti_1_1_metaobject.html" title="Object abstraction.">Metaobject</a>(){}</div>
 <div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;</div>
-<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;    <a class="code" href="classjrtti_1_1_metaobject.html" title="Object abstraction.">Metaobject</a>( <span class="keyword">const</span> <a class="code" href="classjrtti_1_1_metaobject.html" title="Object abstraction.">Metaobject</a>&amp; mo ) {</div>
-<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;        m_instance = mo.m_instance;</div>
-<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;        m_metatype = mo.m_metatype;</div>
-<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;    }</div>
-<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;</div>
-<div class="line"><a name="l00025"></a><span class="lineno"><a class="code" href="classjrtti_1_1_metaobject.html#a499e59b55e01359c4b915520896fcd21">   25</a></span>&#160;    <a class="code" href="classjrtti_1_1_metaobject.html" title="Object abstraction.">Metaobject</a>( <a class="code" href="classjrtti_1_1_metatype.html" title="Abstraction for classes and types.">Metatype</a> * <a class="code" href="namespacejrtti.html#acc19c2b1d42b031240febb2bc90eba2f" title="Retrieve Metatype.">metatype</a>, <span class="keyword">const</span> boost::any&amp; instance )</div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;        : m_instance( instance ),</div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;          m_metatype( metatype ) {}</div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;</div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;    <span class="keywordtype">void</span></div>
-<div class="line"><a name="l00037"></a><span class="lineno"><a class="code" href="classjrtti_1_1_metaobject.html#aae8e23ad00460701001b1b08dc522a63">   37</a></span>&#160;    <span class="keyword">set</span>( <span class="keyword">const</span> std::string&amp; name, <span class="keyword">const</span> boost::any&amp; value ) {</div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;        m_metatype-&gt;<a class="code" href="classjrtti_1_1_metatype.html#a6de3b64a060ff4b3f080b39e9d5fc419" title="Set the value of a full categorized property.">apply</a>( m_instance, name, value );</div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;    }</div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;</div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;    <span class="keyword">template</span>&lt; <span class="keyword">typename</span> T &gt;</div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;    T</div>
-<div class="line"><a name="l00051"></a><span class="lineno"><a class="code" href="classjrtti_1_1_metaobject.html#afa21ce0b0c1d2248e454d55b20760633">   51</a></span>&#160;    <span class="keyword">get</span>( <span class="keyword">const</span> std::string&amp; name ) {</div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;        <span class="keywordflow">return</span> m_metatype-&gt;<a class="code" href="classjrtti_1_1_metatype.html#a88c34314b8e3b947f9988de961cf53fc" title="Evaluates a full categorized property.">eval</a>&lt;T&gt;( m_instance, name );</div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;    }</div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;</div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;    std::string</div>
-<div class="line"><a name="l00062"></a><span class="lineno"><a class="code" href="classjrtti_1_1_metaobject.html#a0902b176730906518cfb10edb4478d8c">   62</a></span>&#160;    <a class="code" href="classjrtti_1_1_metaobject.html#a0902b176730906518cfb10edb4478d8c" title="Retrieves a string representation of the metaobject.">toStr</a>() {</div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;        <span class="keywordflow">return</span> m_metatype-&gt;<a class="code" href="classjrtti_1_1_metatype.html#a5c6ecd5e8ceb5b5d9f6cf2ce317cec56" title="Retrieves a string representation of object contens.">toStr</a>( m_instance );</div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;    }</div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;</div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;</div>
-<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;    <a class="code" href="classjrtti_1_1_metatype.html" title="Abstraction for classes and types.">Metatype</a>&amp;</div>
-<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;</div>
-<div class="line"><a name="l00077"></a><span class="lineno"><a class="code" href="classjrtti_1_1_metaobject.html#a59be3f81c76e9ac678c59d5db5055b99">   77</a></span>&#160;    <a class="code" href="classjrtti_1_1_metaobject.html#a59be3f81c76e9ac678c59d5db5055b99" title="Returns the associated Metatype.">type</a>() {</div>
-<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;</div>
-<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;        <span class="keywordflow">return</span> *m_metatype;</div>
-<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;    }</div>
-<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;</div>
-<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;<span class="keyword">private</span>:</div>
-<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;    boost::any m_instance;</div>
-<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;    <a class="code" href="classjrtti_1_1_metatype.html" title="Abstraction for classes and types.">Metatype</a> * m_metatype;</div>
-<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;};</div>
+<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;    <a class="code" href="classjrtti_1_1_metaobject.html" title="Object abstraction.">Metaobject</a>( <span class="keyword">const</span> <a class="code" href="classjrtti_1_1_metaobject.html" title="Object abstraction.">Metaobject</a>&amp; mo )</div>
+<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;        : m_instance( mo.m_instance ),</div>
+<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;          m_metatype( mo.m_metatype ){}</div>
+<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;</div>
+<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;    <a class="code" href="classjrtti_1_1_metaobject.html" title="Object abstraction.">Metaobject</a>&amp;</div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;    operator = ( <span class="keyword">const</span> <a class="code" href="classjrtti_1_1_metaobject.html" title="Object abstraction.">Metaobject</a>&amp; mo ) {</div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;        <span class="keywordflow">if</span> (*<span class="keyword">this</span> != mo) {</div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;            m_instance = mo.m_instance;</div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;            m_metatype = mo.m_metatype;</div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;        }</div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;        <span class="keywordflow">return</span> *<span class="keyword">this</span>;</div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;    }</div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;</div>
+<div class="line"><a name="l00033"></a><span class="lineno"><a class="code" href="classjrtti_1_1_metaobject.html#a323e3446f641c02c5ea344e1a8088143">   33</a></span>&#160;    <a class="code" href="classjrtti_1_1_metaobject.html" title="Object abstraction.">Metaobject</a>( <a class="code" href="classjrtti_1_1_metatype.html" title="Abstraction for classes and types.">Metatype</a>&amp; <a class="code" href="classjrtti_1_1_metaobject.html#a689afb1fcbfb3bdbc348bc719d30be77" title="Returns the associated Metatype.">metatype</a>, <span class="keyword">const</span> boost::any&amp; instance )</div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;        : m_instance( instance ),</div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;          m_metatype( &amp;metatype ) {}</div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;</div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;    <span class="keywordtype">void</span></div>
+<div class="line"><a name="l00045"></a><span class="lineno"><a class="code" href="classjrtti_1_1_metaobject.html#aae8e23ad00460701001b1b08dc522a63">   45</a></span>&#160;    <span class="keyword">set</span>( <span class="keyword">const</span> std::string&amp; name, <span class="keyword">const</span> boost::any&amp; value ) {</div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;        m_metatype-&gt;<a class="code" href="classjrtti_1_1_metatype.html#a6de3b64a060ff4b3f080b39e9d5fc419" title="Set the value of a full categorized property.">apply</a>( m_instance, name, value );</div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;    }</div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;</div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;    <span class="keyword">template</span>&lt; <span class="keyword">typename</span> T &gt;</div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;    T</div>
+<div class="line"><a name="l00059"></a><span class="lineno"><a class="code" href="classjrtti_1_1_metaobject.html#a997dfc6fe104b96bf146afd48b1e9e2a">   59</a></span>&#160;    <span class="keyword">get</span>( <span class="keyword">const</span> std::string&amp; name ) <span class="keyword">const</span> {</div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;        <span class="keywordflow">return</span> m_metatype-&gt;<a class="code" href="classjrtti_1_1_metatype.html#a88c34314b8e3b947f9988de961cf53fc" title="Evaluates a full categorized property.">eval</a>&lt;T&gt;( m_instance, name );</div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;    }</div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;</div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;    boost::any</div>
+<div class="line"><a name="l00072"></a><span class="lineno"><a class="code" href="classjrtti_1_1_metaobject.html#a7a63746c3321ee92385a0c540e291b22">   72</a></span>&#160;    <span class="keyword">get</span>( <span class="keyword">const</span> std::string&amp; name ) <span class="keyword">const</span> {</div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;        <span class="keywordflow">return</span> m_metatype-&gt;<a class="code" href="classjrtti_1_1_metatype.html#a88c34314b8e3b947f9988de961cf53fc" title="Evaluates a full categorized property.">eval</a>( m_instance, name );</div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;    }</div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;</div>
+<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;    std::string</div>
+<div class="line"><a name="l00083"></a><span class="lineno"><a class="code" href="classjrtti_1_1_metaobject.html#a0902b176730906518cfb10edb4478d8c">   83</a></span>&#160;    <a class="code" href="classjrtti_1_1_metaobject.html#a0902b176730906518cfb10edb4478d8c" title="Retrieves a string representation of the metaobject.">toStr</a>() {</div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;        <span class="keywordflow">return</span> m_metatype-&gt;<a class="code" href="classjrtti_1_1_metatype.html#a5c6ecd5e8ceb5b5d9f6cf2ce317cec56" title="Retrieves a string representation of object contens.">toStr</a>( m_instance );</div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;    }</div>
 <div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;</div>
-<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;}; <span class="comment">//namespace jrtti</span></div>
-<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;</div>
-<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;<span class="preprocessor">#endif //jrttimetaobjectH</span></div>
-<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;<span class="preprocessor"></span></div>
+<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;    <a class="code" href="classjrtti_1_1_metatype.html" title="Abstraction for classes and types.">Metatype</a>&amp;</div>
+<div class="line"><a name="l00092"></a><span class="lineno"><a class="code" href="classjrtti_1_1_metaobject.html#a689afb1fcbfb3bdbc348bc719d30be77">   92</a></span>&#160;    <a class="code" href="classjrtti_1_1_metaobject.html#a689afb1fcbfb3bdbc348bc719d30be77" title="Returns the associated Metatype.">metatype</a>() {</div>
+<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;        <span class="keywordflow">return</span> *m_metatype;</div>
+<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;    }</div>
+<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;</div>
+<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;     <span class="keyword">template</span>&lt; <span class="keyword">typename</span> T &gt;</div>
+<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;     T *</div>
+<div class="line"><a name="l00103"></a><span class="lineno"><a class="code" href="classjrtti_1_1_metaobject.html#ae680876e7c7a7cbe578fd6f8c84f2c97">  103</a></span>&#160;     <a class="code" href="classjrtti_1_1_metaobject.html#ae680876e7c7a7cbe578fd6f8c84f2c97" title="Get the associated object instance.">objectInstance</a>() {</div>
+<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;        <span class="keywordflow">if</span> ( m_metatype-&gt;<a class="code" href="classjrtti_1_1_metatype.html#a576fd653b6cfc19d454a2c594aa15d44" title="Check for inheritance.">isDerivedFrom</a>&lt; T &gt;() ) {</div>
+<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;<span class="comment">//          return *boost::unsafe_any_cast&lt; T * &gt;( &amp;m_instance );</span></div>
+<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;            <span class="keywordflow">return</span> <a class="code" href="namespacejrtti.html#a0d3a9a91ac3747c9581a5c988446b017" title="Type cast from boost::any.">jrtti_cast</a>&lt; T * &gt;( m_instance );</div>
+<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;        }</div>
+<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;        <span class="keywordflow">else</span> {</div>
+<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;            <span class="keywordflow">return</span> boost::any_cast&lt; T * &gt;( m_instance );</div>
+<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;        }</div>
+<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;     }</div>
+<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;</div>
+<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;    <span class="keywordtype">bool</span></div>
+<div class="line"><a name="l00117"></a><span class="lineno"><a class="code" href="classjrtti_1_1_metaobject.html#a04fdd3ae9eeeae9956b2b908d4cf259a">  117</a></span>&#160;    <a class="code" href="classjrtti_1_1_metaobject.html#a04fdd3ae9eeeae9956b2b908d4cf259a" title="Compares two Metaobjects for equality.">operator == </a>( <span class="keyword">const</span> <a class="code" href="classjrtti_1_1_metaobject.html" title="Object abstraction.">Metaobject</a>&amp; mo )<span class="keyword"> const </span>{</div>
+<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;<span class="comment">//      return boost::unsafe_any_cast&lt; void * &gt;( &amp;m_instance ) == boost::unsafe_any_cast&lt; void * &gt;( &amp;mo.m_instance );</span></div>
+<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;        <span class="keywordflow">return</span> <a class="code" href="namespacejrtti.html#a0d3a9a91ac3747c9581a5c988446b017" title="Type cast from boost::any.">jrtti_cast</a>&lt; <span class="keywordtype">void</span> * &gt;( m_instance ) == jrtti_cast&lt; void * &gt;( mo.m_instance );</div>
+<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;    }</div>
+<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;</div>
+<div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;    <span class="keywordtype">bool</span></div>
+<div class="line"><a name="l00126"></a><span class="lineno"><a class="code" href="classjrtti_1_1_metaobject.html#a39cf2bb44c025c90de7d28fa54cf9f82">  126</a></span>&#160;    <a class="code" href="classjrtti_1_1_metaobject.html#a39cf2bb44c025c90de7d28fa54cf9f82" title="Compares two Metaobjects for inequality.">operator != </a>( <span class="keyword">const</span> <a class="code" href="classjrtti_1_1_metaobject.html" title="Object abstraction.">Metaobject</a>&amp; mo )<span class="keyword"> const </span>{</div>
+<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;        <span class="keywordflow">return</span> !( *<span class="keyword">this</span> == mo );</div>
+<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;    }</div>
+<div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160;</div>
+<div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;<span class="keyword">private</span>:</div>
+<div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;    boost::any m_instance;</div>
+<div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;    <a class="code" href="classjrtti_1_1_metatype.html" title="Abstraction for classes and types.">Metatype</a> * m_metatype;</div>
+<div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;};</div>
+<div class="line"><a name="l00134"></a><span class="lineno">  134</span>&#160;</div>
+<div class="line"><a name="l00135"></a><span class="lineno">  135</span>&#160;}; <span class="comment">//namespace jrtti</span></div>
+<div class="line"><a name="l00136"></a><span class="lineno">  136</span>&#160;</div>
+<div class="line"><a name="l00137"></a><span class="lineno">  137</span>&#160;<span class="preprocessor">#endif //jrttimetaobjectH</span></div>
+<div class="line"><a name="l00138"></a><span class="lineno">  138</span>&#160;<span class="preprocessor"></span></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Mon Nov 12 2012 12:17:47 for jrtti C++ Introspection by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri Nov 23 2012 12:13:43 for jrtti C++ Introspection by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1.1
 </small></address>

@@ -121,6 +121,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line">                        .collection(<span class="stringliteral">&quot;collection&quot;</span>, <span class="comment">/*&amp;Sample::setCollection, */</span>&amp;Sample::getCollection, <a class="code" href="classjrtti_1_1_annotations.html" title="Provides a mechanism for custom annotations.">jrtti::Annotations</a>() &lt;&lt; <span class="keyword">new</span> <a name="_a2"></a><a class="code" href="classjrtti_1_1_force_stream_loadable.html" title="Marks property for stream reading.">jrtti::ForceStreamLoadable</a>() )</div>
 <div class="line">                        .property(<span class="stringliteral">&quot;circularRef&quot;</span>, &amp;Sample::circularRef )</div>
 <div class="line">                        .property(<span class="stringliteral">&quot;memoryDump&quot;</span>, <a class="code" href="classjrtti_1_1_annotations.html" title="Provides a mechanism for custom annotations.">jrtti::Annotations</a>() &lt;&lt; <span class="keyword">new</span> <a name="_a3"></a><a class="code" href="classjrtti_1_1_stringify_delegate.html" title="Delegates for toStr and fromStr.">jrtti::StringifyDelegate&lt;Sample&gt;</a>( &amp;Sample::stringifier, &amp;Sample::deStringifier) )</div>
+<div class="line">                        .property(<span class="stringliteral">&quot;onlySetter&quot;</span>, &amp;Sample::setDoubleProp )</div>
 <div class="line"></div>
 <div class="line">                        .method&lt;<span class="keywordtype">void</span>&gt;(<span class="stringliteral">&quot;testMethod&quot;</span>, &amp;Sample::testFunc,</div>
 <div class="line">                                    <a class="code" href="classjrtti_1_1_annotations.html" title="Provides a mechanism for custom annotations.">jrtti::Annotations</a>() &lt;&lt; <span class="keyword">new</span> GUIAnnotation( <span class="stringliteral">&quot;method.ico&quot;</span>, <span class="keyword">false</span>, <span class="keyword">false</span> ) )</div>
@@ -188,6 +189,8 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"></div>
 <div class="line">    <span class="comment">//get a string representation of s object</span></div>
 <div class="line">    std::string contens = mt.<a name="a8"></a><a class="code" href="classjrtti_1_1_metatype.html#a5c6ecd5e8ceb5b5d9f6cf2ce317cec56" title="Retrieves a string representation of object contens.">toStr</a>( &amp;s );</div>
+<div class="line">    <span class="comment">//get a streamable string representation of s objecy</span></div>
+<div class="line">    contens = mt.<a class="code" href="classjrtti_1_1_metatype.html#a5c6ecd5e8ceb5b5d9f6cf2ce317cec56" title="Retrieves a string representation of object contens.">toStr</a>( &amp;s, <span class="keyword">true</span> );</div>
 <div class="line">    <span class="comment">//and set the s object from a string representation</span></div>
 <div class="line">    mt.<a name="a9"></a><a class="code" href="classjrtti_1_1_metatype.html#ad8ba8226a47690e0036b3a8e927fa63d" title="Fills an object from a string representation.">fromStr</a>( &amp;s, contens );</div>
 <div class="line">    std::cout &lt;&lt; contens &lt;&lt; std::endl;</div>
@@ -196,7 +199,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!-- fragment --> </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Mon Nov 12 2012 12:17:47 for jrtti C++ Introspection by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri Nov 23 2012 12:13:43 for jrtti C++ Introspection by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1.1
 </small></address>

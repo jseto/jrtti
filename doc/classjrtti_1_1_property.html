@@ -100,30 +100,30 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 <p><code>#include &lt;<a class="el" href="property_8hpp_source.html">property.hpp</a>&gt;</code></p>
 
-<p>Inherited by jrtti::TypedProperty&lt; ClassT, PropT &gt;.</p>
+<p>Inherited by jrtti::TypedProperty&lt; ClassT, PropT &gt;, and jrtti::UntypedProperty&lt; ClassT &gt;.</p>
 
 <p><a href="classjrtti_1_1_property-members.html">List of all members.</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:abd25025452b2518176ee948bd3cddf0f"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classjrtti_1_1_property.html#abd25025452b2518176ee948bd3cddf0f">name</a> ()</td></tr>
-<tr class="memdesc:abd25025452b2518176ee948bd3cddf0f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves the name of this property.  <a href="#abd25025452b2518176ee948bd3cddf0f"></a><br/></td></tr>
+<tr class="memitem:a9530d7b094b010033db21c268ba855af"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classjrtti_1_1_property.html#a9530d7b094b010033db21c268ba855af">name</a> () const </td></tr>
+<tr class="memdesc:a9530d7b094b010033db21c268ba855af"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves the name of this property.  <a href="#a9530d7b094b010033db21c268ba855af"></a><br/></td></tr>
 <tr class="memitem:a383589142a60c9fbd578dd6820c335cc"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classjrtti_1_1_property.html#a383589142a60c9fbd578dd6820c335cc">name</a> (std::string name)</td></tr>
 <tr class="memdesc:a383589142a60c9fbd578dd6820c335cc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the name of this property.  <a href="#a383589142a60c9fbd578dd6820c335cc"></a><br/></td></tr>
 <tr class="memitem:a05fbbda5872ecfaa277da9c705c15eeb"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classjrtti_1_1_property.html#a05fbbda5872ecfaa277da9c705c15eeb">annotations</a> (const <a class="el" href="classjrtti_1_1_annotations.html">Annotations</a> &amp;annotationsContainer)</td></tr>
 <tr class="memdesc:a05fbbda5872ecfaa277da9c705c15eeb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Assigns an annotation container to this property.  <a href="#a05fbbda5872ecfaa277da9c705c15eeb"></a><br/></td></tr>
 <tr class="memitem:a29fa32197bfde306d20e2f0ce5829062"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classjrtti_1_1_annotations.html">Annotations</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classjrtti_1_1_property.html#a29fa32197bfde306d20e2f0ce5829062">annotations</a> ()</td></tr>
 <tr class="memdesc:a29fa32197bfde306d20e2f0ce5829062"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieve the associated annotations container.  <a href="#a29fa32197bfde306d20e2f0ce5829062"></a><br/></td></tr>
-<tr class="memitem:a0713593e2e0ab53b1f459c224dd14304"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classjrtti_1_1_metatype.html">Metatype</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classjrtti_1_1_property.html#a0713593e2e0ab53b1f459c224dd14304">metatype</a> ()</td></tr>
-<tr class="memdesc:a0713593e2e0ab53b1f459c224dd14304"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves the <a class="el" href="classjrtti_1_1_metatype.html" title="Abstraction for classes and types.">Metatype</a> of this property.  <a href="#a0713593e2e0ab53b1f459c224dd14304"></a><br/></td></tr>
-<tr class="memitem:ab4fca6f1a8fb163320b3c0131b00dbe3"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classjrtti_1_1_property.html#ab4fca6f1a8fb163320b3c0131b00dbe3">isReadable</a> ()</td></tr>
-<tr class="memdesc:ab4fca6f1a8fb163320b3c0131b00dbe3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if property is readable.  <a href="#ab4fca6f1a8fb163320b3c0131b00dbe3"></a><br/></td></tr>
-<tr class="memitem:adc56a4092520a0550fd75c0f5c1f317b"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classjrtti_1_1_property.html#adc56a4092520a0550fd75c0f5c1f317b">isWritable</a> ()</td></tr>
-<tr class="memdesc:adc56a4092520a0550fd75c0f5c1f317b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if property is writable.  <a href="#adc56a4092520a0550fd75c0f5c1f317b"></a><br/></td></tr>
-<tr class="memitem:ac920efa7604282251969ce087de4e5a1"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classjrtti_1_1_property.html#ac920efa7604282251969ce087de4e5a1">isReadWrite</a> ()</td></tr>
-<tr class="memdesc:ac920efa7604282251969ce087de4e5a1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if property is read-write.  <a href="#ac920efa7604282251969ce087de4e5a1"></a><br/></td></tr>
-<tr class="memitem:aca395bdfd00e5a8f168ca271952582cd"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classjrtti_1_1_property.html#aca395bdfd00e5a8f168ca271952582cd">isReadOnly</a> ()</td></tr>
-<tr class="memdesc:aca395bdfd00e5a8f168ca271952582cd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if property is read-only.  <a href="#aca395bdfd00e5a8f168ca271952582cd"></a><br/></td></tr>
+<tr class="memitem:a97b52ededc24f8fd2a44318ea267bacf"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classjrtti_1_1_metatype.html">Metatype</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classjrtti_1_1_property.html#a97b52ededc24f8fd2a44318ea267bacf">metatype</a> () const </td></tr>
+<tr class="memdesc:a97b52ededc24f8fd2a44318ea267bacf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves the <a class="el" href="classjrtti_1_1_metatype.html" title="Abstraction for classes and types.">Metatype</a> of this property.  <a href="#a97b52ededc24f8fd2a44318ea267bacf"></a><br/></td></tr>
+<tr class="memitem:aed73350ee1a4f34643f7cb96ab08ebb2"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classjrtti_1_1_property.html#aed73350ee1a4f34643f7cb96ab08ebb2">isReadable</a> () const </td></tr>
+<tr class="memdesc:aed73350ee1a4f34643f7cb96ab08ebb2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if property is readable.  <a href="#aed73350ee1a4f34643f7cb96ab08ebb2"></a><br/></td></tr>
+<tr class="memitem:afca4f303557831f2660376937c9d7a45"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classjrtti_1_1_property.html#afca4f303557831f2660376937c9d7a45">isWritable</a> () const </td></tr>
+<tr class="memdesc:afca4f303557831f2660376937c9d7a45"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if property is writable.  <a href="#afca4f303557831f2660376937c9d7a45"></a><br/></td></tr>
+<tr class="memitem:a0a4eb1abe1ebd12e77bbbb9a5cf25b29"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classjrtti_1_1_property.html#a0a4eb1abe1ebd12e77bbbb9a5cf25b29">isReadWrite</a> () const </td></tr>
+<tr class="memdesc:a0a4eb1abe1ebd12e77bbbb9a5cf25b29"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if property is read-write.  <a href="#a0a4eb1abe1ebd12e77bbbb9a5cf25b29"></a><br/></td></tr>
+<tr class="memitem:a7a46317691826db92cb681a8a385b7d5"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classjrtti_1_1_property.html#a7a46317691826db92cb681a8a385b7d5">isReadOnly</a> () const </td></tr>
+<tr class="memdesc:a7a46317691826db92cb681a8a385b7d5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if property is read-only.  <a href="#a7a46317691826db92cb681a8a385b7d5"></a><br/></td></tr>
 <tr class="memitem:ad1ff4925f3fe9e489349219bc4fda54c"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classjrtti_1_1_property.html#ad1ff4925f3fe9e489349219bc4fda54c">set</a> (void *instance, const boost::any &amp;value)=0</td></tr>
 <tr class="memdesc:ad1ff4925f3fe9e489349219bc4fda54c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the property value.  <a href="#ad1ff4925f3fe9e489349219bc4fda54c"></a><br/></td></tr>
 <tr class="memitem:a05a3fa151f5a00ce4caed848d946a275"><td class="memItemLeft" align="right" valign="top">virtual boost::any&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classjrtti_1_1_property.html#a05a3fa151f5a00ce4caed848d946a275">get</a> (void *instance)=0</td></tr>
@@ -267,7 +267,7 @@ template&lt;typename PropT &gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="ab4fca6f1a8fb163320b3c0131b00dbe3"></a>
+<a class="anchor" id="aed73350ee1a4f34643f7cb96ab08ebb2"></a>
 <div class="memitem">
 <div class="memproto">
 <table class="mlabels">
@@ -278,7 +278,7 @@ template&lt;typename PropT &gt; </div>
           <td class="memname">bool jrtti::Property::isReadable </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
-          <td></td>
+          <td> const</td>
         </tr>
       </table>
   </td>
@@ -294,7 +294,7 @@ template&lt;typename PropT &gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="aca395bdfd00e5a8f168ca271952582cd"></a>
+<a class="anchor" id="a7a46317691826db92cb681a8a385b7d5"></a>
 <div class="memitem">
 <div class="memproto">
 <table class="mlabels">
@@ -305,7 +305,7 @@ template&lt;typename PropT &gt; </div>
           <td class="memname">bool jrtti::Property::isReadOnly </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
-          <td></td>
+          <td> const</td>
         </tr>
       </table>
   </td>
@@ -320,7 +320,7 @@ template&lt;typename PropT &gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="ac920efa7604282251969ce087de4e5a1"></a>
+<a class="anchor" id="a0a4eb1abe1ebd12e77bbbb9a5cf25b29"></a>
 <div class="memitem">
 <div class="memproto">
 <table class="mlabels">
@@ -331,7 +331,7 @@ template&lt;typename PropT &gt; </div>
           <td class="memname">bool jrtti::Property::isReadWrite </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
-          <td></td>
+          <td> const</td>
         </tr>
       </table>
   </td>
@@ -346,7 +346,7 @@ template&lt;typename PropT &gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="adc56a4092520a0550fd75c0f5c1f317b"></a>
+<a class="anchor" id="afca4f303557831f2660376937c9d7a45"></a>
 <div class="memitem">
 <div class="memproto">
 <table class="mlabels">
@@ -357,7 +357,7 @@ template&lt;typename PropT &gt; </div>
           <td class="memname">bool jrtti::Property::isWritable </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
-          <td></td>
+          <td> const</td>
         </tr>
       </table>
   </td>
@@ -373,7 +373,7 @@ template&lt;typename PropT &gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="a0713593e2e0ab53b1f459c224dd14304"></a>
+<a class="anchor" id="a97b52ededc24f8fd2a44318ea267bacf"></a>
 <div class="memitem">
 <div class="memproto">
 <table class="mlabels">
@@ -384,7 +384,7 @@ template&lt;typename PropT &gt; </div>
           <td class="memname"><a class="el" href="classjrtti_1_1_metatype.html">Metatype</a>&amp; jrtti::Property::metatype </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
-          <td></td>
+          <td> const</td>
         </tr>
       </table>
   </td>
@@ -399,7 +399,7 @@ template&lt;typename PropT &gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="abd25025452b2518176ee948bd3cddf0f"></a>
+<a class="anchor" id="a9530d7b094b010033db21c268ba855af"></a>
 <div class="memitem">
 <div class="memproto">
 <table class="mlabels">
@@ -410,7 +410,7 @@ template&lt;typename PropT &gt; </div>
           <td class="memname">std::string jrtti::Property::name </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
-          <td></td>
+          <td> const</td>
         </tr>
       </table>
   </td>
@@ -506,7 +506,7 @@ template&lt;typename PropT &gt; </div>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Mon Nov 12 2012 12:17:47 for jrtti C++ Introspection by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri Nov 23 2012 12:13:43 for jrtti C++ Introspection by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1.1
 </small></address>

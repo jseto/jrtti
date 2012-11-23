@@ -96,112 +96,149 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;</div>
 <div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;<span class="keyword">namespace </span>jrtti {</div>
 <div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;</div>
-<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;<span class="keyword">template</span>&lt; <span class="keyword">typename</span> ClassT &gt;</div>
-<div class="line"><a name="l00021"></a><span class="lineno"><a class="code" href="classjrtti_1_1_metacollection.html">   21</a></span>&#160;<span class="keyword">class </span><a class="code" href="classjrtti_1_1_metacollection.html" title="Abstraction for a collection type.">Metacollection</a>: <span class="keyword">public</span> CustomMetaclass&lt; ClassT &gt; {</div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;<span class="keyword">public</span>:</div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;    <a class="code" href="classjrtti_1_1_metacollection.html" title="Abstraction for a collection type.">Metacollection</a>( <span class="keyword">const</span> <a class="code" href="classjrtti_1_1_annotations.html" title="Provides a mechanism for custom annotations.">Annotations</a>&amp; <a class="code" href="classjrtti_1_1_metatype.html#a3808462592169741350cc8311adea67e" title="Retrieve the associated annotations container.">annotations</a> = <a class="code" href="classjrtti_1_1_annotations.html" title="Provides a mechanism for custom annotations.">Annotations</a>() ): CustomMetaclass&lt; ClassT &gt;( <a class="code" href="classjrtti_1_1_metatype.html#a3808462592169741350cc8311adea67e" title="Retrieve the associated annotations container.">annotations</a> ) {}</div>
-<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;</div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;<span class="keyword">protected</span>:</div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;    <span class="keyword">virtual</span></div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;        std::string</div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;        _toStr( <span class="keyword">const</span> boost::any &amp; value, <span class="keywordtype">bool</span> formatForStreaming ){</div>
-<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;            ClassT&amp; _collection = getReference( value );</div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;            <a class="code" href="classjrtti_1_1_metatype.html" title="Abstraction for classes and types.">Metatype</a> &amp; mt = jrtti::metatype&lt; typename ClassT::value_type &gt;();</div>
-<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;            std::string str = <span class="stringliteral">&quot;[\n&quot;</span>;</div>
-<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;            <span class="keywordtype">bool</span> need_nl = <span class="keyword">false</span>;</div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;            <span class="keywordflow">for</span> ( <span class="keyword">typename</span> ClassT::iterator it = _collection.begin() ; it != _collection.end(); ++it ) {</div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;                <span class="keywordflow">if</span> (need_nl) str += <span class="stringliteral">&quot;,\n&quot;</span>;</div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;                need_nl = <span class="keyword">true</span>;</div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;                str += ident( mt._toStr( *it, formatForStreaming ) );</div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;            }</div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;            <span class="keywordflow">return</span> str += <span class="stringliteral">&quot;\n]&quot;</span>;</div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;    }</div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;</div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;    <span class="keyword">virtual</span></div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;        boost::any</div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;        _fromStr( <span class="keyword">const</span> boost::any&amp; instance, <span class="keyword">const</span> std::string&amp; str ) {</div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;            ClassT&amp; _collection =  getReference( instance );</div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;</div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;            _collection.clear();</div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;</div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;            JSONParser parser( str );</div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;            <a class="code" href="classjrtti_1_1_metatype.html" title="Abstraction for classes and types.">Metatype</a>&amp; elemType = jrtti::metatype&lt; typename ClassT::value_type &gt;();</div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;            <span class="keywordflow">for</span>( JSONParser::iterator it = parser.begin(); it != parser.end(); ++it) {</div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;                <span class="keyword">typename</span> ClassT::value_type elem;</div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;                <span class="keyword">const</span> boost::any &amp;mod = elemType._fromStr( &amp;elem, it-&gt;second );</div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;                _collection.insert( _collection.end(), boost::any_cast&lt; <span class="keyword">typename</span> ClassT::value_type &gt;( mod ) );</div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;            }</div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;            <span class="keywordflow">return</span> boost::any();</div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;    }</div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;<span class="keyword">template</span>&lt; <span class="keyword">typename</span> ClassT &gt;</div>
+<div class="line"><a name="l00024"></a><span class="lineno"><a class="code" href="classjrtti_1_1_metacollection.html">   24</a></span>&#160;<span class="keyword">class </span><a class="code" href="classjrtti_1_1_metacollection.html" title="Abstraction for a collection type.">Metacollection</a>: <span class="keyword">public</span> CustomMetaclass&lt; ClassT &gt; {</div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;<span class="keyword">public</span>:</div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;    <a class="code" href="classjrtti_1_1_metacollection.html" title="Abstraction for a collection type.">Metacollection</a>( <span class="keyword">const</span> <a class="code" href="classjrtti_1_1_annotations.html" title="Provides a mechanism for custom annotations.">Annotations</a>&amp; <a class="code" href="classjrtti_1_1_metatype.html#a3808462592169741350cc8311adea67e" title="Retrieve the associated annotations container.">annotations</a> = <a class="code" href="classjrtti_1_1_annotations.html" title="Provides a mechanism for custom annotations.">Annotations</a>() ): CustomMetaclass&lt; ClassT &gt;( <a class="code" href="classjrtti_1_1_metatype.html#a3808462592169741350cc8311adea67e" title="Retrieve the associated annotations container.">annotations</a> ) {}</div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;</div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;<span class="keyword">protected</span>:</div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;    <span class="keyword">virtual</span></div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;    std::string</div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;    _toStr( <span class="keyword">const</span> boost::any &amp; value, <span class="keywordtype">bool</span> formatForStreaming ){</div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;        std::string props_str = Metatype::_toStr( value, formatForStreaming );</div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;        ClassT&amp; _collection = getReference( value );</div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;</div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;        <a class="code" href="classjrtti_1_1_metatype.html" title="Abstraction for classes and types.">Metatype</a> * mt = &amp;jrtti::metatype&lt; typename ClassT::value_type &gt;();</div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;        std::string str = <span class="stringliteral">&quot;[\n&quot;</span>;</div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;        <span class="keywordtype">bool</span> need_nl = <span class="keyword">false</span>;</div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;</div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;        <span class="keywordflow">for</span> ( <span class="keyword">typename</span> ClassT::iterator it = _collection.begin() ; it != _collection.end(); ++it ) {</div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;            <span class="keywordflow">if</span> (need_nl) str += <span class="stringliteral">&quot;,\n&quot;</span>;</div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;            need_nl = <span class="keyword">true</span>;</div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;</div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;            PropertyMap::iterator pmit = mt-&gt;properties().find( <span class="stringliteral">&quot;__typeInfoName&quot;</span> );</div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;            <span class="keywordflow">if</span> ( pmit != mt-&gt;properties().end() ) {</div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;                mt = &amp;Reflector::instance().metatype( pmit-&gt;second-&gt;get&lt; std::string &gt;( getElementPtr( *it ) ) );</div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;            }</div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;            str += ident( mt-&gt;_toStr( *it, formatForStreaming ) );</div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;        }</div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;        str += <span class="stringliteral">&quot;\n]&quot;</span>;</div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;        <span class="keywordflow">return</span> <span class="stringliteral">&quot;{\n&quot;</span> + ident( <span class="stringliteral">&quot;\&quot;properties\&quot;: &quot;</span> +props_str ) + <span class="stringliteral">&quot;,\n&quot;</span> + ident( <span class="stringliteral">&quot;\&quot;elements\&quot;: &quot;</span> + str ) + <span class="stringliteral">&quot;\n}&quot;</span>;</div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;    }</div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;</div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;    <span class="keyword">virtual</span></div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;    boost::any</div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;    _fromStr( <span class="keyword">const</span> boost::any&amp; instance, <span class="keyword">const</span> std::string&amp; str, <span class="keywordtype">bool</span> doCopyFromInstance = <span class="keyword">true</span> ) {</div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;        JSONParser pre_parser( str );</div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;        Metatype::_fromStr( instance, pre_parser[ <span class="stringliteral">&quot;properties&quot;</span> ], <span class="keyword">false</span> );</div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;        ClassT&amp; _collection =  getReference( instance );</div>
 <div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;</div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;    <span class="keyword">virtual</span></div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;        boost::any</div>
-<div class="line"><a name="l00064"></a><span class="lineno"><a class="code" href="classjrtti_1_1_metacollection.html#a532aa3b8687d3085abbc735e05ffcd7e">   64</a></span>&#160;        <a class="code" href="classjrtti_1_1_metacollection.html#a532aa3b8687d3085abbc735e05ffcd7e">create</a>()</div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;    {</div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;        <span class="keywordflow">return</span> <span class="keyword">new</span> ClassT();</div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;    }</div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;</div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;    <span class="keyword">virtual</span></div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;        <span class="keywordtype">void</span> *</div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;        get_instance_ptr( <span class="keyword">const</span> boost::any &amp; value ) {</div>
-<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;            <span class="keywordflow">return</span> boost::any_cast&lt; boost::reference_wrapper&lt; boost::remove_reference&lt; ClassT &gt; &gt; &gt;( value ).get_pointer();</div>
-<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;    }</div>
-<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;</div>
-<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;    ClassT&amp;</div>
-<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;        getReference( <span class="keyword">const</span> boost::any value ) {</div>
-<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;            <span class="keywordflow">if</span> ( value.type() == <span class="keyword">typeid</span>( ClassT ) ) {</div>
-<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;                <span class="keyword">static</span> ClassT ref = boost::any_cast&lt; ClassT &gt;( value );</div>
-<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;                <span class="keywordflow">return</span> ref;</div>
-<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;            }</div>
-<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;            <span class="keywordflow">if</span> ( value.type() == <span class="keyword">typeid</span>( ClassT * ) ) {</div>
-<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;                <span class="keywordflow">return</span> * boost::any_cast&lt; ClassT * &gt;( value );</div>
-<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;            }</div>
-<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;            <span class="keywordflow">else</span> {</div>
-<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;                <span class="keywordflow">return</span> boost::any_cast&lt; boost::reference_wrapper&lt; ClassT &gt; &gt;( value ).<span class="keyword">get</span>();</div>
-<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;            }</div>
-<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;    }</div>
-<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;};</div>
-<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;</div>
-<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;        _collection.clear();</div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;        JSONParser parser( pre_parser[<span class="stringliteral">&quot;elements&quot;</span>] );</div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;        <span class="keywordflow">for</span>( JSONParser::iterator it = parser.begin(); it != parser.end(); ++it) {</div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;            <a class="code" href="classjrtti_1_1_metatype.html" title="Abstraction for classes and types.">Metatype</a> * elemType;</div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;            JSONParser elemParser( it-&gt;second );</div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;            JSONParser::iterator found = elemParser.find( <span class="stringliteral">&quot;__typeInfoName&quot;</span> );</div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;            <span class="keywordflow">if</span> ( found != elemParser.end() ) {</div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;                elemType = &amp;Reflector::instance().metatype( found-&gt;second );</div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;            }</div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;            <span class="keywordflow">else</span> {</div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;                elemType = &amp;Reflector::instance().metatype&lt; ClassT::value_type &gt;();</div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;            }</div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;            <span class="keyword">typename</span> ClassT::value_type elem;</div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;            <span class="keywordflow">if</span> ( boost::is_pointer&lt; ClassT::value_type &gt;::value ) {</div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;<span class="comment">//              elem = *boost::unsafe_any_cast&lt; ClassT::value_type &gt;( &amp;elemType-&gt;create() );</span></div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;                elem = <a class="code" href="namespacejrtti.html#a0d3a9a91ac3747c9581a5c988446b017" title="Type cast from boost::any.">jrtti_cast</a>&lt; ClassT::value_type &gt;( elemType-&gt;<a class="code" href="classjrtti_1_1_metatype.html#ab461832000932f081ba95120405b3a05">create</a>() );</div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;                elemType-&gt;_fromStr( elem, it-&gt;second, <span class="keyword">false</span> );</div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;                _collection.insert( _collection.end(), elem );</div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;            }</div>
+<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;            <span class="keywordflow">else</span> {</div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;                <span class="keyword">const</span> boost::any &amp;mod = elemType-&gt;_fromStr( elem, it-&gt;second );</div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;<span class="comment">//              _collection.insert( _collection.end(), *boost::unsafe_any_cast&lt; typename ClassT::value_type &gt;( &amp;mod ) );</span></div>
+<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;                _collection.insert( _collection.end(), <a class="code" href="namespacejrtti.html#a0d3a9a91ac3747c9581a5c988446b017" title="Type cast from boost::any.">jrtti_cast</a>&lt; <span class="keyword">typename</span> ClassT::value_type &gt;( mod ) );</div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;            }</div>
+<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;        }</div>
+<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;        <span class="keywordflow">return</span> boost::any();</div>
+<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;    }</div>
 <div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;</div>
-<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;</div>
-<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;<span class="comment">// Interfaces for Metacollection ********************************</span></div>
-<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;</div>
-<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;</div>
-<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;</div>
-<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;<span class="keyword">template</span>&lt; <span class="keyword">typename</span> T &gt;</div>
-<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;<span class="keyword">struct </span>jrtti_iterator : <span class="keyword">public</span> std::iterator&lt; std::forward_iterator_tag, T &gt; {</div>
-<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;    jrtti_iterator( T* x ) : p( x ){}</div>
-<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;    jrtti_iterator( <span class="keyword">const</span> jrtti_iterator&amp; jit ) : p( jit.p ){}</div>
-<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;    T&amp; operator * () { <span class="keywordflow">return</span> *p; };                                        </div>
-<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;    jrtti_iterator&amp; operator ++ () { ++p; <span class="keywordflow">return</span> *<span class="keyword">this</span>; }               </div>
-<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;    <span class="keywordtype">bool</span> operator != ( <span class="keyword">const</span> jrtti_iterator&amp; it ) { <span class="keywordflow">return</span> p!= it.p; }  </div>
-<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;<span class="keyword">private</span>:</div>
-<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;    T * p;</div>
-<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;};</div>
-<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;</div>
-<div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;<span class="keyword">template</span> &lt; <span class="keyword">typename</span> T &gt;</div>
-<div class="line"><a name="l00126"></a><span class="lineno"><a class="code" href="classjrtti_1_1_collection_interface.html">  126</a></span>&#160;<span class="keyword">class </span><a class="code" href="classjrtti_1_1_collection_interface.html" title="Interface template for native Collection types.">CollectionInterface</a> {</div>
-<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;<span class="keyword">public</span>:</div>
-<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;    <span class="keyword">typedef</span> jrtti_iterator&lt;T&gt; iterator;</div>
-<div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160;    <span class="keyword">typedef</span> T value_type;</div>
+<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;    <span class="keyword">virtual</span></div>
+<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;    boost::any</div>
+<div class="line"><a name="l00094"></a><span class="lineno"><a class="code" href="classjrtti_1_1_metacollection.html#a532aa3b8687d3085abbc735e05ffcd7e">   94</a></span>&#160;    <a class="code" href="classjrtti_1_1_metacollection.html#a532aa3b8687d3085abbc735e05ffcd7e">create</a>() {</div>
+<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;        <span class="keywordflow">return</span> <span class="keyword">new</span> ClassT();</div>
+<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;    }</div>
+<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;</div>
+<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;    ClassT&amp;</div>
+<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;    getReference( <span class="keyword">const</span> boost::any value ) {</div>
+<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;        <span class="keywordflow">if</span> ( value.type() == <span class="keyword">typeid</span>( ClassT ) ) {</div>
+<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;            <span class="keyword">static</span> ClassT ref = boost::any_cast&lt; ClassT &gt;( value );</div>
+<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;            <span class="keywordflow">return</span> ref;</div>
+<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;        }</div>
+<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;        <span class="keywordflow">if</span> ( value.type() == <span class="keyword">typeid</span>( ClassT * ) ) {</div>
+<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;            <span class="keywordflow">return</span> * boost::any_cast&lt; ClassT * &gt;( value );</div>
+<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;        }</div>
+<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;        <span class="keywordflow">if</span> ( value.type() == <span class="keyword">typeid</span>( boost::reference_wrapper&lt; ClassT &gt; ) ) {</div>
+<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;            <span class="keywordflow">return</span> boost::any_cast&lt; boost::reference_wrapper&lt; ClassT &gt; &gt;( value ).<span class="keyword">get</span>();</div>
+<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;        }</div>
+<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;        <span class="keywordflow">else</span> {</div>
+<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;<span class="comment">//          return **boost::unsafe_any_cast&lt; ClassT * &gt;( &amp;value );</span></div>
+<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;            <span class="keywordflow">return</span> *<a class="code" href="namespacejrtti.html#a0d3a9a91ac3747c9581a5c988446b017" title="Type cast from boost::any.">jrtti_cast</a>&lt; ClassT * &gt;( value );</div>
+<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;        }</div>
+<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;    }</div>
+<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;</div>
+<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;<span class="comment">//SFINAE getElementPtr for pointer elements</span></div>
+<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;    <span class="keyword">template</span>&lt; <span class="keyword">typename</span> ElemT &gt;</div>
+<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;    <span class="keyword">typename</span> boost::enable_if&lt; typename boost::is_pointer&lt; ElemT &gt;::type, ElemT &gt;::type</div>
+<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;    getElementPtr( ElemT e ){</div>
+<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;        <span class="keywordflow">return</span> e;</div>
+<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;    }</div>
+<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;</div>
+<div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;<span class="comment">//SFINAE getElementPtr for non-pointer elements</span></div>
+<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;    <span class="keyword">template</span>&lt; <span class="keyword">typename</span> ElemT &gt;</div>
+<div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;    <span class="keyword">typename</span> boost::disable_if&lt; typename boost::is_pointer&lt; ElemT &gt;::type, ElemT * &gt;::type</div>
+<div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;    getElementPtr( ElemT&amp; e ){</div>
+<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;        <span class="keywordflow">return</span> &amp;e;</div>
+<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;    }</div>
+<div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160;};</div>
 <div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;</div>
-<div class="line"><a name="l00137"></a><span class="lineno">  137</span>&#160;    <span class="keyword">virtual</span> iterator <a class="code" href="classjrtti_1_1_collection_interface.html#ab6ea69c90fa7955c80a41d7368cb6481" title="Return iterator to beginning.">begin</a>()=0;</div>
-<div class="line"><a name="l00138"></a><span class="lineno">  138</span>&#160;</div>
-<div class="line"><a name="l00145"></a><span class="lineno">  145</span>&#160;    <span class="keyword">virtual</span> iterator <a class="code" href="classjrtti_1_1_collection_interface.html#a079eab973e4214a180c98733fc479c7c" title="Return iterator to the end.">end</a>() = 0;</div>
-<div class="line"><a name="l00146"></a><span class="lineno">  146</span>&#160;</div>
-<div class="line"><a name="l00155"></a><span class="lineno">  155</span>&#160;    <span class="keyword">virtual</span> iterator <a class="code" href="classjrtti_1_1_collection_interface.html#ab5b8563023d72b265d548465b74f8f78" title="Insert an element.">insert</a>( iterator position, <span class="keyword">const</span> T&amp; x ) = 0;</div>
-<div class="line"><a name="l00156"></a><span class="lineno">  156</span>&#160;</div>
-<div class="line"><a name="l00160"></a><span class="lineno">  160</span>&#160;    <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classjrtti_1_1_collection_interface.html#ad79a274bff5f4dc0875408b08dd0cc5a" title="Discards all elements of the collection.">clear</a>() = 0;</div>
-<div class="line"><a name="l00161"></a><span class="lineno">  161</span>&#160;};</div>
-<div class="line"><a name="l00162"></a><span class="lineno">  162</span>&#160;</div>
-<div class="line"><a name="l00163"></a><span class="lineno">  163</span>&#160;</div>
-<div class="line"><a name="l00164"></a><span class="lineno">  164</span>&#160;}; <span class="comment">// namespace jrtti</span></div>
-<div class="line"><a name="l00165"></a><span class="lineno">  165</span>&#160;<span class="preprocessor">#endif //jrtticollectionH</span></div>
+<div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;</div>
+<div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;</div>
+<div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;<span class="comment">// Interfaces for Metacollection ********************************</span></div>
+<div class="line"><a name="l00134"></a><span class="lineno">  134</span>&#160;</div>
+<div class="line"><a name="l00135"></a><span class="lineno">  135</span>&#160;</div>
+<div class="line"><a name="l00136"></a><span class="lineno">  136</span>&#160;</div>
+<div class="line"><a name="l00147"></a><span class="lineno">  147</span>&#160;<span class="keyword">template</span>&lt; <span class="keyword">typename</span> T &gt;</div>
+<div class="line"><a name="l00148"></a><span class="lineno">  148</span>&#160;<span class="keyword">struct </span>jrtti_iterator : <span class="keyword">public</span> std::iterator&lt; std::forward_iterator_tag, T &gt; {</div>
+<div class="line"><a name="l00149"></a><span class="lineno">  149</span>&#160;    jrtti_iterator( T* x ) : p( x ){}</div>
+<div class="line"><a name="l00150"></a><span class="lineno">  150</span>&#160;    jrtti_iterator( <span class="keyword">const</span> jrtti_iterator&amp; jit ) : p( jit.p ){}</div>
+<div class="line"><a name="l00151"></a><span class="lineno">  151</span>&#160;    T&amp; operator * () { <span class="keywordflow">return</span> *p; };                                        </div>
+<div class="line"><a name="l00152"></a><span class="lineno">  152</span>&#160;    jrtti_iterator&amp; operator ++ () { ++p; <span class="keywordflow">return</span> *<span class="keyword">this</span>; }               </div>
+<div class="line"><a name="l00153"></a><span class="lineno">  153</span>&#160;    <span class="keywordtype">bool</span> operator != ( <span class="keyword">const</span> jrtti_iterator&amp; it ) { <span class="keywordflow">return</span> p!= it.p; }  </div>
+<div class="line"><a name="l00154"></a><span class="lineno">  154</span>&#160;<span class="keyword">private</span>:</div>
+<div class="line"><a name="l00155"></a><span class="lineno">  155</span>&#160;    T * p;</div>
+<div class="line"><a name="l00156"></a><span class="lineno">  156</span>&#160;};</div>
+<div class="line"><a name="l00157"></a><span class="lineno">  157</span>&#160;</div>
+<div class="line"><a name="l00165"></a><span class="lineno">  165</span>&#160;<span class="keyword">template</span> &lt; <span class="keyword">typename</span> T &gt;</div>
+<div class="line"><a name="l00166"></a><span class="lineno"><a class="code" href="classjrtti_1_1_collection_interface.html">  166</a></span>&#160;<span class="keyword">class </span><a class="code" href="classjrtti_1_1_collection_interface.html" title="Interface template for native Collection types.">CollectionInterface</a> {</div>
+<div class="line"><a name="l00167"></a><span class="lineno">  167</span>&#160;<span class="keyword">public</span>:</div>
+<div class="line"><a name="l00168"></a><span class="lineno">  168</span>&#160;    <span class="keyword">typedef</span> jrtti_iterator&lt;T&gt; iterator;</div>
+<div class="line"><a name="l00169"></a><span class="lineno">  169</span>&#160;    <span class="keyword">typedef</span> T value_type;</div>
+<div class="line"><a name="l00170"></a><span class="lineno">  170</span>&#160;</div>
+<div class="line"><a name="l00177"></a><span class="lineno">  177</span>&#160;    <span class="keyword">virtual</span> iterator <a class="code" href="classjrtti_1_1_collection_interface.html#ab6ea69c90fa7955c80a41d7368cb6481" title="Return iterator to beginning.">begin</a>()=0;</div>
+<div class="line"><a name="l00178"></a><span class="lineno">  178</span>&#160;</div>
+<div class="line"><a name="l00185"></a><span class="lineno">  185</span>&#160;    <span class="keyword">virtual</span> iterator <a class="code" href="classjrtti_1_1_collection_interface.html#a079eab973e4214a180c98733fc479c7c" title="Return iterator to the end.">end</a>() = 0;</div>
+<div class="line"><a name="l00186"></a><span class="lineno">  186</span>&#160;</div>
+<div class="line"><a name="l00195"></a><span class="lineno">  195</span>&#160;    <span class="keyword">virtual</span> iterator <a class="code" href="classjrtti_1_1_collection_interface.html#ab5b8563023d72b265d548465b74f8f78" title="Insert an element.">insert</a>( iterator position, <span class="keyword">const</span> T&amp; x ) = 0;</div>
+<div class="line"><a name="l00196"></a><span class="lineno">  196</span>&#160;</div>
+<div class="line"><a name="l00200"></a><span class="lineno">  200</span>&#160;    <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classjrtti_1_1_collection_interface.html#ad79a274bff5f4dc0875408b08dd0cc5a" title="Discards all elements of the collection.">clear</a>() = 0;</div>
+<div class="line"><a name="l00201"></a><span class="lineno">  201</span>&#160;};</div>
+<div class="line"><a name="l00202"></a><span class="lineno">  202</span>&#160;</div>
+<div class="line"><a name="l00203"></a><span class="lineno">  203</span>&#160;</div>
+<div class="line"><a name="l00204"></a><span class="lineno">  204</span>&#160;}; <span class="comment">// namespace jrtti</span></div>
+<div class="line"><a name="l00205"></a><span class="lineno">  205</span>&#160;<span class="preprocessor">#endif //jrtticollectionH</span></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Mon Nov 12 2012 12:17:47 for jrtti C++ Introspection by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri Nov 23 2012 12:13:43 for jrtti C++ Introspection by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1.1
 </small></address>

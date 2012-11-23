@@ -124,6 +124,13 @@ Classes</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2><a name="func-members"></a>
 Functions</h2></td></tr>
+<tr class="memitem:aded323a32f2ee6fe036824c9247eb7c8"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
+<tr class="memitem:aded323a32f2ee6fe036824c9247eb7c8"><td class="memTemplItemLeft" align="right" valign="top">std::string&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacejrtti.html#aded323a32f2ee6fe036824c9247eb7c8">numToStr</a> (T number)</td></tr>
+<tr class="memitem:a2dd4e3d49dc70b16b99a8c01dc0e8796"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
+<tr class="memitem:a2dd4e3d49dc70b16b99a8c01dc0e8796"><td class="memTemplItemLeft" align="right" valign="top">T&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacejrtti.html#a2dd4e3d49dc70b16b99a8c01dc0e8796">strToNum</a> (const std::string &amp;str)</td></tr>
+<tr class="memitem:a0d3a9a91ac3747c9581a5c988446b017"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
+<tr class="memitem:a0d3a9a91ac3747c9581a5c988446b017"><td class="memTemplItemLeft" align="right" valign="top">T&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacejrtti.html#a0d3a9a91ac3747c9581a5c988446b017">jrtti_cast</a> (const boost::any &amp;value)</td></tr>
+<tr class="memdesc:a0d3a9a91ac3747c9581a5c988446b017"><td class="mdescLeft">&#160;</td><td class="mdescRight">Type cast from boost::any.  <a href="#a0d3a9a91ac3747c9581a5c988446b017"></a><br/></td></tr>
 <tr class="memitem:a4ed1c520a408b59ff6f66095e701bb60"><td class="memTemplParams" colspan="2">template&lt;typename C &gt; </td></tr>
 <tr class="memitem:a4ed1c520a408b59ff6f66095e701bb60"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classjrtti_1_1_metacollection.html">Metacollection</a>&lt; C &gt; &amp;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacejrtti.html#a4ed1c520a408b59ff6f66095e701bb60">declareCollection</a> (const <a class="el" href="classjrtti_1_1_annotations.html">Annotations</a> &amp;annotations)</td></tr>
 <tr class="memdesc:a4ed1c520a408b59ff6f66095e701bb60"><td class="mdescLeft">&#160;</td><td class="mdescRight">Declare a collection.  <a href="#a4ed1c520a408b59ff6f66095e701bb60"></a><br/></td></tr>
@@ -245,6 +252,46 @@ template&lt;typename C &gt; </div>
 
 </div>
 </div>
+<a class="anchor" id="a0d3a9a91ac3747c9581a5c988446b017"></a>
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename T &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">T jrtti::jrtti_cast </td>
+          <td>(</td>
+          <td class="paramtype">const boost::any &amp;&#160;</td>
+          <td class="paramname"><em>value</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Type cast from boost::any. </p>
+<p>This funtion tries to cast the contents of the passed boost::any to the type in the template parameter. Accurate conversion is guarantied except when template parameter is void *. </p>
+<dl class="tparams"><dt>Template Parameters:</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">T</td><td>type to cast to </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="params"><dt>Parameters:</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">value</td><td>boost::any to cast </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd>the converted type </dd></dl>
+<dl class="exception"><dt>Exceptions:</dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">BadCast</td><td>if conversion is not allowed </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <a class="anchor" id="acc19c2b1d42b031240febb2bc90eba2f"></a>
 <div class="memitem">
 <div class="memproto">
@@ -326,10 +373,68 @@ template&lt;typename T &gt; </div>
 
 </div>
 </div>
+<a class="anchor" id="aded323a32f2ee6fe036824c9247eb7c8"></a>
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename T &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">std::string jrtti::numToStr </td>
+          <td>(</td>
+          <td class="paramtype">T&#160;</td>
+          <td class="paramname"><em>number</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Converts a number to a string</p>
+<dl class="params"><dt>Parameters:</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">number</td><td>the number to convert </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd>the string representation of number </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a2dd4e3d49dc70b16b99a8c01dc0e8796"></a>
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename T &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">T jrtti::strToNum </td>
+          <td>(</td>
+          <td class="paramtype">const std::string &amp;&#160;</td>
+          <td class="paramname"><em>str</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Converts a string to a number</p>
+<dl class="tparams"><dt>Template Parameters:</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">T</td><td>type to convert </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="params"><dt>Parameters:</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">str</td><td>the string containing a valid number format to convert </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns:</dt><dd>the number represented by str </dd></dl>
+
+</div>
+</div>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Mon Nov 12 2012 12:17:47 for jrtti C++ Introspection by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri Nov 23 2012 12:13:43 for jrtti C++ Introspection by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1.1
 </small></address>
