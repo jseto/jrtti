@@ -1,6 +1,41 @@
 #ifndef jrttiH
 #define jrttiH
 
+/**
+ * Define JRTTI_EXPORT or JRTTI_IMPORT to use jrtti across modules
+ */
+#if defined(JRTTI_EXPORT) || defined(JRTTI_IMPORT)
+	#if defined __BORLANDC__
+		#define JRTTI_API __declspec(package)
+	#elif defined _MSC_VER
+		#ifdef JRTTI_EXPORT
+			#define JRTTI_API __declspec( dllexport )
+			#pragma warning( push )
+			#pragma warning( disable : 4251 )
+		#else
+			#define JRTTI_API __declspec( dllimport )
+		#endif
+	#endif
+#endif
+#ifndef JRTTI_API
+	#define JRTTI_API  
+#endif
+
+/**
+ * Use in a *.cpp file to avoid multiple singleton instantation across modules.
+ * Define macro JRTTI_SINGLETON_DEFINED before including jrtti.hpp
+ * if you are using this macro.
+ * \sa JRTTI_EXPORT
+ * \sa JRTTI_IMPORT
+ */
+#define JRTTI_DEFINE_SINGLETON	\
+	Reflector&			\
+	Reflector::instance() {		\
+		static Reflector inst;	\
+		return inst;			\
+	}							\
+
+
 #include <map>
 #include <typeinfo>
 #include "exception.hpp"
@@ -30,6 +65,7 @@ namespace jrtti {
  * \brief jrtti top level functions
  */
 namespace jrtti {
+
 	/**
 	 * Returns the list of registered metatypes
 	 * \return the metatype list
@@ -78,6 +114,7 @@ namespace jrtti {
 	 * \return this to chain calls
 	 */
 	template <typename C>
+	inline
 	CustomMetaclass<C>&
 	declare( const Annotations& annotations = Annotations() ) {
 		return Reflector::instance().declare<C>( annotations );
@@ -92,6 +129,7 @@ namespace jrtti {
 	 * \return this to chain calls
 	 */
 	template <typename C>
+	inline
 	CustomMetaclass<C, boost::true_type>&
 	declareAbstract( const Annotations& annotations = Annotations() ) {
 		return Reflector::instance().declareAbstract<C>( annotations );
@@ -107,6 +145,7 @@ namespace jrtti {
 	 * \return this to chain calls
 	 */
 	template <typename C>
+	inline
 	Metacollection<C>&
 	declareCollection( const Annotations& annotations ) {
 		return Reflector::instance().declareCollection<C>( annotations );
@@ -129,6 +168,12 @@ namespace jrtti {
 	_nameRefMap() {
 		return Reflector::instance()._nameRefMap();
 	}
-}
+} //namespace jrtti
+
+#if defined (JRTTI_EXPORT) || defined(JRTTI_IMPORT)
+	#ifdef _MSC_VER
+		#pragma warning(pop)
+	#endif
+#endif
 
 #endif       // jrttiH

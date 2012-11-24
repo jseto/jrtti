@@ -21,7 +21,7 @@ typedef std::map< std::string, Metatype * > TypeMap;
 /**
  * \brief The jrtti engine
  */
-class Reflector
+class JRTTI_API Reflector
 {
 public:
 
@@ -46,10 +46,15 @@ public:
 	}
 
 	static Reflector&
-	instance() {
+	instance()
+#ifndef JRTTI_SINGLETON_DEFINED	
+	{
 		static Reflector inst;
 		return inst;
 	}
+#else
+	;
+#endif
 
 	template <typename C>
 	CustomMetaclass<C>&
@@ -239,7 +244,6 @@ private:
 
 	friend AddressRefMap& _addressRefMap();
 
-	inline
 	AddressRefMap&
 	_addressRefMap() {
 		return m_addressRefs;
@@ -247,7 +251,6 @@ private:
 
 	friend NameRefMap& _nameRefMap();
 
-	inline
 	NameRefMap&
 	_nameRefMap() {
 		return m_nameRefs;
@@ -259,7 +262,6 @@ private:
 	std::vector< std::string >	m_prefixDecorators;
 	PendingProps				m_pendingProperties;
 };
-
 //------------------------------------------------------------------------------
 }; //namespace jrtti
 
