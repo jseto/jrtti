@@ -173,7 +173,7 @@ public:
 			p->setMode( Property::Writable );
 			p->setMode( Property::Readable );
 			p->annotations( annotations );
-			set_property(name, p);
+			addProperty(name, p);
 		}
 		return *this;
 	}
@@ -341,7 +341,7 @@ private:
 		m->name(name);
 		m->function(function);
 		m->annotations( annotations );
-		set_method(name, m);
+		addMethod(name, m);
 		return *this;
 	}
 
@@ -356,7 +356,7 @@ private:
 			p->getter(getter);
 			p->name(name);
 			p->annotations( annotations );
-			set_property(name, p);
+			addProperty(name, p);
 		}
 		return *this;
 	}

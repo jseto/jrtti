@@ -415,6 +415,28 @@ public:
 		return boost::any();
 	}
 
+	/**
+	 * \brief Adds a owned property to this metatype
+	 * \param name the name given to the property
+	 * \param prop the metaproperty object
+	 */
+	void
+	addProperty( std::string name, Property * prop) {
+		properties()[name] = prop;
+		m_ownedProperties[ name ] = prop;
+	}
+
+	/**
+	 * \brief Adds a owned method to this metatype
+	 * \param name the name given to the method
+	 * \param meth the metamethod object
+	 */
+	void
+	addMethod( std::string name, Method * meth) {
+		m_methods[name] = meth;
+		m_ownedMethods[ name ] = meth;
+	}
+
 protected:
 	friend class Reflector;
 	friend class MetaPointerType;
@@ -518,18 +540,6 @@ protected:
 			return copyFromInstance( inst );
 		else
 			return boost::any();
-	}
-
-	void
-	set_property( std::string name, Property * prop) {
-		properties()[name] = prop;
-		m_ownedProperties[ name ] = prop;
-	}
-
-	void
-	set_method( std::string name, Method * meth) {
-		m_methods[name] = meth;
-		m_ownedMethods[ name ] = meth;
 	}
 
 	std::string
