@@ -25,6 +25,11 @@ class Metacollection: public CustomMetaclass< ClassT > {
 public:
 	Metacollection( const Annotations& annotations = Annotations() ): CustomMetaclass< ClassT >( annotations ) {}
 
+	bool
+	isCollection() {
+		return true;
+	}
+
 protected:
 	virtual
 	std::string

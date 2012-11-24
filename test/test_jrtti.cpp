@@ -482,18 +482,24 @@ TEST_F(MetaTypeTest, parentCheck) {
 	EXPECT_TRUE( jrtti::metatype< SampleDerived *>().isDerivedFrom< SampleBase * >() );
 }
 
-TEST_F(MetaTypeTest, isAbstract) {
-	Metatype &mt_sample = jrtti::metatype<SampleBase>();
-	Metatype &mt_date = jrtti::metatype<Date>();
+TEST_F(MetaTypeTest, queryTypeAttributes) {
+// isAbstract
+	EXPECT_FALSE( jrtti::metatype<Date>().isAbstract() );
+	EXPECT_TRUE( jrtti::metatype<SampleBase>().isAbstract() );
 
-	EXPECT_FALSE( mt_date.isAbstract() );
-	EXPECT_TRUE( mt_sample.isAbstract() );
+	EXPECT_FALSE( jrtti::metatype<Date *>().isAbstract() );
+	EXPECT_TRUE( jrtti::metatype<SampleBase *>().isAbstract() );
 
-	Metatype &mtp_sample = jrtti::metatype<SampleBase *>();
-	Metatype &mtp_date = jrtti::metatype<Date *>();
+// isCollection
+	jrtti::declareCollection< MyCollection >()
+		.property( "intMember", &MyCollection::intMember );
 
-	EXPECT_FALSE( mtp_date.isAbstract() );
-	EXPECT_TRUE( mtp_sample.isAbstract() );
+	EXPECT_FALSE( jrtti::metatype<Sample>().isCollection() );
+	EXPECT_TRUE( jrtti::metatype< MyCollection >().isCollection() );
+
+	EXPECT_FALSE( jrtti::metatype<Sample *>().isCollection() );
+	EXPECT_TRUE( jrtti::metatype< MyCollection *>().isCollection() );
+
 }
 
 struct TestUntyped {

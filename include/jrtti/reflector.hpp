@@ -206,10 +206,15 @@ private:
 
 	void
 	register_defaults(){
-		internal_declare< int >( new MetaInt() );
-		internal_declare< char >( new MetaChar() );
 		internal_declare< bool >( new MetaBool() );
+		internal_declare< char >( new MetaChar() );
+		internal_declare< short >( new MetaShort() );
+		internal_declare< int >( new MetaInt() );
+		internal_declare< long >( new MetaLong() );
+		internal_declare< float >( new MetaFloat() );
 		internal_declare< double >( new MetaDouble() );
+		internal_declare< long double >( new MetaLongDouble() );
+		internal_declare< wchar_t >( new MetaWchar_t() );
 		internal_declare< std::string >( new MetaString() );
 	}
 

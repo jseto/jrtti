@@ -40,6 +40,11 @@ public:
 		return m_baseType.isAbstract();
 	}
 
+	bool 
+	isCollection() {
+		return m_baseType.isCollection();
+	}
+
 protected:
 	Metatype *
 	pointerMetatype() {
@@ -108,64 +113,7 @@ private:
 	Metatype & m_baseType;
 };
 
-// predefined std types
-class MetaInt: public Metatype {
-public:
-	MetaInt(): Metatype( typeid( int ) ) {}
-
-	virtual
-	bool
-	isFundamental() const {
-		return true;
-	}
-
-	virtual
-	std::string
-	_toStr( const boost::any & value, bool formatForStreaming ){
-		return numToStr(boost::any_cast<int>(value));
-	}
-
-	boost::any
-	_fromStr( const boost::any& instance, const std::string& str, bool doCopyFromInstance = true ) {
-		return strToNum<int>( str );
-	}
-
-	virtual
-	boost::any
-	create()
-	{
-		return new int;
-	}
-};
-
-class MetaChar: public Metatype {
-public:
-	MetaChar(): Metatype( typeid( char ) ) {}
-
-	virtual
-	bool
-	isFundamental() const {
-		return true;
-	}
-
-	virtual
-	std::string
-	_toStr( const boost::any & value, bool formatForStreaming ){
-		return numToStr(boost::any_cast<char>(value));
-	}
-
-	boost::any
-	_fromStr( const boost::any& instance, const std::string& str, bool doCopyFromInstance = true ) {
-		return strToNum<char>( str );
-	}
-
-	virtual
-	boost::any
-	create()
-	{
-		return new char;
-	}
-};
+// predefined types
 
 class MetaBool: public Metatype {
 public:
@@ -195,6 +143,151 @@ public:
 	}
 };
 
+class MetaChar: public Metatype {
+public:
+	MetaChar(): Metatype( typeid( char ) ) {}
+
+	virtual
+	bool
+	isFundamental() const {
+		return true;
+	}
+
+	virtual
+	std::string
+	_toStr( const boost::any & value, bool formatForStreaming ){
+		return numToStr(boost::any_cast<char>(value));
+	}
+
+	boost::any
+	_fromStr( const boost::any& instance, const std::string& str, bool doCopyFromInstance = true ) {
+		return strToNum<char>( str );
+	}
+
+	virtual
+	boost::any
+	create()
+	{
+		return new char;
+	}
+};
+
+class MetaShort: public Metatype {
+public:
+	MetaShort(): Metatype( typeid( short ) ) {}
+
+	virtual
+	bool
+	isFundamental() const {
+		return true;
+	}
+
+	virtual
+	std::string
+	_toStr( const boost::any & value, bool formatForStreaming ){
+		return numToStr(boost::any_cast<short>(value));
+	}
+
+	boost::any
+	_fromStr( const boost::any& instance, const std::string& str, bool doCopyFromInstance = true ) {
+		return strToNum<short>( str );
+	}
+
+	virtual
+	boost::any
+	create()
+	{
+		return new short;
+	}
+};
+
+class MetaInt: public Metatype {
+public:
+	MetaInt(): Metatype( typeid( int ) ) {}
+
+	virtual
+	bool
+	isFundamental() const {
+		return true;
+	}
+
+	virtual
+	std::string
+	_toStr( const boost::any & value, bool formatForStreaming ){
+		return numToStr(boost::any_cast<int>(value));
+	}
+
+	boost::any
+	_fromStr( const boost::any& instance, const std::string& str, bool doCopyFromInstance = true ) {
+		return strToNum<int>( str );
+	}
+
+	virtual
+	boost::any
+	create()
+	{
+		return new int;
+	}
+};
+
+class MetaLong: public Metatype {
+public:
+	MetaLong(): Metatype( typeid( long ) ) {}
+
+	virtual
+	bool
+	isFundamental() const {
+		return true;
+	}
+
+	virtual
+	std::string
+	_toStr( const boost::any & value, bool formatForStreaming ){
+		return numToStr(boost::any_cast<long>(value));
+	}
+
+	boost::any
+	_fromStr( const boost::any& instance, const std::string& str, bool doCopyFromInstance = true ) {
+		return strToNum<long>( str );
+	}
+
+	virtual
+	boost::any
+	create()
+	{
+		return new long;
+	}
+};
+
+class MetaFloat: public Metatype {
+public:
+	MetaFloat(): Metatype( typeid( float ) ) {}
+
+	virtual
+	bool
+	isFundamental() const {
+		return true;
+	}
+
+	virtual
+	std::string
+	_toStr( const boost::any & value, bool formatForStreaming ){
+		return numToStr(boost::any_cast<float>(value));
+	}
+
+	boost::any
+	_fromStr( const boost::any& instance, const std::string& str, bool doCopyFromInstance = true ) {
+		return strToNum<float>( str );
+	}
+
+	virtual
+	boost::any
+	create() {
+		return new float;
+	}
+};
+
+
 class MetaDouble: public Metatype {
 public:
 	MetaDouble(): Metatype( typeid( double ) ) {}
@@ -220,6 +313,63 @@ public:
 	boost::any
 	create() {
 		return new double;
+	}
+};
+
+class MetaLongDouble: public Metatype {
+public:
+	MetaLongDouble(): Metatype( typeid( long double ) ) {}
+
+	virtual
+	bool
+	isFundamental() const {
+		return true;
+	}
+
+	virtual
+	std::string
+	_toStr( const boost::any & value, bool formatForStreaming ){
+		return numToStr(boost::any_cast<long double>(value));
+	}
+
+	boost::any
+	_fromStr( const boost::any& instance, const std::string& str, bool doCopyFromInstance = true ) {
+		return strToNum<long double>( str );
+	}
+
+	virtual
+	boost::any
+	create() {
+		return new long double;
+	}
+};
+
+class MetaWchar_t: public Metatype {
+public:
+	MetaWchar_t(): Metatype( typeid(wchar_t ) ) {}
+
+	virtual
+	bool
+	isFundamental() const {
+		return true;
+	}
+
+	virtual
+	std::string
+	_toStr( const boost::any & value, bool formatForStreaming ){
+		return numToStr((int)boost::any_cast<wchar_t>(value));
+	}
+
+	boost::any
+	_fromStr( const boost::any& instance, const std::string& str, bool doCopyFromInstance = true ) {
+		int dummy = strToNum<int>( str );
+		return (wchar_t)dummy;
+	}
+
+	virtual
+	boost::any
+	create() {
+		return new wchar_t;
 	}
 };
 

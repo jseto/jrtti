@@ -105,12 +105,22 @@ public:
 
 	/**
 	 * \brief Check if this Metatype is the abstraction of a fundamental type
-	 * Fundamental types are bool, char, int, float, double and wchar_t
+	 * Fundamental types are bool, char, short, int, long, float, double, long double and wchar_t
 	 * \return true if fundamental
 	 */
 	virtual
 	bool
 	isFundamental() const {
+		return false;
+	}
+
+	/**
+	 * Check for colection
+	 * \return true if this metatype is a collection abstraction
+	 */
+	virtual
+	bool
+	isCollection() {
 		return false;
 	}
 
@@ -147,6 +157,10 @@ public:
 		return isDerivedFrom( jrtti::metatype< T >() );
 	}
 
+	/**
+	 * \brief Check if associated class is abstract
+	 * \return true if associated class is abstract
+	 */
 	virtual
 	bool
 	isAbstract() {
