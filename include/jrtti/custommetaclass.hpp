@@ -22,6 +22,15 @@ public:
 #endif
 	}
 
+	bool
+	isAbstract() {
+#ifdef BOOST_NO_IS_ABSTRACT
+		return IsAbstractT::value;
+#else
+		return boost::is_abstract< ClassT >::value;
+#endif
+	}
+
 	struct detail
 	{
 		template <typename >

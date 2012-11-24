@@ -473,6 +473,27 @@ TEST_F(MetaTypeTest, parentCheck) {
 	EXPECT_FALSE( mt_date.isDerivedFrom( mt_sample ) );
 	EXPECT_TRUE( jrtti::metatype< SampleDerived >().isDerivedFrom( mt_sample ) );
 	EXPECT_TRUE( jrtti::metatype< SampleDerived >().isDerivedFrom< SampleBase >() );
+
+	Metatype &mtp_sample = jrtti::metatype<Sample *>();
+	Metatype &mtp_date = jrtti::metatype<Date*>();
+
+	EXPECT_FALSE( mtp_date.isDerivedFrom( mtp_sample ) );
+	EXPECT_TRUE( jrtti::metatype< SampleDerived * >().isDerivedFrom( mtp_sample ) );
+	EXPECT_TRUE( jrtti::metatype< SampleDerived *>().isDerivedFrom< SampleBase * >() );
+}
+
+TEST_F(MetaTypeTest, isAbstract) {
+	Metatype &mt_sample = jrtti::metatype<SampleBase>();
+	Metatype &mt_date = jrtti::metatype<Date>();
+
+	EXPECT_FALSE( mt_date.isAbstract() );
+	EXPECT_TRUE( mt_sample.isAbstract() );
+
+	Metatype &mtp_sample = jrtti::metatype<SampleBase *>();
+	Metatype &mtp_date = jrtti::metatype<Date *>();
+
+	EXPECT_FALSE( mtp_date.isAbstract() );
+	EXPECT_TRUE( mtp_sample.isAbstract() );
 }
 
 struct TestUntyped {

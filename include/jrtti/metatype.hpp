@@ -147,6 +147,12 @@ public:
 		return isDerivedFrom( jrtti::metatype< T >() );
 	}
 
+	virtual
+	bool
+	isAbstract() {
+		return false;
+	}
+
 	/**
 	 * \brief Returns a property abstraction
 	 *

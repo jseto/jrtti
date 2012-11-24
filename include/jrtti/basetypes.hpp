@@ -35,6 +35,11 @@ public:
 		return true;
 	}
 
+	bool
+	isAbstract() {
+		return m_baseType.isAbstract();
+	}
+
 protected:
 	Metatype *
 	pointerMetatype() {
