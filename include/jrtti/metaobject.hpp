@@ -92,7 +92,8 @@ public:
 	metatype() {
 		return *m_metatype;
 	}
-	/**
+
+	/**
 	 * \brief Get the associated object instance
 	 * \tparam native type of associated object
 	 * \return the asociated object instance
@@ -108,7 +109,8 @@ public:
 			return boost::any_cast< T * >( m_instance );
 		}
 	 }
-	/**
+
+	/**
 	 * \brief Compares two Metaobjects for equality
 	 */
 	bool
@@ -116,14 +118,16 @@ public:
 //		return boost::unsafe_any_cast< void * >( &m_instance ) == boost::unsafe_any_cast< void * >( &mo.m_instance );
 		return jrtti_cast< void * >( m_instance ) == jrtti_cast< void * >( mo.m_instance );
 	}
-	/**
+
+	/**
 	 * \brief Compares two Metaobjects for inequality
 	 */
 	bool
 	operator != ( const Metaobject& mo ) const {
 		return !( *this == mo );
 	}
-private:
+
+private:
 	boost::any m_instance;
 	Metatype * m_metatype;
 };

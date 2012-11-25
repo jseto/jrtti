@@ -37,8 +37,8 @@ class MetaTypeTest : public testing::Test {
 	}
 
 	// Declares the variables your tests want to use.
-		Sample sample;
-		SampleDerived sampleDerived;
+	Sample sample;
+	SampleDerived sampleDerived;
 };
 
 TEST_F(MetaTypeTest, InvertedDeclaration) {

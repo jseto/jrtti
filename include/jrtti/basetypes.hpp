@@ -1,11 +1,11 @@
 #ifndef jrttibasetypesH
 #define jrttibasetypesH
 
-#include <sstream>
-#include <iomanip>
-#include "metatype.hpp"
+#include <sstream>
+#include <iomanip>
+#include "metatype.hpp"
 
-namespace jrtti {
+namespace jrtti {
 
 class MetaPointerType: public Metatype {
 public:
@@ -74,9 +74,10 @@ protected:
 	virtual
 	boost::any
 	_fromStr( const boost::any& instance, const std::string& str, bool doCopyFromInstance = true ) {
-		JSONParser parser( str );
-		boost::any any_ptr;
-		if ( str == "NULL" ) {
+		JSONParser parser( str );
+		boost::any any_ptr;
+
+		if ( str == "NULL" ) {
 			any_ptr = createAsNullPtr();
 		}
 		else {
@@ -85,7 +86,12 @@ protected:
 				any_ptr = m_baseType.copyFromInstanceAsPtr( ptr );
 			}
 			else {
-				any_ptr = create();
+				if ( jrtti_cast< void * >(instance) ) {
+					any_ptr = instance;
+				}
+				else {
+					any_ptr = create();
+				}
 				Metatype::_fromStr( any_ptr, str );
 			}
 		}
@@ -133,7 +139,8 @@ public:
 
 	boost::any
 	_fromStr( const boost::any& instance, const std::string& str, bool doCopyFromInstance = true ) {
-		return str == "true";
+
+		return str == "true";
 	}
 
 	virtual
@@ -190,7 +197,8 @@ public:
 
 	boost::any
 	_fromStr( const boost::any& instance, const std::string& str, bool doCopyFromInstance = true ) {
-		return strToNum<short>( str );
+
+		return strToNum<short>( str );
 	}
 
 	virtual
@@ -219,7 +227,8 @@ public:
 
 	boost::any
 	_fromStr( const boost::any& instance, const std::string& str, bool doCopyFromInstance = true ) {
-		return strToNum<int>( str );
+
+		return strToNum<int>( str );
 	}
 
 	virtual
@@ -248,7 +257,8 @@ public:
 
 	boost::any
 	_fromStr( const boost::any& instance, const std::string& str, bool doCopyFromInstance = true ) {
-		return strToNum<long>( str );
+
+		return strToNum<long>( str );
 	}
 
 	virtual
@@ -277,7 +287,8 @@ public:
 
 	boost::any
 	_fromStr( const boost::any& instance, const std::string& str, bool doCopyFromInstance = true ) {
-		return strToNum<float>( str );
+
+		return strToNum<float>( str );
 	}
 
 	virtual
@@ -306,7 +317,8 @@ public:
 
 	boost::any
 	_fromStr( const boost::any& instance, const std::string& str, bool doCopyFromInstance = true ) {
-		return strToNum<double>( str );
+
+		return strToNum<double>( str );
 	}
 
 	virtual
@@ -334,7 +346,8 @@ public:
 
 	boost::any
 	_fromStr( const boost::any& instance, const std::string& str, bool doCopyFromInstance = true ) {
-		return strToNum<long double>( str );
+
+		return strToNum<long double>( str );
 	}
 
 	virtual
@@ -385,7 +398,8 @@ public:
 
 	boost::any
 	_fromStr( const boost::any& instance, const std::string& str, bool doCopyFromInstance = true ) {
-		return removeEscapeSeq( str );
+
+		return removeEscapeSeq( str );
 	}
 
 	virtual
@@ -458,7 +472,8 @@ private:
 };
 
 //------------------------------------------------------------------------------
-}; //namespace jrtti
+
+}; //namespace jrtti
 #endif  //jrttibasetypesH
 
 

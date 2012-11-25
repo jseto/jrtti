@@ -58,6 +58,7 @@ public:
 	Sample(){
 		circularRef = this;
 		m_arraySize = 5;
+		_point = NULL;
 	}
 
 	int intMember;
