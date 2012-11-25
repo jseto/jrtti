@@ -8,11 +8,15 @@
 
 namespace jrtti {
 
+class Annotations;
+
 /**
  * \brief Base class for annotations
  * \sa Annotations
  */
 class Annotation {
+	friend class Annotations;
+	Annotations * owner;
 public:
 	virtual ~Annotation(){};
 };
@@ -31,8 +35,30 @@ public:
 class Annotations
 {
 public:
-	typedef std::vector< boost::shared_ptr< Annotation > > Container;
+	typedef std::vector< Annotation * > Container;
 	typedef Container::const_iterator iterator;
+
+	Annotations(){}
+	
+	Annotations( const Annotations& source ) {
+		*this = source;
+	}
+
+	~Annotations() {
+		for ( Container::iterator it = m_annotations.begin(); it != m_annotations.end(); ++it ) {
+			if ( (*it)->owner == this )
+				delete *it;
+		}
+	}
+
+	Annotations& 
+	operator = ( const Annotations& source ) {
+		for ( iterator it = source.m_annotations.begin(); it != source.m_annotations.end(); ++it ) {
+			(*it)->owner = this;
+		}
+		m_annotations = source.m_annotations;
+		return *this;
+	}
 
 	/**
 	 * \brief Adds an Annotations to the container
@@ -41,7 +67,8 @@ public:
 	 */
 	Annotations &
 	operator << ( Annotation * annotation ) {
-		m_annotations.push_back( boost::shared_ptr< Annotation >( annotation ) );
+		annotation->owner = this;
+		m_annotations.push_back( annotation );
 		return *this;
 	}
 
@@ -55,7 +82,7 @@ public:
 	T *
 	getFirst() {
 		for ( Container::iterator it = m_annotations.begin(); it != m_annotations.end(); ++it ) {
-			T * p = boost::dynamic_pointer_cast< T >( *it ).get();
+			T * p = dynamic_cast< T* >( *it );
 			if ( p )
 				return p;
 		}
@@ -73,7 +100,7 @@ public:
 	getAll() {
 		std::vector< T * > v;
 		for ( Container::iterator it = m_annotations.begin(); it != m_annotations.end(); ++it ) {
-			T * p = boost::dynamic_pointer_cast< T >( it->get() );
+			T * p = dynamic_cast< T* >( *it );
 			if ( p )
 				v.push_back( p );
 		}
