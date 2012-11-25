@@ -427,6 +427,20 @@ public:
 	}
 
 	/**
+	 * \brief Deletes a owned property of this metatype
+	 * \param name of property to delete
+	 */
+	void
+	deleteProperty( std::string name ) {
+		PropertyMap::iterator elem = m_ownedProperties.find( name );
+		if ( elem != m_ownedProperties.end() ) {
+			properties().erase( name );
+			delete elem->second;
+			m_ownedProperties.erase( elem );
+		}
+	}
+
+	/**
 	 * \brief Adds a owned method to this metatype
 	 * \param name the name given to the method
 	 * \param meth the metamethod object
@@ -435,6 +449,20 @@ public:
 	addMethod( std::string name, Method * meth) {
 		m_methods[name] = meth;
 		m_ownedMethods[ name ] = meth;
+	}
+
+	/**
+	 * \brief Deletes a owned method of this metatype
+	 * \param name of method to delete
+	 */
+	void
+	deleteMethod( std::string name ) {
+		MethodMap::iterator elem = m_ownedMethods.find( name );
+		if ( elem != m_ownedMethods.end() ) {
+			methods().erase( name );
+			delete elem->second;
+			m_ownedMethods.erase( elem );
+		}
 	}
 
 protected:
