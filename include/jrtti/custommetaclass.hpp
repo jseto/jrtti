@@ -23,7 +23,7 @@ public:
 	}
 
 	bool
-	isAbstract() {
+	isAbstract() const {
 #ifdef BOOST_NO_IS_ABSTRACT
 		return IsAbstractT::value;
 #else
@@ -63,10 +63,10 @@ public:
 	derivesFrom( Metatype& parent )
 	{
 		parentMetatype( &parent );
-		PropertyMap& parentProps = parent.properties();
-		properties().insert( parentProps.begin(), parentProps.end() );
-		MethodMap& parentMeth = parent.methods();
-		methods().insert( parentMeth.begin(), parentMeth.end() );
+		PropertyMap& parentProps = parent._properties();
+		_properties().insert( parentProps.begin(), parentProps.end() );
+		MethodMap& parentMeth = parent._methods();
+		_methods().insert( parentMeth.begin(), parentMeth.end() );
 		pointerMetatype()->parentMetatype( parent.pointerMetatype() );
 		return *this;
 	}
@@ -166,7 +166,7 @@ public:
 	CustomMetaclass&
 	property(std::string name, const Annotations& annotations = Annotations() )
 	{
-		if (  properties().find( name ) == properties().end() )
+		if (  _properties().find( name ) == _properties().end() )
 		{
 			TypedProperty< ClassT, int > * p = new TypedProperty< ClassT, int >;
 			p->name(name);
@@ -349,7 +349,7 @@ private:
 	CustomMetaclass&
 	fillProperty(std::string name, SetterType setter, GetterType getter, const Annotations& annotations )
 	{
-		if (  properties().find( name ) == properties().end() )
+		if (  _properties().find( name ) == _properties().end() )
 		{
 			TypedProperty< ClassT, PropT > * p = new TypedProperty< ClassT, PropT >;
 			p->setter(setter);
