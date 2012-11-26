@@ -337,7 +337,7 @@ public:
 	 * \return used internally
 	 */
 	boost::any
-	apply( const boost::any& instance, std::string path, const boost::any& value ) {
+	apply( const boost::any& instance, std::string path, const boost::any& value, bool doCopyFromInstance = false ) {
 		size_t pos = path.find_first_of(".");
 		std::string name = path.substr( 0, pos );
 		Property& prop = property(name);
@@ -347,12 +347,17 @@ public:
 			prop.set( inst, value );
 		}
 		else {
-			const boost::any &mod = prop.metatype().apply( prop.get(inst), path.substr( pos + 1 ), value );
+			const boost::any &mod = prop.metatype().apply( prop.get(inst), path.substr( pos + 1 ), value, true );
 			if ( !prop.metatype().isPointer() ) {
 				prop.set( inst, mod );
 			}
 		}
-		return copyFromInstance( inst );
+		if ( doCopyFromInstance ) {
+			return copyFromInstance( inst );
+		}
+		else {
+			return boost::any();
+		}
 	}
 
 	/**
