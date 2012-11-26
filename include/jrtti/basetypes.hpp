@@ -36,12 +36,12 @@ public:
 	}
 
 	bool
-	isAbstract() {
+	isAbstract() const {
 		return m_baseType.isAbstract();
 	}
 
 	bool 
-	isCollection() {
+	isCollection() const {
 		return m_baseType.isCollection();
 	}
 

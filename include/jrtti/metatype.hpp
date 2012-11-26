@@ -58,7 +58,7 @@ public:
 	 * \return the type name
 	 */
 	std::string
-	name()	{
+	name()	const {
 		return demangle( m_type_info.name() );
 	}
 
@@ -67,7 +67,7 @@ public:
 	 * \return the type_info structure
 	 */
 	const std::type_info&
-	typeInfo() {
+	typeInfo() const {
 		return m_type_info;
 	}
 
@@ -85,9 +85,8 @@ public:
 	 * \brief Retrieve the associated annotations container
 	 * \return the associated annotations container of this property
 	 */
-	Annotations&
-	annotations()
-	{
+	const Annotations&
+	annotations() const	{
 		return m_annotations;
 	}
 
@@ -120,7 +119,7 @@ public:
 	 */
 	virtual
 	bool
-	isCollection() {
+	isCollection() const {
 		return false;
 	}
 
@@ -133,10 +132,10 @@ public:
 	 * \return true if parent associated class is base class of this or is the same associated class
 	 */
 	bool
-	isDerivedFrom( const Metatype& parent ) {
+	isDerivedFrom( const Metatype& parent ) const {
 		if ( this == &parent )
         	return true;
-		Metatype * derived = this;
+		const Metatype * derived = this;
 		while ( derived->m_parentMetatype && ( *derived->m_parentMetatype != parent ) ) {
 			derived = derived->m_parentMetatype;
 		}
@@ -153,7 +152,7 @@ public:
 	 */
 	template< typename T >
 	bool
-	isDerivedFrom() {
+	isDerivedFrom() const {
 		return isDerivedFrom( jrtti::metatype< T >() );
 	}
 
@@ -163,7 +162,7 @@ public:
 	 */
 	virtual
 	bool
-	isAbstract() {
+	isAbstract() const {
 		return false;
 	}
 

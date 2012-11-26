@@ -23,7 +23,7 @@ public:
 	}
 
 	bool
-	isAbstract() {
+	isAbstract() const {
 #ifdef BOOST_NO_IS_ABSTRACT
 		return IsAbstractT::value;
 #else

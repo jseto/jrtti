@@ -26,7 +26,7 @@ public:
 	Metacollection( const Annotations& annotations = Annotations() ): CustomMetaclass< ClassT >( annotations ) {}
 
 	bool
-	isCollection() {
+	isCollection() const {
 		return true;
 	}
 
