@@ -47,8 +47,8 @@ protected:
 			if (need_nl) str += ",\n";
 			need_nl = true;
 
-			PropertyMap::iterator pmit = mt->properties().find( "__typeInfoName" );
-			if ( pmit != mt->properties().end() ) {
+			PropertyMap::iterator pmit = mt->_properties().find( "__typeInfoName" );
+			if ( pmit != mt->_properties().end() ) {
 				mt = &Reflector::instance().metatype( pmit->second->get< std::string >( getElementPtr( *it ) ) );
 			}
 			str += ident( mt->_toStr( *it, formatForStreaming ) );

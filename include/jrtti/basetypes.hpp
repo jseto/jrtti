@@ -20,16 +20,6 @@ public:
 		return m_baseType.create();
 	}
 
-	PropertyMap &
-	properties() {
-		return m_baseType.properties();
-	}
-
-	MethodMap&
-	methods() {
-		return m_baseType.methods();
-	}
-
 	bool
 	isPointer() const {
 		return true;
@@ -49,6 +39,16 @@ protected:
 	Metatype *
 	pointerMetatype() {
 		return this;
+	}
+
+	PropertyMap &
+	_properties() {
+		return m_baseType._properties();
+	}
+
+	MethodMap&
+	_methods() {
+		return m_baseType._methods();
 	}
 
 	virtual

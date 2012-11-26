@@ -189,8 +189,8 @@ public:
 	virtual
 	Property&
 	property( const std::string& name) {
-		PropertyMap::iterator it = properties().find(name);
-		if ( it == properties().end() ) {
+		PropertyMap::iterator it = _properties().find(name);
+		if ( it == _properties().end() ) {
 			throw Error( "Property '" + name + "' not declared in '" + Metatype::name() + "' metaclass" );
 		}
 		return *it->second;
@@ -205,8 +205,8 @@ public:
 	 */
 	Method&
 	method(std::string name) {
-		MethodMap::iterator it = methods().find(name);
-		if ( it == methods().end() ) {
+		MethodMap::iterator it = _methods().find(name);
+		if ( it == _methods().end() ) {
 			throw Error( "Method '" + name + "' not declared in '" + Metatype::name() + "' metaclass" );
 		}
 		return *it->second;
@@ -228,7 +228,7 @@ public:
 	call ( std::string methodName, ClassT * instance ) {
 		typedef TypedMethod< boost::remove_pointer< ClassT >::type, ReturnT > MethodType;
 
-		MethodType * ptr = static_cast< MethodType * >( methods()[methodName] );
+		MethodType * ptr = static_cast< MethodType * >( _methods()[methodName] );
 		if (!ptr) {
 			throw Error("Method '" + methodName + "' not found in '" + name() + "' metaclass");
 		}
@@ -384,16 +384,14 @@ public:
 		_fromStr( instance, str, false );
 	}
 
-	virtual
-	PropertyMap &
+	const PropertyMap &
 	properties() {
-		return m_properties;
+		return _properties();
 	}
 
-	virtual
-	MethodMap &
+	const MethodMap &
 	methods() {
-		return m_methods;
+		return _methods();
 	}
 
 	virtual
@@ -421,7 +419,7 @@ public:
 	 */
 	void
 	addProperty( std::string name, Property * prop) {
-		properties()[name] = prop;
+		_properties()[name] = prop;
 		m_ownedProperties[ name ] = prop;
 	}
 
@@ -433,7 +431,7 @@ public:
 	deleteProperty( std::string name ) {
 		PropertyMap::iterator elem = m_ownedProperties.find( name );
 		if ( elem != m_ownedProperties.end() ) {
-			properties().erase( name );
+			_properties().erase( name );
 			delete elem->second;
 			m_ownedProperties.erase( elem );
 		}
@@ -458,7 +456,7 @@ public:
 	deleteMethod( std::string name ) {
 		MethodMap::iterator elem = m_ownedMethods.find( name );
 		if ( elem != m_ownedMethods.end() ) {
-			methods().erase( name );
+			_methods().erase( name );
 			delete elem->second;
 			m_ownedMethods.erase( elem );
 		}
@@ -475,6 +473,17 @@ protected:
 			m_annotations( annotations ),
 			m_parentMetatype( NULL ) {}
 
+	virtual
+	PropertyMap &
+	_properties() {
+		return m_properties;
+	}
+
+	virtual
+	MethodMap &
+	_methods() {
+		return m_methods;
+	}
 
 	void
 	parentMetatype( Metatype * parent ) {
@@ -509,7 +518,7 @@ protected:
 			}
 		}
 
-		for( PropertyMap::iterator it = properties().begin(); it != properties().end(); ++it) {
+		for( PropertyMap::iterator it = _properties().begin(); it != _properties().end(); ++it) {
 			Property * prop = it->second;
 			if ( prop && prop->isReadable() ) {
 				if ( !( formatForStreaming && prop->annotations().has< NoStreamable >() ) ) {
@@ -546,7 +555,7 @@ protected:
 			}
 			else
 			{
-				Property * prop = properties()[ it->first ];
+				Property * prop = _properties()[ it->first ];
 				if ( prop ) {
 					if ( prop->isWritable() || prop->annotations().has< ForceStreamLoadable >() ) {
 						StringifyDelegateBase * stringifyDelegate = prop->annotations().getFirst< StringifyDelegateBase >();

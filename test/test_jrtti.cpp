@@ -513,7 +513,7 @@ TEST_F(MetaTypeTest, untypedProperty) {
 	Metatype& mt = declare< TestUntyped >();
 	UntypedProperty< TestUntyped > * prop = new UntypedProperty< TestUntyped >( metatype< Point * >(), "untyped" );
 	prop->member( &TestUntyped::ptr );
-	mt.properties()[ "untyped" ] = prop;
+	mt.addProperty( "untyped", prop ); 
 
 	Point p;
 	p.x = 2;
