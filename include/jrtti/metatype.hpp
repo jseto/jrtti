@@ -99,18 +99,28 @@ public:
 	 */
 	virtual
 	bool
-	isPointer() {
+	isPointer() const {
 		return false;
 	}
 
 	/**
 	 * \brief Check if this Metatype is the abstraction of a fundamental type
-	 * Fundamental types are bool, char, int, float, double and wchar_t
+	 * Fundamental types are bool, char, short, int, long, float, double, long double and wchar_t
 	 * \return true if fundamental
 	 */
 	virtual
 	bool
-	isFundamental() {
+	isFundamental() const {
+		return false;
+	}
+
+	/**
+	 * Check for colection
+	 * \return true if this metatype is a collection abstraction
+	 */
+	virtual
+	bool
+	isCollection() {
 		return false;
 	}
 
@@ -148,6 +158,16 @@ public:
 	}
 
 	/**
+	 * \brief Check if associated class is abstract
+	 * \return true if associated class is abstract
+	 */
+	virtual
+	bool
+	isAbstract() {
+		return false;
+	}
+
+	/**
 	 * \brief Returns a property abstraction
 	 *
 	 * Looks for a property of this class by name
@@ -172,7 +192,7 @@ public:
 	property( const std::string& name) {
 		PropertyMap::iterator it = properties().find(name);
 		if ( it == properties().end() ) {
-			throw error( "Property '" + name + "' not declared in '" + Metatype::name() + "' metaclass" );
+			throw Error( "Property '" + name + "' not declared in '" + Metatype::name() + "' metaclass" );
 		}
 		return *it->second;
 	}
@@ -188,7 +208,7 @@ public:
 	method(std::string name) {
 		MethodMap::iterator it = methods().find(name);
 		if ( it == methods().end() ) {
-			throw error( "Method '" + name + "' not declared in '" + Metatype::name() + "' metaclass" );
+			throw Error( "Method '" + name + "' not declared in '" + Metatype::name() + "' metaclass" );
 		}
 		return *it->second;
 	}
@@ -211,7 +231,7 @@ public:
 
 		MethodType * ptr = static_cast< MethodType * >( methods()[methodName] );
 		if (!ptr) {
-			throw error("Method '" + methodName + "' not found in '" + name() + "' metaclass");
+			throw Error("Method '" + methodName + "' not found in '" + name() + "' metaclass");
 		}
 		return ptr->call(instance);
 	}
@@ -236,7 +256,7 @@ public:
 
 		MethodType * ptr = static_cast< MethodType * >( m_methods[methodName] );
 		if (!ptr) {
-			throw error("Method '" + methodName + "' not found in '" + name() + "' metaclass");
+			throw Error("Method '" + methodName + "' not found in '" + name() + "' metaclass");
 		}
 		return ptr->call(instance,p1);
 	}
@@ -263,7 +283,7 @@ public:
 
 		MethodType * ptr = static_cast< MethodType * >( m_methods[methodName] );
 		if (!ptr) {
-			throw error("Method '" + methodName + "' not found in '" + name() + "' metaclass");
+			throw Error("Method '" + methodName + "' not found in '" + name() + "' metaclass");
 		}
 		return ptr->call(instance,p1,p2);
 	}
@@ -395,6 +415,56 @@ public:
 		return boost::any();
 	}
 
+	/**
+	 * \brief Adds a owned property to this metatype
+	 * \param name the name given to the property
+	 * \param prop the metaproperty object
+	 */
+	void
+	addProperty( std::string name, Property * prop) {
+		properties()[name] = prop;
+		m_ownedProperties[ name ] = prop;
+	}
+
+	/**
+	 * \brief Deletes a owned property of this metatype
+	 * \param name of property to delete
+	 */
+	void
+	deleteProperty( std::string name ) {
+		PropertyMap::iterator elem = m_ownedProperties.find( name );
+		if ( elem != m_ownedProperties.end() ) {
+			properties().erase( name );
+			delete elem->second;
+			m_ownedProperties.erase( elem );
+		}
+	}
+
+	/**
+	 * \brief Adds a owned method to this metatype
+	 * \param name the name given to the method
+	 * \param meth the metamethod object
+	 */
+	void
+	addMethod( std::string name, Method * meth) {
+		m_methods[name] = meth;
+		m_ownedMethods[ name ] = meth;
+	}
+
+	/**
+	 * \brief Deletes a owned method of this metatype
+	 * \param name of method to delete
+	 */
+	void
+	deleteMethod( std::string name ) {
+		MethodMap::iterator elem = m_ownedMethods.find( name );
+		if ( elem != m_ownedMethods.end() ) {
+			methods().erase( name );
+			delete elem->second;
+			m_ownedMethods.erase( elem );
+		}
+	}
+
 protected:
 	friend class Reflector;
 	friend class MetaPointerType;
@@ -498,18 +568,6 @@ protected:
 			return copyFromInstance( inst );
 		else
 			return boost::any();
-	}
-
-	void
-	set_property( std::string name, Property * prop) {
-		properties()[name] = prop;
-		m_ownedProperties[ name ] = prop;
-	}
-
-	void
-	set_method( std::string name, Method * meth) {
-		m_methods[name] = meth;
-		m_ownedMethods[ name ] = meth;
 	}
 
 	std::string

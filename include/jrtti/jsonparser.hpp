@@ -110,7 +110,7 @@ private:
 				closeSymbol = ']';
 			}
 			else {
-				throw error( "Unknown closing symbol" );
+				throw Error( "Unknown closing symbol" );
 			}
 		}
 		int count = 0;

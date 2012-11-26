@@ -11,17 +11,19 @@
 #include "custommetaclass.hpp"
 #include "collection.hpp"
 #include "metaobject.hpp"
+#include "property.hpp"
 #include <typeinfo>
 
 namespace jrtti {
 
+typedef std::map< std::string, Metatype * > TypeMap;
+
 /**
  * \brief The jrtti engine
  */
-class Reflector
+class JRTTI_API Reflector
 {
 public:
-	typedef std::map< std::string, Metatype * > TypeMap;
 
 	~Reflector()
 	{
@@ -38,11 +40,21 @@ public:
 		register_defaults();
 	}
 
+	const TypeMap&
+	metatypes() {
+		return _meta_types;
+	}
+
 	static Reflector&
-	instance() {
+	instance()
+#ifndef JRTTI_SINGLETON_DEFINED	
+	{
 		static Reflector inst;
 		return inst;
 	}
+#else
+	;
+#endif
 
 	template <typename C>
 	CustomMetaclass<C>&
@@ -194,10 +206,15 @@ private:
 
 	void
 	register_defaults(){
-		internal_declare< int >( new MetaInt() );
-		internal_declare< char >( new MetaChar() );
 		internal_declare< bool >( new MetaBool() );
+		internal_declare< char >( new MetaChar() );
+		internal_declare< short >( new MetaShort() );
+		internal_declare< int >( new MetaInt() );
+		internal_declare< long >( new MetaLong() );
+		internal_declare< float >( new MetaFloat() );
 		internal_declare< double >( new MetaDouble() );
+		internal_declare< long double >( new MetaLongDouble() );
+		internal_declare< wchar_t >( new MetaWchar_t() );
 		internal_declare< std::string >( new MetaString() );
 	}
 
@@ -232,7 +249,6 @@ private:
 
 	friend AddressRefMap& _addressRefMap();
 
-	inline
 	AddressRefMap&
 	_addressRefMap() {
 		return m_addressRefs;
@@ -240,7 +256,6 @@ private:
 
 	friend NameRefMap& _nameRefMap();
 
-	inline
 	NameRefMap&
 	_nameRefMap() {
 		return m_nameRefs;
@@ -252,7 +267,6 @@ private:
 	std::vector< std::string >	m_prefixDecorators;
 	PendingProps				m_pendingProperties;
 };
-
 //------------------------------------------------------------------------------
 }; //namespace jrtti
 

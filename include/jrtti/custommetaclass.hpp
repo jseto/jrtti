@@ -22,6 +22,15 @@ public:
 #endif
 	}
 
+	bool
+	isAbstract() {
+#ifdef BOOST_NO_IS_ABSTRACT
+		return IsAbstractT::value;
+#else
+		return boost::is_abstract< ClassT >::value;
+#endif
+	}
+
 	struct detail
 	{
 		template <typename >
@@ -164,7 +173,7 @@ public:
 			p->setMode( Property::Writable );
 			p->setMode( Property::Readable );
 			p->annotations( annotations );
-			set_property(name, p);
+			addProperty(name, p);
 		}
 		return *this;
 	}
@@ -332,7 +341,7 @@ private:
 		m->name(name);
 		m->function(function);
 		m->annotations( annotations );
-		set_method(name, m);
+		addMethod(name, m);
 		return *this;
 	}
 
@@ -347,7 +356,7 @@ private:
 			p->getter(getter);
 			p->name(name);
 			p->annotations( annotations );
-			set_property(name, p);
+			addProperty(name, p);
 		}
 		return *this;
 	}

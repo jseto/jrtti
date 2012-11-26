@@ -37,8 +37,8 @@ class MetaTypeTest : public testing::Test {
 	}
 
 	// Declares the variables your tests want to use.
-		Sample sample;
-		SampleDerived sampleDerived;
+	Sample sample;
+	SampleDerived sampleDerived;
 };
 
 TEST_F(MetaTypeTest, InvertedDeclaration) {
@@ -473,6 +473,33 @@ TEST_F(MetaTypeTest, parentCheck) {
 	EXPECT_FALSE( mt_date.isDerivedFrom( mt_sample ) );
 	EXPECT_TRUE( jrtti::metatype< SampleDerived >().isDerivedFrom( mt_sample ) );
 	EXPECT_TRUE( jrtti::metatype< SampleDerived >().isDerivedFrom< SampleBase >() );
+
+	Metatype &mtp_sample = jrtti::metatype<Sample *>();
+	Metatype &mtp_date = jrtti::metatype<Date*>();
+
+	EXPECT_FALSE( mtp_date.isDerivedFrom( mtp_sample ) );
+	EXPECT_TRUE( jrtti::metatype< SampleDerived * >().isDerivedFrom( mtp_sample ) );
+	EXPECT_TRUE( jrtti::metatype< SampleDerived *>().isDerivedFrom< SampleBase * >() );
+}
+
+TEST_F(MetaTypeTest, queryTypeAttributes) {
+// isAbstract
+	EXPECT_FALSE( jrtti::metatype<Date>().isAbstract() );
+	EXPECT_TRUE( jrtti::metatype<SampleBase>().isAbstract() );
+
+	EXPECT_FALSE( jrtti::metatype<Date *>().isAbstract() );
+	EXPECT_TRUE( jrtti::metatype<SampleBase *>().isAbstract() );
+
+// isCollection
+	jrtti::declareCollection< MyCollection >()
+		.property( "intMember", &MyCollection::intMember );
+
+	EXPECT_FALSE( jrtti::metatype<Sample>().isCollection() );
+	EXPECT_TRUE( jrtti::metatype< MyCollection >().isCollection() );
+
+	EXPECT_FALSE( jrtti::metatype<Sample *>().isCollection() );
+	EXPECT_TRUE( jrtti::metatype< MyCollection *>().isCollection() );
+
 }
 
 struct TestUntyped {
