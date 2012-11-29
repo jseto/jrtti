@@ -140,7 +140,7 @@ public:
 	boost::any
 	_fromStr( const boost::any& instance, const std::string& str, bool doCopyFromInstance = true ) {
 
-		return str == "true";
+		return str[0] == 't';
 	}
 
 	virtual
