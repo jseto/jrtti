@@ -108,6 +108,7 @@
     <ClInclude Include="..\include\jrtti\method.hpp" />
     <ClInclude Include="..\include\jrtti\property.hpp" />
     <ClInclude Include="..\include\jrtti\reflector.hpp" />
+    <ClInclude Include="..\include\jrtti\serializer.hpp" />
     <ClInclude Include="sample.h" />
     <ClInclude Include="test_jrtti.h" />
   </ItemGroup>
