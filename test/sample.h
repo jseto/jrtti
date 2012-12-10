@@ -1,14 +1,14 @@
 //---------------------------------------------------------------------------
 
-#ifndef sampleH
-#define sampleH
+#ifndef _l_sampleH
+#define _l_sampleH
 //---------------------------------------------------------------------------
 
-#include <jrtti/jrtti.hpp>
-#include <jrtti/base64.hpp>
 #include <iostream>
 #include <vector>
-#include <string.h>
+#include <string>
+#include <jrtti/jrtti.hpp>
+#include <jrtti/base64.hpp>
 
 struct Point
 {

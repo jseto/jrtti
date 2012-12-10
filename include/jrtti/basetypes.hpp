@@ -50,7 +50,7 @@ protected:
 	_methods() {
 		return m_baseType._methods();
 	}
-
+/*
 	virtual
 	std::string
 	_toStr( const boost::any & value, bool formatForStreaming ){
@@ -97,7 +97,7 @@ protected:
 		}
 		return any_ptr;
 	}
-
+*/
 	virtual
 	void *
 	get_instance_ptr( const boost::any & value ) {
@@ -133,16 +133,16 @@ public:
 
 	virtual
 	std::string
-	_toStr( const boost::any & value, bool formatForStreaming ){
+	toStr( const boost::any & value ){
 		return boost::any_cast<bool>(value) ? "true" : "false";
 	}
-
+/*
 	boost::any
 	_fromStr( const boost::any& instance, const std::string& str, bool doCopyFromInstance = true ) {
 
 		return str == "true";
 	}
-
+	*/
 	virtual
 	boost::any
 	create() {
@@ -162,15 +162,15 @@ public:
 
 	virtual
 	std::string
-	_toStr( const boost::any & value, bool formatForStreaming ){
+	toStr( const boost::any & value ){
 		return numToStr(boost::any_cast<char>(value));
 	}
-
+/*
 	boost::any
 	_fromStr( const boost::any& instance, const std::string& str, bool doCopyFromInstance = true ) {
 		return strToNum<char>( str );
 	}
-
+	*/
 	virtual
 	boost::any
 	create()
@@ -191,16 +191,16 @@ public:
 
 	virtual
 	std::string
-	_toStr( const boost::any & value, bool formatForStreaming ){
+	toStr( const boost::any & value ){
 		return numToStr(boost::any_cast<short>(value));
 	}
-
+/*
 	boost::any
 	_fromStr( const boost::any& instance, const std::string& str, bool doCopyFromInstance = true ) {
 
 		return strToNum<short>( str );
 	}
-
+	*/
 	virtual
 	boost::any
 	create()
@@ -221,16 +221,16 @@ public:
 
 	virtual
 	std::string
-	_toStr( const boost::any & value, bool formatForStreaming ){
+	toStr( const boost::any & value ){
 		return numToStr(boost::any_cast<int>(value));
 	}
-
+/*
 	boost::any
 	_fromStr( const boost::any& instance, const std::string& str, bool doCopyFromInstance = true ) {
 
 		return strToNum<int>( str );
 	}
-
+	*/
 	virtual
 	boost::any
 	create()
@@ -251,16 +251,16 @@ public:
 
 	virtual
 	std::string
-	_toStr( const boost::any & value, bool formatForStreaming ){
+	toStr( const boost::any & value ){
 		return numToStr(boost::any_cast<long>(value));
 	}
-
+/*
 	boost::any
 	_fromStr( const boost::any& instance, const std::string& str, bool doCopyFromInstance = true ) {
 
 		return strToNum<long>( str );
 	}
-
+	*/
 	virtual
 	boost::any
 	create()
@@ -281,16 +281,16 @@ public:
 
 	virtual
 	std::string
-	_toStr( const boost::any & value, bool formatForStreaming ){
+	toStr( const boost::any & value ){
 		return numToStr(boost::any_cast<float>(value));
 	}
-
+/*
 	boost::any
 	_fromStr( const boost::any& instance, const std::string& str, bool doCopyFromInstance = true ) {
 
 		return strToNum<float>( str );
 	}
-
+	*/
 	virtual
 	boost::any
 	create() {
@@ -311,16 +311,16 @@ public:
 
 	virtual
 	std::string
-	_toStr( const boost::any & value, bool formatForStreaming ){
+	toStr( const boost::any & value ){
 		return numToStr(boost::any_cast<double>(value));
 	}
-
+/*
 	boost::any
 	_fromStr( const boost::any& instance, const std::string& str, bool doCopyFromInstance = true ) {
 
 		return strToNum<double>( str );
 	}
-
+	*/
 	virtual
 	boost::any
 	create() {
@@ -340,16 +340,16 @@ public:
 
 	virtual
 	std::string
-	_toStr( const boost::any & value, bool formatForStreaming ){
+	toStr( const boost::any & value ){
 		return numToStr(boost::any_cast<long double>(value));
 	}
-
+/*
 	boost::any
 	_fromStr( const boost::any& instance, const std::string& str, bool doCopyFromInstance = true ) {
 
 		return strToNum<long double>( str );
 	}
-
+	*/
 	virtual
 	boost::any
 	create() {
@@ -369,16 +369,16 @@ public:
 
 	virtual
 	std::string
-	_toStr( const boost::any & value, bool formatForStreaming ){
+	toStr( const boost::any & value ){
 		return numToStr((int)boost::any_cast<wchar_t>(value));
 	}
-
+/*
 	boost::any
 	_fromStr( const boost::any& instance, const std::string& str, bool doCopyFromInstance = true ) {
 		int dummy = strToNum<int>( str );
 		return (wchar_t)dummy;
 	}
-
+	*/
 	virtual
 	boost::any
 	create() {
@@ -392,23 +392,23 @@ public:
 
 	virtual
 	std::string
-	_toStr( const boost::any & value, bool formatForStreaming ) {
-		return '"' + addEscapeSeq( boost::any_cast<std::string>(value) ) + '"';
+	toStr( const boost::any & value ) {
+		return '"' + JSONParser::addEscapeSeq( boost::any_cast<std::string>(value) ) + '"';
 	}
-
+/*
 	boost::any
 	_fromStr( const boost::any& instance, const std::string& str, bool doCopyFromInstance = true ) {
 
 		return removeEscapeSeq( str );
 	}
-
+	*/
 	virtual
 	boost::any
 	create() {
 		return new std::string();
 	}
 private:
-	std::string
+/*	std::string
 	addEscapeSeq( const std::string& s ) {
 		std::ostringstream ss;
 		for (std::string::const_iterator iter = s.begin(); iter != s.end(); ++iter) {
@@ -468,7 +468,7 @@ private:
 			}
 		}
 		return ss.str();
-    }
+    }*/
 };
 
 //------------------------------------------------------------------------------

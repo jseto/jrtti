@@ -103,12 +103,14 @@
     <ClInclude Include="..\include\jrtti\helpers.hpp" />
     <ClInclude Include="..\include\jrtti\jrtti.hpp" />
     <ClInclude Include="..\include\jrtti\jsonparser.hpp" />
+    <ClInclude Include="..\include\jrtti\JSONSerializer.hpp" />
     <ClInclude Include="..\include\jrtti\metaobject.hpp" />
     <ClInclude Include="..\include\jrtti\metatype.hpp" />
     <ClInclude Include="..\include\jrtti\method.hpp" />
     <ClInclude Include="..\include\jrtti\property.hpp" />
     <ClInclude Include="..\include\jrtti\reflector.hpp" />
     <ClInclude Include="..\include\jrtti\serializer.hpp" />
+    <ClInclude Include="..\include\jrtti\serializerImpl.hpp" />
     <ClInclude Include="sample.h" />
     <ClInclude Include="test_jrtti.h" />
   </ItemGroup>

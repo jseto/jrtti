@@ -30,11 +30,10 @@ public:
 		return true;
 	}
 
-protected:
 	virtual
 	std::string
-	_toStr( const boost::any & value, bool formatForStreaming ){
-		std::string props_str = Metatype::_toStr( value, formatForStreaming );
+	toStr( const boost::any & value ){
+		std::string props_str = Metatype::toStr( value );
 		ClassT& _collection = getReference( value );
 
 		////////// COMPILER ERROR   //// Collections must declare a value_type type. See documentation for details.
@@ -51,12 +50,14 @@ protected:
 			if ( pmit != mt->_properties().end() ) {
 				mt = &Reflector::instance().metatype( pmit->second->get< std::string >( getElementPtr( *it ) ) );
 			}
-			str += ident( mt->_toStr( *it, formatForStreaming ) );
+			str += ident( mt->toStr( *it) );
 		}
 		str += "\n]";
 		return "{\n" + ident( "\"properties\": " +props_str ) + ",\n" + ident( "\"elements\": " + str ) + "\n}";
 	}
 
+protected:
+/*
 	virtual
 	boost::any
 	_fromStr( const boost::any& instance, const std::string& str, bool doCopyFromInstance = true ) {
@@ -93,7 +94,7 @@ protected:
 		}
 		return boost::any();
 	}
-
+	*/
 	virtual
 	boost::any
 	create() {

@@ -1,4 +1,5 @@
 //---------------------------------------------------------------------------
+#include <jrtti/jrtti.hpp>
 #include "sample.h"
 
 void declare()
@@ -107,10 +108,10 @@ void useCase() {
 
 	//get a string representation of s object
 	std::string contens = mt.toStr( &s );
-	//get a streamable string representation of s objecy
+/*	//get a streamable string representation of s objecy
 	contens = mt.toStr( &s, true );
 	//and set the s object from a string representation
 	mt.fromStr( &s, contens );
-	std::cout << contens << std::endl;
+	std::cout << contens << std::endl;*/
 }
 

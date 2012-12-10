@@ -2,6 +2,8 @@
 #define jsonparserH
 
 #include <ctype.h>
+#include <iomanip>
+#include "exception.hpp"
 #include "helpers.hpp"
 
 namespace jrtti {
@@ -35,6 +37,35 @@ public:
 				moveToEndChar();
             }
 		}
+	}
+
+	static
+	std::string
+	addEscapeSeq( const std::string& s ) {
+		std::ostringstream ss;
+		for (std::string::const_iterator iter = s.begin(); iter != s.end(); ++iter) {
+			switch (*iter) {
+				case '"': ss << "\\\""; break;
+				case '\\': ss << "\\\\"; break;
+				case '/': ss << "\\/"; break;
+				case '\b': ss << "\\b"; break;
+				case '\f': ss << "\\f"; break;
+				case '\n': ss << "\\n"; break;
+				case '\r': ss << "\\r"; break;
+				case '\t': ss << "\\t"; break;
+				default: {
+					if ( *iter < 0x20 ) {
+						ss << "\\u" << std::setfill('0') << std::setw(4) << std::hex << unsigned( *iter );
+					}
+					else {
+						ss << *iter;
+					}
+					break;
+				}
+			}
+		}
+		std::string ret = ss.str();
+		return ss.str();
 	}
 
 private:

@@ -9,6 +9,7 @@
 #include "helpers.hpp"
 #include "property.hpp"
 #include "method.hpp"
+#include "serializer.hpp"
 #include "jsonparser.hpp"
 
 namespace jrtti {
@@ -364,10 +365,46 @@ public:
 	 * In this case, the property is checked to see if it has the PropertyCategory::nonstreamable
 	 * \return the string representation
 	 */
-	std::string
+/*	std::string
 	toStr(const boost::any & instance, bool formatForStreaming = false ) {
-		_addressRefMap().clear();
+//		_addressRefMap().clear();
 		return _toStr( instance, formatForStreaming );
+	}
+*/	virtual
+	std::string
+	toStr( const boost::any & instance ) {
+		void * inst = get_instance_ptr(instance);
+		std::string result = "{\n";
+		bool need_nl = false;
+
+/*		AddressRefMap::iterator it = _addressRefMap().find( inst );
+		if ( it == _addressRefMap().end() ) {
+			std::string idStr = numToStr<int>( _addressRefMap().size() );
+			_addressRefMap()[ inst ] = idStr;
+			if ( formatForStreaming ) {
+				need_nl = true;
+				result += "\t\"$id\": \"" + idStr + "\"";
+			}
+		}
+		*/
+		for( PropertyMap::iterator it = _properties().begin(); it != _properties().end(); ++it) {
+			Property * prop = it->second;
+			if ( prop && prop->isReadable() ) {
+				if (need_nl) result += ",\n";
+				need_nl = true;
+
+				std::string addToResult;
+				StringifyDelegateBase * stringifyDelegate = prop->annotations().getFirst< StringifyDelegateBase >();
+				if ( stringifyDelegate ) {
+					addToResult = stringifyDelegate->toStr( inst );
+				}
+				else {
+					addToResult = prop->metatype().toStr( prop->get(inst) );
+				}
+				result += ident( "\"" + prop->name() + "\"" + ": " + addToResult );
+			}
+		}
+		return result += "\n}";
 	}
 
 	/**
@@ -378,10 +415,15 @@ public:
 	 * \param instance the object instance to fill
 	 * \param str a JSON formated string with data to fill the object
 	 */
-	void
+/*	void
 	fromStr( const boost::any & instance, const std::string& str ) {
-		_nameRefMap().clear();
+//		_nameRefMap().clear();
 		_fromStr( instance, str, false );
+	}
+	*/
+	void write( Writer * writer, const boost::any& instance ) {
+		void * inst = get_instance_ptr(instance);
+		writer->writeObject( *this, inst );
 	}
 
 	const PropertyMap &
@@ -392,24 +434,6 @@ public:
 	const MethodMap &
 	methods() {
 		return _methods();
-	}
-
-	virtual
-	void *
-	get_instance_ptr(const boost::any& content) {
-		return NULL;
-	}
-
-	virtual
-	boost::any
-	copyFromInstance( void * inst ) {
-		return boost::any();
-	}
-
-	virtual
-	boost::any
-	copyFromInstanceAsPtr( void * inst ) {
-		return boost::any();
 	}
 
 	/**
@@ -502,44 +526,24 @@ protected:
 	}
 
 	virtual
-	std::string
-	_toStr( const boost::any & instance, bool formatForStreaming ) {
-		void * inst = get_instance_ptr(instance);
-		std::string result = "{\n";
-		bool need_nl = false;
-
-		AddressRefMap::iterator it = _addressRefMap().find( inst );
-		if ( it == _addressRefMap().end() ) {
-			std::string idStr = numToStr<int>( _addressRefMap().size() );
-			_addressRefMap()[ inst ] = idStr;
-			if ( formatForStreaming ) {
-				need_nl = true;
-				result += "\t\"$id\": \"" + idStr + "\"";
-			}
-		}
-
-		for( PropertyMap::iterator it = _properties().begin(); it != _properties().end(); ++it) {
-			Property * prop = it->second;
-			if ( prop && prop->isReadable() ) {
-				if ( !( formatForStreaming && prop->annotations().has< NoStreamable >() ) ) {
-					if (need_nl) result += ",\n";
-					need_nl = true;
-
-					std::string addToResult;
-					StringifyDelegateBase * stringifyDelegate = prop->annotations().getFirst< StringifyDelegateBase >();
-					if ( stringifyDelegate ) {
-						addToResult = stringifyDelegate->toStr( inst );
-					}
-					else {
-						addToResult = prop->metatype()._toStr( prop->get(inst), formatForStreaming );
-					}
-					result += ident( "\"" + prop->name() + "\"" + ": " + addToResult );
-				}
-			}
-		}
-		return result += "\n}";
+	void *
+	get_instance_ptr(const boost::any& content) {
+		return NULL;
 	}
 
+	virtual
+	boost::any
+	copyFromInstance( void * inst ) {
+		return boost::any();
+	}
+
+	virtual
+	boost::any
+	copyFromInstanceAsPtr( void * inst ) {
+		return boost::any();
+	}
+
+/*
 	virtual
 	boost::any
 	_fromStr( const boost::any & instance, const std::string& str, bool doCopyFromInstance = true ) {
@@ -577,7 +581,7 @@ protected:
 		else
 			return boost::any();
 	}
-
+*/
 	std::string
 	ident( std::string str ) {
 		std::string result = "\t";

@@ -45,8 +45,8 @@
 /// \example sample.cpp
 
 namespace jrtti {
-	typedef std::map< void *, std::string > AddressRefMap;
-	typedef std::map< std::string, void * > NameRefMap;
+//	typedef std::map< void *, std::string > AddressRefMap;
+//	typedef std::map< std::string, void * > NameRefMap;
 
 	class Error;
 	class Metatype;
@@ -55,8 +55,8 @@ namespace jrtti {
 	template< typename C > class Metacollection;
 	template <typename C> Metacollection<C>& declareCollection( const Annotations& annotations = Annotations() );
 
-	AddressRefMap&	_addressRefMap();
-	NameRefMap&	_nameRefMap();
+//	AddressRefMap&	_addressRefMap();
+//	NameRefMap&	_nameRefMap();
 }
 
 #include "reflector.hpp"
@@ -156,7 +156,7 @@ namespace jrtti {
 	demangle( const std::string& name ) {
 		return Reflector::instance().demangle( name );
 	}
-
+/*
 	inline
 	AddressRefMap&
 	_addressRefMap() {
@@ -167,7 +167,7 @@ namespace jrtti {
 	NameRefMap&
 	_nameRefMap() {
 		return Reflector::instance()._nameRefMap();
-	}
+	}*/
 } //namespace jrtti
 
 #if defined (JRTTI_EXPORT) || defined(JRTTI_IMPORT)
