@@ -31,9 +31,35 @@ public:
 	}
 
 	virtual
+	void 
+	write( Writer * writer, const boost::any& instance ) {
+//		std::string props_str = Metatype::write( writer, instance );
+		ClassT& _collection = getReference( instance );
+
+		////////// COMPILER ERROR   //// Collections must declare a value_type type. See documentation for details.
+		Metatype * mt = &jrtti::metatype< typename ClassT::value_type >();
+		writer->collectionBegin();
+
+		////////// COMPILER ERROR   //// Collections must declare a iterator type and a begin and end methods. See documentation for details.
+		for ( typename ClassT::iterator it = _collection.begin() ; it != _collection.end(); ++it ) {
+			writer->elementBegin();
+			PropertyMap::iterator pmit = mt->_properties().find( "__typeInfoName" );
+			if ( pmit != mt->_properties().end() ) {
+				mt = &Reflector::instance().metatype( pmit->second->get< std::string >( getElementPtr( *it ) ) );
+			}
+			mt->write( writer, *it );
+			writer->elementEnd();
+		}
+		writer->collectionEnd();
+
+//		return "{\n" + ident( "\"properties\": " +props_str ) + ",\n" + ident( "\"elements\": " + str ) + "\n}";
+	}
+
+protected:
+	virtual
 	std::string
-	toStr( const boost::any & value ){
-		std::string props_str = Metatype::toStr( value );
+	_toStr( const boost::any & value ){
+//		std::string props_str = Metatype::_toStr( value );
 		ClassT& _collection = getReference( value );
 
 		////////// COMPILER ERROR   //// Collections must declare a value_type type. See documentation for details.
@@ -50,13 +76,12 @@ public:
 			if ( pmit != mt->_properties().end() ) {
 				mt = &Reflector::instance().metatype( pmit->second->get< std::string >( getElementPtr( *it ) ) );
 			}
-			str += ident( mt->toStr( *it) );
+			str += JSONParser::indent( mt->_toStr( *it) );
 		}
 		str += "\n]";
-		return "{\n" + ident( "\"properties\": " +props_str ) + ",\n" + ident( "\"elements\": " + str ) + "\n}";
+//		return "{\n" + JSONParser::indent( "\"properties\": " +props_str ) + ",\n" + JSONParser::indent( "\"elements\": " + str ) + "\n}";
+		return str;
 	}
-
-protected:
 /*
 	virtual
 	boost::any

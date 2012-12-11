@@ -10,13 +10,14 @@ namespace jrtti {
 class JSONWriter : public GenericWriter {
 public:
 	JSONWriter( std::ostream& m_stream ) 
-		: m_stream( m_stream )
+		: m_stream( m_stream ),
+		  indentLevel( 0 )
 	{}
 
 	virtual
 	void 
 	writeBool( bool value ) {
-		m_stream << numToStr( value );
+		m_stream << ( value? "true" : "false" );
 	}
 
 	virtual
@@ -76,35 +77,76 @@ public:
 	virtual
 	void
 	propertyBegin( const std::string& propName, const Metatype& propMetatype ) {
-		if (need_nl) m_stream << ",\n";
+		if (need_nl) {
+			m_stream << ",\n";
+		}
 		need_nl = true;
-		/*ident*/( "\"" + propName + "\"" + ": " );
+//		++identLevel;
+		indent();
+		m_stream << "\"" << propName << "\": ";
 	}
 
 	virtual 
 	void
 	propertyEnd() {
+//		--identLevel;
 	}
 
 	virtual
 	void
 	collectionBegin() {
+		m_stream << "[\n";
+		col_need_nl = false;
+		++indentLevel;
+		indent();
 	}
 
 	virtual 
 	void
 	collectionEnd() {
+		--indentLevel;
+		m_stream << "\n";
+		indent() << "]";
+	}
+
+	virtual
+	void
+	elementBegin() {
+		if (col_need_nl) {
+			m_stream << ",\n";
+			indent();
+		}
+		col_need_nl = true;
+//		ident();
+	}
+
+	virtual
+	void
+	elementEnd() {
+//		ident();
+	}
+
+	virtual
+	void
+	writeNullPtr() {
+		m_stream << "NULL";
 	}
 
 protected:
 	virtual
-	void
+	bool
 	writeObjectId( void * obj ) {
+		indent();
 		std::string objId;
-		if ( !isRegistered( obj, objId ) ) {
+		bool registered = isRegistered( obj, objId ); 
+		if ( !registered ) {
 			need_nl = true;
-			m_stream << "\t\"$id\": \"" << objId << "\"";
+			m_stream << "\"$id\": \"" << objId << "\"";
 		}
+		else {
+			m_stream << "\"$ref\": \"" << objId << "\"";
+		}
+		return registered;
 	}
 
 	virtual
@@ -112,16 +154,32 @@ protected:
 	writeObjectBegin() {
 		need_nl = false;
 		m_stream << "{\n";
+//		ident();
+		++indentLevel;
 	}
 
 	virtual
 	void
 	writeObjectEnd() {
+		--indentLevel;
+		m_stream << "\n";
+		indent();
+		m_stream << "}";
+		need_nl = true;
 	}
 
 private:
+	std::ostream&  
+	indent() {
+		for ( int i = 0; i < indentLevel; ++i )
+			m_stream << "\t";
+		return m_stream;
+	}
+
 	std::ostream& m_stream;
 	bool need_nl;
+	bool col_need_nl;
+	int indentLevel;
 };
 
 

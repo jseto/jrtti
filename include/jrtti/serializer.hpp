@@ -16,13 +16,16 @@ namespace jrtti {
 
 class Metatype;
 
-
 class Writer {
 public:
 	virtual
 	void 
 	writeObject( const Metatype& mt, void * instance ) = 0;
-
+/*
+	virtual
+	void
+	writeCollection( const Metatype& mc, void * instance ) = 0;
+*/
 	virtual
 	void 
 	writeBool( bool value ) = 0;
@@ -61,6 +64,10 @@ public:
 
 	virtual
 	void
+	writeString( std::string value ) = 0;
+
+	virtual
+	void
 	propertyBegin( const std::string& propName, const Metatype& propMetatype ) = 0;
 
 	virtual 
@@ -75,6 +82,17 @@ public:
 	void
 	collectionEnd() = 0;
 
+	virtual
+	void
+	elementBegin() = 0;
+
+	virtual
+	void
+	elementEnd() = 0;
+
+	virtual
+	void
+	writeNullPtr() = 0;
 
 protected:
 	void
@@ -88,6 +106,11 @@ protected:
 		return *m_rootMetatype;
 	}
 
+	void
+	clearRefs() {
+		m_objectRegistry.clear();
+	}
+
 	bool
 	isRegistered( void * obj, std::string& objId ) {
 		std::map< void *, std::string >::iterator it;
@@ -97,7 +120,8 @@ protected:
 			return true;
 		}
 		else {
-			m_objectRegistry[ obj ] = buildObjectId( obj );
+			objId = buildObjectId( obj );
+			m_objectRegistry[ obj ] = objId;
 			return false;
 		}
 	}
@@ -109,7 +133,7 @@ protected:
 	}
 
 	virtual
-	void
+	bool
 	writeObjectId( void * obj ) = 0;
 
 	virtual

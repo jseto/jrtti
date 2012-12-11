@@ -126,8 +126,7 @@ private:
 /**
  * \brief Annotation for non streamable properties
  *
- * A property with annotation NoStreamable will not be streamed or returned by
- * method Metatype::toStr with parameter formatForStreaming set to true
+ * A property with annotation NoStreamable will not be streamed
  */
 class NoStreamable : public Annotation {
 };

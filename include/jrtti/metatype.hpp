@@ -361,50 +361,12 @@ public:
 	 *
 	 * Retrieves a string representation of the object contens in a JSON format.
 	 * \param instance the object instance to retrieve
-	 * \param formatForStreaming if true, formats the string to be passed to a stream.
-	 * In this case, the property is checked to see if it has the PropertyCategory::nonstreamable
 	 * \return the string representation
 	 */
-/*	std::string
-	toStr(const boost::any & instance, bool formatForStreaming = false ) {
-//		_addressRefMap().clear();
-		return _toStr( instance, formatForStreaming );
-	}
-*/	virtual
 	std::string
-	toStr( const boost::any & instance ) {
-		void * inst = get_instance_ptr(instance);
-		std::string result = "{\n";
-		bool need_nl = false;
-
-/*		AddressRefMap::iterator it = _addressRefMap().find( inst );
-		if ( it == _addressRefMap().end() ) {
-			std::string idStr = numToStr<int>( _addressRefMap().size() );
-			_addressRefMap()[ inst ] = idStr;
-			if ( formatForStreaming ) {
-				need_nl = true;
-				result += "\t\"$id\": \"" + idStr + "\"";
-			}
-		}
-		*/
-		for( PropertyMap::iterator it = _properties().begin(); it != _properties().end(); ++it) {
-			Property * prop = it->second;
-			if ( prop && prop->isReadable() ) {
-				if (need_nl) result += ",\n";
-				need_nl = true;
-
-				std::string addToResult;
-				StringifyDelegateBase * stringifyDelegate = prop->annotations().getFirst< StringifyDelegateBase >();
-				if ( stringifyDelegate ) {
-					addToResult = stringifyDelegate->toStr( inst );
-				}
-				else {
-					addToResult = prop->metatype().toStr( prop->get(inst) );
-				}
-				result += ident( "\"" + prop->name() + "\"" + ": " + addToResult );
-			}
-		}
-		return result += "\n}";
+	toStr(const boost::any & instance ) {
+		_addressRefMap().clear();
+		return _toStr( instance );
 	}
 
 	/**
@@ -421,7 +383,9 @@ public:
 		_fromStr( instance, str, false );
 	}
 	*/
-	void write( Writer * writer, const boost::any& instance ) {
+	virtual
+	void 
+	write( Writer * writer, const boost::any& instance ) {
 		void * inst = get_instance_ptr(instance);
 		writer->writeObject( *this, inst );
 	}
@@ -543,6 +507,42 @@ protected:
 		return boost::any();
 	}
 
+	virtual
+	std::string
+	_toStr( const boost::any & instance ) {
+		void * inst = get_instance_ptr(instance);
+		std::string result = "{\n";
+		bool need_nl = false;
+
+		AddressRefMap::iterator it = _addressRefMap().find( inst );
+		if ( it == _addressRefMap().end() ) {
+			std::string idStr = numToStr<int>( _addressRefMap().size() );
+			_addressRefMap()[ inst ] = idStr;
+/*			if ( formatForStreaming ) {
+				need_nl = true;
+				result += "\t\"$id\": \"" + idStr + "\"";
+			}
+*/		}
+
+		for( PropertyMap::iterator it = _properties().begin(); it != _properties().end(); ++it) {
+			Property * prop = it->second;
+			if ( prop && prop->isReadable() ) {
+				if (need_nl) result += ",\n";
+				need_nl = true;
+
+				std::string addToResult;
+				StringifyDelegateBase * stringifyDelegate = prop->annotations().getFirst< StringifyDelegateBase >();
+				if ( stringifyDelegate ) {
+					addToResult = stringifyDelegate->toStr( inst );
+				}
+				else {
+					addToResult = prop->metatype()._toStr( prop->get(inst) );
+				}
+				result += JSONParser::indent( "\"" + prop->name() + "\"" + ": " + addToResult );
+			}
+		}
+		return result += "\n}";
+	}
 /*
 	virtual
 	boost::any
@@ -582,18 +582,6 @@ protected:
 			return boost::any();
 	}
 */
-	std::string
-	ident( std::string str ) {
-		std::string result = "\t";
-		for (std::string::iterator it = str.begin(); it !=str.end() ; ++it) {
-			if ( *it == '\n' ) {
-				result += "\n\t";
-			}
-			else
-				result += *it;
-		}
-		return result;
-	}
 
 	virtual
 	boost::any

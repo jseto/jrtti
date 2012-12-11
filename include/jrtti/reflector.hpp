@@ -247,13 +247,13 @@ private:
 		m_pendingProperties.erase( ret.first, ret.second );
 	}
 
-/*	friend AddressRefMap& _addressRefMap();
+	friend AddressRefMap& _addressRefMap();
 
 	AddressRefMap&
 	_addressRefMap() {
 		return m_addressRefs;
 	}
-
+/*
 	friend NameRefMap& _nameRefMap();
 
 	NameRefMap&
@@ -261,9 +261,9 @@ private:
 		return m_nameRefs;
 	}
 
-	AddressRefMap				m_addressRefs;
 	NameRefMap					m_nameRefs;
 */	TypeMap						_meta_types;
+	AddressRefMap				m_addressRefs;
 	std::vector< std::string >	m_prefixDecorators;
 	PendingProps				m_pendingProperties;
 };

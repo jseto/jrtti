@@ -339,7 +339,7 @@ TEST_F(MetaTypeTest, Serialize) {
 
 	JSONWriter writer( fs );
 
-	writer.serialize<Sample>( &sample );
+	writer.serialize( &sample );
 
 //	fs << ss;
 /*

@@ -39,7 +39,7 @@ void declare()
 						.property("testBool", &Sample::setBool, &Sample::getBool)
 						.collection("collection", /*&Sample::setCollection, */&Sample::getCollection, jrtti::Annotations() << new jrtti::ForceStreamLoadable() )
 						.property("circularRef", &Sample::circularRef )
-						.property("memoryDump", jrtti::Annotations() << new jrtti::StringifyDelegate<Sample>( &Sample::stringifier, &Sample::deStringifier) )
+//						.property("memoryDump", jrtti::Annotations() << new jrtti::StringifyDelegate<Sample>( &Sample::stringifier, &Sample::deStringifier) )
 						.property("onlySetter", &Sample::setDoubleProp )
 
 						.method<void>("testMethod", &Sample::testFunc,

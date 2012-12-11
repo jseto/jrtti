@@ -68,6 +68,20 @@ public:
 		return ss.str();
 	}
 
+	static
+	std::string
+	indent( std::string str ) {
+		std::string result = "\t";
+		for (std::string::iterator it = str.begin(); it !=str.end() ; ++it) {
+			if ( *it == '\n' ) {
+				result += "\n\t";
+			}
+			else
+				result += *it;
+		}
+		return result;
+	}
+
 private:
 	inline
 	std::string

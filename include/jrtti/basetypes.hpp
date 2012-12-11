@@ -34,7 +34,27 @@ public:
 	isCollection() const {
 		return m_baseType.isCollection();
 	}
+/*	
+	virtual
+	void 
+	write( Writer * writer, const boost::any& value ) {
+		void * inst = get_instance_ptr(value);
 
+		if ( !inst ) {
+			writer->writeNullPtr();
+			return;
+		}
+
+		writer->writeObjectId( inst );
+		AddressRefMap::iterator it = _addressRefMap().find( inst );
+		if ( it == _addressRefMap().end() ) {
+			Metatype::write( writer, value );
+		}
+		else {
+			return "{}";
+		}
+	}
+*/
 protected:
 	Metatype *
 	pointerMetatype() {
@@ -50,27 +70,25 @@ protected:
 	_methods() {
 		return m_baseType._methods();
 	}
-/*
+
 	virtual
 	std::string
-	_toStr( const boost::any & value, bool formatForStreaming ){
+	_toStr( const boost::any & value ){
 		void * inst = get_instance_ptr(value);
 
-		if ( !inst )
+		if ( !inst ) {
 			return "NULL";
+		}
 
 		AddressRefMap::iterator it = _addressRefMap().find( inst );
 		if ( it == _addressRefMap().end() ) {
-			return Metatype::_toStr( value, formatForStreaming );
+			return Metatype::_toStr( value );
 		}
 		else {
-			if ( formatForStreaming )
-				return "{\n\t\"$ref\": \"" + it->second + "\"\n}";
-			else 
-				return "{}";
+			return "{this}";
 		}
 	}
-
+/*
 	virtual
 	boost::any
 	_fromStr( const boost::any& instance, const std::string& str, bool doCopyFromInstance = true ) {
@@ -132,8 +150,21 @@ public:
 	}
 
 	virtual
+	boost::any
+	create() {
+		return new bool;
+	}
+
+	virtual
+	void 
+	write( Writer * writer, const boost::any& value ) {
+		writer->writeBool( boost::any_cast<bool>(value) );
+	}
+
+protected:
+	virtual
 	std::string
-	toStr( const boost::any & value ){
+	_toStr( const boost::any & value ){
 		return boost::any_cast<bool>(value) ? "true" : "false";
 	}
 /*
@@ -143,11 +174,6 @@ public:
 		return str == "true";
 	}
 	*/
-	virtual
-	boost::any
-	create() {
-		return new bool;
-	}
 };
 
 class MetaChar: public Metatype {
@@ -160,11 +186,6 @@ public:
 		return true;
 	}
 
-	virtual
-	std::string
-	toStr( const boost::any & value ){
-		return numToStr(boost::any_cast<char>(value));
-	}
 /*
 	boost::any
 	_fromStr( const boost::any& instance, const std::string& str, bool doCopyFromInstance = true ) {
@@ -176,6 +197,19 @@ public:
 	create()
 	{
 		return new char;
+	}
+
+	virtual
+	void 
+	write( Writer * writer, const boost::any& value ) {
+		writer->writeChar( boost::any_cast<char>(value) );
+	}
+
+protected:
+	virtual
+	std::string
+	_toStr( const boost::any & value ){
+		return numToStr(boost::any_cast<char>(value));
 	}
 };
 
@@ -189,11 +223,6 @@ public:
 		return true;
 	}
 
-	virtual
-	std::string
-	toStr( const boost::any & value ){
-		return numToStr(boost::any_cast<short>(value));
-	}
 /*
 	boost::any
 	_fromStr( const boost::any& instance, const std::string& str, bool doCopyFromInstance = true ) {
@@ -206,6 +235,19 @@ public:
 	create()
 	{
 		return new short;
+	}
+
+	virtual
+	void 
+	write( Writer * writer, const boost::any& value ) {
+		writer->writeShort( boost::any_cast<short>(value) );
+	}
+
+protected:
+	virtual
+	std::string
+	_toStr( const boost::any & value ){
+		return numToStr(boost::any_cast<short>(value));
 	}
 };
 
@@ -220,8 +262,22 @@ public:
 	}
 
 	virtual
+	boost::any
+	create()
+	{
+		return new int;
+	}
+
+	virtual
+	void 
+	write( Writer * writer, const boost::any& value ) {
+		writer->writeInt( boost::any_cast<int>(value) );
+	}
+
+protected:
+	virtual
 	std::string
-	toStr( const boost::any & value ){
+	_toStr( const boost::any & value ){
 		return numToStr(boost::any_cast<int>(value));
 	}
 /*
@@ -231,12 +287,6 @@ public:
 		return strToNum<int>( str );
 	}
 	*/
-	virtual
-	boost::any
-	create()
-	{
-		return new int;
-	}
 };
 
 class MetaLong: public Metatype {
@@ -250,8 +300,22 @@ public:
 	}
 
 	virtual
+	boost::any
+	create()
+	{
+		return new long;
+	}
+
+	virtual
+	void 
+	write( Writer * writer, const boost::any& value ) {
+		writer->writeLong( boost::any_cast<long>(value) );
+	}
+
+protected:
+	virtual
 	std::string
-	toStr( const boost::any & value ){
+	_toStr( const boost::any & value ){
 		return numToStr(boost::any_cast<long>(value));
 	}
 /*
@@ -261,12 +325,6 @@ public:
 		return strToNum<long>( str );
 	}
 	*/
-	virtual
-	boost::any
-	create()
-	{
-		return new long;
-	}
 };
 
 class MetaFloat: public Metatype {
@@ -280,8 +338,21 @@ public:
 	}
 
 	virtual
+	boost::any
+	create() {
+		return new float;
+	}
+
+	virtual
+	void 
+	write( Writer * writer, const boost::any& value ) {
+		writer->writeFloat( boost::any_cast<float>(value) );
+	}
+
+protected:
+	virtual
 	std::string
-	toStr( const boost::any & value ){
+	_toStr( const boost::any & value ){
 		return numToStr(boost::any_cast<float>(value));
 	}
 /*
@@ -291,11 +362,6 @@ public:
 		return strToNum<float>( str );
 	}
 	*/
-	virtual
-	boost::any
-	create() {
-		return new float;
-	}
 };
 
 
@@ -310,8 +376,21 @@ public:
 	}
 
 	virtual
+	boost::any
+	create() {
+		return new double;
+	}
+
+	virtual
+	void 
+	write( Writer * writer, const boost::any& value ) {
+		writer->writeDouble( boost::any_cast<double>(value) );
+	}
+
+protected:
+	virtual
 	std::string
-	toStr( const boost::any & value ){
+	_toStr( const boost::any & value ){
 		return numToStr(boost::any_cast<double>(value));
 	}
 /*
@@ -321,11 +400,6 @@ public:
 		return strToNum<double>( str );
 	}
 	*/
-	virtual
-	boost::any
-	create() {
-		return new double;
-	}
 };
 
 class MetaLongDouble: public Metatype {
@@ -339,8 +413,21 @@ public:
 	}
 
 	virtual
+	boost::any
+	create() {
+		return new long double;
+	}
+
+	virtual
+	void 
+	write( Writer * writer, const boost::any& value ) {
+		writer->writeLongDouble( boost::any_cast<long double>(value) );
+	}
+
+protected:
+	virtual
 	std::string
-	toStr( const boost::any & value ){
+	_toStr( const boost::any & value ){
 		return numToStr(boost::any_cast<long double>(value));
 	}
 /*
@@ -350,11 +437,6 @@ public:
 		return strToNum<long double>( str );
 	}
 	*/
-	virtual
-	boost::any
-	create() {
-		return new long double;
-	}
 };
 
 class MetaWchar_t: public Metatype {
@@ -368,8 +450,21 @@ public:
 	}
 
 	virtual
+	boost::any
+	create() {
+		return new wchar_t;
+	}
+
+	virtual
+	void 
+	write( Writer * writer, const boost::any& value ) {
+		writer->writeWchar_t( boost::any_cast<wchar_t>(value) );
+	}
+
+protected:
+	virtual
 	std::string
-	toStr( const boost::any & value ){
+	_toStr( const boost::any & value ){
 		return numToStr((int)boost::any_cast<wchar_t>(value));
 	}
 /*
@@ -379,11 +474,6 @@ public:
 		return (wchar_t)dummy;
 	}
 	*/
-	virtual
-	boost::any
-	create() {
-		return new wchar_t;
-	}
 };
 
 class MetaString: public Metatype {
@@ -391,8 +481,21 @@ public:
 	MetaString(): Metatype( typeid( std::string ) ) {}
 
 	virtual
+	boost::any
+	create() {
+		return new std::string();
+	}
+
+	virtual
+	void 
+	write( Writer * writer, const boost::any& value ) {
+		writer->writeString( boost::any_cast<std::string>(value) );
+	}
+
+protected:
+	virtual
 	std::string
-	toStr( const boost::any & value ) {
+	_toStr( const boost::any & value ) {
 		return '"' + JSONParser::addEscapeSeq( boost::any_cast<std::string>(value) ) + '"';
 	}
 /*
@@ -402,11 +505,6 @@ public:
 		return removeEscapeSeq( str );
 	}
 	*/
-	virtual
-	boost::any
-	create() {
-		return new std::string();
-	}
 private:
 /*	std::string
 	addEscapeSeq( const std::string& s ) {
