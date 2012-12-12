@@ -279,16 +279,9 @@ TEST_F(MetaTypeTest, toStr) {
 	fs << ss;
 
 	ss.erase( std::remove_if( ss.begin(), ss.end(), ::isspace ), ss.end() );
-	std::string serialized = "{\"circularRef\":{},\"collection\":{\"properties\":{},\"elements\":[{\"d\":1,\"m\":4,\"place\":{\"x\":98,\"y\":93},\"y\":2012},{\"d\":1,\"m\":4,\"place\":{\"x\":98,\"y\":93},\"y\":2013}]},\"date\":{\"d\":1,\"m\":4,\"place\":{\"x\":98,\"y\":93},\"y\":2011},\"intAbstract\":34,\"intMember\":128,\"intOverloaded\":87,\"memoryDump\":\"CgsMDQ4=\",\"point\":{\"x\":45,\"y\":80},\"refToDate\":{\"d\":1,\"m\":4,\"place\":{\"x\":98,\"y\":93},\"y\":2011},\"testBool\":true,\"testDouble\":65,\"testRO\":23,\"testStr\":\"Hello,\\\"world\\\"!\\nThisisanewlinewithnonprintablechar\\u0011\"}";
+	std::string serialized = "{\"circularRef\":{this},\"collection\":[{\"d\":1,\"m\":4,\"place\":{\"x\":98,\"y\":93},\"y\":2012},{\"d\":1,\"m\":4,\"place\":{\"x\":98,\"y\":93},\"y\":2013}],\"date\":{\"d\":1,\"m\":4,\"place\":{\"x\":98,\"y\":93},\"y\":2011},\"intAbstract\":34,\"intMember\":128,\"intOverloaded\":87,\"point\":{\"x\":45,\"y\":80},\"refToDate\":{\"d\":1,\"m\":4,\"place\":{\"x\":98,\"y\":93},\"y\":2011},\"testBool\":true,\"testDouble\":65,\"testRO\":23,\"testStr\":\"Hello,\\\"world\\\"!\\nThisisanewlinewithnonprintablechar\\u0011\"}";
 	EXPECT_EQ(serialized, ss);
 
-	//test for streamable
-/*	ss = mClass().toStr( &sample, true );
-	std::ofstream f("test");
-	f << ss;
-	ss.erase( std::remove_if( ss.begin(), ss.end(), ::isspace ), ss.end() );
-	serialized =             "{\"$id\":\"0\",\"circularRef\":{\"$ref\":\"0\"},\"collection\":{\"properties\":{\"$id\":\"1\"},\"elements\":[{\"$id\":\"2\",\"d\":1,\"m\":4,\"place\":{\"$id\":\"3\",\"x\":98,\"y\":93},\"y\":2012},{\"d\":1,\"m\":4,\"place\":{\"x\":98,\"y\":93},\"y\":2013}]},\"date\":{\"d\":1,\"m\":4,\"place\":{\"x\":98,\"y\":93},\"y\":2011},\"intAbstract\":34,\"intOverloaded\":87,\"memoryDump\":\"CgsMDQ4=\",\"point\":{\"$id\":\"4\",\"x\":45,\"y\":80},\"refToDate\":{\"$id\":\"5\",\"d\":1,\"m\":4,\"place\":{\"x\":98,\"y\":93},\"y\":2011},\"testBool\":true,\"testDouble\":65,\"testRO\":23,\"testStr\":\"Hello,\\\"world\\\"!\\nThisisanewlinewithnonprintablechar\\u0011\"}";
-	EXPECT_EQ( serialized, ss );*/
 	delete point;
 }
 
@@ -334,27 +327,22 @@ TEST_F(MetaTypeTest, Serialize) {
 	for (int i = 0; i< 5; ++i )
 		sample.getArray()[i] = i+10;
 
-//	std::string ss = mClass().toStr(&sample);
 	std::ofstream fs("serialized.dat");
 
 	JSONWriter writer( fs );
 
 	writer.serialize( &sample );
+	fs.close();
 
-//	fs << ss;
-/*
-	ss.erase( std::remove_if( ss.begin(), ss.end(), ::isspace ), ss.end() );
-	std::string serialized = "{\"circularRef\":{},\"collection\":{\"properties\":{},\"elements\":[{\"d\":1,\"m\":4,\"place\":{\"x\":98,\"y\":93},\"y\":2012},{\"d\":1,\"m\":4,\"place\":{\"x\":98,\"y\":93},\"y\":2013}]},\"date\":{\"d\":1,\"m\":4,\"place\":{\"x\":98,\"y\":93},\"y\":2011},\"intAbstract\":34,\"intMember\":128,\"intOverloaded\":87,\"memoryDump\":\"CgsMDQ4=\",\"point\":{\"x\":45,\"y\":80},\"refToDate\":{\"d\":1,\"m\":4,\"place\":{\"x\":98,\"y\":93},\"y\":2011},\"testBool\":true,\"testDouble\":65,\"testRO\":23,\"testStr\":\"Hello,\\\"world\\\"!\\nThisisanewlinewithnonprintablechar\\u0011\"}";
-	EXPECT_EQ(serialized, ss);
+	std::ifstream in("serialized.dat");
+	std::stringstream sstream;
+	sstream << in.rdbuf();
+	std::string ss = sstream.str(); 
 
-	//test for streamable
-	ss = mClass().toStr( &sample, true );
-	std::ofstream f("test");
-	f << ss;
 	ss.erase( std::remove_if( ss.begin(), ss.end(), ::isspace ), ss.end() );
-	serialized =             "{\"$id\":\"0\",\"circularRef\":{\"$ref\":\"0\"},\"collection\":{\"properties\":{\"$id\":\"1\"},\"elements\":[{\"$id\":\"2\",\"d\":1,\"m\":4,\"place\":{\"$id\":\"3\",\"x\":98,\"y\":93},\"y\":2012},{\"d\":1,\"m\":4,\"place\":{\"x\":98,\"y\":93},\"y\":2013}]},\"date\":{\"d\":1,\"m\":4,\"place\":{\"x\":98,\"y\":93},\"y\":2011},\"intAbstract\":34,\"intOverloaded\":87,\"memoryDump\":\"CgsMDQ4=\",\"point\":{\"$id\":\"4\",\"x\":45,\"y\":80},\"refToDate\":{\"$id\":\"5\",\"d\":1,\"m\":4,\"place\":{\"x\":98,\"y\":93},\"y\":2011},\"testBool\":true,\"testDouble\":65,\"testRO\":23,\"testStr\":\"Hello,\\\"world\\\"!\\nThisisanewlinewithnonprintablechar\\u0011\"}";
+	std::string serialized = "{\"$id\":\"0\",\"circularRef\":{\"$ref\":\"0\"},\"collection\":[{\"$id\":\"1\",\"d\":1,\"m\":4,\"place\":{\"$id\":\"2\",\"x\":98,\"y\":93},\"y\":2012},{\"$id\":\"3\",\"d\":1,\"m\":4,\"place\":{\"$id\":\"4\",\"x\":98,\"y\":93},\"y\":2013}],\"date\":{\"$id\":\"5\",\"d\":1,\"m\":4,\"place\":{\"$id\":\"6\",\"x\":98,\"y\":93},\"y\":2011},\"intAbstract\":34,\"intOverloaded\":87,\"point\":{\"$id\":\"7\",\"x\":45,\"y\":80},\"refToDate\":{\"$id\":\"8\",\"d\":1,\"m\":4,\"place\":{\"$id\":\"9\",\"x\":98,\"y\":93},\"y\":2011},\"testBool\":true,\"testDouble\":65,\"testRO\":23,\"testStr\":\"Hello,\\\"world\\\"!\\nThisisanewlinewithnonprintablechar\\u0011\"}";
 	EXPECT_EQ( serialized, ss );
-*/	delete point;
+	delete point;
 }
 
 TEST_F(MetaTypeTest, testAnnotation) {
@@ -440,25 +428,25 @@ TEST_F(MetaTypeTest, base64) {
 
 TEST_F(MetaTypeTest, testCollectionInterface) {
 	MyCollection col;
-	col.intMember = 153;
+//	col.intMember = 153;
 
-	jrtti::declareCollection< MyCollection >()
-		.property( "intMember", &MyCollection::intMember );
+	jrtti::declareCollection< MyCollection >();
+//		.property( "intMember", &MyCollection::intMember );
 
 	MyCollection::iterator it = col.begin();
 
-	for ( int i = 0; i<20; ++i) {
+	for ( int i = 0; i<10; ++i) {
 		it = col.insert( it, i );
 		++it;
 	}
 
 	std::string res = jrtti::metatype< MyCollection >().toStr( &col );
 
-	col.intMember = 0;
+//	col.intMember = 0;
 //	jrtti::metatype< MyCollection >().fromStr( &col, res );
 
-	EXPECT_EQ( res.length(), jrtti::metatype< MyCollection >().toStr( &col ).length() );
-	EXPECT_EQ( col.intMember, 153 ); 
+	EXPECT_EQ( "[\n\t0,\n\t1,\n\t2,\n\t3,\n\t4,\n\t5,\n\t6,\n\t7,\n\t8,\n\t9\n]", res );
+//	EXPECT_EQ( col.intMember, 153 ); 
 }
 
 TEST_F(MetaTypeTest, testMetaobject) {
