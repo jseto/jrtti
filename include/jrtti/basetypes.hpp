@@ -120,7 +120,7 @@ protected:
 	void *
 	get_instance_ptr( const boost::any & value ) {
 		if ( value.type() == typeid( void * ) ) {
-			return boost::any_cast< void * >( value );
+			return jrtti_cast< void * >( value );
 		}
 		else {
 			return m_baseType.get_instance_ptr( value );
@@ -158,14 +158,14 @@ public:
 	virtual
 	void 
 	write( Writer * writer, const boost::any& value ) {
-		writer->writeBool( boost::any_cast<bool>(value) );
+		writer->writeBool( jrtti_cast<bool>(value) );
 	}
 
 protected:
 	virtual
 	std::string
 	_toStr( const boost::any & value ){
-		return boost::any_cast<bool>(value) ? "true" : "false";
+		return jrtti_cast<bool>(value) ? "true" : "false";
 	}
 /*
 	boost::any
@@ -202,14 +202,14 @@ public:
 	virtual
 	void 
 	write( Writer * writer, const boost::any& value ) {
-		writer->writeChar( boost::any_cast<char>(value) );
+		writer->writeChar( jrtti_cast<char>(value) );
 	}
 
 protected:
 	virtual
 	std::string
 	_toStr( const boost::any & value ){
-		return numToStr(boost::any_cast<char>(value));
+		return numToStr(jrtti_cast<char>(value));
 	}
 };
 
@@ -240,14 +240,14 @@ public:
 	virtual
 	void 
 	write( Writer * writer, const boost::any& value ) {
-		writer->writeShort( boost::any_cast<short>(value) );
+		writer->writeShort( jrtti_cast<short>(value) );
 	}
 
 protected:
 	virtual
 	std::string
 	_toStr( const boost::any & value ){
-		return numToStr(boost::any_cast<short>(value));
+		return numToStr(jrtti_cast<short>(value));
 	}
 };
 
@@ -271,14 +271,14 @@ public:
 	virtual
 	void 
 	write( Writer * writer, const boost::any& value ) {
-		writer->writeInt( boost::any_cast<int>(value) );
+		writer->writeInt( jrtti_cast<int>(value) );
 	}
 
 protected:
 	virtual
 	std::string
 	_toStr( const boost::any & value ){
-		return numToStr(boost::any_cast<int>(value));
+		return numToStr(jrtti_cast<int>(value));
 	}
 /*
 	boost::any
@@ -309,14 +309,14 @@ public:
 	virtual
 	void 
 	write( Writer * writer, const boost::any& value ) {
-		writer->writeLong( boost::any_cast<long>(value) );
+		writer->writeLong( jrtti_cast<long>(value) );
 	}
 
 protected:
 	virtual
 	std::string
 	_toStr( const boost::any & value ){
-		return numToStr(boost::any_cast<long>(value));
+		return numToStr(jrtti_cast<long>(value));
 	}
 /*
 	boost::any
@@ -346,14 +346,14 @@ public:
 	virtual
 	void 
 	write( Writer * writer, const boost::any& value ) {
-		writer->writeFloat( boost::any_cast<float>(value) );
+		writer->writeFloat( jrtti_cast<float>(value) );
 	}
 
 protected:
 	virtual
 	std::string
 	_toStr( const boost::any & value ){
-		return numToStr(boost::any_cast<float>(value));
+		return numToStr(jrtti_cast<float>(value));
 	}
 /*
 	boost::any
@@ -384,14 +384,14 @@ public:
 	virtual
 	void 
 	write( Writer * writer, const boost::any& value ) {
-		writer->writeDouble( boost::any_cast<double>(value) );
+		writer->writeDouble( jrtti_cast<double>(value) );
 	}
 
 protected:
 	virtual
 	std::string
 	_toStr( const boost::any & value ){
-		return numToStr(boost::any_cast<double>(value));
+		return numToStr(jrtti_cast<double>(value));
 	}
 /*
 	boost::any
@@ -421,14 +421,14 @@ public:
 	virtual
 	void 
 	write( Writer * writer, const boost::any& value ) {
-		writer->writeLongDouble( boost::any_cast<long double>(value) );
+		writer->writeLongDouble( jrtti_cast<long double>(value) );
 	}
 
 protected:
 	virtual
 	std::string
 	_toStr( const boost::any & value ){
-		return numToStr(boost::any_cast<long double>(value));
+		return numToStr(jrtti_cast<long double>(value));
 	}
 /*
 	boost::any
@@ -458,14 +458,14 @@ public:
 	virtual
 	void 
 	write( Writer * writer, const boost::any& value ) {
-		writer->writeWchar_t( boost::any_cast<wchar_t>(value) );
+		writer->writeWchar_t( jrtti_cast<wchar_t>(value) );
 	}
 
 protected:
 	virtual
 	std::string
 	_toStr( const boost::any & value ){
-		return numToStr((int)boost::any_cast<wchar_t>(value));
+		return numToStr((int)jrtti_cast<wchar_t>(value));
 	}
 /*
 	boost::any
@@ -489,14 +489,14 @@ public:
 	virtual
 	void 
 	write( Writer * writer, const boost::any& value ) {
-		writer->writeString( boost::any_cast<std::string>(value) );
+		writer->writeString( jrtti_cast<std::string>(value) );
 	}
 
 protected:
 	virtual
 	std::string
 	_toStr( const boost::any & value ) {
-		return '"' + JSONParser::addEscapeSeq( boost::any_cast<std::string>(value) ) + '"';
+		return '"' + JSONParser::addEscapeSeq( jrtti_cast<std::string>(value) ) + '"';
 	}
 /*
 	boost::any

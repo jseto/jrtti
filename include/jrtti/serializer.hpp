@@ -133,8 +133,12 @@ protected:
 	}
 
 	virtual
-	bool
-	writeObjectId( void * obj ) = 0;
+	void
+	writeObjectRef( const std::string& objId ) = 0;
+
+	virtual
+	void
+	writeObjectId( const std::string& objId  ) = 0;
 
 	virtual
 	void

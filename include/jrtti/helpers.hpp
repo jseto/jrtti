@@ -94,6 +94,9 @@ namespace jrtti {
 				if ( value.type() == typeid( T * ) ) {
 					return * ( T * )boost::any_cast< T * >( value );
 				}
+				if ( value.type() == typeid( boost::reference_wrapper< T > ) ) {
+					return boost::any_cast< boost::reference_wrapper< T > >( value );
+				}
 				if ( value.type() == typeid( void * ) ) {
 					return * ( T * )boost::any_cast< void * >( value );
 				}

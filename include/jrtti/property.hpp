@@ -141,7 +141,8 @@ public:
 	template < typename PropT >
 	PropT
 	get( void * instance ) {
-		return boost::any_cast< PropT >( get( instance ) );
+//		return boost::any_cast< PropT >( get( instance ) );
+		return jrtti_cast< PropT >( get( instance ) );
 	}
 
 protected:
@@ -242,8 +243,15 @@ private:
 										boost::is_pointer< T >::value,
 										boost::is_reference< T >::value >, boost::any >::type
 	internal_get(void * instance) {
-		PropT res = m_getter( (ClassT *)instance );
-		return res;
+//		PropT res = m_getter( (ClassT *)instance );
+//		return res;
+		if ( m_dataMember ) {
+			ClassT * p = static_cast<ClassT *>(instance);
+			return boost::ref( p->*m_dataMember );
+		}
+		else {
+			return m_getter( (ClassT *)instance );
+		}
 	}
 
 	void

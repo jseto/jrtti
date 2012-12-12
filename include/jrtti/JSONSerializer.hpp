@@ -134,19 +134,19 @@ public:
 
 protected:
 	virtual
-	bool
-	writeObjectId( void * obj ) {
+	void
+	writeObjectId( const std::string& objId ) {
 		indent();
-		std::string objId;
-		bool registered = isRegistered( obj, objId ); 
-		if ( !registered ) {
-			need_nl = true;
-			m_stream << "\"$id\": \"" << objId << "\"";
-		}
-		else {
-			m_stream << "\"$ref\": \"" << objId << "\"";
-		}
-		return registered;
+		need_nl = true;
+		m_stream << "\"$id\": \"" << objId << "\"";
+	}
+
+	virtual
+	void
+	writeObjectRef( const std::string& objId ) {
+		indent();
+		need_nl = true;
+		m_stream << "\"$ref\": \"" << objId << "\"";
 	}
 
 	virtual

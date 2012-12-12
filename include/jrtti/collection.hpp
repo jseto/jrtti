@@ -47,7 +47,7 @@ public:
 			if ( pmit != mt->_properties().end() ) {
 				mt = &Reflector::instance().metatype( pmit->second->get< std::string >( getElementPtr( *it ) ) );
 			}
-			mt->write( writer, *it );
+			mt->write( writer, boost::ref(*it) );
 			writer->elementEnd();
 		}
 		writer->collectionEnd();

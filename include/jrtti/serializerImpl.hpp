@@ -33,8 +33,15 @@ public:
 	
 	void
 	writeObject( const Metatype& mt, void * instance ) {
-		writeObjectBegin();
-		if ( !writeObjectId( instance ) ) {
+		std::string objId;
+		if ( isRegistered( instance, objId )/* && mt.isPointer()*/ ) {
+			writeObjectBegin();
+			writeObjectRef( objId );
+			writeObjectEnd();
+		}
+		else {
+			writeObjectBegin();
+			writeObjectId( objId );
 			const Metatype::PropertyMap& props = const_cast< Metatype& >(mt).properties();
 			for( Metatype::PropertyMap::const_iterator it = props.begin(); it != props.end(); ++it) {
 				Property * prop = it->second;
@@ -46,8 +53,8 @@ public:
 					}
 				}
 			}
+			writeObjectEnd();
 		}
-		writeObjectEnd();
 	}
 /*
 	void 

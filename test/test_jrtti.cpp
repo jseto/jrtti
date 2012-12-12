@@ -200,7 +200,7 @@ TEST_F(MetaTypeTest, NestedByValAccessor) {
 	d.place.x = 40.0;
 	sample.setByValProp(d);
 
-	int result = boost::any_cast<int>(mClass().eval(&sample, "date.y"));
+	int result = jrtti_cast<int>(mClass().eval(&sample, "date.y"));
 	EXPECT_EQ(sample.getByValProp().y, result);
 
 	d.y = 3056;
