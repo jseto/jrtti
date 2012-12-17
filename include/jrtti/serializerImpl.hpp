@@ -69,14 +69,53 @@ public:
 	virtual
 	boost::any 
 	deserialize( Metatype& mt, boost::any& instance ) {
-//		storeInstInfo( mt, instance );
-//		clearRefs();
+		clearRefs();
 		beginDeserialization(); // class anotation 
 		readHeader();
 		boost::any& result = mt.read( this, instance );
 		readFooter();
 		endDeserialization(); // en la VCL seria el Loaded del deserializador
 		return result;
+	}
+
+	boost::any
+	readObject( const Metatype& mt, void * instance ) {
+		std::string objTypeName = objectBegin();
+		if ( !instance ) {
+			instance = jrtti_cast< void * >( Reflector::instance().metatype( objTypeName ).create() );
+		}
+		while ( !endObject() ) {
+			void * inst = readProperty( mt, instance );
+			if ( inst ) {
+				instance = inst;
+			}
+		}
+		objectEnd();
+		return instance;
+	}
+
+	void *
+	readProperty( const Metatype& mt, void * instance ) {
+		std::string propName = propertyBegin(); 
+		if ( propName == "$id" ) {
+			storeObjId( readObjectId(), instance );
+		}
+		else {
+			if ( propName == "$ref" ) {
+				void * refInst = getRegisteredObj( readObjectRef() );
+				propertyEnd();
+				return refInst;
+			}
+			else {
+				Property& prop = const_cast< Metatype& >(mt).property( propName );
+				const boost::any &mod = prop.metatype().read( this, prop.get( instance ) );
+				if ( !mod.empty() && !prop.metatype().isCollection() && prop.isWritable() ) {
+					prop.set( instance, mod );
+				}
+			}
+		}
+		propertyEnd();
+		return NULL;
 	}
 
 /*	

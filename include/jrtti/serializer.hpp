@@ -207,24 +207,35 @@ public:
 	std::string	readString() = 0;
 
 	virtual
-	void collectionBegin() = 0;
+	std::string
+	objectBegin() = 0;
 
 	virtual
-	bool endCollection() = 0;
+	void
+	objectEnd() = 0;
+
+	virtual
+	bool
+	endObject() = 0;
+
+	virtual
+	void collectionBegin() = 0;
 	
 	virtual
 	void 
 	collectionEnd() = 0;
 
-/*
 	virtual
-	void
-	propertyBegin( const std::string& propName, const Metatype& propMetatype ) = 0;
+	bool endCollection() = 0;
+
+	virtual
+	std::string
+	propertyBegin() = 0;
 
 	virtual 
 	void
 	propertyEnd() = 0;
-
+	/*
 	virtual
 	void
 	collectionBegin() = 0;
@@ -246,59 +257,6 @@ public:
 	writeNullPtr() = 0;
 	*/
 protected:
-/*	void
-	storeInstInfo( const Metatype& mt, const boost::any& instance ) {
-		m_rootMetatype = &mt;
-		m_rootInstance = instance;
-	}
-
-	const Metatype&
-	rootMetatype() {
-		return *m_rootMetatype;
-	}
-
-	void
-	clearRefs() {
-		m_objectRegistry.clear();
-	}
-
-	bool
-	isRegistered( void * obj, std::string& objId ) {
-		std::map< void *, std::string >::iterator it;
-		it = m_objectRegistry.find( obj );	
-		if ( it != m_objectRegistry.end() ) {
-			objId = it->second;
-			return true;
-		}
-		else {
-			objId = buildObjectId( obj );
-			m_objectRegistry[ obj ] = objId;
-			return false;
-		}
-	}
-
-	virtual
-	std::string 
-	buildObjectId( void * obj ) {
-		return numToStr<int>( m_objectRegistry.size() );
-	}
-
-	virtual
-	void
-	writeObjectRef( const std::string& objId ) = 0;
-
-	virtual
-	void
-	writeObjectId( const std::string& objId  ) = 0;
-
-	virtual
-	void
-	writeObjectBegin() = 0;
-
-	virtual
-	void
-	writeObjectEnd() = 0;
-*/
 	virtual
 	void
 	beginDeserialization() 
@@ -319,253 +277,40 @@ protected:
 	readFooter()
 	{}
 
-private:
-/*	std::map< void *, std::string > m_objectRegistry; 
-	const Metatype * m_rootMetatype;
-	boost::any m_rootInstance;*/
-};
-
-/*
-class Reader {
-public:
 	virtual
-	void 
-	deserialize( Metatype& mt, boost::any instance ) {
-		serialize( Metaobject( mt, instance ) );
+	std::string
+	readObjectRef() = 0;
+
+	virtual
+	std::string
+	readObjectId() = 0;
+
+	void
+	clearRefs() {
+		m_objectRegistry.clear();
 	}
 
-	virtual
-	void 
-	deserialize( Metaobject& mo ) {
-		m_rootMetaobject = mo;
-		beginSerialization(); // class anotation 
-		writeHeader();
-		mo.metatype().write( this, mo.objectInstance() );
-		writeFooter();
-		endSerialization(); // en la VCL seria el Loaded del deserializador
-	}
-
-
-	virtual
-	bool readBool() = 0;
-
-	virtual
-	char readChar() = 0;
-
-	virtual
-	short readShort() = 0;
-
-	virtual
-	int readInt() = 0;
-
-	virtual
-	long readLong() = 0;
-	
-	virtual
-	float readFloat() = 0;
-
-	virtual
-	double readDouble() = 0;
-
-	virtual
-	long double readLongDouble() = 0;
-
-	virtual
-	wchar_t readWchar_t() = 0;
-
-	virtual
-	void
-	propertyBegin( const std::string& propName, const Metatype& propMetatype ) = 0;
-
-	virtual 
-	void
-	propertyEnd( const std::string& propName, const Metatype& propMetatype ) = 0;
-
-	virtual
-	void
-	collectionBegin() = 0;
-
-	virtual 
-	void
-	collectionEnd() = 0;
-
-
-protected:
-	const Metaobject&
-	rootMetaobject() {
-		return m_rootMetaobject;
-	}
-
-	bool
-	isRegistered( void * obj, std::string& objId ) {
-		std::map< void *, std::string >::iterator it;
-		it = m_objectRegistry.find( obj );	
+	void *
+	getRegisteredObj( std::string& objId ) {
+		std::map< std::string, void * >::iterator it;
+		it = m_objectRegistry.find( objId );	
 		if ( it != m_objectRegistry.end() ) {
-			objId = it->second;
-			return true;
+			return it->second;
 		}
 		else {
-			m_objectRegistry[ obj ] = buildObjectId( obj );
-			return false;
+			return NULL;
 		}
 	}
 
-	virtual
-	std::string 
-	buildObjectId( void * obj ) {
-		return numToStr<int>( m_objectRegistry.size() );
+	void 
+	storeObjId( std::string objId, void * instance ) {
+		m_objectRegistry[ objId ] = instance;
 	}
-
-	virtual
-	void
-	writeObjectId( void * obj ) = 0;
-
-	virtual
-	void
-	writeObjectBegin() = 0;
-
-	virtual
-	void
-	writeObjectEnd() = 0;
-
-	virtual
-	void
-	beginSerialization() 
-	{}
-
-	virtual
-	void
-	endSerialization() 
-	{}
-
-	virtual 
-	void
-	writeHeader()
-	{}
-
-	virtual
-	writeFooter()
-	{}
 
 private:
-	std::map< void *, std::string > m_objectRegistry; 
-	Metaobject m_rootMetaobject;
+	std::map< std::string, void * > m_objectRegistry; 
 };
 
-class JSONReader : public Reader {
-public:
-	virtual
-	void 
-	writeBool( bool value ) {
-		stream << numToStr( value );
-	}
-
-	virtual
-	bool readBool() {
-
-	
-	virtual
-	void 
-	writeChar( char value ) = 0;
-
-	virtual
-	char readChar() = 0;
-	
-	virtual
-	void 
-	writeShort( short value ) = 0;
-
-	virtual
-	short readShort() = 0;
-	
-	virtual
-	void 
-	writeInt( int value ) = 0;
-
-	virtual
-	int readInt() = 0;
-	
-	virtual
-	void 
-	writeLong( long value ) = 0;
-
-	virtual
-	long readLong() = 0;
-	
-	virtual
-	void 
-	writeFloat( float value ) = 0;
-
-	virtual
-	float readFloat() = 0;
-
-	virtual
-	void 
-	writeDouble( double value ) = 0;
-
-	virtual
-	double readDouble() = 0;
-
-	virtual
-	void 
-	writeLongDouble( long double value ) = 0;
-
-	virtual
-	long double readLongDouble() = 0;
-
-	virtual
-	void 
-	writeWchar_t( wchar_t value ) = 0;
-
-	virtual
-	wchar_t readWchar_t() = 0;
-
-	virtual
-	void
-	writePropertyBegin( const std::string& propName, const Metatype& propMetatype ) = 0;
-
-	virtual 
-	void
-	writePropertyEnd( const std::string& propName, const Metatype& propMetatype ) = 0;
-
-	virtual
-	void
-	writeCollectionBegin() = 0;
-
-	virtual 
-	void
-	writeCollectionEnd() = 0;
-
-protected:
-	virtual
-	void
-	writeObjectId( void * obj ) {
-		std::string objId;
-		if ( !isRegistered( inst, objId ) ) {
-			need_nl = true;
-			result += "\t\"$id\": \"" + objId + "\"";
-		}
-	}
-
-	virtual
-	void
-	writeObjectBegin() {
-		need_nl = false;
-		stream << "{\n";
-	}
-
-	virtual
-	void
-	writeObjectEnd() = 0;
-
-
-
-
-private:
-	std::sstream stream;
-	bool need_nl;
-};
-*/
 } // namespace jrtti
 
 #endif // jrttiserializerH

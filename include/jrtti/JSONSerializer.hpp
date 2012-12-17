@@ -189,44 +189,6 @@ public:
 		currentChar = m_stream.get();
 	}
 
-	boost::any
-	readObject( const Metatype& mt, void * instance ) {
-		std::string objTypeName = objectBegin();
-		if ( !instance ) {
-			instance = jrtti_cast< void * >( Reflector::instance().metatype( objTypeName ).create() );
-		}
-		while ( !endObject() ) {
-			readProperty( mt, instance );
-		}
-		objectEnd();
-		return instance;
-	}
-
-	boost::any
-	readProperty( const Metatype& mt, void * instance ) {
-		std::string propName = getToken();
-		skipColon();
-		if ( propName == "$id" ) {
-			//todo: store ref
-			std::string ref = getToken();
-		}
-		else {
-			if ( propName == "$ref" ) {
-				// todo: find ref
-				std::string ref = getToken();
-				return 0; //found reference
-			}
-			else {
-				Property& prop = const_cast< Metatype& >(mt).property( propName );
-				const boost::any &mod = prop.metatype().read( this, prop.get( instance ) );
-				if ( !mod.empty() && !prop.metatype().isCollection() && prop.isWritable() ) {
-					prop.set( instance, mod );
-				}
-			}
-		}
-		return boost::any();
-	}
-
 	char
 	readChar() {
 		skipSpaces();
@@ -327,7 +289,28 @@ public:
 		return currentChar == ']';
 	}
 
+	std::string
+	propertyBegin() {
+		std::string tok = getToken();
+		skipColon();
+		return tok;
+	}
+
+	void
+	propertyEnd() {
+	}
+
 protected:
+	std::string
+	readObjectRef() {
+		return getToken();
+	}
+
+	std::string
+	readObjectId() {
+		return getToken();
+	}
+
 private:
 	std::string
 	getToken() {
