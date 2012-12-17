@@ -115,6 +115,17 @@ public:
 	}
 
 	/**
+	 * \brief Check if this Metatype is the abstraction of an object type
+	 * Object types are those derived from CustomMetaclass
+	 * \return true if object
+	 */
+	virtual
+	bool
+	isObject() const {
+		return false;
+	}
+
+	/**
 	 * Check for colection
 	 * \return true if this metatype is a collection abstraction
 	 */
@@ -325,7 +336,6 @@ public:
 	template < typename PropT >
 	PropT
 	eval( const boost::any & instance, std::string path) {
-//		return boost::any_cast< PropT >( eval( instance, path ) );
 		return jrtti_cast< PropT >( eval( instance, path ) );
 	}
 
@@ -389,6 +399,13 @@ public:
 	write( Writer * writer, const boost::any& instance ) {
 		void * inst = get_instance_ptr(instance);
 		writer->writeObject( *this, inst );
+	}
+
+	virtual 
+	boost::any
+	read( Reader * reader, const boost::any& instance ) {
+		void * inst = get_instance_ptr(instance);
+		return reader->readObject( *this, inst );
 	}
 
 	const PropertyMap &
@@ -519,11 +536,7 @@ protected:
 		if ( it == _addressRefMap().end() ) {
 			std::string idStr = numToStr<int>( _addressRefMap().size() );
 			_addressRefMap()[ inst ] = idStr;
-/*			if ( formatForStreaming ) {
-				need_nl = true;
-				result += "\t\"$id\": \"" + idStr + "\"";
-			}
-*/		}
+		}
 
 		for( PropertyMap::iterator it = _properties().begin(); it != _properties().end(); ++it) {
 			Property * prop = it->second;

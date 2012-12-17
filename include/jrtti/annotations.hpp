@@ -146,9 +146,9 @@ public:
  * internal values. This often happens in streaming. This Annotation forces the 
  * streaming mechanism to load data for such properties.
  */
-class ForceStreamLoadable : public Annotation {
-	//TODO: consirering the constness of references and pointers, this may be unnecesary
-};
+/*class ForceStreamLoadable : public Annotation {
+	//TODO: considering the constness of references and pointers, this may be unnecesary
+};*/
 
 /**
  * \brief Delegates for toStr and fromStr

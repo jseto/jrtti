@@ -21,11 +21,7 @@ public:
 	virtual
 	void 
 	writeObject( const Metatype& mt, void * instance ) = 0;
-/*
-	virtual
-	void
-	writeCollection( const Metatype& mc, void * instance ) = 0;
-*/
+
 	virtual
 	void 
 	writeBool( bool value ) = 0;
@@ -142,11 +138,11 @@ protected:
 
 	virtual
 	void
-	writeObjectBegin() = 0;
+	objectBegin( const Metatype& mt ) = 0;
 
 	virtual
 	void
-	writeObjectEnd() = 0;
+	objectEnd( const Metatype& mt ) = 0;
 
 	virtual
 	void
@@ -172,121 +168,164 @@ private:
 	std::map< void *, std::string > m_objectRegistry; 
 	const Metatype * m_rootMetatype;
 	boost::any m_rootInstance;
-//	Metaobject m_rootMetaobject;
 };
 
-/*
-class JSONWriter : public Writer {
+class Reader {
 public:
 	virtual
-	void 
-	writeBool( bool value ) {
-		stream << numToStr( value );
-	}
+	boost::any 
+	readObject( const Metatype& mt, void * instance ) = 0;
 
 	virtual
-	void 
-	writeChar( char value ) {
-		stream << numToStr( value );
-	}
+	bool readBool() = 0;
+
+	virtual
+	char readChar() = 0;
+
+	virtual
+	short readShort() = 0;
+
+	virtual
+	int readInt() = 0;
+
+	virtual
+	long readLong() = 0;
+	
+	virtual
+	float readFloat() = 0;
+
+	virtual
+	double readDouble() = 0;
+
+	virtual
+	long double readLongDouble() = 0;
+
+	virtual
+	wchar_t readWchar_t() = 0;
+
+	virtual
+	std::string	readString() = 0;
+
+	virtual
+	void collectionBegin() = 0;
+
+	virtual
+	bool endCollection() = 0;
 	
 	virtual
 	void 
-	writeShort( short value ) {
-		stream << numToStr( value );
-	}
+	collectionEnd() = 0;
 
-	virtual
-	void 
-	writeInt( int value ) {
-		stream << numToStr( value );
-	}
-	
-	virtual
-	void 
-	writeLong( long value ) {
-		stream << numToStr( value );
-	}
-	
-	virtual
-	void 
-	writeFloat( float value ) {
-		stream << numToStr( value );
-	}
-
-	virtual
-	void 
-	writeDouble( double value ) {
-		stream << numToStr( value );
-	}
-
-	virtual
-	void 
-	writeLongDouble( long double value ) {
-		stream << numToStr( value );
-	}
-
-	virtual
-	void 
-	writeWchar_t( wchar_t value ) {
-		stream << numToStr( (int)value );
-	}
-
-	virtual
-	void 
-	writeString( std::string value ) {
-		stream << '"' << addEscapeSeq( value ) << '"';
-	}
-
+/*
 	virtual
 	void
-	propertyBegin( const std::string& propName, const Metatype& propMetatype ) {
-		if (need_nl) stream << ",\n";
-		need_nl = true;
-		ident( "\"" + propName + "\"" + ": " );
-	}
+	propertyBegin( const std::string& propName, const Metatype& propMetatype ) = 0;
 
 	virtual 
 	void
-	propertyEnd( const std::string& propName, const Metatype& propMetatype ) = 0;
+	propertyEnd() = 0;
 
 	virtual
 	void
-	writeCollectionBegin() = 0;
+	collectionBegin() = 0;
 
 	virtual 
 	void
-	writeCollectionEnd() = 0;
+	collectionEnd() = 0;
 
+	virtual
+	void
+	elementBegin() = 0;
+
+	virtual
+	void
+	elementEnd() = 0;
+
+	virtual
+	void
+	writeNullPtr() = 0;
+	*/
 protected:
-	virtual
+/*	void
+	storeInstInfo( const Metatype& mt, const boost::any& instance ) {
+		m_rootMetatype = &mt;
+		m_rootInstance = instance;
+	}
+
+	const Metatype&
+	rootMetatype() {
+		return *m_rootMetatype;
+	}
+
 	void
-	writeObjectId( void * obj ) {
-		std::string objId;
-		if ( !isRegistered( inst, objId ) ) {
-			need_nl = true;
-			result += "\t\"$id\": \"" + objId + "\"";
+	clearRefs() {
+		m_objectRegistry.clear();
+	}
+
+	bool
+	isRegistered( void * obj, std::string& objId ) {
+		std::map< void *, std::string >::iterator it;
+		it = m_objectRegistry.find( obj );	
+		if ( it != m_objectRegistry.end() ) {
+			objId = it->second;
+			return true;
+		}
+		else {
+			objId = buildObjectId( obj );
+			m_objectRegistry[ obj ] = objId;
+			return false;
 		}
 	}
 
 	virtual
-	void
-	writeObjectBegin() {
-		need_nl = false;
-		stream << "{\n";
+	std::string 
+	buildObjectId( void * obj ) {
+		return numToStr<int>( m_objectRegistry.size() );
 	}
 
 	virtual
 	void
+	writeObjectRef( const std::string& objId ) = 0;
+
+	virtual
+	void
+	writeObjectId( const std::string& objId  ) = 0;
+
+	virtual
+	void
+	writeObjectBegin() = 0;
+
+	virtual
+	void
 	writeObjectEnd() = 0;
+*/
+	virtual
+	void
+	beginDeserialization() 
+	{}
+
+	virtual
+	void
+	endDeserialization() 
+	{}
+
+	virtual 
+	void
+	readHeader()
+	{}
+
+	virtual
+	void
+	readFooter()
+	{}
+
 private:
-	std::sstream stream;
-	bool need_nl;
+/*	std::map< void *, std::string > m_objectRegistry; 
+	const Metatype * m_rootMetatype;
+	boost::any m_rootInstance;*/
 };
 
-
-
-
+/*
 class Reader {
 public:
 	virtual
