@@ -38,7 +38,6 @@ public:
 	virtual
 	void 
 	write( Writer * writer, const boost::any& instance ) {
-//		std::string props_str = Metatype::write( writer, instance );
 		ClassT& _collection = getReference( instance );
 
 		////////// COMPILER ERROR   //// Collections must declare a value_type type. See documentation for details.
@@ -56,8 +55,6 @@ public:
 			writer->elementEnd();
 		}
 		writer->collectionEnd();
-
-//		return "{\n" + ident( "\"properties\": " +props_str ) + ",\n" + ident( "\"elements\": " + str ) + "\n}";
 	}
 
 	virtual 
@@ -66,6 +63,7 @@ public:
 		ClassT& _collection = getReference( instance );
 		reader->collectionBegin();
 		while ( !reader->endCollection() ) {
+			reader->elementBegin();
 			typename ClassT::value_type elem;
 			Metatype& elemType = Reflector::instance().metatype< ClassT::value_type >();
 			if ( boost::is_pointer< ClassT::value_type >::value ) {
@@ -78,6 +76,7 @@ public:
 				////////// COMPILER ERROR   //// Collections must declare an insert method. See documentation for details.
 				_collection.insert( _collection.end(), jrtti_cast< ClassT::value_type >( mod ) );
 			}
+			reader->elementEnd();
 		}
 		reader->collectionEnd();
 		return _collection;
@@ -104,10 +103,9 @@ protected:
 			if ( pmit != mt->_properties().end() ) {
 				mt = &Reflector::instance().metatype( pmit->second->get< std::string >( getElementPtr( *it ) ) );
 			}
-			str += JSONParser::indent( mt->_toStr( *it) );
+			str += indent( mt->_toStr( *it) );
 		}
 		str += "\n]";
-//		return "{\n" + JSONParser::indent( "\"properties\": " +props_str ) + ",\n" + JSONParser::indent( "\"elements\": " + str ) + "\n}";
 		return str;
 	}
 /*

@@ -1,12 +1,9 @@
 #ifndef jrttiserializerH
 #define jrttiserializerH
 
-//#include "jrtti.hpp"
 #include <boost/any.hpp>
 #include <string>
 #include <map>
-//#include "reflector.hpp"
-//#include "helpers.hpp"
 
 namespace jrtti {
 	// Converters -> registrable al Serializer (factory) ---- strigyfier  void serialize( Serializer * ser, const Metaobject& mo, const std::string& propName, const boost::any& propValue )
@@ -85,11 +82,11 @@ public:
 	virtual
 	void
 	elementEnd() = 0;
-
+/*
 	virtual
 	void
 	writeNullPtr() = 0;
-
+	*/
 protected:
 	void
 	storeInstInfo( const Metatype& mt, const boost::any& instance ) {
@@ -229,22 +226,6 @@ public:
 	bool endCollection() = 0;
 
 	virtual
-	std::string
-	propertyBegin() = 0;
-
-	virtual 
-	void
-	propertyEnd() = 0;
-	/*
-	virtual
-	void
-	collectionBegin() = 0;
-
-	virtual 
-	void
-	collectionEnd() = 0;
-
-	virtual
 	void
 	elementBegin() = 0;
 
@@ -253,9 +234,13 @@ public:
 	elementEnd() = 0;
 
 	virtual
+	std::string
+	propertyBegin() = 0;
+
+	virtual 
 	void
-	writeNullPtr() = 0;
-	*/
+	propertyEnd() = 0;
+
 protected:
 	virtual
 	void

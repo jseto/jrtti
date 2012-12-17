@@ -10,7 +10,6 @@
 #include "property.hpp"
 #include "method.hpp"
 #include "serializer.hpp"
-#include "jsonparser.hpp"
 
 namespace jrtti {
 
@@ -518,13 +517,13 @@ protected:
 	copyFromInstance( void * inst ) {
 		return boost::any();
 	}
-
+/*
 	virtual
 	boost::any
 	copyFromInstanceAsPtr( void * inst ) {
 		return boost::any();
 	}
-
+	*/
 	virtual
 	std::string
 	_toStr( const boost::any & instance ) {
@@ -552,7 +551,7 @@ protected:
 				else {
 					addToResult = prop->metatype()._toStr( prop->get(inst) );
 				}
-				result += JSONParser::indent( "\"" + prop->name() + "\"" + ": " + addToResult );
+				result += indent( "\"" + prop->name() + "\"" + ": " + addToResult );
 			}
 		}
 		return result += "\n}";
@@ -596,12 +595,24 @@ protected:
 			return boost::any();
 	}
 */
-
+	std::string
+	indent( std::string str ) {
+		std::string result = "\t";
+		for (std::string::iterator it = str.begin(); it !=str.end() ; ++it) {
+			if ( *it == '\n' ) {
+				result += "\n\t";
+			}
+			else
+				result += *it;
+		}
+		return result;
+	}
+/*
 	virtual
 	boost::any
 	createAsNullPtr() {
 		return NULL;
-	}
+	}*/
 
 private:
 	const std::type_info&	m_type_info;

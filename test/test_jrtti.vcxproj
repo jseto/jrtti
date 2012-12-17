@@ -102,7 +102,6 @@
     <ClInclude Include="..\include\jrtti\exception.hpp" />
     <ClInclude Include="..\include\jrtti\helpers.hpp" />
     <ClInclude Include="..\include\jrtti\jrtti.hpp" />
-    <ClInclude Include="..\include\jrtti\jsonparser.hpp" />
     <ClInclude Include="..\include\jrtti\JSONSerializer.hpp" />
     <ClInclude Include="..\include\jrtti\metaobject.hpp" />
     <ClInclude Include="..\include\jrtti\metatype.hpp" />

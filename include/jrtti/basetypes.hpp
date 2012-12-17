@@ -106,12 +106,12 @@ protected:
 			return m_baseType.get_instance_ptr( value );
 		}
 	}
-
+/*
 	virtual
 	boost::any
 	createAsNullPtr() {
 		return m_baseType.createAsNullPtr();
-	}
+	}*/
 
 private:
 	Metatype & m_baseType;

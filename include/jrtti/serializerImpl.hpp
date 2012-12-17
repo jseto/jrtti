@@ -1,7 +1,6 @@
 #ifndef serializerImplH
 #define serializerImplH
 
-//#include <boost/any.hpp>
 #include <string>
 #include <map>
 
@@ -117,33 +116,6 @@ public:
 		propertyEnd();
 		return NULL;
 	}
-
-/*	
-	boost::any
-	readObject( const Metatype& mt, void * instance ) {
-		std::string objId;
-		if ( isRegistered( instance, objId ) ) {
-			writeObjectBegin();
-			writeObjectRef( objId );
-			writeObjectEnd();
-		}
-		else {
-			writeObjectBegin();
-			writeObjectId( objId );
-			const Metatype::PropertyMap& props = const_cast< Metatype& >(mt).properties();
-			for( Metatype::PropertyMap::const_iterator it = props.begin(); it != props.end(); ++it) {
-				Property * prop = it->second;
-				if ( prop && prop->isReadable() ) {
-					if ( !prop->annotations().has< NoStreamable >() ) {
-						propertyBegin( prop->name(), prop->metatype() );
-						prop->metatype().write( this, prop->get(instance) );
-						propertyEnd();
-					}
-				}
-			}
-			writeObjectEnd();
-		}
-	} */
 };
 
 } //namespace jrtti

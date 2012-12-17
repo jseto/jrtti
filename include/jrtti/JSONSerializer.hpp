@@ -4,7 +4,6 @@
 #include <sstream>
 #include <boost/algorithm/string.hpp>
 #include "serializerImpl.hpp"
-#include "jsonparser.hpp"
 
 namespace jrtti {
 
@@ -82,7 +81,6 @@ public:
 			m_stream << ",\n";
 		}
 		need_nl = true;
-//		++identLevel;
 		indent();
 		m_stream << "\"" << propName << "\": ";
 	}
@@ -90,7 +88,6 @@ public:
 	virtual 
 	void
 	propertyEnd() {
-//		--identLevel;
 	}
 
 	virtual
@@ -118,20 +115,19 @@ public:
 			indent();
 		}
 		col_need_nl = true;
-//		ident();
 	}
 
 	virtual
 	void
 	elementEnd() {
 	}
-
+/*
 	virtual
 	void
 	writeNullPtr() {
 		m_stream << "NULL";
 	}
-
+	*/
 protected:
 	virtual
 	void
@@ -289,6 +285,14 @@ public:
 		return currentChar == ']';
 	}
 
+	void
+	elementBegin() {
+	}
+
+	void
+	elementEnd() {
+	}
+
 	std::string
 	propertyBegin() {
 		std::string tok = getToken();
@@ -321,7 +325,6 @@ private:
 		if ( currentChar == '"' ) {
 			return getString();
 		}
-//		currentChar = m_stream.get();
 		while ( !isSeparator( currentChar ) ) {
 			token += currentChar;
 			currentChar = m_stream.get();
@@ -332,7 +335,6 @@ private:
 	std::string 
 	getString() {
 		std::string str;
-//		skipSpaces();
 		currentChar = m_stream.get();
 		while ( currentChar != '"' ) {
 			if ( currentChar == '\\') { //care of escape chars
@@ -348,7 +350,6 @@ private:
 
 	void
 	skipSpaces() {
-//		currentChar = m_stream.get();
 		while( isSeparator( currentChar ) ) {
 			currentChar = m_stream.get();
 		}
@@ -359,7 +360,6 @@ private:
 		while( currentChar == ':' ) {
 			currentChar = m_stream.get();
 		}
-//		currentChar = m_stream.get();
 	}
 
 	bool

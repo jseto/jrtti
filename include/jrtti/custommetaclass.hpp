@@ -1,6 +1,7 @@
 #ifndef jrtticustommetaclassH
 #define jrtticustommetaclassH
 
+#include <boost/type_traits/is_same.hpp>
 #include "metatype.hpp"
 
 namespace jrtti {
@@ -332,7 +333,7 @@ protected:
 		return _copyFromInstance< ClassT >( inst );
 #endif
 	}
-
+/*
 	boost::any
 	copyFromInstanceAsPtr( void * inst )
 	{
@@ -345,7 +346,7 @@ protected:
 	createAsNullPtr() {
 		return ( ClassT * )0;
 	}
-
+*/
 private:
 	template <typename MethodType, typename FunctionType>
 	CustomMetaclass&
