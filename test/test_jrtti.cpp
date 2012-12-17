@@ -243,7 +243,7 @@ TEST_F(MetaTypeTest, testPropsRO) {
 
 	EXPECT_TRUE(mClass()["testDouble"].isReadWrite());
 	EXPECT_FALSE(mClass()["testRO"].isWritable());
-	EXPECT_TRUE( jrtti::metatype<Date>().property("d").isWritable() );
+	EXPECT_TRUE( jrtti::metatype<Date>().property("d")->isWritable() );
 
 	int result = (mClass()["testRO"].get<int>(&sample));
 	EXPECT_EQ(23, result);
@@ -285,23 +285,6 @@ TEST_F(MetaTypeTest, toStr) {
 	delete point;
 }
 
-TEST_F(MetaTypeTest, Deserialize) {
-/*	std::ifstream fin("test");
-	std::stringstream sss;
-	sss << fin.rdbuf();
-	std::string serialized = sss.str();//"{\"collection\":[{\"d\":1,\"m\":4,\"place\":{\"x\":98,\"y\":93},\"y\":2012},{\"d\":1,\"m\":4,\"place\":{\"x\":98,\"y\":93},\"y\":2013}],\"date\":{\"d\":1,\"m\":4,\"place\":{\"x\":98,\"y\":93},\"y\":2011},\"intAbstract\":34,\"intMember\":128,\"intOverloaded\":87,\"memoryDump\":\"CgsMDQ4=\",\"point\":{\"x\":45,\"y\":80},\"refToDate\":{\"d\":1,\"m\":4,\"place\":{\"x\":98,\"y\":93},\"y\":2011},\"testBool\":true,\"testDouble\":65,\"testRO\":23,\"testStr\":\"Hello,\\\"world\\\"!\"}";
-	sample.circularRef = NULL;
-	sample.getArray()[0]=0;
-	mClass().fromStr( &sample, serialized );
-	std::string ss = mClass().toStr(&sample, true);
-	std::ofstream fout("test1");
-	fout << ss;
-
-	EXPECT_EQ(serialized, ss);
-	EXPECT_TRUE( &sample == sample.circularRef );
-	delete sample.getByPtrProp();*/
-}
-
 TEST_F(MetaTypeTest, Serialize) {
 	Point * point = new Point();
 	point->x = 45;
@@ -340,9 +323,27 @@ TEST_F(MetaTypeTest, Serialize) {
 	std::string ss = sstream.str(); 
 
 	ss.erase( std::remove_if( ss.begin(), ss.end(), ::isspace ), ss.end() );
-	std::string serialized = "{\"$id\":\"0\",\"circularRef\":{\"$ref\":\"0\"},\"collection\":[{\"$id\":\"1\",\"d\":1,\"m\":4,\"place\":{\"$id\":\"2\",\"x\":98,\"y\":93},\"y\":2012},{\"$id\":\"3\",\"d\":1,\"m\":4,\"place\":{\"$id\":\"4\",\"x\":98,\"y\":93},\"y\":2013}],\"date\":{\"$id\":\"5\",\"d\":1,\"m\":4,\"place\":{\"$id\":\"6\",\"x\":98,\"y\":93},\"y\":2011},\"intAbstract\":34,\"intOverloaded\":87,\"point\":{\"$id\":\"7\",\"x\":45,\"y\":80},\"refToDate\":{\"$id\":\"8\",\"d\":1,\"m\":4,\"place\":{\"$id\":\"9\",\"x\":98,\"y\":93},\"y\":2011},\"testBool\":true,\"testDouble\":65,\"testRO\":23,\"testStr\":\"Hello,\\\"world\\\"!\\nThisisanewlinewithnonprintablechar\\u0011\"}";
+	std::string serialized = "classSample{\"$id\":\"0\",\"circularRef\":classSample*{\"$ref\":\"0\"},\"collection\":[structDate{\"$id\":\"1\",\"d\":1,\"m\":4,\"place\":structPoint{\"$id\":\"2\",\"x\":98,\"y\":93},\"y\":2012},structDate{\"$id\":\"3\",\"d\":1,\"m\":4,\"place\":structPoint{\"$id\":\"4\",\"x\":98,\"y\":93},\"y\":2013}],\"date\":structDate{\"$id\":\"5\",\"d\":1,\"m\":4,\"place\":structPoint{\"$id\":\"6\",\"x\":98,\"y\":93},\"y\":2011},\"intAbstract\":34,\"intOverloaded\":87,\"point\":structPoint*{\"$id\":\"7\",\"x\":45,\"y\":80},\"refToDate\":structDate{\"$id\":\"8\",\"d\":1,\"m\":4,\"place\":structPoint{\"$id\":\"9\",\"x\":98,\"y\":93},\"y\":2011},\"testBool\":true,\"testDouble\":65,\"testRO\":23,\"testStr\":\"Hello,\\\"world\\\"!\\nThisisanewlinewithnonprintablechar\\u0011\"}";
 	EXPECT_EQ( serialized, ss );
 	delete point;
+}
+
+TEST_F(MetaTypeTest, Deserialize) {
+	std::ifstream in( "serialized.dat" );
+	JSONReader reader( in );
+
+	Sample sample;
+	sample.circularRef = NULL;
+	sample.setBool( false );
+	reader.deserialize( &sample );
+
+	sample.intMember = 128;  // NonStreamable, therefore set here to pass test
+	std::string ss = mClass().toStr(&sample);
+
+	ss.erase( std::remove_if( ss.begin(), ss.end(), ::isspace ), ss.end() );
+	std::string serialized = "{\"circularRef\":{this},\"collection\":[{\"d\":1,\"m\":4,\"place\":{\"x\":98,\"y\":93},\"y\":2012},{\"d\":1,\"m\":4,\"place\":{\"x\":98,\"y\":93},\"y\":2013}],\"date\":{\"d\":1,\"m\":4,\"place\":{\"x\":98,\"y\":93},\"y\":2011},\"intAbstract\":34,\"intMember\":128,\"intOverloaded\":87,\"point\":{\"x\":45,\"y\":80},\"refToDate\":{\"d\":1,\"m\":4,\"place\":{\"x\":98,\"y\":93},\"y\":2011},\"testBool\":true,\"testDouble\":65,\"testRO\":23,\"testStr\":\"Hello,\\\"world\\\"!\\nThisisanewlinewithnonprintablechar\\u0011\"}";
+	EXPECT_EQ(serialized, ss);
+	delete sample.getByPtrProp();
 }
 
 TEST_F(MetaTypeTest, testAnnotation) {

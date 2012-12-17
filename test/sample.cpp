@@ -37,7 +37,7 @@ void declare()
 						.property("testStr", &Sample::setStdStringProp,&Sample::getStdStringProp)
 						.property("testRO", &Sample::testIntFunc)
 						.property("testBool", &Sample::setBool, &Sample::getBool)
-						.collection("collection", /*&Sample::setCollection, */&Sample::getCollection, jrtti::Annotations() << new jrtti::ForceStreamLoadable() )
+						.collection("collection", /*&Sample::setCollection, */&Sample::getCollection/*, jrtti::Annotations() << new jrtti::ForceStreamLoadable() */)
 						.property("circularRef", &Sample::circularRef )
 //						.property("memoryDump", jrtti::Annotations() << new jrtti::StringifyDelegate<Sample>( &Sample::stringifier, &Sample::deStringifier) )
 						.property("onlySetter", &Sample::setDoubleProp )
@@ -70,11 +70,11 @@ void useCase() {
 	s.circularRef = &s; s.setDoubleProp( 344.23 ); s.setStdStringProp( "Hello!!!" );
 	
 	//set the property intMember of s object to 15
-	jrtti::metatype< Sample >().property( "intMember" ).set( &s, 15 );
+	jrtti::metatype< Sample >().property( "intMember" )->set( &s, 15 );
 	std::cout << s.intMember << " == " << 15 << std::endl;
 
 	//retrieve the value of intMember from s object
-	int i = jrtti::metatype< Sample >().property( "intMember" ).get<int>( &s );
+	int i = jrtti::metatype< Sample >().property( "intMember" )->get<int>( &s );
 	std::cout << s.intMember << " == " << i << std::endl;
 
 	//same as above using braket operator

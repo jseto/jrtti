@@ -2,6 +2,7 @@
 #define jsonserializerH
 
 #include <sstream>
+#include <boost/algorithm/string.hpp>
 #include "serializerImpl.hpp"
 #include "jsonparser.hpp"
 
@@ -9,8 +10,8 @@ namespace jrtti {
 
 class JSONWriter : public GenericWriter {
 public:
-	JSONWriter( std::ostream& m_stream ) 
-		: m_stream( m_stream ),
+	JSONWriter( std::ostream& stream ) 
+		: m_stream( stream ),
 		  indentLevel( 0 )
 	{}
 
@@ -71,7 +72,7 @@ public:
 	virtual
 	void 
 	writeString( std::string value ) {
-		m_stream << '"' << JSONParser::addEscapeSeq( value ) << '"';
+		m_stream << '"' << MetaString::addEscapeSeq( value ) << '"';
 	}
 
 	virtual
@@ -123,7 +124,6 @@ public:
 	virtual
 	void
 	elementEnd() {
-//		ident();
 	}
 
 	virtual
@@ -151,16 +151,15 @@ protected:
 
 	virtual
 	void
-	writeObjectBegin() {
+	objectBegin( const Metatype& mt ) {
 		need_nl = false;
-		m_stream << "{\n";
-//		ident();
+		m_stream << mt.typeInfo().name() << " {\n";
 		++indentLevel;
 	}
 
 	virtual
 	void
-	writeObjectEnd() {
+	objectEnd( const Metatype& mt ) {
 		--indentLevel;
 		m_stream << "\n";
 		indent();
@@ -182,7 +181,253 @@ private:
 	int indentLevel;
 };
 
+class JSONReader : public GenericReader {
+public:
+	JSONReader( std::istream& stream ) 
+		: m_stream( stream )
+	{
+		currentChar = m_stream.get();
+	}
 
+	boost::any
+	readObject( const Metatype& mt, void * instance ) {
+		std::string objTypeName = objectBegin();
+		if ( !instance ) {
+			instance = jrtti_cast< void * >( Reflector::instance().metatype( objTypeName ).create() );
+		}
+		while ( !endObject() ) {
+			readProperty( mt, instance );
+		}
+		objectEnd();
+		return instance;
+	}
+
+	boost::any
+	readProperty( const Metatype& mt, void * instance ) {
+		std::string propName = getToken();
+		skipColon();
+		if ( propName == "$id" ) {
+			//todo: store ref
+			std::string ref = getToken();
+		}
+		else {
+			if ( propName == "$ref" ) {
+				// todo: find ref
+				std::string ref = getToken();
+				return 0; //found reference
+			}
+			else {
+				Property * prop = const_cast< Metatype& >(mt).property( propName );
+				if ( prop ) {
+					const boost::any &mod = prop->metatype().read( this, prop->get( instance ) );
+					if ( !mod.empty() && !prop->metatype().isCollection() && prop->isWritable() ) {
+						prop->set( instance, mod );
+					}
+				}
+			}
+		}
+		return boost::any();
+	}
+
+	char
+	readChar() {
+		skipSpaces();
+		return getToken().at(0);
+	}
+
+	bool
+	readBool() {
+		return getToken() == "true";
+	}
+
+	short
+	readShort() {
+		return strToNum< short >( getToken() );
+	}
+
+	int
+	readInt() {
+		return strToNum< int >( getToken() );
+	}
+
+	long
+	readLong() {
+		return strToNum< long >( getToken() );
+	}
+
+	float
+	readFloat() {
+		return strToNum< float >( getToken() );
+	}
+
+	double
+	readDouble() {
+		return strToNum< double >( getToken() );
+	}
+
+	long double
+	readLongDouble() {
+		return strToNum< long double >( getToken() );
+	}
+
+	wchar_t
+	readWchar_t() {
+		return (wchar_t)strToNum< int >( getToken() );
+	}
+
+	std::string
+	readString() {
+		return getToken();
+	}
+
+	std::string
+	objectBegin() {
+		skipSpaces();
+		std::string objTypeName;
+		while ( currentChar != '{' ) {
+			objTypeName += currentChar;
+			currentChar = m_stream.get();
+		}
+		currentChar = m_stream.get();
+		boost::trim(objTypeName);
+		return objTypeName;
+	}
+
+	void 
+	objectEnd() {
+		while ( !endObject() ) {
+			currentChar = m_stream.get();
+		}
+		currentChar = m_stream.get();
+	}
+
+	bool
+	endObject() {
+		skipSpaces();
+		return currentChar == '}';
+	}
+
+	void 
+	collectionBegin() {
+		while ( currentChar != '[' ) {
+			currentChar = m_stream.get();
+		}
+		currentChar = m_stream.get();
+	}
+
+	void 
+	collectionEnd() {
+		while ( !endCollection() ) {
+			currentChar = m_stream.get();
+		}
+		currentChar = m_stream.get();
+	}
+
+	bool
+	endCollection() {
+		skipSpaces();
+		return currentChar == ']';
+	}
+
+protected:
+private:
+	std::string
+	getToken() {
+		std::string token;
+		if ( isSeparator( currentChar ) ) {
+			skipSpaces();
+		}
+		if ( currentChar == '"' ) {
+			return getString();
+		}
+//		currentChar = m_stream.get();
+		while ( !isSeparator( currentChar ) ) {
+			token += currentChar;
+			currentChar = m_stream.get();
+		}
+		return token;
+	}
+
+	std::string 
+	getString() {
+		std::string str;
+//		skipSpaces();
+		currentChar = m_stream.get();
+		while ( currentChar != '"' ) {
+			if ( currentChar == '\\') { //care of escape chars
+				str += currentChar;
+				currentChar = m_stream.get();
+			}
+			str += currentChar;
+			currentChar = m_stream.get();
+		}
+		currentChar = m_stream.get();
+		return removeEscapeSeq( str );
+	}
+
+	void
+	skipSpaces() {
+//		currentChar = m_stream.get();
+		while( isSeparator( currentChar ) ) {
+			currentChar = m_stream.get();
+		}
+	}
+
+	void 
+	skipColon() {
+		while( currentChar == ':' ) {
+			currentChar = m_stream.get();
+		}
+//		currentChar = m_stream.get();
+	}
+
+	bool
+	isSeparator( char c ) {
+		if ( isspace( currentChar ) || currentChar == ',' ) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+		
+	std::string
+	removeEscapeSeq( const std::string& s ) {
+		std::stringstream ss;
+		for (std::string::const_iterator iter = s.begin(); iter != s.end(); ++iter) {
+			if ( *iter == '\\' )
+			{
+				switch ( *( ++iter ) ) {
+					case 'b' : ss << '\b'; break;
+					case 'f' : ss << '\f'; break;
+					case 'n' : ss << '\n'; break;
+					case 'r' : ss << '\r'; break;
+					case 't' : ss << '\t'; break;
+					case 'u' : {
+						std::string num;
+						for ( size_t i = 0; i<4; ++i,iter++ ) {
+							 num+= *(iter + 1);
+						}
+						std::stringstream d;
+						d << std::hex << num;
+						int n;
+						d >> n;
+						ss << char(n);
+						break;
+					}
+					default: ss << *iter; break;
+				}
+			}
+			else {
+				ss << *iter;
+			}
+		}
+		return ss.str();
+    }
+
+	std::istream& m_stream;
+	char currentChar;
+};
 
 } // namespace jrtti
 

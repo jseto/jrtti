@@ -34,27 +34,7 @@ public:
 	isCollection() const {
 		return m_baseType.isCollection();
 	}
-/*	
-	virtual
-	void 
-	write( Writer * writer, const boost::any& value ) {
-		void * inst = get_instance_ptr(value);
 
-		if ( !inst ) {
-			writer->writeNullPtr();
-			return;
-		}
-
-		writer->writeObjectId( inst );
-		AddressRefMap::iterator it = _addressRefMap().find( inst );
-		if ( it == _addressRefMap().end() ) {
-			Metatype::write( writer, value );
-		}
-		else {
-			return "{}";
-		}
-	}
-*/
 protected:
 	Metatype *
 	pointerMetatype() {
@@ -161,6 +141,12 @@ public:
 		writer->writeBool( jrtti_cast<bool>(value) );
 	}
 
+	virtual
+	boost::any
+	read( Reader * reader, const boost::any& instance ) {
+		return reader->readBool();
+	}
+
 protected:
 	virtual
 	std::string
@@ -205,6 +191,12 @@ public:
 		writer->writeChar( jrtti_cast<char>(value) );
 	}
 
+	virtual
+	boost::any
+	read( Reader * reader, const boost::any& instance ) {
+		return reader->readChar();
+	}
+
 protected:
 	virtual
 	std::string
@@ -243,6 +235,11 @@ public:
 		writer->writeShort( jrtti_cast<short>(value) );
 	}
 
+	boost::any
+	read( Reader * reader, const boost::any& instance ) {
+		return reader->readShort();
+	}
+
 protected:
 	virtual
 	std::string
@@ -272,6 +269,11 @@ public:
 	void 
 	write( Writer * writer, const boost::any& value ) {
 		writer->writeInt( jrtti_cast<int>(value) );
+	}
+
+	boost::any
+	read( Reader * reader, const boost::any& instance ) {
+		return reader->readInt();
 	}
 
 protected:
@@ -312,6 +314,11 @@ public:
 		writer->writeLong( jrtti_cast<long>(value) );
 	}
 
+	boost::any
+	read( Reader * reader, const boost::any& instance ) {
+		return reader->readLong();
+	}
+
 protected:
 	virtual
 	std::string
@@ -348,6 +355,11 @@ public:
 	write( Writer * writer, const boost::any& value ) {
 		writer->writeFloat( jrtti_cast<float>(value) );
 	}
+	
+	boost::any
+	read( Reader * reader, const boost::any& instance ) {
+		return reader->readFloat();
+	}
 
 protected:
 	virtual
@@ -363,7 +375,6 @@ protected:
 	}
 	*/
 };
-
 
 class MetaDouble: public Metatype {
 public:
@@ -385,6 +396,11 @@ public:
 	void 
 	write( Writer * writer, const boost::any& value ) {
 		writer->writeDouble( jrtti_cast<double>(value) );
+	}
+
+	boost::any
+	read( Reader * reader, const boost::any& instance ) {
+		return reader->readDouble();
 	}
 
 protected:
@@ -424,6 +440,11 @@ public:
 		writer->writeLongDouble( jrtti_cast<long double>(value) );
 	}
 
+	boost::any
+	read( Reader * reader, const boost::any& instance ) {
+		return reader->readLongDouble();
+	}
+
 protected:
 	virtual
 	std::string
@@ -461,6 +482,11 @@ public:
 		writer->writeWchar_t( jrtti_cast<wchar_t>(value) );
 	}
 
+	boost::any
+	read( Reader * reader, const boost::any& instance ) {
+		return reader->readWchar_t();
+	}
+
 protected:
 	virtual
 	std::string
@@ -492,21 +518,13 @@ public:
 		writer->writeString( jrtti_cast<std::string>(value) );
 	}
 
-protected:
-	virtual
-	std::string
-	_toStr( const boost::any & value ) {
-		return '"' + JSONParser::addEscapeSeq( jrtti_cast<std::string>(value) ) + '"';
-	}
-/*
 	boost::any
-	_fromStr( const boost::any& instance, const std::string& str, bool doCopyFromInstance = true ) {
-
-		return removeEscapeSeq( str );
+	read( Reader * reader, const boost::any& instance ) {
+		return reader->readString();
 	}
-	*/
-private:
-/*	std::string
+
+	static
+	std::string
 	addEscapeSeq( const std::string& s ) {
 		std::ostringstream ss;
 		for (std::string::const_iterator iter = s.begin(); iter != s.end(); ++iter) {
@@ -534,39 +552,12 @@ private:
 		return ss.str();
 	}
 
+protected:
+	virtual
 	std::string
-	removeEscapeSeq( const std::string& s ) {
-		std::stringstream ss;
-		for (std::string::const_iterator iter = s.begin(); iter != s.end(); ++iter) {
-			if ( *iter == '\\' )
-			{
-				switch ( *( ++iter ) ) {
-					case 'b' : ss << '\b'; break;
-					case 'f' : ss << '\f'; break;
-					case 'n' : ss << '\n'; break;
-					case 'r' : ss << '\r'; break;
-					case 't' : ss << '\t'; break;
-					case 'u' : {
-						std::string num;
-						for ( size_t i = 0; i<4; ++i,iter++ ) {
-							 num+= *(iter + 1);
-						}
-						std::stringstream d;
-						d << std::hex << num;
-						int n;
-						d >> n;
-						ss << char(n);
-						break;
-					}
-					default: ss << *iter; break;
-				}
-			}
-			else {
-				ss << *iter;
-			}
-		}
-		return ss.str();
-    }*/
+	_toStr( const boost::any & value ) {
+		return '"' + addEscapeSeq( jrtti_cast<std::string>(value) ) + '"';
+	}
 };
 
 //------------------------------------------------------------------------------

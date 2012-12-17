@@ -30,6 +30,11 @@ public:
 		return true;
 	}
 
+	bool
+	isObject() const {
+		return false;
+	}
+
 	virtual
 	void 
 	write( Writer * writer, const boost::any& instance ) {
@@ -53,6 +58,29 @@ public:
 		writer->collectionEnd();
 
 //		return "{\n" + ident( "\"properties\": " +props_str ) + ",\n" + ident( "\"elements\": " + str ) + "\n}";
+	}
+
+	virtual 
+	boost::any
+	read( Reader * reader, const boost::any& instance ) {
+		ClassT& _collection = getReference( instance );
+		reader->collectionBegin();
+		while ( !reader->endCollection() ) {
+			typename ClassT::value_type elem;
+			Metatype& elemType = Reflector::instance().metatype< ClassT::value_type >();
+			if ( boost::is_pointer< ClassT::value_type >::value ) {
+				elem = jrtti_cast< ClassT::value_type >( elemType.read( reader, boost::any( (void *)NULL ) ) );
+				////////// COMPILER ERROR   //// Collections must declare an insert method. See documentation for details.
+				_collection.insert( _collection.end(), elem );
+			}
+			else {
+				const boost::any &mod = elemType.read( reader, elem );
+				////////// COMPILER ERROR   //// Collections must declare an insert method. See documentation for details.
+				_collection.insert( _collection.end(), jrtti_cast< ClassT::value_type >( mod ) );
+			}
+		}
+		reader->collectionEnd();
+		return _collection;
 	}
 
 protected:

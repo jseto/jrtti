@@ -31,6 +31,12 @@ public:
 #endif
 	}
 
+	virtual
+	bool
+	isObject() const {
+		return true;
+	}
+
 	struct detail
 	{
 		template <typename >
@@ -106,7 +112,8 @@ public:
 		typedef typename boost::function< void ( ClassT*, PropT ) >				BoostSetter;
 		typedef typename boost::function< PropT ( ClassT * ) >					BoostGetter;
 
-		return fillProperty< PropT, BoostSetter, BoostGetter >( name, boost::bind(setter,_1,_2), boost::bind(getter,_1), annotations );
+		fillProperty< PropT, BoostSetter, BoostGetter >( name, boost::bind(setter,_1,_2), boost::bind(getter,_1), annotations );
+		return *this;
 	}
 
 	/**
@@ -126,8 +133,9 @@ public:
 		typedef typename boost::function< void ( ClassT*, PropT ) >	BoostSetter;
 		typedef typename boost::function< PropT ( ClassT * ) >		BoostGetter;
 
-		BoostSetter setter;       //setter empty is used by Property<>::isReadOnly()
-		return fillProperty< PropT, BoostSetter, BoostGetter >(name,  setter, getter, annotations );
+		BoostSetter setter;       //setter empty is used by Property::isReadOnly()
+		fillProperty< PropT, BoostSetter, BoostGetter >(name,  setter, getter, annotations );
+		return *this;
 	}
 
 	/**
@@ -148,7 +156,8 @@ public:
 		typedef typename boost::function< PropT ( ClassT * ) >		BoostGetter;
 
 		BoostGetter getter;       //getter empty is used by Property<>::isReadOnly()
-		return fillProperty< PropT, BoostSetter, BoostGetter >(name,  setter, getter, annotations );
+		fillProperty< PropT, BoostSetter, BoostGetter >(name,  setter, getter, annotations );
+		return *this;
 	}
 
 	/**
@@ -194,7 +203,8 @@ public:
 	property(std::string name, PropT ClassT::* member, const Annotations& annotations = Annotations() )
 	{
 		typedef PropT ClassT::* 	MemberType;
-		return fillProperty< PropT, MemberType, MemberType >(name, member, member, annotations );
+		fillProperty< PropT, MemberType, MemberType >(name, member, member, annotations );
+		return *this;
 	}
 
 	/**
@@ -220,7 +230,11 @@ public:
 		jrtti::declareCollection< PropTNoRef >();
 
 		BoostSetter setter;       //setter empty is used by Property<>::isReadOnly()
-		return fillProperty< PropT, BoostSetter, BoostGetter >(name,  setter, getter, annotations );
+		Property * p = fillProperty< PropT, BoostSetter, BoostGetter >(name,  setter, getter, annotations );
+		if ( !boost::is_same< PropT, PropTNoRef >::value ) {
+			p->setMode( Property::Writable );
+		}
+		return *this;
 	}
 
 	/**
@@ -346,10 +360,11 @@ private:
 	}
 
 	template <typename PropT, typename SetterType, typename GetterType >
-	CustomMetaclass&
+	Property *
 	fillProperty(std::string name, SetterType setter, GetterType getter, const Annotations& annotations )
 	{
-		if (  _properties().find( name ) == _properties().end() )
+		PropertyMap::iterator it = _properties().find( name );
+		if ( it == _properties().end() )
 		{
 			TypedProperty< ClassT, PropT > * p = new TypedProperty< ClassT, PropT >;
 			p->setter(setter);
@@ -357,8 +372,11 @@ private:
 			p->name(name);
 			p->annotations( annotations );
 			addProperty(name, p);
+			return p;
 		}
-		return *this;
+		else {
+			return it->second;
+		}
 	}
 
 #ifdef BOOST_NO_IS_ABSTRACT
