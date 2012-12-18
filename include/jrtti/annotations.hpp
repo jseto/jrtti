@@ -5,6 +5,7 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/pointer_cast.hpp>
 #include <boost/function.hpp>
+#include "serializer.hpp"
 
 namespace jrtti {
 
@@ -80,8 +81,8 @@ public:
 	 */
 	template< typename T >
 	T *
-	getFirst() {
-		for ( Container::iterator it = m_annotations.begin(); it != m_annotations.end(); ++it ) {
+	getFirst() const {
+		for ( Container::const_iterator it = m_annotations.begin(); it != m_annotations.end(); ++it ) {
 			T * p = dynamic_cast< T* >( *it );
 			if ( p )
 				return p;
@@ -97,9 +98,9 @@ public:
 	 */
 	template< typename T >
 	std::vector< T * >
-	getAll() {
+	getAll() const {
 		std::vector< T * > v;
-		for ( Container::iterator it = m_annotations.begin(); it != m_annotations.end(); ++it ) {
+		for ( Container::const_iterator it = m_annotations.begin(); it != m_annotations.end(); ++it ) {
 			T * p = dynamic_cast< T* >( *it );
 			if ( p )
 				v.push_back( p );
@@ -115,7 +116,7 @@ public:
 	 */
 	template< typename T >
 	bool
-	has() {
+	has() const {
 		return getFirst< T >() != NULL;
 	}
 
@@ -131,24 +132,51 @@ private:
 class NoStreamable : public Annotation {
 };
 
+class HiddenPropertyBase : public Annotation {
+public:
+	virtual void write( void * instance, Writer * writer ) = 0;
+	virtual void read( void * instance, Reader * read ) = 0;
+};
+
+/**
+ * \brief Annotation for streaming not declared properties
+ *
+ */
+template< typename ClassT >
+class HiddenProperty : public HiddenPropertyBase {
+	typedef boost::function< void ( ClassT*, Writer* ) > WriteMethod;
+	typedef boost::function< void ( ClassT*, Reader* ) > ReadMethod;
+
+public:
+	HiddenProperty( const std::string& propName, WriteMethod writeMethod, ReadMethod readMethod )
+		: m_propName( propName ),
+		  m_writeMethod( writeMethod ),
+		  m_readMethod( readMethod )
+	{}
+
+	void write( void * instance, Writer * writer ) {
+		writer->propertyBegin( m_propName );
+		m_writeMethod( (ClassT *)instance, writer );
+		writer->propertyEnd();
+	}
+
+	void read( void * instance, Reader * reader ) {
+		reader->propertyBegin();
+		m_readMethod( (ClassT *)instance, reader );
+		reader->propertyEnd();
+	}
+
+private:
+	WriteMethod m_writeMethod;
+	ReadMethod m_readMethod;
+	std::string m_propName;
+};
+
 class StringifyDelegateBase : public Annotation {
 public:
 	virtual std::string toStr( void * instance )=0;
 	virtual void fromStr( void * instance, std::string str )=0;
 };
-
-/**
- * \brief Marks property for stream reading
- * 
- * Reference or pointer properties without setter are marked as ReadOnly. 
- * Therefore, the fromStr method ignores such a property and it is not loaded.
- * Non const references or pointers give access to it contens allowing to change 
- * internal values. This often happens in streaming. This Annotation forces the 
- * streaming mechanism to load data for such properties.
- */
-/*class ForceStreamLoadable : public Annotation {
-	//TODO: considering the constness of references and pointers, this may be unnecesary
-};*/
 
 /**
  * \brief Delegates for toStr and fromStr

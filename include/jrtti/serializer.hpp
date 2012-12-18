@@ -4,6 +4,7 @@
 #include <boost/any.hpp>
 #include <string>
 #include <map>
+#include "helpers.hpp"
 
 namespace jrtti {
 	// Converters -> registrable al Serializer (factory) ---- strigyfier  void serialize( Serializer * ser, const Metaobject& mo, const std::string& propName, const boost::any& propValue )
@@ -61,7 +62,7 @@ public:
 
 	virtual
 	void
-	propertyBegin( const std::string& propName, const Metatype& propMetatype ) = 0;
+	propertyBegin( const std::string& propName ) = 0;
 
 	virtual 
 	void

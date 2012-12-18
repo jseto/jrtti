@@ -12,6 +12,7 @@
 #include "collection.hpp"
 #include "metaobject.hpp"
 #include "property.hpp"
+//#include "serializer.hpp"
 #include <typeinfo>
 
 namespace jrtti {

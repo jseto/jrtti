@@ -9,6 +9,7 @@
 #include <string>
 #include <jrtti/jrtti.hpp>
 #include <jrtti/base64.hpp>
+#include <jrtti/serializer.hpp>
 
 struct Point
 {
@@ -99,6 +100,14 @@ public:
 
 	char * getArray() {
 		return m_sampleArray;
+	}
+
+	void writeHiddenProperty( jrtti::Writer * writer ) {
+		writer->writeString( jrtti::Base64::encode( (uint8_t *) m_sampleArray, m_arraySize ) );
+	}
+
+	void readHiddenProperty( jrtti::Reader * reader ) {
+		jrtti::Base64::decode( reader->readString(), (uint8_t *)m_sampleArray );
 	}
 
 	std::string stringifier() {

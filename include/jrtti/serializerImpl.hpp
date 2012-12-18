@@ -46,12 +46,18 @@ public:
 				Property * prop = it->second;
 				if ( prop && prop->isReadable() ) {
 					if ( !prop->annotations().has< NoStreamable >() ) {
-						propertyBegin( prop->name(), prop->metatype() );
+						propertyBegin( prop->name() );
 						prop->metatype().write( this, prop->get(instance) );
 						propertyEnd();
 					}
 				}
 			}
+
+			std::vector< HiddenPropertyBase * > hiddenProps = mt.annotations().getAll< HiddenPropertyBase >();
+			for ( std::vector< HiddenPropertyBase * >::iterator it = hiddenProps.begin(); it != hiddenProps.end(); ++it ) {
+				(*it)->write( instance, this );
+			}
+
 			objectEnd( mt );
 		}
 	}
@@ -89,6 +95,12 @@ public:
 				instance = inst;
 			}
 		}
+
+		std::vector< HiddenPropertyBase * > hiddenProps = mt.annotations().getAll< HiddenPropertyBase >();
+		for ( std::vector< HiddenPropertyBase * >::iterator it = hiddenProps.begin(); it != hiddenProps.end(); ++it ) {
+			(*it)->read( instance, this );
+		}
+
 		objectEnd();
 		return instance;
 	}

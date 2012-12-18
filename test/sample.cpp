@@ -24,7 +24,7 @@ void declare()
 						.property("intOverloaded", &SampleBase::getIntOverloaded);
 #endif
 
-	jrtti::declare<Sample>( jrtti::Annotations() << new GUIAnnotation( "sample.ico" ) )
+	jrtti::declare<Sample>( jrtti::Annotations() << new GUIAnnotation( "sample.ico" ) << new jrtti::HiddenProperty<Sample>( "hiddenMemoryDump", &Sample::writeHiddenProperty, &Sample::readHiddenProperty ) )
 				.derivesFrom<SampleBase>()
 						.property("intMember", &Sample::intMember,
 									jrtti::Annotations() << new jrtti::NoStreamable() )

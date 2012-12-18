@@ -76,7 +76,7 @@ public:
 
 	virtual
 	void
-	propertyBegin( const std::string& propName, const Metatype& propMetatype ) {
+	propertyBegin( const std::string& propName ) {
 		if (need_nl) {
 			m_stream << ",\n";
 		}
