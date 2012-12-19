@@ -134,8 +134,17 @@ class NoStreamable : public Annotation {
 
 class HiddenPropertyBase : public Annotation {
 public:
+	HiddenPropertyBase( std::string propName ) 
+		: m_propertyName( propName )
+	{}
+
 	virtual void write( void * instance, Writer * writer ) = 0;
 	virtual void read( void * instance, Reader * read ) = 0;
+	const std::string& propertyName() {
+		return m_propertyName;
+	}
+private:
+	std::string m_propertyName;
 };
 
 /**
@@ -149,27 +158,26 @@ class HiddenProperty : public HiddenPropertyBase {
 
 public:
 	HiddenProperty( const std::string& propName, WriteMethod writeMethod, ReadMethod readMethod )
-		: m_propName( propName ),
+		: HiddenPropertyBase( propName ),
 		  m_writeMethod( writeMethod ),
 		  m_readMethod( readMethod )
 	{}
 
 	void write( void * instance, Writer * writer ) {
-		writer->propertyBegin( m_propName );
+//		writer->propertyBegin( propertyName() );
 		m_writeMethod( (ClassT *)instance, writer );
-		writer->propertyEnd();
+//		writer->propertyEnd();
 	}
 
 	void read( void * instance, Reader * reader ) {
-		reader->propertyBegin();
+//		reader->propertyBegin();
 		m_readMethod( (ClassT *)instance, reader );
-		reader->propertyEnd();
+//		reader->propertyEnd();
 	}
 
 private:
 	WriteMethod m_writeMethod;
 	ReadMethod m_readMethod;
-	std::string m_propName;
 };
 
 class StringifyDelegateBase : public Annotation {

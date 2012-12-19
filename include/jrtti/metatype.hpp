@@ -183,10 +183,17 @@ public:
 	 * Looks for a property of this class by name
 	 * \param name the name of the property to look for
 	 * \return the found property abstraction
+	 * \throw if property name not found
 	 * \sa property
 	 */
 	Property& operator []( const std::string& name) {
-		return property(name);
+		Property * prop = property(name);
+		if ( prop ) {
+			return *prop;
+		}
+		else {
+			throw Error( "Property '" + name + "' not declared in '" + Metatype::name() + "' metaclass" );
+		}
 	}
 
 	/**
@@ -194,17 +201,18 @@ public:
 	 *
 	 * Looks for a property of this class by name
 	 * \param name the name of the property to look for
-	 * \return the found property abstraction
+	 * \return the found property abstraction. NULL if not found
 	 * \sa operator[](std::string name)
 	 */
-	virtual
-	Property&
+	Property *
 	property( const std::string& name) {
 		PropertyMap::iterator it = _properties().find(name);
 		if ( it == _properties().end() ) {
-			throw Error( "Property '" + name + "' not declared in '" + Metatype::name() + "' metaclass" );
+			return NULL;
 		}
-		return *it->second;
+		else {
+			return it->second;
+		}
 	}
 
 	/**
@@ -311,7 +319,7 @@ public:
 	eval( const boost::any & instance, std::string path) {
 		size_t pos = path.find_first_of(".");
 		std::string name = path.substr( 0, pos );
-		Property& prop = property(name);
+		Property& prop = (*this)[(name)];
 
 		void * inst = get_instance_ptr(instance);
 		if ( !inst )
@@ -351,7 +359,7 @@ public:
 	apply( const boost::any& instance, std::string path, const boost::any& value ) {
 		size_t pos = path.find_first_of(".");
 		std::string name = path.substr( 0, pos );
-		Property& prop = property(name);
+		Property& prop = (*this)[(name)];
 
 		void * inst = get_instance_ptr(instance);
 		if (pos == std::string::npos) {

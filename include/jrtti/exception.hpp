@@ -25,6 +25,14 @@ namespace jrtti
 		{}
 	};
 
+	class SerializerError : public Error
+	{
+	public:
+		SerializerError( std::string message )
+			: Error( "Serializer error" + ( message.length()? ": " + message : "" ) )
+		{}
+	};
+
 	class BadCast : public Error
 	{
 	public:

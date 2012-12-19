@@ -243,7 +243,7 @@ TEST_F(MetaTypeTest, testPropsRO) {
 
 	EXPECT_TRUE(mClass()["testDouble"].isReadWrite());
 	EXPECT_FALSE(mClass()["testRO"].isWritable());
-	EXPECT_TRUE( jrtti::metatype<Date>().property("d").isWritable() );
+	EXPECT_TRUE( jrtti::metatype<Date>().property("d")->isWritable() );
 
 	int result = (mClass()["testRO"].get<int>(&sample));
 	EXPECT_EQ(23, result);

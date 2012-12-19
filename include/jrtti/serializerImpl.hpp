@@ -6,6 +6,7 @@
 
 #include "metatype.hpp"
 #include "serializer.hpp"
+#include "exception.hpp"
 
 namespace jrtti {
 
@@ -55,7 +56,9 @@ public:
 
 			std::vector< HiddenPropertyBase * > hiddenProps = mt.annotations().getAll< HiddenPropertyBase >();
 			for ( std::vector< HiddenPropertyBase * >::iterator it = hiddenProps.begin(); it != hiddenProps.end(); ++it ) {
+				propertyBegin( (*it)->propertyName() );
 				(*it)->write( instance, this );
+				propertyEnd();
 			}
 
 			objectEnd( mt );
@@ -95,12 +98,6 @@ public:
 				instance = inst;
 			}
 		}
-
-		std::vector< HiddenPropertyBase * > hiddenProps = mt.annotations().getAll< HiddenPropertyBase >();
-		for ( std::vector< HiddenPropertyBase * >::iterator it = hiddenProps.begin(); it != hiddenProps.end(); ++it ) {
-			(*it)->read( instance, this );
-		}
-
 		objectEnd();
 		return instance;
 	}
@@ -118,10 +115,26 @@ public:
 				return refInst;
 			}
 			else {
-				Property& prop = const_cast< Metatype& >(mt).property( propName );
-				const boost::any &mod = prop.metatype().read( this, prop.get( instance ) );
-				if ( !mod.empty() && !prop.metatype().isCollection() && prop.isWritable() ) {
-					prop.set( instance, mod );
+				Property * prop = const_cast< Metatype& >(mt).property( propName );
+				if ( prop ) {
+					const boost::any &mod = prop->metatype().read( this, prop->get( instance ) );
+					if ( !mod.empty() && !prop->metatype().isCollection() && prop->isWritable() ) {
+						prop->set( instance, mod );
+					}
+				}
+				else {    // maybe a hidden property
+					std::vector< HiddenPropertyBase * > hiddenProps = mt.annotations().getAll< HiddenPropertyBase >();
+					std::vector< HiddenPropertyBase * >::const_iterator it = hiddenProps.begin();
+					while ( it != hiddenProps.end() ) {
+						if ( (*it)->propertyName() == propName ) {
+							(*it)->read( instance, this );
+							break;
+						}
+						++it;
+					}
+					if ( it == hiddenProps.end() ) {
+						throw SerializerError( "Property " + prop->name() + " is not member of metatype " + mt.name() );
+					}
 				}
 			}
 		}
