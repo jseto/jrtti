@@ -337,7 +337,7 @@ TEST_F(MetaTypeTest, Deserialize) {
 	sample.setBool( false );
 	reader.deserialize( &sample );
 
-	sample.intMember = 128;  // NonStreamable, therefore set here to pass test
+	sample.intMember = 128;  // NoSerializable, therefore set here to pass test
 	std::string ss = mClass().toStr(&sample);
 
 	ss.erase( std::remove_if( ss.begin(), ss.end(), ::isspace ), ss.end() );

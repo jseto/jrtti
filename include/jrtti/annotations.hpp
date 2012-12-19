@@ -5,11 +5,11 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/pointer_cast.hpp>
 #include <boost/function.hpp>
-#include "serializer.hpp"
+//#include "serializer.hpp"
 
 namespace jrtti {
 
-class Annotations;
+//class Annotations;
 
 /**
  * \brief Base class for annotations
@@ -28,8 +28,8 @@ public:
  * Custom annotations provide metadata to elements of jrtti. This class is a container
  * of Anotation instances wich is stored with the jrtti element. You can retrieve
  * the metadata container by calling annotations method of each jrtti element.
- * jrtti provides the standart Annotation NonStreamable to note that a property
- * is not streamable.
+ * jrtti provides the standart Annotation NoSerializable to note that a property
+ * is not serializable.
  * You can create your own annotations by creating a class derived from Annotation
  * See sample.h for an example of use
  */
@@ -122,62 +122,6 @@ public:
 
 private:
 	Container m_annotations;
-};
-
-/**
- * \brief Annotation for non streamable properties
- *
- * A property with annotation NoStreamable will not be streamed
- */
-class NoStreamable : public Annotation {
-};
-
-class HiddenPropertyBase : public Annotation {
-public:
-	HiddenPropertyBase( std::string propName ) 
-		: m_propertyName( propName )
-	{}
-
-	virtual void write( void * instance, Writer * writer ) = 0;
-	virtual void read( void * instance, Reader * read ) = 0;
-	const std::string& propertyName() {
-		return m_propertyName;
-	}
-private:
-	std::string m_propertyName;
-};
-
-/**
- * \brief Annotation for streaming not declared properties
- *
- */
-template< typename ClassT >
-class HiddenProperty : public HiddenPropertyBase {
-	typedef boost::function< void ( ClassT*, Writer* ) > WriteMethod;
-	typedef boost::function< void ( ClassT*, Reader* ) > ReadMethod;
-
-public:
-	HiddenProperty( const std::string& propName, WriteMethod writeMethod, ReadMethod readMethod )
-		: HiddenPropertyBase( propName ),
-		  m_writeMethod( writeMethod ),
-		  m_readMethod( readMethod )
-	{}
-
-	void write( void * instance, Writer * writer ) {
-//		writer->propertyBegin( propertyName() );
-		m_writeMethod( (ClassT *)instance, writer );
-//		writer->propertyEnd();
-	}
-
-	void read( void * instance, Reader * reader ) {
-//		reader->propertyBegin();
-		m_readMethod( (ClassT *)instance, reader );
-//		reader->propertyEnd();
-	}
-
-private:
-	WriteMethod m_writeMethod;
-	ReadMethod m_readMethod;
 };
 
 class StringifyDelegateBase : public Annotation {

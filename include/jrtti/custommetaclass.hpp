@@ -216,7 +216,7 @@ public:
 	 * will be available as a Metacollection throught it.
 	 * A property is an abstraction of class members.
 	 * \param name property collection name
-	 * \param getter the address of the getter method. Should return a reference to the collection type to allow to be loaded from a stream
+	 * \param getter the address of the getter method. Should return a reference to the collection type to allow to be deserialized
 	 * \param annotations a container with property annotations
 	 * \return this for chain calls
 	 * \sa Metacollection

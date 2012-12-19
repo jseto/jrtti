@@ -5,6 +5,7 @@
 #include <string>
 #include <map>
 #include "helpers.hpp"
+#include "annotations.hpp"
 
 namespace jrtti {
 	// Converters -> registrable al Serializer (factory) ---- strigyfier  void serialize( Serializer * ser, const Metaobject& mo, const std::string& propName, const boost::any& propValue )
@@ -295,6 +296,62 @@ protected:
 
 private:
 	std::map< std::string, void * > m_objectRegistry; 
+};
+
+/***************************************************/
+/********** Serialization related Annotations ******/
+/***************************************************/
+
+/**
+ * \brief Annotation for no serializble properties
+ *
+ * A property with annotation NoSerializable will not be serialized
+ */
+class NoSerializable : public Annotation {
+};
+
+class HiddenPropertyBase : public Annotation {
+public:
+	HiddenPropertyBase( std::string propName ) 
+		: m_propertyName( propName )
+	{}
+
+	virtual void write( void * instance, Writer * writer ) = 0;
+	virtual void read( void * instance, Reader * read ) = 0;
+	const std::string& propertyName() {
+		return m_propertyName;
+	}
+private:
+	std::string m_propertyName;
+};
+
+/**
+ * \brief Annotation for serializing not declared properties
+ *
+ */
+template< typename ClassT >
+class HiddenProperty : public HiddenPropertyBase {
+	typedef boost::function< void ( ClassT*, Writer* ) > WriteMethod;
+	typedef boost::function< void ( ClassT*, Reader* ) > ReadMethod;
+
+public:
+	HiddenProperty( const std::string& propName, WriteMethod writeMethod, ReadMethod readMethod )
+		: HiddenPropertyBase( propName ),
+		  m_writeMethod( writeMethod ),
+		  m_readMethod( readMethod )
+	{}
+
+	void write( void * instance, Writer * writer ) {
+		m_writeMethod( (ClassT *)instance, writer );
+	}
+
+	void read( void * instance, Reader * reader ) {
+		m_readMethod( (ClassT *)instance, reader );
+	}
+
+private:
+	WriteMethod m_writeMethod;
+	ReadMethod m_readMethod;
 };
 
 } // namespace jrtti

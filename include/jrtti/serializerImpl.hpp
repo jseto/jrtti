@@ -46,7 +46,7 @@ public:
 			for( Metatype::PropertyMap::const_iterator it = props.begin(); it != props.end(); ++it) {
 				Property * prop = it->second;
 				if ( prop && prop->isReadable() ) {
-					if ( !prop->annotations().has< NoStreamable >() ) {
+					if ( !prop->annotations().has< NoSerializable >() ) {
 						propertyBegin( prop->name() );
 						prop->metatype().write( this, prop->get(instance) );
 						propertyEnd();

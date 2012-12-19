@@ -27,7 +27,7 @@ void declare()
 	jrtti::declare<Sample>( jrtti::Annotations() << new GUIAnnotation( "sample.ico" ) << new jrtti::HiddenProperty<Sample>( "hiddenMemoryDump", &Sample::writeHiddenProperty, &Sample::readHiddenProperty ) )
 				.derivesFrom<SampleBase>()
 						.property("intMember", &Sample::intMember,
-									jrtti::Annotations() << new jrtti::NoStreamable() )
+									jrtti::Annotations() << new jrtti::NoSerializable() )
 						.property("testDouble", &Sample::setDoubleProp, &Sample::getDoubleProp,
 									jrtti::Annotations() << new GUIAnnotation( "test.ico", false, true ) )
 						.property("point", &Sample::setByPtrProp, &Sample::getByPtrProp,
@@ -37,7 +37,7 @@ void declare()
 						.property("testStr", &Sample::setStdStringProp,&Sample::getStdStringProp)
 						.property("testRO", &Sample::testIntFunc)
 						.property("testBool", &Sample::setBool, &Sample::getBool)
-						.collection("collection", /*&Sample::setCollection, */&Sample::getCollection/*, jrtti::Annotations() << new jrtti::ForceStreamLoadable() */)
+						.collection("collection", /*&Sample::setCollection, */&Sample::getCollection )
 						.property("circularRef", &Sample::circularRef )
 //						.property("memoryDump", jrtti::Annotations() << new jrtti::StringifyDelegate<Sample>( &Sample::stringifier, &Sample::deStringifier) )
 						.property("onlySetter", &Sample::setDoubleProp )
@@ -108,10 +108,5 @@ void useCase() {
 
 	//get a string representation of s object
 	std::string contens = mt.toStr( &s );
-/*	//get a streamable string representation of s objecy
-	contens = mt.toStr( &s, true );
-	//and set the s object from a string representation
-	mt.fromStr( &s, contens );
-	std::cout << contens << std::endl;*/
 }
 
