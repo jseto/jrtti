@@ -87,7 +87,7 @@ public:
 
 	virtual 
 	void
-	propertyEnd() {
+	propertyEnd( const std::string& propName ) {
 	}
 
 	virtual
@@ -132,25 +132,36 @@ protected:
 	virtual
 	void
 	writeObjectId( const std::string& objId ) {
-		indent();
-		need_nl = true;
-		m_stream << "\"$id\": \"" << objId << "\"";
+		propertyBegin( "$id" );
+		writeString( objId );
+		propertyEnd( "$id" );
+//		indent();
+//		need_nl = true;
+//		m_stream << "\"$id\": \"" << objId << "\"";
 	}
 
 	virtual
 	void
 	writeObjectRef( const std::string& objId ) {
-		indent();
-		need_nl = true;
-		m_stream << "\"$ref\": \"" << objId << "\"";
+		propertyBegin( "$ref" );
+		writeString( objId );
+		propertyEnd( "$ref" );
+//		indent();
+//		need_nl = true;
+//		m_stream << "\"$ref\": \"" << objId << "\"";
 	}
 
 	virtual
 	void
 	objectBegin( const Metatype& mt ) {
 		need_nl = false;
-		m_stream << mt.typeInfo().name() << " {\n";
+		m_stream << "{\n";
 		++indentLevel;
+		propertyBegin( "$type" );
+		writeString( mt.typeInfo().name() );
+		propertyEnd( "$type" );
+//		indent();
+//		m_stream << "$type: \"" << mt.typeInfo().name() << "\",\n";
 	}
 
 	virtual
@@ -238,15 +249,17 @@ public:
 
 	std::string
 	objectBegin() {
-		skipSpaces();
-		std::string objTypeName;
 		while ( currentChar != '{' ) {
-			objTypeName += currentChar;
 			currentChar = m_stream.get();
 		}
 		currentChar = m_stream.get();
-		boost::trim(objTypeName);
-		return objTypeName;
+		std::string objTypeName;
+		if ( "$type" == propertyBegin() ) {
+			return readString();
+		}
+		else {
+			throw SerializerError( "Type name expected at position " + numToStr( m_stream.gcount() ) );
+		}
 	}
 
 	void 

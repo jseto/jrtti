@@ -67,7 +67,7 @@ public:
 
 	virtual 
 	void
-	propertyEnd() = 0;
+	propertyEnd( const std::string& propName ) = 0;
 
 	virtual
 	void

@@ -49,7 +49,7 @@ public:
 					if ( !prop->annotations().has< NoSerializable >() ) {
 						propertyBegin( prop->name() );
 						prop->metatype().write( this, prop->get(instance) );
-						propertyEnd();
+						propertyEnd( prop->name() );
 					}
 				}
 			}
@@ -58,7 +58,7 @@ public:
 			for ( std::vector< HiddenPropertyBase * >::iterator it = hiddenProps.begin(); it != hiddenProps.end(); ++it ) {
 				propertyBegin( (*it)->propertyName() );
 				(*it)->write( instance, this );
-				propertyEnd();
+				propertyEnd( (*it)->propertyName() );
 			}
 
 			objectEnd( mt );
