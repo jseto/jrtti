@@ -265,12 +265,8 @@ protected:
 	{}
 
 	virtual
-	std::string
-	readObjectRef() = 0;
-
-	virtual
-	std::string
-	readObjectId() = 0;
+	void *
+	readObjectRef( void * instance ) = 0;
 
 	void
 	clearRefs() {

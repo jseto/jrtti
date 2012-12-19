@@ -33,14 +33,13 @@ public:
 	
 	void
 	writeObject( const Metatype& mt, void * instance ) {
+		objectBegin( mt );
 		std::string objId;
 		if ( isRegistered( instance, objId ) ) {
-			objectBegin( mt );
 			writeObjectRef( objId );
-			objectEnd( mt );
 		}
 		else {
-			objectBegin( mt );
+//			objectBegin( mt );
 			writeObjectId( objId );
 			const Metatype::PropertyMap& props = const_cast< Metatype& >(mt).properties();
 			for( Metatype::PropertyMap::const_iterator it = props.begin(); it != props.end(); ++it) {
@@ -60,9 +59,8 @@ public:
 				(*it)->write( instance, this );
 				propertyEnd( (*it)->propertyName() );
 			}
-
-			objectEnd( mt );
 		}
+		objectEnd( mt );
 	}
 };
 
@@ -92,11 +90,11 @@ public:
 		if ( !instance ) {
 			instance = jrtti_cast< void * >( Reflector::instance().metatype( objTypeName ).create() );
 		}
+
+		instance = readObjectRef( instance );
+		
 		while ( !endObject() ) {
-			void * inst = readProperty( mt, instance );
-			if ( inst ) {
-				instance = inst;
-			}
+			readProperty( mt, instance );
 		}
 		objectEnd();
 		return instance;
@@ -105,37 +103,25 @@ public:
 	void *
 	readProperty( const Metatype& mt, void * instance ) {
 		std::string propName = propertyBegin(); 
-		if ( propName == "$id" ) {
-			storeObjId( readObjectId(), instance );
-		}
-		else {
-			if ( propName == "$ref" ) {
-				void * refInst = getRegisteredObj( readObjectRef() );
-				propertyEnd();
-				return refInst;
+		Property * prop = const_cast< Metatype& >(mt).property( propName );
+		if ( prop ) {
+			const boost::any &mod = prop->metatype().read( this, prop->get( instance ) );
+			if ( !mod.empty() && !prop->metatype().isCollection() && prop->isWritable() ) {
+				prop->set( instance, mod );
 			}
-			else {
-				Property * prop = const_cast< Metatype& >(mt).property( propName );
-				if ( prop ) {
-					const boost::any &mod = prop->metatype().read( this, prop->get( instance ) );
-					if ( !mod.empty() && !prop->metatype().isCollection() && prop->isWritable() ) {
-						prop->set( instance, mod );
-					}
+		}
+		else {    // maybe a hidden property
+			std::vector< HiddenPropertyBase * > hiddenProps = mt.annotations().getAll< HiddenPropertyBase >();
+			std::vector< HiddenPropertyBase * >::const_iterator it = hiddenProps.begin();
+			while ( it != hiddenProps.end() ) {
+				if ( (*it)->propertyName() == propName ) {
+					(*it)->read( instance, this );
+					break;
 				}
-				else {    // maybe a hidden property
-					std::vector< HiddenPropertyBase * > hiddenProps = mt.annotations().getAll< HiddenPropertyBase >();
-					std::vector< HiddenPropertyBase * >::const_iterator it = hiddenProps.begin();
-					while ( it != hiddenProps.end() ) {
-						if ( (*it)->propertyName() == propName ) {
-							(*it)->read( instance, this );
-							break;
-						}
-						++it;
-					}
-					if ( it == hiddenProps.end() ) {
-						throw SerializerError( "Property " + prop->name() + " is not member of metatype " + mt.name() );
-					}
-				}
+				++it;
+			}
+			if ( it == hiddenProps.end() ) {
+				throw SerializerError( "Property " + prop->name() + " is not member of metatype " + mt.name() );
 			}
 		}
 		propertyEnd();

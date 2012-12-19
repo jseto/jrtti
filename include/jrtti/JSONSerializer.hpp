@@ -318,14 +318,19 @@ public:
 	}
 
 protected:
-	std::string
-	readObjectRef() {
-		return getToken();
-	}
-
-	std::string
-	readObjectId() {
-		return getToken();
+	void *
+	readObjectRef( void * instance ) {
+		std::string propName = propertyBegin();
+		std::string refId = readString();
+		propertyEnd();
+		if ( propName == "$id" ) {
+			storeObjId( refId, instance );
+			return instance;
+		}
+		if ( propName == "$ref" ) {
+			return getRegisteredObj( refId );
+		}
+		throw SerializerError( "Expected $id or $ref property at position " + numToStr( m_stream.gcount() ) );
 	}
 
 private:
