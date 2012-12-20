@@ -69,16 +69,16 @@ public:
 	template< typename T >
 	T
 	deserialize( T * instance ) {
-		return jrtti_cast< T >( deserialize( metatype< T >(), boost::any(instance) ) );
+		return jrtti_cast< T >( _deserialize( metatype< T >(), boost::any(instance) ) );
 	}
 
 	virtual
-	boost::any 
+	boost::any
 	deserialize( Metatype& mt, boost::any& instance ) {
 		clearRefs();
 		beginDeserialization(); // class anotation 
 		readHeader();
-		boost::any& result = mt.read( this, instance );
+		boost::any result = mt.read( this, instance );
 		readFooter();
 		endDeserialization(); // en la VCL seria el Loaded del deserializador
 		return result;
@@ -127,6 +127,14 @@ public:
 		propertyEnd();
 		return NULL;
 	}
+private:
+//workarround for Borland C++. Does not allow overloading of templated methods.
+	inline
+	boost::any
+	_deserialize( Metatype& mt, boost::any& instance ) {
+		return deserialize( mt, instance );
+	}
+
 };
 
 } //namespace jrtti

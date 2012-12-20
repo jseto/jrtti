@@ -63,6 +63,14 @@ public:
 
 	virtual
 	void
+	objectBegin( const Metatype& mt ) = 0;
+
+	virtual
+	void
+	objectEnd( const Metatype& mt ) = 0;
+
+	virtual
+	void
 	propertyBegin( const std::string& propName ) = 0;
 
 	virtual 
@@ -134,14 +142,6 @@ protected:
 	virtual
 	void
 	writeObjectId( const std::string& objId  ) = 0;
-
-	virtual
-	void
-	objectBegin( const Metatype& mt ) = 0;
-
-	virtual
-	void
-	objectEnd( const Metatype& mt ) = 0;
 
 	virtual
 	void

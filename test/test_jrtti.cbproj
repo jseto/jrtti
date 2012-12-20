@@ -18,57 +18,57 @@
     <CfgParent>Base</CfgParent>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Base)'!=''">
-    <OutputExt>exe</OutputExt>
     <BCC_OptimizeForSpeed>true</BCC_OptimizeForSpeed>
+    <OutputExt>exe</OutputExt>
+    <Defines>NO_STRICT</Defines>
+    <DCC_CBuilderOutput>JPHNE</DCC_CBuilderOutput>
     <ILINK_IntermediateOutputPath>
     </ILINK_IntermediateOutputPath>
-    <DCC_CBuilderOutput>JPHNE</DCC_CBuilderOutput>
-    <Defines>NO_STRICT</Defines>
     <ILINK_AdditionalOptions>gtest.lib</ILINK_AdditionalOptions>
     <DynamicRTL>true</DynamicRTL>
     <ILINK_GenerateLibFile>true</ILINK_GenerateLibFile>
+    <UsePackages>true</UsePackages>
+    <ILINK_ObjectSearchPath>jrtti</ILINK_ObjectSearchPath>
     <TASM_OutputDir>
     </TASM_OutputDir>
-    <ILINK_ObjectSearchPath>jrtti</ILINK_ObjectSearchPath>
-    <UsePackages>true</UsePackages>
-    <NoVCL>true</NoVCL>
     <ProjectType>CppConsoleApplication</ProjectType>
-    <PackageImports>vcl.bpi;rtl.bpi;bcbie.bpi;vclx.bpi;vclactnband.bpi;dbrtl.bpi;vcldb.bpi;vcldbx.bpi;bdertl.bpi;VclSmp.bpi</PackageImports>
+    <NoVCL>true</NoVCL>
     <IntermediateOutputDir>..\out\codegear\$(Config)\inter</IntermediateOutputDir>
+    <PackageImports>vcl.bpi;rtl.bpi;bcbie.bpi;vclx.bpi;vclactnband.bpi;dbrtl.bpi;vcldb.bpi;vcldbx.bpi;bdertl.bpi;VclSmp.bpi</PackageImports>
     <BCC_wpar>false</BCC_wpar>
-    <IncludePath>$(BDS)\include;$(BDS)\include\dinkumware;$(BDS)\include\vcl;$(BOOST_ROOT);$(GTEST_ROOT)\include\;..\include</IncludePath>
     <BCC_PCHUsage>None</BCC_PCHUsage>
+    <IncludePath>$(BDS)\include;$(BDS)\include\dinkumware;$(BDS)\include\vcl;$(BOOST_ROOT);$(GTEST_ROOT)\include\;..\include</IncludePath>
     <ILINK_LibraryPath>$(BDS)\lib;$(BDS)\lib\obj;$(BDS)\lib\psdk</ILINK_LibraryPath>
     <Multithreaded>true</Multithreaded>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Cfg_1)'!=''">
-    <BCC_OptimizeForSpeed>false</BCC_OptimizeForSpeed>
     <DCC_Optimize>false</DCC_Optimize>
+    <BCC_OptimizeForSpeed>false</BCC_OptimizeForSpeed>
+    <Defines>_DEBUG;$(Defines)</Defines>
+    <DCC_DebugInfoInExe>true</DCC_DebugInfoInExe>
     <ILINK_IntermediateOutputPath>
     </ILINK_IntermediateOutputPath>
-    <DCC_DebugInfoInExe>true</DCC_DebugInfoInExe>
-    <Defines>_DEBUG;$(Defines)</Defines>
     <ILINK_FullDebugInfo>true</ILINK_FullDebugInfo>
     <BCC_InlineFunctionExpansion>false</BCC_InlineFunctionExpansion>
     <ILINK_DisableIncrementalLinking>true</ILINK_DisableIncrementalLinking>
     <BCC_UseRegisterVariables>None</BCC_UseRegisterVariables>
     <DCC_Define>DEBUG</DCC_Define>
+    <ILINK_wdup>false</ILINK_wdup>
+    <BCC_DebugLineNumbers>true</BCC_DebugLineNumbers>
     <TASM_OutputDir>
     </TASM_OutputDir>
-    <BCC_DebugLineNumbers>true</BCC_DebugLineNumbers>
-    <ILINK_wdup>false</ILINK_wdup>
     <FinalOutputDir>..\out\codegear\Debug</FinalOutputDir>
     <TASM_DisplaySourceLines>true</TASM_DisplaySourceLines>
     <BCC_StackFrames>true</BCC_StackFrames>
-    <BCC_DisableOptimizations>true</BCC_DisableOptimizations>
     <ILINK_LibraryPath>$(BDS)\lib\debug;$(GTEST_ROOT)\codegear\Debug;$(ILINK_LibraryPath)</ILINK_LibraryPath>
+    <BCC_DisableOptimizations>true</BCC_DisableOptimizations>
     <TASM_Debugging>Full</TASM_Debugging>
     <BCC_SourceDebuggingOn>true</BCC_SourceDebuggingOn>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Cfg_2)'!=''">
+    <Defines>NDEBUG;$(Defines)</Defines>
     <ILINK_IntermediateOutputPath>
     </ILINK_IntermediateOutputPath>
-    <Defines>NDEBUG;$(Defines)</Defines>
     <TASM_OutputDir>
     </TASM_OutputDir>
     <FinalOutputDir>..\out\codegear\Release\</FinalOutputDir>
@@ -93,7 +93,7 @@
       <BuildOrder>0</BuildOrder>
     </CppCompile>
     <None Include="..\include\jrtti\annotations.hpp">
-      <BuildOrder>14</BuildOrder>
+      <BuildOrder>13</BuildOrder>
     </None>
     <None Include="..\include\jrtti\base64.hpp">
       <BuildOrder>2</BuildOrder>
@@ -102,10 +102,10 @@
       <BuildOrder>3</BuildOrder>
     </None>
     <None Include="..\include\jrtti\collection.hpp">
-      <BuildOrder>12</BuildOrder>
+      <BuildOrder>11</BuildOrder>
     </None>
     <None Include="..\include\jrtti\custommetaclass.hpp">
-      <BuildOrder>13</BuildOrder>
+      <BuildOrder>12</BuildOrder>
     </None>
     <None Include="..\include\jrtti\exception.hpp">
       <BuildOrder>4</BuildOrder>
@@ -116,23 +116,29 @@
     <None Include="..\include\jrtti\jrtti.hpp">
       <BuildOrder>6</BuildOrder>
     </None>
-    <None Include="..\include\jrtti\jsonparser.hpp">
-      <BuildOrder>7</BuildOrder>
-    </None>
-    <None Include="..\include\jrtti\metaobject.hpp">
+    <None Include="..\include\jrtti\JSONSerializer.hpp">
       <BuildOrder>15</BuildOrder>
     </None>
+    <None Include="..\include\jrtti\metaobject.hpp">
+      <BuildOrder>14</BuildOrder>
+    </None>
     <None Include="..\include\jrtti\metatype.hpp">
-      <BuildOrder>8</BuildOrder>
+      <BuildOrder>7</BuildOrder>
     </None>
     <None Include="..\include\jrtti\method.hpp">
-      <BuildOrder>9</BuildOrder>
+      <BuildOrder>8</BuildOrder>
     </None>
     <None Include="..\include\jrtti\property.hpp">
-      <BuildOrder>10</BuildOrder>
+      <BuildOrder>9</BuildOrder>
     </None>
     <None Include="..\include\jrtti\reflector.hpp">
-      <BuildOrder>11</BuildOrder>
+      <BuildOrder>10</BuildOrder>
+    </None>
+    <None Include="..\include\jrtti\serializer.hpp">
+      <BuildOrder>16</BuildOrder>
+    </None>
+    <None Include="..\include\jrtti\serializerImpl.hpp">
+      <BuildOrder>17</BuildOrder>
     </None>
     <BuildConfiguration Include="Debug">
       <Key>Cfg_1</Key>

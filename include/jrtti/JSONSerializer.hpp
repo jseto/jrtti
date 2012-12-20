@@ -3,6 +3,7 @@
 
 #include <sstream>
 #include <boost/algorithm/string.hpp>
+#include "jrtti.hpp"
 #include "serializerImpl.hpp"
 
 namespace jrtti {
@@ -72,6 +73,27 @@ public:
 	void 
 	writeString( std::string value ) {
 		m_stream << '"' << MetaString::addEscapeSeq( value ) << '"';
+	}
+
+	virtual
+	void
+	objectBegin( const Metatype& mt ) {
+		need_nl = false;
+		m_stream << "{\n";
+		++indentLevel;
+		propertyBegin( "$type" );
+		writeString( mt.typeInfo().name() );
+		propertyEnd( "$type" );
+	}
+
+	virtual
+	void
+	objectEnd( const Metatype& mt ) {
+		--indentLevel;
+		m_stream << "\n";
+		indent();
+		m_stream << "}";
+		need_nl = true;
 	}
 
 	virtual
@@ -146,32 +168,6 @@ protected:
 		propertyBegin( "$ref" );
 		writeString( objId );
 		propertyEnd( "$ref" );
-//		indent();
-//		need_nl = true;
-//		m_stream << "\"$ref\": \"" << objId << "\"";
-	}
-
-	virtual
-	void
-	objectBegin( const Metatype& mt ) {
-		need_nl = false;
-		m_stream << "{\n";
-		++indentLevel;
-		propertyBegin( "$type" );
-		writeString( mt.typeInfo().name() );
-		propertyEnd( "$type" );
-//		indent();
-//		m_stream << "$type: \"" << mt.typeInfo().name() << "\",\n";
-	}
-
-	virtual
-	void
-	objectEnd( const Metatype& mt ) {
-		--indentLevel;
-		m_stream << "\n";
-		indent();
-		m_stream << "}";
-		need_nl = true;
 	}
 
 private:

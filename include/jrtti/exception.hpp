@@ -29,7 +29,7 @@ namespace jrtti
 	{
 	public:
 		SerializerError( std::string message )
-			: Error( "Serializer error" + ( message.length()? ": " + message : "" ) )
+			: Error( "Serializer error" + ( message.length()? ": " + message : message ) )
 		{}
 	};
 
