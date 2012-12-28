@@ -279,7 +279,7 @@ TEST_F(MetaTypeTest, toStr) {
 	fs << ss;
 
 	ss.erase( std::remove_if( ss.begin(), ss.end(), ::isspace ), ss.end() );
-	std::string serialized = "{\"circularRef\":{this},\"collection\":[{\"d\":1,\"m\":4,\"place\":{\"x\":98,\"y\":93},\"y\":2012},{\"d\":1,\"m\":4,\"place\":{\"x\":98,\"y\":93},\"y\":2013}],\"date\":{\"d\":1,\"m\":4,\"place\":{\"x\":98,\"y\":93},\"y\":2011},\"intAbstract\":34,\"intMember\":128,\"intOverloaded\":87,\"point\":{\"x\":45,\"y\":80},\"refToDate\":{\"d\":1,\"m\":4,\"place\":{\"x\":98,\"y\":93},\"y\":2011},\"testBool\":true,\"testDouble\":65,\"testRO\":23,\"testStr\":\"Hello,\\\"world\\\"!\\nThisisanewlinewithnonprintablechar\\u0011\"}";
+	std::string serialized = "{\"circularRef\":{this},\"collection\":[{\"d\":1,\"m\":4,\"place\":{\"x\":98,\"y\":93},\"y\":2012},{\"d\":1,\"m\":4,\"place\":{\"x\":98,\"y\":93},\"y\":2013}],\"date\":{\"d\":1,\"m\":4,\"place\":{\"x\":98,\"y\":93},\"y\":2011},\"intAbstract\":34,\"intMember\":128,\"intOverloaded\":87,\"memoryDump\":{????},\"point\":{\"x\":45,\"y\":80},\"refToDate\":{\"d\":1,\"m\":4,\"place\":{\"x\":98,\"y\":93},\"y\":2011},\"testBool\":true,\"testDouble\":65,\"testRO\":23,\"testStr\":\"Hello,\\\"world\\\"!\\nThisisanewlinewithnonprintablechar\\u0011\"}";
 	EXPECT_EQ(serialized, ss);
 
 	delete point;
@@ -324,9 +324,9 @@ TEST_F(MetaTypeTest, Serialize) {
 
 	ss.erase( std::remove_if( ss.begin(), ss.end(), ::isspace ), ss.end() );
 #if defined __BORLANDC__
-	std::string serialized = "{\"$type\":\"Sample\",\"$id\":\"0\",\"circularRef\":{\"$type\":\"Sample*\",\"$ref\":\"0\"},\"collection\":[{\"$type\":\"Date\",\"$id\":\"1\",\"d\":1,\"m\":4,\"place\":{\"$type\":\"Point\",\"$id\":\"2\",\"x\":98,\"y\":93},\"y\":2012},{\"$type\":\"Date\",\"$id\":\"3\",\"d\":1,\"m\":4,\"place\":{\"$type\":\"Point\",\"$id\":\"4\",\"x\":98,\"y\":93},\"y\":2013}],\"date\":{\"$type\":\"Date\",\"$id\":\"5\",\"d\":1,\"m\":4,\"place\":{\"$type\":\"Point\",\"$id\":\"6\",\"x\":98,\"y\":93},\"y\":2011},\"intAbstract\":34,\"intOverloaded\":87,\"point\":{\"$type\":\"Point*\",\"$id\":\"7\",\"x\":45,\"y\":80},\"refToDate\":{\"$type\":\"Date\",\"$id\":\"8\",\"d\":1,\"m\":4,\"place\":{\"$type\":\"Point\",\"$id\":\"9\",\"x\":98,\"y\":93},\"y\":2011},\"testBool\":true,\"testDouble\":65,\"testRO\":23,\"testStr\":\"Hello,\\\"world\\\"!\\nThisisanewlinewithnonprintablechar\\u0011\",\"hiddenMemoryDump\":\"CgsMDQ4=\"}";
+	std::string serialized = "{\"$type\":\"Sample\",\"$id\":\"0\",\"circularRef\":{\"$type\":\"Sample*\",\"$ref\":\"0\"},\"collection\":[{\"$type\":\"Date\",\"$id\":\"1\",\"d\":1,\"m\":4,\"place\":{\"$type\":\"Point\",\"$id\":\"2\",\"x\":98,\"y\":93},\"y\":2012},{\"$type\":\"Date\",\"$id\":\"3\",\"d\":1,\"m\":4,\"place\":{\"$type\":\"Point\",\"$id\":\"4\",\"x\":98,\"y\":93},\"y\":2013}],\"date\":{\"$type\":\"Date\",\"$id\":\"5\",\"d\":1,\"m\":4,\"place\":{\"$type\":\"Point\",\"$id\":\"6\",\"x\":98,\"y\":93},\"y\":2011},\"intAbstract\":34,\"intOverloaded\":87,\"memoryDump\":\"CgsMDQ4=\",\"point\":{\"$type\":\"Point*\",\"$id\":\"7\",\"x\":45,\"y\":80},\"refToDate\":{\"$type\":\"Date\",\"$id\":\"8\",\"d\":1,\"m\":4,\"place\":{\"$type\":\"Point\",\"$id\":\"9\",\"x\":98,\"y\":93},\"y\":2011},\"testBool\":true,\"testDouble\":65,\"testRO\":23,\"testStr\":\"Hello,\\\"world\\\"!\\nThisisanewlinewithnonprintablechar\\u0011\",\"hiddenMemoryDump\":\"CgsMDQ4=\"}";
 #elif defined _MSC_VER
-	std::string serialized = "{\"$type\":\"classSample\",\"$id\":\"0\",\"circularRef\":{\"$type\":\"classSample*\",\"$ref\":\"0\"},\"collection\":[{\"$type\":\"structDate\",\"$id\":\"1\",\"d\":1,\"m\":4,\"place\":{\"$type\":\"structPoint\",\"$id\":\"2\",\"x\":98,\"y\":93},\"y\":2012},{\"$type\":\"structDate\",\"$id\":\"3\",\"d\":1,\"m\":4,\"place\":{\"$type\":\"structPoint\",\"$id\":\"4\",\"x\":98,\"y\":93},\"y\":2013}],\"date\":{\"$type\":\"structDate\",\"$id\":\"5\",\"d\":1,\"m\":4,\"place\":{\"$type\":\"structPoint\",\"$id\":\"6\",\"x\":98,\"y\":93},\"y\":2011},\"intAbstract\":34,\"intOverloaded\":87,\"point\":{\"$type\":\"structPoint*\",\"$id\":\"7\",\"x\":45,\"y\":80},\"refToDate\":{\"$type\":\"structDate\",\"$id\":\"8\",\"d\":1,\"m\":4,\"place\":{\"$type\":\"structPoint\",\"$id\":\"9\",\"x\":98,\"y\":93},\"y\":2011},\"testBool\":true,\"testDouble\":65,\"testRO\":23,\"testStr\":\"Hello,\\\"world\\\"!\\nThisisanewlinewithnonprintablechar\\u0011\",\"hiddenMemoryDump\":\"CgsMDQ4=\"}";
+	std::string serialized = "{\"$type\":\"classSample\",\"$id\":\"0\",\"circularRef\":{\"$type\":\"classSample*\",\"$ref\":\"0\"},\"collection\":[{\"$type\":\"structDate\",\"$id\":\"1\",\"d\":1,\"m\":4,\"place\":{\"$type\":\"structPoint\",\"$id\":\"2\",\"x\":98,\"y\":93},\"y\":2012},{\"$type\":\"structDate\",\"$id\":\"3\",\"d\":1,\"m\":4,\"place\":{\"$type\":\"structPoint\",\"$id\":\"4\",\"x\":98,\"y\":93},\"y\":2013}],\"date\":{\"$type\":\"structDate\",\"$id\":\"5\",\"d\":1,\"m\":4,\"place\":{\"$type\":\"structPoint\",\"$id\":\"6\",\"x\":98,\"y\":93},\"y\":2011},\"intAbstract\":34,\"intOverloaded\":87,\"memoryDump\":\"CgsMDQ4=\",\"point\":{\"$type\":\"structPoint*\",\"$id\":\"7\",\"x\":45,\"y\":80},\"refToDate\":{\"$type\":\"structDate\",\"$id\":\"8\",\"d\":1,\"m\":4,\"place\":{\"$type\":\"structPoint\",\"$id\":\"9\",\"x\":98,\"y\":93},\"y\":2011},\"testBool\":true,\"testDouble\":65,\"testRO\":23,\"testStr\":\"Hello,\\\"world\\\"!\\nThisisanewlinewithnonprintablechar\\u0011\",\"hiddenMemoryDump\":\"CgsMDQ4=\"}";
 #else
 	error: other compilers have different typenames returned by typeid().name(). Implement test string for your compiler
 #endif
@@ -336,19 +336,30 @@ TEST_F(MetaTypeTest, Serialize) {
 
 TEST_F(MetaTypeTest, Deserialize) {
 	std::ifstream in( "serialized.dat" );
-	JSONReader reader( in );
+	std::stringstream in_str;
+	in_str << in.rdbuf();
+	in.seekg( 0 );
 
+	JSONReader reader( in );
+	
 	Sample sample;
 	sample.circularRef = NULL;
 	sample.setBool( false );
 	reader.deserialize( &sample );
+
+	std::stringstream out_str;
+	JSONWriter writer( out_str );
+	writer.serialize( &sample );
+
+	EXPECT_TRUE( in_str.str() == out_str.str() );
+/*
 
 	sample.intMember = 128;  // NoSerializable, therefore set here to pass test
 	std::string ss = mClass().toStr(&sample);
 
 	ss.erase( std::remove_if( ss.begin(), ss.end(), ::isspace ), ss.end() );
 	std::string serialized = "{\"circularRef\":{this},\"collection\":[{\"d\":1,\"m\":4,\"place\":{\"x\":98,\"y\":93},\"y\":2012},{\"d\":1,\"m\":4,\"place\":{\"x\":98,\"y\":93},\"y\":2013}],\"date\":{\"d\":1,\"m\":4,\"place\":{\"x\":98,\"y\":93},\"y\":2011},\"intAbstract\":34,\"intMember\":128,\"intOverloaded\":87,\"point\":{\"x\":45,\"y\":80},\"refToDate\":{\"d\":1,\"m\":4,\"place\":{\"x\":98,\"y\":93},\"y\":2011},\"testBool\":true,\"testDouble\":65,\"testRO\":23,\"testStr\":\"Hello,\\\"world\\\"!\\nThisisanewlinewithnonprintablechar\\u0011\"}";
-	EXPECT_EQ(serialized, ss);
+	EXPECT_EQ(serialized, ss);*/
 	delete sample.getByPtrProp();
 }
 

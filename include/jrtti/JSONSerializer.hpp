@@ -189,7 +189,7 @@ public:
 	JSONReader( std::istream& stream ) 
 		: m_stream( stream )
 	{
-		currentChar = m_stream.get();
+		nextChar();
 	}
 
 	char
@@ -246,24 +246,25 @@ public:
 	std::string
 	objectBegin() {
 		while ( currentChar != '{' ) {
-			currentChar = m_stream.get();
+			nextChar();
 		}
-		currentChar = m_stream.get();
+		nextChar();
 		std::string objTypeName;
 		if ( "$type" == propertyBegin() ) {
 			return readString();
 		}
 		else {
-			throw SerializerError( "Type name expected at position " + numToStr( m_stream.gcount() ) );
+			throw SerializerError( "Type name expected at position " + numToStr( m_stream.tellg() ) );
 		}
 	}
 
 	void 
 	objectEnd() {
 		while ( !endObject() ) {
-			currentChar = m_stream.get();
+			nextChar();
 		}
-		currentChar = m_stream.get();
+		if ( m_stream )
+			nextChar();
 	}
 
 	bool
@@ -275,17 +276,17 @@ public:
 	void 
 	collectionBegin() {
 		while ( currentChar != '[' ) {
-			currentChar = m_stream.get();
+			nextChar();
 		}
-		currentChar = m_stream.get();
+		nextChar();
 	}
 
 	void 
 	collectionEnd() {
 		while ( !endCollection() ) {
-			currentChar = m_stream.get();
+			nextChar();
 		}
-		currentChar = m_stream.get();
+		nextChar();
 	}
 
 	bool
@@ -326,10 +327,20 @@ protected:
 		if ( propName == "$ref" ) {
 			return getRegisteredObj( refId );
 		}
-		throw SerializerError( "Expected $id or $ref property at position " + numToStr( m_stream.gcount() ) );
+		throw SerializerError( "Expected $id or $ref property at position " + numToStr( m_stream.tellg() ) );
 	}
 
 private:
+	char 
+	nextChar() {
+		if ( m_stream ) {
+			return currentChar = m_stream.get();
+		}
+		else {
+			throw SerializerError( "Unexpected end of file" );
+		}
+	}
+
 	std::string
 	getToken() {
 		std::string token;
@@ -341,7 +352,7 @@ private:
 		}
 		while ( !isSeparator( currentChar ) ) {
 			token += currentChar;
-			currentChar = m_stream.get();
+			nextChar();
 		}
 		return token;
 	}
@@ -349,30 +360,30 @@ private:
 	std::string 
 	getString() {
 		std::string str;
-		currentChar = m_stream.get();
+		nextChar();
 		while ( currentChar != '"' ) {
 			if ( currentChar == '\\') { //care of escape chars
 				str += currentChar;
-				currentChar = m_stream.get();
+				nextChar();
 			}
 			str += currentChar;
-			currentChar = m_stream.get();
+			nextChar();
 		}
-		currentChar = m_stream.get();
+		nextChar();
 		return removeEscapeSeq( str );
 	}
 
 	void
 	skipSpaces() {
 		while( isSeparator( currentChar ) ) {
-			currentChar = m_stream.get();
+			nextChar();
 		}
 	}
 
 	void 
 	skipColon() {
 		while( currentChar == ':' ) {
-			currentChar = m_stream.get();
+			nextChar();
 		}
 	}
 

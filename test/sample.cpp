@@ -24,7 +24,7 @@ void declare()
 						.property("intOverloaded", &SampleBase::getIntOverloaded);
 #endif
 
-	jrtti::declare<Sample>( jrtti::Annotations() << new GUIAnnotation( "sample.ico" ) << new jrtti::HiddenProperty<Sample>( "hiddenMemoryDump", &Sample::writeHiddenProperty, &Sample::readHiddenProperty ) )
+	jrtti::declare<Sample>( jrtti::Annotations() << new GUIAnnotation( "sample.ico" ) << new jrtti::HiddenProperty<Sample>( "hiddenMemoryDump", &Sample::writeArray, &Sample::readArray ) )
 				.derivesFrom<SampleBase>()
 						.property("intMember", &Sample::intMember,
 									jrtti::Annotations() << new jrtti::NoSerializable() )
@@ -37,9 +37,9 @@ void declare()
 						.property("testStr", &Sample::setStdStringProp,&Sample::getStdStringProp)
 						.property("testRO", &Sample::testIntFunc)
 						.property("testBool", &Sample::setBool, &Sample::getBool)
-						.collection("collection", /*&Sample::setCollection, */&Sample::getCollection )
+						.collection("collection", &Sample::getCollection )
 						.property("circularRef", &Sample::circularRef )
-//						.property("memoryDump", jrtti::Annotations() << new jrtti::StringifyDelegate<Sample>( &Sample::stringifier, &Sample::deStringifier) )
+						.property("memoryDump", &Sample::getArray, jrtti::Annotations() << new jrtti::SerializerConverter<Sample>( &Sample::writeArray, &Sample::readArray) )
 						.property("onlySetter", &Sample::setDoubleProp )
 
 						.method<void>("testMethod", &Sample::testFunc,

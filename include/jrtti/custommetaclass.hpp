@@ -165,9 +165,7 @@ public:
 	 * \brief Declares a property managed by Annotations
 	 *
 	 * Declares a property without accessor. Accesors are managed by the associated Annotations.
-	 * It is usualy used with StringifyDelegate
-	 * as most times this kind of properties use a set of non-standard native accessors.
-	 * Property is declared as read-write
+	 * This kind of property use a set of non-standard native accessors.
 	 * A property is an abstraction of class members.
 	 * \param name property name
 	 * \param categories a container with property categories
@@ -180,8 +178,8 @@ public:
 		{
 			TypedProperty< ClassT, int > * p = new TypedProperty< ClassT, int >;
 			p->name(name);
-			p->setMode( Property::Writable );
-			p->setMode( Property::Readable );
+//			p->setMode( Property::Writable );
+//			p->setMode( Property::Readable );
 			p->annotations( annotations );
 			addProperty(name, p);
 		}

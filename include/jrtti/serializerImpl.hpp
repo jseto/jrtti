@@ -39,21 +39,30 @@ public:
 			writeObjectRef( objId );
 		}
 		else {
-//			objectBegin( mt );
 			writeObjectId( objId );
 			const Metatype::PropertyMap& props = const_cast< Metatype& >(mt).properties();
 			for( Metatype::PropertyMap::const_iterator it = props.begin(); it != props.end(); ++it) {
 				Property * prop = it->second;
-				if ( prop && prop->isReadable() ) {
+				if ( prop ) {
 					if ( !prop->annotations().has< NoSerializable >() ) {
-						propertyBegin( prop->name() );
-						prop->metatype().write( this, prop->get(instance) );
-						propertyEnd( prop->name() );
+						SerializerConverterBase * converter = prop->annotations().getFirst< SerializerConverterBase >();
+						if ( converter ) {
+							propertyBegin( prop->name() );
+							converter->write( instance, this );
+							propertyEnd( prop->name() );
+						}
+						else {
+							if ( prop->isReadable() ) {
+								propertyBegin( prop->name() );
+								prop->metatype().write( this, prop->get(instance) );
+								propertyEnd( prop->name() );
+							}
+						}
 					}
 				}
 			}
 
-			std::vector< HiddenPropertyBase * > hiddenProps = mt.annotations().getAll< HiddenPropertyBase >();
+			std::vector< HiddenPropertyBase * > hiddenProps = const_cast< Metatype& >(mt).annotations().getAll< HiddenPropertyBase >();
 			for ( std::vector< HiddenPropertyBase * >::iterator it = hiddenProps.begin(); it != hiddenProps.end(); ++it ) {
 				propertyBegin( (*it)->propertyName() );
 				(*it)->write( instance, this );
@@ -105,13 +114,19 @@ public:
 		std::string propName = propertyBegin(); 
 		Property * prop = const_cast< Metatype& >(mt).property( propName );
 		if ( prop ) {
-			const boost::any &mod = prop->metatype().read( this, prop->get( instance ) );
-			if ( !mod.empty() && !prop->metatype().isCollection() && prop->isWritable() ) {
-				prop->set( instance, mod );
+			SerializerConverterBase * converter = prop->annotations().getFirst< SerializerConverterBase >();
+			if ( converter ) {
+				converter->read( instance, this );
+			}
+			else {
+				const boost::any &mod = prop->metatype().read( this, prop->get( instance ) );
+				if ( !mod.empty() && !prop->metatype().isCollection() && prop->isWritable() ) {
+					prop->set( instance, mod );
+				}
 			}
 		}
 		else {    // maybe a hidden property
-			std::vector< HiddenPropertyBase * > hiddenProps = mt.annotations().getAll< HiddenPropertyBase >();
+			std::vector< HiddenPropertyBase * > hiddenProps = const_cast< Metatype& >( mt ).annotations().getAll< HiddenPropertyBase >();
 			std::vector< HiddenPropertyBase * >::const_iterator it = hiddenProps.begin();
 			while ( it != hiddenProps.end() ) {
 				if ( (*it)->propertyName() == propName ) {

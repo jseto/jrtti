@@ -85,8 +85,8 @@ public:
 	 * \brief Retrieve the associated annotations container
 	 * \return the associated annotations container of this property
 	 */
-	const Annotations&
-	annotations() const	{
+	Annotations&
+	annotations() {
 		return m_annotations;
 	}
 
@@ -552,12 +552,11 @@ protected:
 				need_nl = true;
 
 				std::string addToResult;
-				StringifyDelegateBase * stringifyDelegate = prop->annotations().getFirst< StringifyDelegateBase >();
-				if ( stringifyDelegate ) {
-					addToResult = stringifyDelegate->toStr( inst );
+				if ( !prop->annotations().has< SerializerConverterBase >() ) {
+					addToResult = prop->metatype()._toStr( prop->get(inst) );
 				}
 				else {
-					addToResult = prop->metatype()._toStr( prop->get(inst) );
+					addToResult = "{????}";
 				}
 				result += indent( "\"" + prop->name() + "\"" + ": " + addToResult );
 			}

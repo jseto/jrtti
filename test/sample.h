@@ -102,11 +102,11 @@ public:
 		return m_sampleArray;
 	}
 
-	void writeHiddenProperty( jrtti::Writer * writer ) {
+	void writeArray( jrtti::Writer * writer ) {
 		writer->writeString( jrtti::Base64::encode( (uint8_t *) m_sampleArray, m_arraySize ) );
 	}
 
-	void readHiddenProperty( jrtti::Reader * reader ) {
+	void readArray( jrtti::Reader * reader ) {
 		jrtti::Base64::decode( reader->readString(), (uint8_t *)m_sampleArray );
 	}
 

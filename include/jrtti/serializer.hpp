@@ -306,14 +306,44 @@ private:
 class NoSerializable : public Annotation {
 };
 
-class HiddenPropertyBase : public Annotation {
+class SerializerConverterBase : public Annotation {
+public:
+	virtual void write( void * instance, Writer * writer ) = 0;
+	virtual void read( void * instance, Reader * read ) = 0;
+};
+
+template< typename ClassT >
+class SerializerConverter : public SerializerConverterBase {
+	typedef boost::function< void ( ClassT*, Writer* ) > WriteMethod;
+	typedef boost::function< void ( ClassT*, Reader* ) > ReadMethod;
+
+public:
+	SerializerConverter( WriteMethod writeMethod, ReadMethod readMethod ) 
+		: m_writeMethod( writeMethod ),
+		  m_readMethod( readMethod )
+	{}
+
+	void write( void * instance, Writer * writer ) {
+		m_writeMethod( (ClassT *)instance, writer );
+	}
+
+	void read( void * instance, Reader * reader ) {
+		m_readMethod( (ClassT *)instance, reader );
+	}
+
+private:
+	WriteMethod m_writeMethod;
+	ReadMethod m_readMethod;
+};
+
+class HiddenPropertyBase : public SerializerConverterBase {
 public:
 	HiddenPropertyBase( std::string propName ) 
 		: m_propertyName( propName )
 	{}
 
-	virtual void write( void * instance, Writer * writer ) = 0;
-	virtual void read( void * instance, Reader * read ) = 0;
+//	virtual void write( void * instance, Writer * writer ) = 0;
+//	virtual void read( void * instance, Reader * read ) = 0;
 	const std::string& propertyName() {
 		return m_propertyName;
 	}
@@ -323,7 +353,6 @@ private:
 
 /**
  * \brief Annotation for serializing not declared properties
- *
  */
 template< typename ClassT >
 class HiddenProperty : public HiddenPropertyBase {
