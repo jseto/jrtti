@@ -33,7 +33,7 @@ public:
 	
 	void
 	writeObject( const Metatype& mt, void * instance ) {
-		objectBegin( mt );
+		objectBegin( mt.typeInfo().name() );
 		std::string objId;
 		if ( isRegistered( instance, objId ) ) {
 			writeObjectRef( objId );
@@ -69,7 +69,7 @@ public:
 				propertyEnd( (*it)->propertyName() );
 			}
 		}
-		objectEnd( mt );
+		objectEnd( mt.typeInfo().name() );
 	}
 };
 

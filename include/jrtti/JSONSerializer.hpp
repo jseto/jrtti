@@ -77,18 +77,18 @@ public:
 
 	virtual
 	void
-	objectBegin( const Metatype& mt ) {
+	objectBegin( const std::string& metatypeName = "" ) {
 		need_nl = false;
 		m_stream << "{\n";
 		++indentLevel;
 		propertyBegin( "$type" );
-		writeString( mt.typeInfo().name() );
+		writeString( metatypeName );
 		propertyEnd( "$type" );
 	}
 
 	virtual
 	void
-	objectEnd( const Metatype& mt ) {
+	objectEnd( const std::string& metatypeName = "" ) {
 		--indentLevel;
 		m_stream << "\n";
 		indent();
@@ -244,17 +244,21 @@ public:
 	}
 
 	std::string
-	objectBegin() {
+	objectBegin( bool readTypeName = true ) {
 		while ( currentChar != '{' ) {
 			nextChar();
 		}
 		nextChar();
-		std::string objTypeName;
-		if ( "$type" == propertyBegin() ) {
-			return readString();
+		if ( readTypeName ) {
+			if ( "$type" == propertyBegin() ) {
+				return readString();
+			}
+			else {
+				throw SerializerError( "Type name expected at position " + numToStr( m_stream.tellg() ) );
+			}
 		}
 		else {
-			throw SerializerError( "Type name expected at position " + numToStr( m_stream.tellg() ) );
+			return "";
 		}
 	}
 

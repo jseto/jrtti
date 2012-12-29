@@ -63,11 +63,11 @@ public:
 
 	virtual
 	void
-	objectBegin( const Metatype& mt ) = 0;
+	objectBegin( const std::string& metatypeName = "" ) = 0;
 
 	virtual
 	void
-	objectEnd( const Metatype& mt ) = 0;
+	objectEnd( const std::string& metatypeName = "" ) = 0;
 
 	virtual
 	void
@@ -207,7 +207,7 @@ public:
 
 	virtual
 	std::string
-	objectBegin() = 0;
+	objectBegin( bool readTypeName = true ) = 0;
 
 	virtual
 	void
