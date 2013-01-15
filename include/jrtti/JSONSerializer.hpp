@@ -3,6 +3,7 @@
 
 #include <sstream>
 #include <boost/algorithm/string.hpp>
+#include <ctype.h>
 #include "jrtti.hpp"
 #include "serializerImpl.hpp"
 
