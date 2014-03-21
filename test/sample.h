@@ -72,7 +72,7 @@ public:
 	double getDoubleProp() const { return test; }
 
 	std::string getStdStringProp(){ return _s; }
-	void	setStdStringProp(std::string str) { _s = str; }
+	void	setStdStringProp( const std::string& str) { _s = str; }
 
 	Point * getByPtrProp() {
 		return _point;

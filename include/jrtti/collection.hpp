@@ -44,11 +44,11 @@ public:
 		////////// COMPILER ERROR   //// Collections must declare a iterator type and a begin and end methods. See documentation for details.
 		for ( typename ClassT::iterator it = _collection.begin() ; it != _collection.end(); ++it ) {
 			writer->elementBegin();
-			PropertyMap::iterator pmit = mt->_properties().find( "__typeInfoName" );
+/*			PropertyMap::iterator pmit = mt->_properties().find( "__typeInfoName" );
 			if ( pmit != mt->_properties().end() ) {
 				mt = &Reflector::instance().metatype( pmit->second->get< std::string >( getElementPtr( *it ) ) );
 			}
-			mt->write( writer, boost::ref(*it) );
+*/			mt->write( writer, boost::ref(*it) );
 			writer->elementEnd();
 		}
 		writer->collectionEnd();

@@ -2,6 +2,7 @@
 #define jrtticustommetaclassH
 
 #include <boost/type_traits/is_same.hpp>
+#include <boost/type_traits/remove_const.hpp>
 #include "metatype.hpp"
 
 namespace jrtti {
@@ -153,11 +154,13 @@ public:
 	CustomMetaclass&
 	property(std::string name,  void ( ClassT::*setter)( PropT ), const Annotations& annotations = Annotations() )
 	{
-		typedef typename boost::function< void ( ClassT*, PropT ) >	BoostSetter;
+		typedef typename boost::remove_reference< PropT >::type PropTNoRef;
+		typedef typename boost::remove_const< PropTNoRef >::type PropTNoConst;
+		typedef typename boost::function< void ( ClassT*, PropTNoConst ) >	BoostSetter;
 		typedef typename boost::function< PropT ( ClassT * ) >		BoostGetter;
 
 		BoostGetter getter;       //getter empty is used by Property<>::isReadOnly()
-		fillProperty< PropT, BoostSetter, BoostGetter >(name,  setter, getter, annotations );
+		fillProperty< PropTNoConst, BoostSetter, BoostGetter >(name,  setter, getter, annotations );
 		return *this;
 	}
 
@@ -187,7 +190,7 @@ public:
 	}
 
 	/**
-	 * \brief Declares a property from a class attribute
+	 * \brief Declares a property from a class member attribute
 	 *
 	 * Declares a property from a class attribute of type PropT. Accesing
 	 * class attributes is done by value

@@ -118,6 +118,12 @@ TEST_F(MetaTypeTest, StdStringMutator) {
 	EXPECT_EQ(kHelloString, sample.getStdStringProp());
 }
 
+TEST_F(MetaTypeTest, constOnlySetterStrMutator) {
+	mClass()["constOnlySetterStr"].set(&sample, kHelloString);
+
+	EXPECT_EQ(kHelloString, sample.getStdStringProp());
+}
+
 TEST_F(MetaTypeTest, ByValType) {
 	EXPECT_EQ( "Date", mClass()["date"].metatype().name() );
 }
