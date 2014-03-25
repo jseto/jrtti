@@ -2,6 +2,8 @@
 #include <jrtti/jrtti.hpp>
 #include "sample.h"
 
+JRTTI_INSTANTIATE_SINGLETON
+
 void declare()
 {
 	jrtti::declare<Date>()

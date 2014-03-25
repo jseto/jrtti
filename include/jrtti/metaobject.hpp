@@ -38,7 +38,7 @@ public:
 	 * \brief Set the value of a property or a full categorized property
 	 *
 	 * Sets the value of a full categorized property.
-	 * \param name full categorized property name dotted separated. ex: "pont.x"
+	 * \param name full categorized property name dotted separated. ex: "point.x"
 	 * \param value property value to set
 	 */
 	void
@@ -51,7 +51,7 @@ public:
 	 *
 	 * Returns the value of a property or full categorized property
 	 * \tparam the expected type of the property
-	 * \param name full categorized property name dotted separated. ex: "pont.x"
+	 * \param name full categorized property name dotted separated. ex: "point.x"
 	 * \return the property value
 	 */
 	template< typename T >

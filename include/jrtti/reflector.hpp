@@ -26,14 +26,12 @@ class JRTTI_API Reflector
 {
 public:
 
-	~Reflector()
-	{
+	~Reflector() {
     	eraseMetatypes();
 	}
 
 	void
-	clear()
-	{
+	clear()	{
 		eraseMetatypes();
 		m_prefixDecorators.clear();
 		registerPrefixDecorator( "struct" );
@@ -48,7 +46,7 @@ public:
 
 	static Reflector&
 	instance()
-#ifndef JRTTI_SINGLETON_DEFINED	
+#ifdef JRTTI_DEFINE_SINGLETON	
 	{
 		static Reflector inst;
 		return inst;
@@ -180,7 +178,7 @@ public:
 #endif
 	}
 
-	void
+	void		//Property metatype is not defined yet. Insert in waiting list
 	addPendingProperty( std::string tname, Property * prop ) {
 		m_pendingProperties.insert( PendingProps::value_type( tname, prop ) );
 	}
@@ -188,13 +186,12 @@ public:
 private:
 	typedef std::multimap< std::string, Property * > PendingProps;
 
-	Reflector()
-	{
+	Reflector()	{
 		clear();
 	};
 
 	void eraseMetatypes() {
-		std::set< Metatype * > pending;
+		std::set< Metatype * > pending; //Adding existing metatypes to pending set ensures only 1 deletion regardless of synonims
 		for ( TypeMap::iterator it = _meta_types.begin(); it != _meta_types.end(); ++it) {
 			pending.insert( it->second );
 		}

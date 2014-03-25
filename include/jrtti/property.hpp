@@ -170,6 +170,7 @@ public:
 			setMetatype( &jrtti::metatype< PropT >() );
 		} catch ( Error ) {
 			setMetatype( NULL );
+			//Metatype for property not declared yet. Add to pending list.
         	Reflector::instance().addPendingProperty( typeid( PropT ).name(), this );
 		}
 	}

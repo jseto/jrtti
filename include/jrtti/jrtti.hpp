@@ -28,12 +28,12 @@
  * \sa JRTTI_EXPORT
  * \sa JRTTI_IMPORT
  */
-#define JRTTI_DEFINE_SINGLETON	\
-	Reflector&			\
-	Reflector::instance() {		\
-		static Reflector inst;	\
-		return inst;			\
-	}							\
+#define JRTTI_INSTANTIATE_SINGLETON	\
+	jrtti::Reflector&				\
+	jrtti::Reflector::instance() {	\
+		static Reflector inst;		\
+		return inst;				\
+	}								\
 
 
 #include <map>
@@ -123,6 +123,9 @@ namespace jrtti {
 	/**
 	 * \brief Declare an abstract user metaclass
 	 *
+	 * Note: Use only if your compiler does not support SFINAE with abstract types.
+	 * Use declare method instead.
+	 *
 	 * Declares a new abstract user metaclass based on class C
 	 * \tparam C the class to declare
 	 * \param annotations Annotation associated to this metaclass
@@ -170,7 +173,7 @@ namespace jrtti {
 	}*/
 } //namespace jrtti
 
-#if defined (JRTTI_EXPORT) || defined(JRTTI_IMPORT)
+#ifdef JRTTI_EXPORT
 	#ifdef _MSC_VER
 		#pragma warning(pop)
 	#endif
