@@ -312,12 +312,12 @@ public:
 	 * Returns the value of a full categorized property in a boost::any
 	 * container.
 	 * \param instance the object instance from where to retrieve the property value
-	 * \param path full categorized property name dotted separated. ex: "pont.x"
+	 * \param path full categorized property name dotted separated. ex: "point.x"
 	 * \return the property value
 	 */
 	boost::any
 	eval( const boost::any & instance, std::string path) {
-		size_t pos = path.find_first_of(".");
+		size_t pos = path.find_first_of('.');
 		std::string name = path.substr( 0, pos );
 		Property& prop = (*this)[(name)];
 
@@ -337,7 +337,7 @@ public:
 	 * Returns the value of a full categorized property as type PropT.
 	 * \tparam the expected type of the property
 	 * \param instance the object instance from where to retrieve the property value
-	 * \param path full categorized property name dotted separated. ex: "pont.x"
+	 * \param path full categorized property name dotted separated. ex: "point.x"
 	 * \return the property value
 	 */
 	template < typename PropT >
@@ -351,13 +351,13 @@ public:
 	 *
 	 * Sets the value of a full categorized property.
 	 * \param instance the object instance from where to set the property value
-	 * \param path full categorized property name dotted separated. ex: "pont.x"
+	 * \param path full categorized property name dotted separated. ex: "point.x"
 	 * \param value property value to set
 	 * \return used internally
 	 */
 	boost::any
 	apply( const boost::any& instance, std::string path, const boost::any& value ) {
-		size_t pos = path.find_first_of(".");
+		size_t pos = path.find_first_of('.');
 		std::string name = path.substr( 0, pos );
 		Property& prop = (*this)[(name)];
 
