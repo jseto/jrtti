@@ -409,6 +409,7 @@ TEST_F(MetaTypeTest, testMethodAnnotation) {
 TEST_F(MetaTypeTest, testCreate) {
 	Point * p = boost::any_cast< Point * >( mClass()[ "point" ].metatype().create() );
 	EXPECT_TRUE( (p->x == -1) && (p->y == -1) );
+	delete p;
 }
 
 TEST_F(MetaTypeTest, testIntMethodCall) {
