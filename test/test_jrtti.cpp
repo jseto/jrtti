@@ -447,7 +447,7 @@ TEST_F(MetaTypeTest, base64) {
 	int i = memcmp( p, decoded, length );
 
 	EXPECT_FALSE(i);
-	delete p;
+	delete[] p;
 	delete decoded;
 }
 

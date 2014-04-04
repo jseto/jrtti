@@ -136,7 +136,7 @@ public:
 				++it;
 			}
 			if ( it == hiddenProps.end() ) {
-				throw SerializerError( "Property " + prop->name() + " is not member of metatype " + mt.name() );
+				throw SerializerError( "Property " + propName + " is not member of metatype " + mt.name() );
 			}
 		}
 		propertyEnd();
