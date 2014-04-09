@@ -130,14 +130,24 @@ public:
 	 */
 	template < typename PropT >
 	CustomMetaclass&
-	property(std::string name,  PropT (ClassT::*getter)(), const Annotations& annotations = Annotations() )
-	{
-		typedef typename boost::function< void ( ClassT*, PropT ) >	BoostSetter;
-		typedef typename boost::function< PropT ( ClassT * ) >		BoostGetter;
+		property( std::string name, PropT( ClassT::*getter )( ), const Annotations& annotations = Annotations() ) {
+			typedef typename boost::function< void( ClassT*, PropT ) >	BoostSetter;
+			typedef typename boost::function< PropT( ClassT * ) >		BoostGetter;
 
-		BoostSetter setter;       //setter empty is used by Property::isReadOnly()
-		fillProperty< PropT, BoostSetter, BoostGetter >(name,  setter, getter, annotations );
-		return *this;
+			BoostSetter setter;       //setter empty is used by Property::isReadOnly()
+			fillProperty< PropT, BoostSetter, BoostGetter >( name, setter, getter, annotations );
+			return *this;
+	}
+	//implementation for const functions
+	template < typename PropT >
+	CustomMetaclass&
+		property( std::string name, PropT( ClassT::*getter )( )const, const Annotations& annotations = Annotations() ) {
+			typedef typename boost::function< void( ClassT*, PropT ) >	BoostSetter;
+			typedef typename boost::function< PropT( ClassT * ) >		BoostGetter;
+
+			BoostSetter setter;       //setter empty is used by Property::isReadOnly()
+			fillProperty< PropT, BoostSetter, BoostGetter >( name, setter, getter, annotations );
+			return *this;
 	}
 
 	/**

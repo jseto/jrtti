@@ -44,6 +44,7 @@ void declare()
 						.property("circularRef", &Sample::circularRef )
 						.property("memoryDump", &Sample::getArray, jrtti::Annotations() << new jrtti::SerializerConverter<Sample>( &Sample::writeArray, &Sample::readArray) )
 						.property("onlySetter", &Sample::setDoubleProp )
+						.property( "testDoubleROConst", &Sample::getDoubleProp )
 
 						.method<void>("testMethod", &Sample::testFunc,
 									jrtti::Annotations() << new GUIAnnotation( "method.ico", false, false ) )
