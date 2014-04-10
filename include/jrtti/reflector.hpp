@@ -60,7 +60,7 @@ public:
 	declare( const Annotations& annotations = Annotations() )
 	{
 		if ( _meta_types.count( typeid( C ).name() ) ) {
-			return *( dynamic_cast< CustomMetaclass<C> * >( &metatype< C >() ) );
+			return *( dynamic_cast< CustomMetaclass<C> * >( metatype< C >() ) );
 		}
 
 		CustomMetaclass<C> * mc = new CustomMetaclass<C>( annotations );
@@ -90,7 +90,7 @@ public:
 	//////////  COMPILER ERROR: Class C is not a Collection //// Class C should implement type iterator to be a collection
 		typedef typename C::iterator iterator;
 		if ( _meta_types.count( typeid( C ).name() ) ) {
-			return *( dynamic_cast< Metacollection<C> * >( &metatype< C >( ) ) );
+			return *( dynamic_cast< Metacollection<C> * >( metatype< C >( ) ) );
 		}
 
 		Metacollection<C> * mc = new Metacollection<C>( annotations );
@@ -113,17 +113,17 @@ public:
 	}
 
 	template < typename T >
-	Metatype &
+	Metatype *
 	metatype() {
 		return metatype( typeid( T ) );
 	}
 
-	Metatype &
+	Metatype *
 	metatype( const std::type_info& tInfo ) {
 		return metatype( tInfo.name() );
 	}
 
-	Metatype &
+	Metatype *
 	metatype( const std::string& pname ) {
 		std::string name = pname;
 #ifdef __BORLANDC__
@@ -133,9 +133,9 @@ public:
 #endif
 		TypeMap::iterator it = _meta_types.find( name );
 		if ( it == _meta_types.end() ) {
-			throw Error( "Metatype '" + demangle( name ) + "' not declared" );
+			return NULL;
 		}
-		return *it->second;
+		return it->second;
 	}
 
 	/**
@@ -226,7 +226,7 @@ private:
 			ptr_mc = new MetaPointerType( typeid( T* ), *mc);
 		}
 		else {
-			ptr_mc = &metatype< T* >();
+			ptr_mc = metatype< T* >();
 		}
 		_meta_types[ typeid( T ).name() ] = mc;
 		_meta_types[ typeid( T* ).name() ] = ptr_mc;

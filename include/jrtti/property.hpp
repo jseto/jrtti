@@ -64,9 +64,9 @@ public:
 	 * \brief Retrieves the Metatype of this property
 	 * \return the meta type
 	 */
-	Metatype&
+	Metatype *
 	metatype() const {
-		return *_metaType;
+		return _metaType;
 	}
 
 	/**
@@ -166,10 +166,9 @@ public:
 
 	TypedProperty()
 	{
-		try {
-			setMetatype( &jrtti::metatype< PropT >() );
-		} catch ( Error ) {
-			setMetatype( NULL );
+		Metatype * mt = jrtti::metatype< PropT >();
+		setMetatype( mt );
+		if ( !mt ) {
 			//Metatype for property not declared yet. Add to pending list.
         	Reflector::instance().addPendingProperty( typeid( PropT ).name(), this );
 		}
@@ -294,7 +293,7 @@ public:
 
 	void
 	set( void * instance, const boost::any& value ) {
-		if ( !( metatype().typeInfo() == value.type() || value.type() == typeid( void * ) ) )
+		if ( !( metatype()->typeInfo() == value.type() || value.type() == typeid( void * ) ) )
 			throw Error( "pointer required for parameter value" );
 		ClassT * p = static_cast<ClassT *>(instance);
 		p->*m_dataMember = jrtti_cast< void * >( value );

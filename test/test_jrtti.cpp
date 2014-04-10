@@ -12,11 +12,11 @@ void MetaTypeTest::TearDown() {
 }
 
 jrtti::Metatype & MetaTypeTest::mClass(){
-	return jrtti::metatype<Sample>();
+	return *jrtti::metatype<Sample>();
 }
 
 jrtti::Metatype & MetaTypeTest::derivedClass(){
-	return jrtti::metatype<SampleDerived>();
+	return *jrtti::metatype<SampleDerived>();
 }
 
 using namespace jrtti;
@@ -34,15 +34,15 @@ TEST_F(MetaTypeTest, InvertedDeclaration) {
 	d.place.x = 12;
 	d.place.y = 21;
 
-	double x = jrtti::metatype< Rect >().eval<double>( &r, "tl.x" );
+	double x = jrtti::metatype< Rect >()->eval<double>( &r, "tl.x" );
 	EXPECT_EQ( x, r.tl->x );
 
-	double y = jrtti::metatype< Date >().eval<double>( &d, "place.x" );
+	double y = jrtti::metatype< Date >()->eval<double>( &d, "place.x" );
 	EXPECT_EQ( y, d.place.x );
 }
 
 TEST_F(MetaTypeTest, DoubleType) {
-	EXPECT_EQ("double", mClass()["testDouble"].metatype().name());
+	EXPECT_EQ("double", mClass()["testDouble"].metatype()->name());
 }
 
 TEST_F(MetaTypeTest, DoubleAccessor) {
@@ -81,7 +81,7 @@ TEST_F(MetaTypeTest, DoubleMutator) {
 
 TEST_F(MetaTypeTest, IntMemberType) {
 
-	EXPECT_EQ("int", mClass()["intMember"].metatype().name());
+	EXPECT_EQ("int", mClass()["intMember"].metatype()->name());
 }
 
 TEST_F(MetaTypeTest, BoolMutator) {
@@ -125,7 +125,7 @@ TEST_F(MetaTypeTest, constOnlySetterStrMutator) {
 }
 
 TEST_F(MetaTypeTest, ByValType) {
-	EXPECT_EQ( "Date", mClass()["date"].metatype().name() );
+	EXPECT_EQ( "Date", mClass()["date"].metatype()->name() );
 }
 
 TEST_F(MetaTypeTest, ByValAccessor) {
@@ -249,7 +249,7 @@ TEST_F(MetaTypeTest, testPropsRO) {
 
 	EXPECT_TRUE(mClass()["testDouble"].isReadWrite());
 	EXPECT_FALSE(mClass()["testRO"].isWritable());
-	EXPECT_TRUE( jrtti::metatype<Date>().property("d")->isWritable() );
+	EXPECT_TRUE( jrtti::metatype<Date>()->property("d")->isWritable() );
 
 	int result = (mClass()["testRO"].get<int>(&sample));
 	EXPECT_EQ(23, result);
@@ -407,7 +407,7 @@ TEST_F(MetaTypeTest, testMethodAnnotation) {
 }
 
 TEST_F(MetaTypeTest, testCreate) {
-	Point * p = boost::any_cast< Point * >( mClass()[ "point" ].metatype().create() );
+	Point * p = boost::any_cast< Point * >( mClass()[ "point" ].metatype()->create() );
 	EXPECT_TRUE( (p->x == -1) && (p->y == -1) );
 	delete p;
 }
@@ -465,7 +465,7 @@ TEST_F(MetaTypeTest, testCollectionInterface) {
 		++it;
 	}
 
-	std::string res = jrtti::metatype< MyCollection >().toStr( &col );
+	std::string res = jrtti::metatype< MyCollection >()->toStr( &col );
 
 //	col.intMember = 0;
 //	jrtti::metatype< MyCollection >().fromStr( &col, res );
@@ -498,48 +498,48 @@ TEST_F(MetaTypeTest, testMetaobject) {
 }
 
 TEST_F(MetaTypeTest, comparationOperators) {
-	Metatype &mt_sample = jrtti::metatype<Sample>();
-	Metatype &mt_date = jrtti::metatype<Date>();
-	Metatype &mt_point = jrtti::metatype<Point>();
+	Metatype *mt_sample = jrtti::metatype<Sample>();
+	Metatype *mt_date = jrtti::metatype<Date>();
+	Metatype *mt_point = jrtti::metatype<Point>();
 
-	EXPECT_TRUE( ( mt_date == mt_sample["date"].metatype() ) );
-	EXPECT_TRUE( ( mt_date == mt_sample["refToDate"].metatype() ) );
-	EXPECT_TRUE( ( mt_point != mt_sample["point"].metatype() ) );
+	EXPECT_TRUE( ( mt_date == mt_sample->property("date")->metatype() ) );
+	EXPECT_TRUE( ( mt_date == mt_sample->property( "refToDate" )->metatype() ) );
+	EXPECT_TRUE( ( mt_point != mt_sample->property( "point" )->metatype() ) );
 }
 
 TEST_F(MetaTypeTest, parentCheck) {
-	Metatype &mt_sample = jrtti::metatype<Sample>();
-	Metatype &mt_date = jrtti::metatype<Date>();
+	Metatype * mt_sample = jrtti::metatype<Sample>();
+	Metatype * mt_date = jrtti::metatype<Date>();
 
-	EXPECT_FALSE( mt_date.isDerivedFrom( mt_sample ) );
-	EXPECT_TRUE( jrtti::metatype< SampleDerived >().isDerivedFrom( mt_sample ) );
-	EXPECT_TRUE( jrtti::metatype< SampleDerived >().isDerivedFrom< SampleBase >() );
+	EXPECT_FALSE( mt_date->isDerivedFrom( mt_sample ) );
+	EXPECT_TRUE( jrtti::metatype< SampleDerived >()->isDerivedFrom( mt_sample ) );
+	EXPECT_TRUE( jrtti::metatype< SampleDerived >()->isDerivedFrom< SampleBase >() );
 
-	Metatype &mtp_sample = jrtti::metatype<Sample *>();
-	Metatype &mtp_date = jrtti::metatype<Date*>();
+	Metatype * mtp_sample = jrtti::metatype<Sample *>();
+	Metatype * mtp_date = jrtti::metatype<Date*>();
 
-	EXPECT_FALSE( mtp_date.isDerivedFrom( mtp_sample ) );
-	EXPECT_TRUE( jrtti::metatype< SampleDerived * >().isDerivedFrom( mtp_sample ) );
-	EXPECT_TRUE( jrtti::metatype< SampleDerived *>().isDerivedFrom< SampleBase * >() );
+	EXPECT_FALSE( mtp_date->isDerivedFrom( mtp_sample ) );
+	EXPECT_TRUE( jrtti::metatype< SampleDerived * >()->isDerivedFrom( mtp_sample ) );
+	EXPECT_TRUE( jrtti::metatype< SampleDerived *>()->isDerivedFrom< SampleBase * >() );
 }
 
 TEST_F(MetaTypeTest, queryTypeAttributes) {
 // isAbstract
-	EXPECT_FALSE( jrtti::metatype<Date>().isAbstract() );
-	EXPECT_TRUE( jrtti::metatype<SampleBase>().isAbstract() );
+	EXPECT_FALSE( jrtti::metatype<Date>()->isAbstract() );
+	EXPECT_TRUE( jrtti::metatype<SampleBase>()->isAbstract() );
 
-	EXPECT_FALSE( jrtti::metatype<Date *>().isAbstract() );
-	EXPECT_TRUE( jrtti::metatype<SampleBase *>().isAbstract() );
+	EXPECT_FALSE( jrtti::metatype<Date *>()->isAbstract() );
+	EXPECT_TRUE( jrtti::metatype<SampleBase *>()->isAbstract() );
 
 // isCollection
 	jrtti::declareCollection< MyCollection >()
 		.property( "intMember", &MyCollection::intMember );
 
-	EXPECT_FALSE( jrtti::metatype<Sample>().isCollection() );
-	EXPECT_TRUE( jrtti::metatype< MyCollection >().isCollection() );
+	EXPECT_FALSE( jrtti::metatype<Sample>()->isCollection() );
+	EXPECT_TRUE( jrtti::metatype< MyCollection >()->isCollection() );
 
-	EXPECT_FALSE( jrtti::metatype<Sample *>().isCollection() );
-	EXPECT_TRUE( jrtti::metatype< MyCollection *>().isCollection() );
+	EXPECT_FALSE( jrtti::metatype<Sample *>()->isCollection() );
+	EXPECT_TRUE( jrtti::metatype< MyCollection *>()->isCollection() );
 
 }
 
@@ -552,7 +552,7 @@ TEST_F(MetaTypeTest, untypedProperty) {
 	TestUntyped testUntyped;
 
 	Metatype& mt = declare< TestUntyped >();
-	UntypedProperty< TestUntyped > * prop = new UntypedProperty< TestUntyped >( metatype< Point * >(), "untyped" );
+	UntypedProperty< TestUntyped > * prop = new UntypedProperty< TestUntyped >( *metatype< Point * >(), "untyped" );
 	prop->member( &TestUntyped::ptr );
 	mt.addProperty( "untyped", prop ); 
 
@@ -566,7 +566,7 @@ TEST_F(MetaTypeTest, untypedProperty) {
 	s.erase( std::remove_if( s.begin(), s.end(), ::isspace ), s.end() );
 	EXPECT_EQ( s, "{\"untyped\":{\"x\":2,\"y\":3}}" );
 
-	s = mt[ "untyped" ].metatype().toStr( testUntyped.ptr ); 
+	s = mt[ "untyped" ].metatype()->toStr( testUntyped.ptr ); 
 	s.erase( std::remove_if( s.begin(), s.end(), ::isspace ), s.end() );
 	EXPECT_EQ( s, "{\"x\":2,\"y\":3}" );
 	

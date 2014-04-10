@@ -15,7 +15,7 @@ public:
 	template< typename T >
 	void
 	serialize( T * instance ) {
-		serialize( metatype< T >(), instance );
+		serialize( *metatype< T >(), instance );
 	}
 
 	virtual
@@ -54,7 +54,7 @@ public:
 						else {
 							if ( prop->isReadable() ) {
 								propertyBegin( prop->name() );
-								prop->metatype().write( this, prop->get(instance) );
+								prop->metatype()->write( this, prop->get(instance) );
 								propertyEnd( prop->name() );
 							}
 						}
@@ -78,7 +78,7 @@ public:
 	template< typename T >
 	T
 	deserialize( T * instance ) {
-		return jrtti_cast< T >( _deserialize( metatype< T >(), boost::any(instance) ) );
+		return jrtti_cast< T >( _deserialize( *metatype< T >(), boost::any(instance) ) );
 	}
 
 	virtual
@@ -97,7 +97,7 @@ public:
 	readObject( const Metatype& mt, void * instance ) {
 		std::string objTypeName = objectBegin();
 		if ( !instance ) {
-			instance = jrtti_cast< void * >( Reflector::instance().metatype( objTypeName ).create() );
+			instance = jrtti_cast< void * >( Reflector::instance().metatype( objTypeName )->create() );
 		}
 
 		instance = readObjectRef( instance );
@@ -119,8 +119,8 @@ public:
 				converter->read( instance, this );
 			}
 			else {
-				const boost::any &mod = prop->metatype().read( this, prop->get( instance ) );
-				if ( !mod.empty() && !prop->metatype().isCollection() && prop->isWritable() ) {
+				const boost::any &mod = prop->metatype()->read( this, prop->get( instance ) );
+				if ( !mod.empty() && !prop->metatype()->isCollection() && prop->isWritable() ) {
 					prop->set( instance, mod );
 				}
 			}

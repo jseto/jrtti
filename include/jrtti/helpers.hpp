@@ -74,9 +74,9 @@ namespace jrtti {
 					return (T)*boost::unsafe_any_cast< void * >( &value );
 				}
 
-				Metatype& value_mt = Reflector::instance().metatype( value.type() );
-				Metatype& templT_mt = Reflector::instance().metatype< T >();
-				if ( value_mt.isDerivedFrom( templT_mt ) || templT_mt.isDerivedFrom( value_mt ) ) {
+				Metatype * value_mt = Reflector::instance().metatype( value.type() );
+				Metatype * templT_mt = Reflector::instance().metatype< T >();
+				if ( value_mt->isDerivedFrom( templT_mt ) || templT_mt->isDerivedFrom( value_mt ) ) {
 					return (T)*boost::unsafe_any_cast< void * >( &value );
 				}
 

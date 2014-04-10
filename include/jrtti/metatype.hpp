@@ -143,11 +143,11 @@ public:
 	 * \return true if parent associated class is base class of this or is the same associated class
 	 */
 	bool
-	isDerivedFrom( const Metatype& parent ) const {
-		if ( this == &parent )
+	isDerivedFrom( const Metatype * parent ) const {
+		if ( this == parent )
         	return true;
 		const Metatype * derived = this;
-		while ( derived->m_parentMetatype && ( *derived->m_parentMetatype != parent ) ) {
+		while ( derived->m_parentMetatype && ( derived->m_parentMetatype != parent ) ) {
 			derived = derived->m_parentMetatype;
 		}
 		return ( derived->m_parentMetatype != NULL );
@@ -327,7 +327,7 @@ public:
 		if (pos == std::string::npos)
 			return prop.get(inst);
 		else {
-			return prop.metatype().eval( prop.get( inst ), path.substr( pos + 1 ));
+			return prop.metatype()->eval( prop.get( inst ), path.substr( pos + 1 ));
 		}
 	}
 
@@ -366,8 +366,8 @@ public:
 			prop.set( inst, value );
 		}
 		else {
-			const boost::any &mod = prop.metatype().apply( prop.get(inst), path.substr( pos + 1 ), value );
-			if ( !prop.metatype().isPointer() ) {
+			const boost::any &mod = prop.metatype()->apply( prop.get(inst), path.substr( pos + 1 ), value );
+			if ( !prop.metatype()->isPointer() ) {
 				prop.set( inst, mod );
 			}
 		}
@@ -553,7 +553,7 @@ protected:
 
 				std::string addToResult;
 				if ( !prop->annotations().has< SerializerConverterBase >() ) {
-					addToResult = prop->metatype()._toStr( prop->get(inst) );
+					addToResult = prop->metatype()->_toStr( prop->get(inst) );
 				}
 				else {
 					addToResult = "{????}";

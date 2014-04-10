@@ -81,12 +81,11 @@ namespace jrtti {
 	 *
 	 * Looks for a Metatype of type T in the reflection database
 	 * \tparam T the type to retrieve
-	 * \return the found Metatype.
-	 * \throws Error if not found
+	 * \return the found Metatype. NULL if not found.
 	 */
 	template< typename T >
 	inline 
-	Metatype &
+	Metatype *
 	metatype() {
 		return Reflector::instance().metatype< T >();
 	}
@@ -96,13 +95,25 @@ namespace jrtti {
 	 *
 	 * Looks for a Metatype of typeid tInfo in the reflection database
 	 * \param tInfo the type_info structure to retrieve its Metatype
-	 * \return the found Metatype.
-	 * \throws Error if not found
+	 * \return the found Metatype. NULL if not found
 	 */
 	inline
-	Metatype&
+	Metatype *
 	metatype( const std::type_info& tInfo ) {
 		return Reflector::instance().metatype( tInfo );
+	}
+
+	/**
+	* \brief Retrieve Metatype
+	*
+	* Looks for a Metatype by demangled name in the reflection database
+	* \param pname demangled name to look for
+	* \return the found Metatype. NULL if not found
+	*/
+	inline
+	Metatype *
+	metatype( const std::string& pname ) {
+		return Reflector::instance().metatype( pname );
 	}
 
 	/**

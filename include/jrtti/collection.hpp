@@ -38,7 +38,7 @@ public:
 		ClassT& _collection = getReference( instance );
 
 		////////// COMPILER ERROR   //// Collections must declare a value_type type. See documentation for details.
-		Metatype * mt = &jrtti::metatype< typename ClassT::value_type >();
+		Metatype * mt = jrtti::metatype< typename ClassT::value_type >();
 		writer->collectionBegin();
 
 		////////// COMPILER ERROR   //// Collections must declare a iterator type and a begin and end methods. See documentation for details.
@@ -62,14 +62,14 @@ public:
 		while ( !reader->endCollection() ) {
 			reader->elementBegin();
 			typename ClassT::value_type elem;
-			Metatype& elemType = Reflector::instance().metatype< ClassT::value_type >();
+			Metatype * elemType = Reflector::instance().metatype< ClassT::value_type >();
 			if ( boost::is_pointer< ClassT::value_type >::value ) {
-				elem = jrtti_cast< ClassT::value_type >( elemType.read( reader, boost::any( (void *)NULL ) ) );
+				elem = jrtti_cast< ClassT::value_type >( elemType->read( reader, boost::any( (void *)NULL ) ) );
 				////////// COMPILER ERROR   //// Collections must declare an insert method. See documentation for details.
 				_collection.insert( _collection.end(), elem );
 			}
 			else {
-				const boost::any &mod = elemType.read( reader, elem );
+				const boost::any &mod = elemType->read( reader, elem );
 				////////// COMPILER ERROR   //// Collections must declare an insert method. See documentation for details.
 				_collection.insert( _collection.end(), jrtti_cast< ClassT::value_type >( mod ) );
 			}
@@ -87,7 +87,7 @@ protected:
 		ClassT& _collection = getReference( value );
 
 		////////// COMPILER ERROR   //// Collections must declare a value_type type. See documentation for details.
-		Metatype * mt = &jrtti::metatype< typename ClassT::value_type >();
+		Metatype * mt = jrtti::metatype< typename ClassT::value_type >();
 		std::string str = "[\n";
 		bool need_nl = false;
 
@@ -98,7 +98,7 @@ protected:
 
 			PropertyMap::iterator pmit = mt->_properties().find( "__typeInfoName" );
 			if ( pmit != mt->_properties().end() ) {
-				mt = &Reflector::instance().metatype( pmit->second->get< std::string >( getElementPtr( *it ) ) );
+				mt = Reflector::instance().metatype( pmit->second->get< std::string >( getElementPtr( *it ) ) );
 			}
 			str += indent( mt->_toStr( *it) );
 		}
