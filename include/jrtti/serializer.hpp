@@ -19,7 +19,7 @@ class Writer {
 public:
 	virtual
 	void 
-	writeObject( const Metatype& mt, void * instance ) = 0;
+	writeObject( Metatype * mt, void * instance ) = 0;
 
 	virtual
 	void 
@@ -99,14 +99,14 @@ public:
 	*/
 protected:
 	void
-	storeInstInfo( const Metatype& mt, const boost::any& instance ) {
-		m_rootMetatype = &mt;
+	storeInstInfo( const Metatype * mt, const boost::any& instance ) {
+		m_rootMetatype = mt;
 		m_rootInstance = instance;
 	}
 
-	const Metatype&
+	const Metatype *
 	rootMetatype() {
-		return *m_rootMetatype;
+		return m_rootMetatype;
 	}
 
 	void
@@ -173,7 +173,7 @@ class Reader {
 public:
 	virtual
 	boost::any 
-	readObject( const Metatype& mt, void * instance ) = 0;
+	readObject( Metatype * mt, void * instance ) = 0;
 
 	virtual
 	bool readBool() = 0;

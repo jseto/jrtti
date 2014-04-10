@@ -223,7 +223,7 @@ private:
 		Metatype * ptr_mc;
 
 		if ( _meta_types.count( typeid( T ).name() ) == 0 ) {
-			ptr_mc = new MetaPointerType( typeid( T* ), *mc);
+			ptr_mc = new MetaPointerType( typeid( T* ), mc);
 		}
 		else {
 			ptr_mc = metatype< T* >();

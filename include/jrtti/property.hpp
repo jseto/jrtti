@@ -274,11 +274,11 @@ template< typename ClassT >
 class UntypedProperty : public Property 
 {
 public:
-	UntypedProperty( Metatype& mt, const std::string& pname ) {
-		if ( !mt.isPointer() ) {
+	UntypedProperty( Metatype * mt, const std::string& pname ) {
+		if ( !mt->isPointer() ) {
 			throw Error( "Metatype of '" + pname + "' must be a pointer type" );
 		}
-		setMetatype( &mt );
+		setMetatype( mt );
 		name( pname );
 		setMode( Readable );
 		setMode( Writable );

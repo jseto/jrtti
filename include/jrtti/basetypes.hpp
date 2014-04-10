@@ -9,7 +9,7 @@ namespace jrtti {
 
 class MetaPointerType: public Metatype {
 public:
-	MetaPointerType ( const std::type_info& typeinfo, Metatype & baseType )
+	MetaPointerType ( const std::type_info& typeinfo, Metatype * baseType )
 		:	Metatype( typeinfo ),
 			m_baseType(baseType)
 	{}
@@ -17,7 +17,7 @@ public:
 	virtual
 	boost::any
 	create() {
-		return m_baseType.create();
+		return m_baseType->create();
 	}
 
 	bool
@@ -27,12 +27,12 @@ public:
 
 	bool
 	isAbstract() const {
-		return m_baseType.isAbstract();
+		return m_baseType->isAbstract();
 	}
 
 	bool 
 	isCollection() const {
-		return m_baseType.isCollection();
+		return m_baseType->isCollection();
 	}
 
 protected:
@@ -43,12 +43,12 @@ protected:
 
 	PropertyMap &
 	_properties() {
-		return m_baseType._properties();
+		return m_baseType->_properties();
 	}
 
 	MethodMap&
 	_methods() {
-		return m_baseType._methods();
+		return m_baseType->_methods();
 	}
 
 	virtual
@@ -103,7 +103,7 @@ protected:
 			return jrtti_cast< void * >( value );
 		}
 		else {
-			return m_baseType.get_instance_ptr( value );
+			return m_baseType->get_instance_ptr( value );
 		}
 	}
 /*
@@ -114,7 +114,7 @@ protected:
 	}*/
 
 private:
-	Metatype & m_baseType;
+	Metatype * m_baseType;
 };
 
 // predefined types

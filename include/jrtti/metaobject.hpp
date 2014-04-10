@@ -30,9 +30,9 @@ public:
 	 * \param metatype Metatype associated to this Metaobject
 	 * \param instance the object instance to encapsulate
 	 */
-	Metaobject( Metatype& metatype, const boost::any& instance )
+	Metaobject( Metatype * metatype, const boost::any& instance )
 		: m_instance( instance ),
-		  m_metatype( &metatype ) {}
+		  m_metatype( metatype ) {}
 
 	/**
 	 * \brief Set the value of a property or a full categorized property
@@ -88,9 +88,9 @@ public:
 	 * \brief Returns the associated Metatype
 	 * \return the associated Metatype
 	 */
-	Metatype&
+	Metatype *
 	metatype() {
-		return *m_metatype;
+		return m_metatype;
 	}
 
 	/**

@@ -405,14 +405,14 @@ public:
 	void 
 	write( Writer * writer, const boost::any& instance ) {
 		void * inst = get_instance_ptr(instance);
-		writer->writeObject( *this, inst );
+		writer->writeObject( this, inst );
 	}
 
 	virtual 
 	boost::any
 	read( Reader * reader, const boost::any& instance ) {
 		void * inst = get_instance_ptr(instance);
-		return reader->readObject( *this, inst );
+		return reader->readObject( this, inst );
 	}
 
 	const PropertyMap &

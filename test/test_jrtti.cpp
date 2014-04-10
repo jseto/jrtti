@@ -476,7 +476,7 @@ TEST_F(MetaTypeTest, testCollectionInterface) {
 
 TEST_F(MetaTypeTest, testMetaobject) {
 	Sample sample;
-	Metaobject mo = Metaobject( mClass(), &sample );
+	Metaobject mo = Metaobject( &mClass(), &sample );
 
 	mo.set( "date.d", 34 );
 	EXPECT_EQ( 34, mo.get<int>( "date.d" ) );
@@ -491,7 +491,7 @@ TEST_F(MetaTypeTest, testMetaobject) {
 	EXPECT_TRUE( samplePtr == &sample );
 
 	sample.intMember = 12;
-	Metaobject moInt = Metaobject( mClass(), samplePtr );
+	Metaobject moInt = Metaobject( &mClass(), samplePtr );
 	EXPECT_EQ( moInt.get<int>("intMember"), 12 );
 
 //	std::cout << mo.toStr() << std::endl;
@@ -552,7 +552,7 @@ TEST_F(MetaTypeTest, untypedProperty) {
 	TestUntyped testUntyped;
 
 	Metatype& mt = declare< TestUntyped >();
-	UntypedProperty< TestUntyped > * prop = new UntypedProperty< TestUntyped >( *metatype< Point * >(), "untyped" );
+	UntypedProperty< TestUntyped > * prop = new UntypedProperty< TestUntyped >( metatype< Point * >(), "untyped" );
 	prop->member( &TestUntyped::ptr );
 	mt.addProperty( "untyped", prop ); 
 

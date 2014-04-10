@@ -68,14 +68,14 @@ public:
 	 * \return this for chain calls
 	 */
 	CustomMetaclass&
-	derivesFrom( Metatype& parent )
+	derivesFrom( Metatype * parent )
 	{
-		parentMetatype( &parent );
-		PropertyMap& parentProps = parent._properties();
+		parentMetatype( parent );
+		PropertyMap& parentProps = parent->_properties();
 		_properties().insert( parentProps.begin(), parentProps.end() );
-		MethodMap& parentMeth = parent._methods();
+		MethodMap& parentMeth = parent->_methods();
 		_methods().insert( parentMeth.begin(), parentMeth.end() );
-		pointerMetatype()->parentMetatype( parent.pointerMetatype() );
+		pointerMetatype()->parentMetatype( parent->pointerMetatype() );
 		return *this;
 	}
 
@@ -91,7 +91,7 @@ public:
 	CustomMetaclass&
 	derivesFrom()
 	{
-		return derivesFrom( *jrtti::metatype< C >() );
+		return derivesFrom( jrtti::metatype< C >() );
 	}
 
 	/**
