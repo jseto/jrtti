@@ -7,6 +7,9 @@
 
 namespace jrtti {
 
+/**
+ * \brief Allows to declare custom metaclases
+ */
 template <class ClassT, class IsAbstractT = boost::false_type>
 class CustomMetaclass : public Metatype
 {
@@ -102,7 +105,7 @@ public:
 	 * \param name property name
 	 * \param setter the address of the setter method
 	 * \param getter the address of the getter method
-	 * \param categories a container with property categories
+	 * \param annotations a container with property annotations
 	 * \return this for chain calls
 	 */
 	template < typename SetterT, typename GetterT >
@@ -125,29 +128,29 @@ public:
 	 * A property is an abstraction of class members.
 	 * \param name property name
 	 * \param getter the address of the getter method
-	 * \param categories a container with property categories
+	 * \param annotations a container with property annotations
 	 * \return this for chain calls
 	 */
 	template < typename PropT >
 	CustomMetaclass&
-		property( std::string name, PropT( ClassT::*getter )( ), const Annotations& annotations = Annotations() ) {
-			typedef typename boost::function< void( ClassT*, PropT ) >	BoostSetter;
-			typedef typename boost::function< PropT( ClassT * ) >		BoostGetter;
+	property( std::string name, PropT( ClassT::*getter )( ), const Annotations& annotations = Annotations() ) {
+		typedef typename boost::function< void( ClassT*, PropT ) >	BoostSetter;
+		typedef typename boost::function< PropT( ClassT * ) >		BoostGetter;
 
-			BoostSetter setter;       //setter empty is used by Property::isReadOnly()
-			fillProperty< PropT, BoostSetter, BoostGetter >( name, setter, getter, annotations );
-			return *this;
+		BoostSetter setter;       //setter empty is used by Property::isReadOnly()
+		fillProperty< PropT, BoostSetter, BoostGetter >( name, setter, getter, annotations );
+		return *this;
 	}
 	//implementation for const functions
 	template < typename PropT >
 	CustomMetaclass&
-		property( std::string name, PropT( ClassT::*getter )( )const, const Annotations& annotations = Annotations() ) {
-			typedef typename boost::function< void( ClassT*, PropT ) >	BoostSetter;
-			typedef typename boost::function< PropT( ClassT * ) >		BoostGetter;
+	property( std::string name, PropT( ClassT::*getter )( )const, const Annotations& annotations = Annotations() ) {
+		typedef typename boost::function< void( ClassT*, PropT ) >	BoostSetter;
+		typedef typename boost::function< PropT( ClassT * ) >		BoostGetter;
 
-			BoostSetter setter;       //setter empty is used by Property::isReadOnly()
-			fillProperty< PropT, BoostSetter, BoostGetter >( name, setter, getter, annotations );
-			return *this;
+		BoostSetter setter;       //setter empty is used by Property::isReadOnly()
+		fillProperty< PropT, BoostSetter, BoostGetter >( name, setter, getter, annotations );
+		return *this;
 	}
 
 	/**
@@ -157,7 +160,7 @@ public:
 	 * A property is an abstraction of class members.
 	 * \param name property name
 	 * \param setter the address of the setter method
-	 * \param categories a container with property categories
+	 * \param annotations a container with property annotations
 	 * \return this for chain calls
 	 */
 	template < typename PropT >
@@ -181,7 +184,7 @@ public:
 	 * This kind of property use a set of non-standard native accessors.
 	 * A property is an abstraction of class members.
 	 * \param name property name
-	 * \param categories a container with property categories
+	 * \param annotations a container with property annotations
 	 * \return this for chain calls
 	 */
 	CustomMetaclass&
@@ -207,7 +210,7 @@ public:
 	 * A property is an abstraction of class members.
 	 * \param name property name
 	 * \param member the address of the method member
-	 * \param categories a container with property categories
+	 * \param annotations a container with property annotations
 	 * \return this for chain calls
 	 */
 	template <typename PropT>
@@ -257,6 +260,7 @@ public:
 	 * If method returns void, simply note void in template speciallization.
 	 * \param name the method name
 	 * \param f address of the method
+	 * \param annotations a container with method annotations
 	 * \return this for chain call
 	 */
 	template <typename ReturnType>
@@ -278,6 +282,7 @@ public:
 	 * Template parameter Param1 is the type of the parameter
 	 * \param name the method name
 	 * \param f address of the method
+	 * \param annotations a container with method annotations
 	 * \return this for chain call
 	 */
 	template <typename ReturnType, typename Param1>
@@ -300,6 +305,7 @@ public:
 	 * Template parameter Param2 is the type of the second parameter
 	 * \param name the method name
 	 * \param f address of the method
+	 * \param annotations a container with method annotations
 	 * \return this for chain call
 	 */
 	template <typename ReturnType, typename Param1, typename Param2>

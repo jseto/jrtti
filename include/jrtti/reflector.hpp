@@ -143,7 +143,7 @@ public:
 	 *
 	 * This is a utility method to get human readable type names. It is used by
 	 * Metatype::name method and you can use to compare typenames.
-	 * The results of typeid().name() depend compiler implementations. Therefore
+	 * The results of typeid().name() depends on the compiler implementation. Therefore
 	 * there is not a general rule to demangle such results. jrtti::demangle
 	 * implementation manages GNU gcc++, MSC++ and Borland C++ compilers. If your
 	 * compiler is not on the list, it could still work. If not try to use

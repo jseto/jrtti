@@ -387,7 +387,7 @@ public:
 		return _toStr( instance );
 	}
 
-	/**
+	/*                  *
 	 * \brief Fills an object from a string representation
 	 *
 	 * Fills the object pointer by instance from a JSON string representation
