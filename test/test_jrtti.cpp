@@ -507,7 +507,7 @@ TEST_F(MetaTypeTest, comparationOperators) {
 	EXPECT_TRUE( ( mt_point != mt_sample->property( "point" )->metatype() ) );
 }
 
-TEST_F(MetaTypeTest, parentCheck) {
+TEST_F( MetaTypeTest, parentCheck ) {
 	Metatype * mt_sample = jrtti::metatype<Sample>();
 	Metatype * mt_date = jrtti::metatype<Date>();
 
@@ -521,6 +521,17 @@ TEST_F(MetaTypeTest, parentCheck) {
 	EXPECT_FALSE( mtp_date->isDerivedFrom( mtp_sample ) );
 	EXPECT_TRUE( jrtti::metatype< SampleDerived * >()->isDerivedFrom( mtp_sample ) );
 	EXPECT_TRUE( jrtti::metatype< SampleDerived *>()->isDerivedFrom< SampleBase * >() );
+}
+
+TEST_F( MetaTypeTest, ChildrenCheck ) {
+	size_t childrenNo = jrtti::metatype<SampleBase>()->childrenMetatypes().size();
+	EXPECT_EQ( 2, childrenNo );
+	childrenNo = jrtti::metatype<Sample>()->childrenMetatypes().size();
+	EXPECT_EQ( 1, childrenNo );
+	childrenNo = jrtti::metatype<SampleDerived>()->childrenMetatypes().size();
+	EXPECT_EQ( 0, childrenNo );
+	childrenNo = jrtti::metatype<Date>()->childrenMetatypes().size();
+	EXPECT_EQ( 0, childrenNo );
 }
 
 TEST_F(MetaTypeTest, queryTypeAttributes) {

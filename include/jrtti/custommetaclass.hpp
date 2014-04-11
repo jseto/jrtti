@@ -79,6 +79,7 @@ public:
 		MethodMap& parentMeth = parent->_methods();
 		_methods().insert( parentMeth.begin(), parentMeth.end() );
 		pointerMetatype()->parentMetatype( parent->pointerMetatype() );
+		parent->addChildrenMetatype( this );
 		return *this;
 	}
 

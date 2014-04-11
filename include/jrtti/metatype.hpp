@@ -13,6 +13,9 @@
 
 namespace jrtti {
 
+typedef std::map< std::string, Metatype * > TypeMap;
+
+
 /**
  * \brief Abstraction for classes and types
  *
@@ -165,6 +168,17 @@ public:
 	bool
 	isDerivedFrom() const {
 		return isDerivedFrom( jrtti::metatype< T >() );
+	}
+
+	/**
+	 * \brief Retrieve the children metatypes
+	 *
+	 * Get all metatypes that are derived from this metatype
+	 * \return a container with the children metatypes
+	 */
+	const TypeMap& 
+	childrenMetatypes() {
+		return m_childrenMetatypes;
 	}
 
 	/**
@@ -503,6 +517,14 @@ protected:
 		m_parentMetatype = parent;
 	}
 
+	void
+	addChildrenMetatype( Metatype * children ) {
+		m_childrenMetatypes[ children->name() ] = children;
+		if ( m_parentMetatype ) {
+			m_parentMetatype->addChildrenMetatype( children );
+		}
+	}
+
 	void 
 	pointerMetatype( Metatype * mt ) {
 		m_pointerMetatype = mt;
@@ -630,6 +652,7 @@ private:
 	Annotations 	m_annotations;
 	Metatype *		m_parentMetatype;
 	Metatype *		m_pointerMetatype;
+	TypeMap			m_childrenMetatypes;
 };
 
 //------------------------------------------------------------------------------
