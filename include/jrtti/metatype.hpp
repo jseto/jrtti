@@ -75,7 +75,7 @@ public:
 	}
 
 	/**
-	 * \brief Assigns an annotation container to this property
+	 * \brief Assigns an annotation container to this metatype
 	 * \param annotationsContainer the annotation container
 	 */
 	void

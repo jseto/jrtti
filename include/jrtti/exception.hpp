@@ -17,6 +17,9 @@ namespace jrtti
 		{}
 	};
 
+	/**
+	* \brief Null pointer exeception
+	*/
 	class NullPtrError : public Error
 	{
 	public:
@@ -25,6 +28,9 @@ namespace jrtti
 		{}
 	};
 
+	/**
+	* \brief Serialization deserialization exeception
+	*/
 	class SerializerError : public Error
 	{
 	public:
@@ -33,6 +39,9 @@ namespace jrtti
 		{}
 	};
 
+	/**
+	* \brief Bad jrtti cast exeception
+	*/
 	class BadCast : public Error
 	{
 	public:

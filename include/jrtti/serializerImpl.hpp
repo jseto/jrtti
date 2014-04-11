@@ -10,6 +10,9 @@
 
 namespace jrtti {
 
+/**
+ * \brief Gereric Writer
+*/
 class GenericWriter : public Writer {
 public:
 	template< typename T >
@@ -73,6 +76,9 @@ public:
 	}
 };
 
+/**
+* \brief Gereric Writer
+*/
 class GenericReader : public Reader {
 public:
 	template< typename T >

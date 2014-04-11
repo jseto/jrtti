@@ -591,6 +591,15 @@ TEST_F(MetaTypeTest, untypedProperty) {
 	EXPECT_EQ( sample.getByRefProp().place.y, 3 );
 }
 
+TEST_F( MetaTypeTest, alias ) {
+	EXPECT_EQ( jrtti::metatype<Point>(), jrtti::metatype( "Position" ) );
+	jrtti::addAlias( "ThisIsANiceAliasForSample", jrtti::metatype<Sample>() );
+	EXPECT_EQ( jrtti::metatype( "ThisIsANiceAliasForSample" ) , jrtti::metatype<Sample>() );
+	jrtti::addAlias( "Hey-WeForgotThePointer", jrtti::metatype<Sample *>() );
+	EXPECT_EQ( jrtti::metatype( "Hey-WeForgotThePointer" ), jrtti::metatype<Sample *>() );
+	EXPECT_NE( jrtti::metatype( "Hey-WeForgotThePointer" ), jrtti::metatype<Sample>() );
+}
+
 TEST_F(MetaTypeTest, checkUseCase) {
 	useCase();
 }

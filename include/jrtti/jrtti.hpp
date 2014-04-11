@@ -1,9 +1,24 @@
 #ifndef jrttiH
 #define jrttiH
 
+/** \defgroup macros Macros */
+
 /**
- * Define JRTTI_EXPORT or JRTTI_IMPORT to use jrtti across modules
- */
+* \ingroup macros
+* \def JRTTI_EXPORT
+* \brief Define it to export jrtti members
+* \sa JRTTI_IMPORT
+* \sa JRTTI_INSTANTIATE_SINGLETON
+*/
+
+/**
+* \ingroup macros
+* \def JRTTI_IMPORT
+* \brief Define it to import jrtti members
+* \sa JRTTI_EXPORT
+* \sa JRTTI_INSTANTIATE_SINGLETON
+*/
+
 #if defined(JRTTI_EXPORT) || defined(JRTTI_IMPORT)
 	#if defined __BORLANDC__
 		#define JRTTI_API __declspec(package)
@@ -22,8 +37,10 @@
 #endif
 
 /**
+ * \ingroup macros
+ * \def JRTTI_INSTANTIATE_SINGLETON
  * Use in a *.cpp file to avoid multiple singleton instantation across modules.
- * Define macro JRTTI_SINGLETON_DEFINED before including jrtti.hpp
+ * Invoke macro JRTTI_SINGLETON_DEFINED before including jrtti.hpp
  * if you are using this macro.
  * \sa JRTTI_EXPORT
  * \sa JRTTI_IMPORT
@@ -53,7 +70,8 @@ namespace jrtti {
 	class Reflector;
 	std::string demangle( const std::string& name );
 	template< typename C > class Metacollection;
-	template <typename C> Metacollection<C>& declareCollection( const Annotations& annotations = Annotations() );
+	template <typename C> Metacollection<C>& declareCollection( const Annotations& annotations );
+	void addAlias( const std::string& aliasName, Metatype * mt );
 
 	AddressRefMap&	_addressRefMap();
 //	NameRefMap&	_nameRefMap();
@@ -67,8 +85,9 @@ namespace jrtti {
 namespace jrtti {
 
 	/**
-	 * Returns the list of registered metatypes
-	 * \return the metatype list
+	 * Returns the map of registered metatypes
+	 * \return the metatype map
+	 * \sa Reflector::metatypes
 	 */
 	inline
 	const TypeMap& 
@@ -82,6 +101,7 @@ namespace jrtti {
 	 * Looks for a Metatype of type T in the reflection database
 	 * \tparam T the type to retrieve
 	 * \return the found Metatype. NULL if not found.
+	 * \sa Reflector::metatype
 	 */
 	template< typename T >
 	inline 
@@ -96,6 +116,7 @@ namespace jrtti {
 	 * Looks for a Metatype of typeid tInfo in the reflection database
 	 * \param tInfo the type_info structure to retrieve its Metatype
 	 * \return the found Metatype. NULL if not found
+	 * \sa Reflector::metatype
 	 */
 	inline
 	Metatype *
@@ -109,6 +130,7 @@ namespace jrtti {
 	* Looks for a Metatype by demangled name in the reflection database
 	* \param pname demangled name to look for
 	* \return the found Metatype. NULL if not found
+	* \sa Reflector::metatype
 	*/
 	inline
 	Metatype *
@@ -119,10 +141,11 @@ namespace jrtti {
 	/**
 	 * \brief Declare a user metaclass
 	 *
-	 * Declares a new user metaclass based on class C
+	 * Helper function for Reflector::declare
 	 * \tparam C the class to declare
 	 * \param annotations Annotation associated to this metaclass
 	 * \return this to chain calls
+	 * \sa Reflector::declare
 	 */
 	template <typename C>
 	inline
@@ -134,13 +157,11 @@ namespace jrtti {
 	/**
 	 * \brief Declare an abstract user metaclass
 	 *
-	 * Note: Use only if your compiler does not support SFINAE with abstract types.
-	 * Use declare method instead.
-	 *
-	 * Declares a new abstract user metaclass based on class C
+	 * Helper function for Reflector::declareAbstract
 	 * \tparam C the class to declare
 	 * \param annotations Annotation associated to this metaclass
 	 * \return this to chain calls
+	 * \sa Reflector::declareAbstract
 	 */
 	template <typename C>
 	inline
@@ -152,23 +173,47 @@ namespace jrtti {
 	/**
 	 * \brief Declare a collection
 	 *
-	 * Declares a new Metacollection based on collection C.
-	 * A collection is a secuence of objects, as STL containers
+	 * Helper function for Reflector::declareCollection
 	 * \tparam C the class to declare
 	 * \param annotations Annotation associated to this metaclass
 	 * \return this to chain calls
+	 * \sa Reflector::declareCollection
 	 */
 	template <typename C>
 	inline
 	Metacollection<C>&
-	declareCollection( const Annotations& annotations ) {
+	declareCollection( const Annotations& annotations = Annotations() ) {
 		return Reflector::instance().declareCollection<C>( annotations );
 	}
 
+	/**
+	* \brief Removes type name decorators
+	*
+	* Helper function for Reflector::demangle
+	* \param name the name to demangle
+	* \return the demangled name
+	* \sa registerPrefixDecorator
+	* \sa Reflector::demangle
+	*/
 	inline
 	std::string
 	demangle( const std::string& name ) {
 		return Reflector::instance().demangle( name );
+	}
+
+	/**
+	* \brief Set an alias identifier for the metatype
+	*
+	* Helper function for Reflector::addAlias
+	* \param aliasName name to assign
+	* \param mt the metatype to associate with the alias name
+	* \sa Reflector::addAlias
+	* \sa CustomMetaclass::alias
+	*/
+	inline
+	void
+	addAlias( const std::string& aliasName, Metatype * mt ) {
+		Reflector::instance().addAlias( aliasName, mt );
 	}
 
 	inline

@@ -53,6 +53,7 @@ void declare()
 						.method<double,int,double>("testSum", &Sample::testSum);
 
 	jrtti::declare<Point>()
+						.alias( "Position" )
 						.property("x", &Point::x)
 						.property("y", &Point::y);
 

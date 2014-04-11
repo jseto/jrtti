@@ -2,6 +2,7 @@
 #define methodH
 
 namespace jrtti {
+
 /**
  * \brief Method abstraction
  */

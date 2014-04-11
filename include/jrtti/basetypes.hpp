@@ -7,6 +7,9 @@
 
 namespace jrtti {
 
+/**
+ * \brief Encapsulates a pointer metatye
+ */
 class MetaPointerType: public Metatype {
 public:
 	MetaPointerType ( const std::type_info& typeinfo, Metatype * baseType )
@@ -119,7 +122,10 @@ private:
 
 // predefined types
 
-class MetaBool: public Metatype {
+/**
+* \brief Encapsulates a bool metatype
+*/
+class MetaBool : public Metatype {
 public:
 	MetaBool(): Metatype( typeid( bool ) ) {}
 
@@ -162,7 +168,10 @@ protected:
 	*/
 };
 
-class MetaChar: public Metatype {
+/**
+* \brief Encapsulates a char metatype
+*/
+class MetaChar : public Metatype {
 public:
 	MetaChar(): Metatype( typeid( char ) ) {}
 
@@ -205,7 +214,10 @@ protected:
 	}
 };
 
-class MetaShort: public Metatype {
+/**
+* \brief Encapsulates a short metatype
+*/
+class MetaShort : public Metatype {
 public:
 	MetaShort(): Metatype( typeid( short ) ) {}
 
@@ -248,6 +260,9 @@ protected:
 	}
 };
 
+/**
+* \brief Encapsulates a int metatype
+*/
 class MetaInt: public Metatype {
 public:
 	MetaInt(): Metatype( typeid( int ) ) {}
@@ -291,6 +306,9 @@ protected:
 	*/
 };
 
+/**
+* \brief Encapsulates a long metatype
+*/
 class MetaLong: public Metatype {
 public:
 	MetaLong(): Metatype( typeid( long ) ) {}
@@ -334,6 +352,9 @@ protected:
 	*/
 };
 
+/**
+* \brief Encapsulates a float metatype
+*/
 class MetaFloat: public Metatype {
 public:
 	MetaFloat(): Metatype( typeid( float ) ) {}
@@ -376,6 +397,9 @@ protected:
 	*/
 };
 
+/**
+* \brief Encapsulates a double metatype
+*/
 class MetaDouble: public Metatype {
 public:
 	MetaDouble(): Metatype( typeid( double ) ) {}
@@ -418,6 +442,9 @@ protected:
 	*/
 };
 
+/**
+* \brief Encapsulates a long double metatype
+*/
 class MetaLongDouble: public Metatype {
 public:
 	MetaLongDouble(): Metatype( typeid( long double ) ) {}
@@ -460,6 +487,9 @@ protected:
 	*/
 };
 
+/**
+* \brief Encapsulates a wchar_t metatype
+*/
 class MetaWchar_t: public Metatype {
 public:
 	MetaWchar_t(): Metatype( typeid(wchar_t ) ) {}
@@ -502,6 +532,9 @@ protected:
 	*/
 };
 
+/**
+* \brief Encapsulates a std::string metatype
+*/
 class MetaString: public Metatype {
 public:
 	MetaString(): Metatype( typeid( std::string ) ) {}

@@ -8,7 +8,7 @@
 namespace jrtti {
 
 /**
- * \brief Allows to declare custom metaclases
+ * \brief Allows to declare custom metatypes
  */
 template <class ClassT, class IsAbstractT = boost::false_type>
 class CustomMetaclass : public Metatype
@@ -80,6 +80,18 @@ public:
 		_methods().insert( parentMeth.begin(), parentMeth.end() );
 		pointerMetatype()->parentMetatype( parent->pointerMetatype() );
 		parent->addChildrenMetatype( this );
+		return *this;
+	}
+
+	/**
+	* \brief Set an alias identifier for the metatype
+	*
+	* \param aliasName name to assign
+	* \return contens of this for chained calls
+	*/
+	CustomMetaclass&
+	alias( const std::string& aliasName ) {
+		addAlias( aliasName, this );
 		return *this;
 	}
 

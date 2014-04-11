@@ -10,7 +10,6 @@ namespace jrtti {
 
 class Metatype;
 
-//------------------------------------------------------------------------------
 /**
  * \brief Property abstraction
  */

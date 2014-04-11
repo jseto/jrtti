@@ -17,6 +17,7 @@
 
 namespace jrtti {
 
+/** \brief Map holding metatype names as key and a metatype pointer as value */
 typedef std::map< std::string, Metatype * > TypeMap;
 
 /**
@@ -30,6 +31,12 @@ public:
     	eraseMetatypes();
 	}
 
+	/**
+	 * \brief Clear the reflector metatype database and registered
+	 * prefix decorators
+	 *
+	 * \sa registerPrefixDecorator
+	 */
 	void
 	clear()	{
 		eraseMetatypes();
@@ -39,22 +46,52 @@ public:
 		register_defaults();
 	}
 
+	/**
+	* Returns the map of registered metatypes
+	* \return the metatype map
+	* \sa jrtti::metatypes
+	*/
 	const TypeMap&
 	metatypes() {
 		return _meta_types;
 	}
 
+	/**
+	* \brief Set an alias identifier for the metatype
+	*
+	* \param aliasName name to assign
+	* \param mt the metatype to associate with the alias name
+	*/
+	void
+	addAlias( const std::string& aliasName, Metatype * mt ) {
+		_meta_types[ aliasName ] = mt;
+	}
+
+	/**
+	 * \brief Get a singleton for the class
+	 *
+	 * \return the singleton for this class
+	 */
 	static Reflector&
 	instance()
-#ifdef JRTTI_DEFINE_SINGLETON	
-	{
-		static Reflector inst;
-		return inst;
-	}
-#else
+//#ifdef JRTTI_DEFINE_SINGLETON	
+//	{
+//		static Reflector inst;
+//		return inst;
+//	}
+//#else
 	;
-#endif
+//#endif
 
+	/**
+	* \brief Declare a user metaclass
+	*
+	* Declares a new user metaclass based on class C
+	* \tparam C the class to declare
+	* \param annotations Annotation associated to this metaclass
+	* \return this to chain calls
+	* \sa jrtti::declare
+	*/
 	template <typename C>
 	CustomMetaclass<C>&
 	declare( const Annotations& annotations = Annotations() )
@@ -69,6 +106,18 @@ public:
 		return * mc;
 	}
 
+	/**
+	* \brief Declare an abstract user metaclass
+	*
+	* Note: Use only if your compiler does not support SFINAE with abstract types.
+	* Use declare method instead.
+	*
+	* Declares a new abstract user metaclass based on class C
+	* \tparam C the class to declare
+	* \param annotations Annotation associated to this metaclass
+	* \return this to chain calls
+	* \sa jrtti::declareAbstract
+	*/
 	template <typename C>
 	CustomMetaclass<C, boost::true_type>&
 	declareAbstract( const Annotations& annotations = Annotations() )
@@ -83,6 +132,16 @@ public:
 		return * mc;
 	}
 
+	/**
+	* \brief Declare a collection
+	*
+	* Declares a new Metacollection based on collection C.
+	* A collection is a secuence of objects, as STL containers
+	* \tparam C the class to declare
+	* \param annotations Annotation associated to this metaclass
+	* \return this to chain calls
+	* \sa jrtti::declareCollection
+	*/
 	template <typename C>
 	Metacollection<C>&
 	declareCollection( const Annotations& annotations = Annotations() )
@@ -112,17 +171,41 @@ public:
 		m_prefixDecorators.push_back( decorator );
 	}
 
+	/**
+	* \brief Retrieve Metatype
+	*
+	* Looks for a Metatype of type T in the reflection database
+	* \tparam T the type to retrieve
+	* \return the found Metatype. NULL if not found.
+	* \sa jrtti::metatype
+	*/
 	template < typename T >
 	Metatype *
 	metatype() {
 		return metatype( typeid( T ) );
 	}
 
+	/**
+	* \brief Retrieve Metatype
+	*
+	* Looks for a Metatype of typeid tInfo in the reflection database
+	* \param tInfo the type_info structure to retrieve its Metatype
+	* \return the found Metatype. NULL if not found
+	* \sa jrtti::metatype
+	*/
 	Metatype *
 	metatype( const std::type_info& tInfo ) {
 		return metatype( tInfo.name() );
 	}
 
+	/**
+	* \brief Retrieve Metatype
+	*
+	* Looks for a Metatype by demangled name in the reflection database
+	* \param pname demangled name to look for
+	* \return the found Metatype. NULL if not found
+	* \sa jrtti::metatype
+	*/
 	Metatype *
 	metatype( const std::string& pname ) {
 		std::string name = pname;

@@ -15,6 +15,9 @@ namespace jrtti {
 
 class Metatype;
 
+/**
+ * \brief Store objects into streams
+ */
 class Writer {
 public:
 	virtual
@@ -169,6 +172,9 @@ private:
 	boost::any m_rootInstance;
 };
 
+/**
+ * \brief Retrieve objects from streams
+ */
 class Reader {
 public:
 	virtual
@@ -306,12 +312,18 @@ private:
 class NoSerializable : public Annotation {
 };
 
+/**
+ * \brief SerializerConverterBase
+ */
 class SerializerConverterBase : public Annotation {
 public:
 	virtual void write( void * instance, Writer * writer ) = 0;
 	virtual void read( void * instance, Reader * read ) = 0;
 };
 
+/**
+* \brief SerializerConverter
+*/
 template< typename ClassT >
 class SerializerConverter : public SerializerConverterBase {
 	typedef boost::function< void ( ClassT*, Writer* ) > WriteMethod;
@@ -336,6 +348,9 @@ private:
 	ReadMethod m_readMethod;
 };
 
+/**
+* \brief SerializerConverterBase
+*/
 class HiddenPropertyBase : public SerializerConverterBase {
 public:
 	HiddenPropertyBase( std::string propName ) 

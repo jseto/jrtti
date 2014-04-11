@@ -9,6 +9,11 @@
 
 namespace jrtti {
 
+/**
+ * \brief JSON Writer
+ *
+ * Serializes jrtti objects to JSON format
+ */
 class JSONWriter : public GenericWriter {
 public:
 	JSONWriter( std::ostream& stream ) 
@@ -185,6 +190,11 @@ private:
 	int indentLevel;
 };
 
+/**
+* \brief JSON Reader
+*
+* Deserializes jrtti objects from JSON format
+*/
 class JSONReader : public GenericReader {
 public:
 	JSONReader( std::istream& stream ) 

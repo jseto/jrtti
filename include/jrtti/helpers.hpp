@@ -1,6 +1,10 @@
 #ifndef jrttihelpersclassH
 #define jrttihelpersclassH
 
+/** 
+ * \defgroup helpers Helper functions 
+ * \{
+ */
 
 #include <sstream>
 #include <boost/any.hpp>
@@ -104,4 +108,7 @@ namespace jrtti {
 		}
 	};
 }; // namespace jrtti
+
+/** \}*/
+
 #endif //jrttihelpersH
