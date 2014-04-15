@@ -67,7 +67,7 @@ namespace jrtti {
 
 	class Error;
 	class Metatype;
-	class Reflector;
+	class JRTTI_API Reflector;
 	std::string demangle( const std::string& name );
 	template< typename C > class Metacollection;
 	template <typename C> Metacollection<C>& declareCollection( const Annotations& annotations );

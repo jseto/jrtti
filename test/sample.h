@@ -144,6 +144,8 @@ private:	// User declarations
 class SampleDerived : public Sample
 {
 	virtual int getIntOverloaded() {return 43;}
+public:
+	double overrideReadOnly;
 };
 
 class MenuAnnotation : public jrtti::Annotation {

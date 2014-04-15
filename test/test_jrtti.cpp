@@ -594,11 +594,22 @@ TEST_F(MetaTypeTest, untypedProperty) {
 TEST_F( MetaTypeTest, alias ) {
 	EXPECT_EQ( jrtti::metatype<Point>(), jrtti::metatype( "Position" ) );
 	jrtti::addAlias( "ThisIsANiceAliasForSample", jrtti::metatype<Sample>() );
-	EXPECT_EQ( jrtti::metatype( "ThisIsANiceAliasForSample" ) , jrtti::metatype<Sample>() );
+	EXPECT_EQ( jrtti::metatype( "ThisIsANiceAliasForSample" ), jrtti::metatype<Sample>() );
 	jrtti::addAlias( "Hey-WeForgotThePointer", jrtti::metatype<Sample *>() );
 	EXPECT_EQ( jrtti::metatype( "Hey-WeForgotThePointer" ), jrtti::metatype<Sample *>() );
 	EXPECT_NE( jrtti::metatype( "Hey-WeForgotThePointer" ), jrtti::metatype<Sample>() );
 }
+
+TEST_F( MetaTypeTest, overrideProperty ) {
+	SampleDerived sd;
+	sd.overrideReadOnly = 45.89;
+	Property * prop = jrtti::metatype<SampleDerived>()->property( "testRO" );
+	EXPECT_EQ( 45.89, prop->get<double>( &sd ) );
+	prop->set( &sd, 45.89 );
+	EXPECT_EQ( 45.89, sd.overrideReadOnly );
+}
+
+
 
 TEST_F(MetaTypeTest, checkUseCase) {
 	useCase();

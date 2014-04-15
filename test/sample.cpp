@@ -58,8 +58,9 @@ void declare()
 						.property("y", &Point::y);
 
 	jrtti::declare<SampleDerived>()
-				.derivesFrom<Sample>();
-
+				.derivesFrom<Sample>()
+				.property( "testRO", &SampleDerived::overrideReadOnly);
+	
 	//jrtti::declareCollection< Sample::Collection >();
 }
 

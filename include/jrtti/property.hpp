@@ -65,6 +65,9 @@ public:
 	 */
 	Metatype *
 	metatype() const {
+		if ( !_metaType ) {
+			throw Error( "Property '" + name() + "' does not have a metatype" );
+		}
 		return _metaType;
 	}
 

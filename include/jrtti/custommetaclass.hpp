@@ -395,19 +395,17 @@ private:
 	fillProperty(std::string name, SetterType setter, GetterType getter, const Annotations& annotations )
 	{
 		PropertyMap::iterator it = _properties().find( name );
-		if ( it == _properties().end() )
-		{
-			TypedProperty< ClassT, PropT > * p = new TypedProperty< ClassT, PropT >;
-			p->setter(setter);
-			p->getter(getter);
-			p->name(name);
-			p->annotations( annotations );
-			addProperty(name, p);
-			return p;
+		if ( it != _properties().end() ) {
+			_properties().erase( it );
 		}
-		else {
-			return it->second;
-		}
+
+		TypedProperty< ClassT, PropT > * p = new TypedProperty< ClassT, PropT >;
+		p->setter(setter);
+		p->getter(getter);
+		p->name(name);
+		p->annotations( annotations );
+		addProperty(name, p);
+		return p;
 	}
 
 #ifdef BOOST_NO_IS_ABSTRACT
