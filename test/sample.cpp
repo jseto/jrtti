@@ -45,6 +45,7 @@ void declare()
 						.property("memoryDump", &Sample::getArray, jrtti::Annotations() << new jrtti::SerializerConverter<Sample>( &Sample::writeArray, &Sample::readArray) )
 						.property("onlySetter", &Sample::setDoubleProp )
 						.property( "testDoubleROConst", &Sample::getDoubleProp )
+						.property( "nullPtr", &Sample::nullPtr )
 
 						.method<void>("testMethod", &Sample::testFunc,
 									jrtti::Annotations() << new GUIAnnotation( "method.ico", false, false ) )
@@ -71,6 +72,7 @@ void useCase() {
 
 	//populate s
 	p.x = 30; p.y = 60;
+	s.nullPtr = NULL;
 	d.d = 1; d.m = 5; d.y = 2012; d.place = p;
 	s.setByValProp( d );
 	s.circularRef = &s; s.setDoubleProp( 344.23 ); s.setStdStringProp( "Hello!!!" );

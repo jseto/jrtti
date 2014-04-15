@@ -119,6 +119,10 @@ protected:
 
 	bool
 	isRegistered( void * obj, std::string& objId ) {
+		if ( obj == NULL ) {
+			objId = "NULL";
+			return true;
+		}
 		std::map< void *, std::string >::iterator it;
 		it = m_objectRegistry.find( obj );	
 		if ( it != m_objectRegistry.end() ) {

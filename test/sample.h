@@ -64,6 +64,7 @@ public:
 
 	int intMember;
 	Sample * circularRef;
+	Sample * nullPtr;
 
 	virtual int getIntAbstract() { return 34; }
 	virtual int getIntOverloaded() {return 87;}
