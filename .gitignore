@@ -14,7 +14,8 @@ html/
 latex/
 *.vcxproj.filters
 *.opensdf
-
 /test/test
 /test/test1
 /test/asString
+/test/build/msvc2012/serialized.dat
+/test/build/msvc2012/asString
