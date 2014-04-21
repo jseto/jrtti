@@ -71,34 +71,7 @@ protected:
 			return "{this}";
 		}
 	}
-/*
-	virtual
-	boost::any
-	_fromStr( const boost::any& instance, const std::string& str, bool doCopyFromInstance = true ) {
-		JSONParser parser( str );
-		boost::any any_ptr;
 
-		if ( str == "NULL" ) {
-			any_ptr = createAsNullPtr();
-		}
-		else {
-			if ( parser.begin()->first == "$ref" ) {
-				void * ptr = _nameRefMap()[ parser.begin()->second ];
-				any_ptr = m_baseType.copyFromInstanceAsPtr( ptr );
-			}
-			else {
-				if ( jrtti_cast< void * >(instance) ) {
-					any_ptr = instance;
-				}
-				else {
-					any_ptr = create();
-				}
-				Metatype::_fromStr( any_ptr, str );
-			}
-		}
-		return any_ptr;
-	}
-*/
 	virtual
 	void *
 	get_instance_ptr( const boost::any & value ) {
@@ -109,12 +82,6 @@ protected:
 			return m_baseType->get_instance_ptr( value );
 		}
 	}
-/*
-	virtual
-	boost::any
-	createAsNullPtr() {
-		return m_baseType.createAsNullPtr();
-	}*/
 
 private:
 	Metatype * m_baseType;
@@ -159,13 +126,6 @@ protected:
 	_toStr( const boost::any & value ){
 		return jrtti_cast<bool>(value) ? "true" : "false";
 	}
-/*
-	boost::any
-	_fromStr( const boost::any& instance, const std::string& str, bool doCopyFromInstance = true ) {
-
-		return str == "true";
-	}
-	*/
 };
 
 /**
@@ -181,12 +141,6 @@ public:
 		return true;
 	}
 
-/*
-	boost::any
-	_fromStr( const boost::any& instance, const std::string& str, bool doCopyFromInstance = true ) {
-		return strToNum<char>( str );
-	}
-	*/
 	virtual
 	boost::any
 	create()
@@ -227,13 +181,6 @@ public:
 		return true;
 	}
 
-/*
-	boost::any
-	_fromStr( const boost::any& instance, const std::string& str, bool doCopyFromInstance = true ) {
-
-		return strToNum<short>( str );
-	}
-	*/
 	virtual
 	boost::any
 	create()
@@ -297,13 +244,6 @@ protected:
 	_toStr( const boost::any & value ){
 		return numToStr(jrtti_cast<int>(value));
 	}
-/*
-	boost::any
-	_fromStr( const boost::any& instance, const std::string& str, bool doCopyFromInstance = true ) {
-
-		return strToNum<int>( str );
-	}
-	*/
 };
 
 /**
@@ -343,13 +283,6 @@ protected:
 	_toStr( const boost::any & value ){
 		return numToStr(jrtti_cast<long>(value));
 	}
-/*
-	boost::any
-	_fromStr( const boost::any& instance, const std::string& str, bool doCopyFromInstance = true ) {
-
-		return strToNum<long>( str );
-	}
-	*/
 };
 
 /**
@@ -388,13 +321,6 @@ protected:
 	_toStr( const boost::any & value ){
 		return numToStr(jrtti_cast<float>(value));
 	}
-/*
-	boost::any
-	_fromStr( const boost::any& instance, const std::string& str, bool doCopyFromInstance = true ) {
-
-		return strToNum<float>( str );
-	}
-	*/
 };
 
 /**
@@ -433,13 +359,6 @@ protected:
 	_toStr( const boost::any & value ){
 		return numToStr(jrtti_cast<double>(value));
 	}
-/*
-	boost::any
-	_fromStr( const boost::any& instance, const std::string& str, bool doCopyFromInstance = true ) {
-
-		return strToNum<double>( str );
-	}
-	*/
 };
 
 /**
@@ -478,13 +397,6 @@ protected:
 	_toStr( const boost::any & value ){
 		return numToStr(jrtti_cast<long double>(value));
 	}
-/*
-	boost::any
-	_fromStr( const boost::any& instance, const std::string& str, bool doCopyFromInstance = true ) {
-
-		return strToNum<long double>( str );
-	}
-	*/
 };
 
 /**
@@ -523,13 +435,6 @@ protected:
 	_toStr( const boost::any & value ){
 		return numToStr((int)jrtti_cast<wchar_t>(value));
 	}
-/*
-	boost::any
-	_fromStr( const boost::any& instance, const std::string& str, bool doCopyFromInstance = true ) {
-		int dummy = strToNum<int>( str );
-		return (wchar_t)dummy;
-	}
-	*/
 };
 
 /**

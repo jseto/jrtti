@@ -105,44 +105,7 @@ protected:
 		str += "\n]";
 		return str;
 	}
-/*
-	virtual
-	boost::any
-	_fromStr( const boost::any& instance, const std::string& str, bool doCopyFromInstance = true ) {
-		JSONParser pre_parser( str );
-		Metatype::_fromStr( instance, pre_parser[ "properties" ], false );
-		ClassT& _collection =  getReference( instance );
 
-		////////// COMPILER ERROR   //// Collections must declare a clear method. See documentation for details.
-		_collection.clear();
-		JSONParser parser( pre_parser["elements"] );
-		for( JSONParser::iterator it = parser.begin(); it != parser.end(); ++it) {
-			Metatype * elemType;
-			JSONParser elemParser( it->second );
-			JSONParser::iterator found = elemParser.find( "__typeInfoName" );
-			if ( found != elemParser.end() ) {
-				elemType = &Reflector::instance().metatype( found->second );
-			}
-			else {
-				elemType = &Reflector::instance().metatype< ClassT::value_type >();
-			}
-			typename ClassT::value_type elem;
-			if ( boost::is_pointer< ClassT::value_type >::value ) {
-//				elem = *boost::unsafe_any_cast< ClassT::value_type >( &elemType->create() );
-				elem = jrtti_cast< ClassT::value_type >( elemType->create() );
-				elemType->_fromStr( elem, it->second, false );
-				_collection.insert( _collection.end(), elem );
-			}
-			else {
-				const boost::any &mod = elemType->_fromStr( elem, it->second );
-				////////// COMPILER ERROR   //// Collections must declare an insert method. See documentation for details.
-//				_collection.insert( _collection.end(), *boost::unsafe_any_cast< typename ClassT::value_type >( &mod ) );
-				_collection.insert( _collection.end(), jrtti_cast< typename ClassT::value_type >( mod ) );
-			}
-		}
-		return boost::any();
-	}
-	*/
 	virtual
 	boost::any
 	create() {

@@ -385,7 +385,7 @@ public:
 				prop.set( inst, mod );
 			}
 		}
-		return copyFromInstance( inst );
+		return inst;
 	}
 
 	/**
@@ -543,18 +543,6 @@ protected:
 	}
 
 	virtual
-	boost::any
-	copyFromInstance( void * inst ) {
-		return boost::any();
-	}
-/*
-	virtual
-	boost::any
-	copyFromInstanceAsPtr( void * inst ) {
-		return boost::any();
-	}
-	*/
-	virtual
 	std::string
 	_toStr( const boost::any & instance ) {
 		void * inst = get_instance_ptr(instance);
@@ -585,45 +573,7 @@ protected:
 		}
 		return result += "\n}";
 	}
-/*
-	virtual
-	boost::any
-	_fromStr( const boost::any & instance, const std::string& str, bool doCopyFromInstance = true ) {
-		void * inst = get_instance_ptr(instance);
-		JSONParser parser( str );
 
-		for( JSONParser::iterator it = parser.begin(); it != parser.end(); ++it) {
-			if ( it->first == "$ref" ) {
-				return copyFromInstance( _nameRefMap()[ it->second ] );
-			}
-			if ( it->first == "$id" ) {
-				_nameRefMap()[ it->second ] = inst;
-			}
-			else
-			{
-				Property * prop = _properties()[ it->first ];
-				if ( prop ) {
-					if ( prop->isWritable() || prop->annotations().has< ForceStreamLoadable >() ) {
-						StringifyDelegateBase * stringifyDelegate = prop->annotations().getFirst< StringifyDelegateBase >();
-						if ( stringifyDelegate ) {
-							stringifyDelegate->fromStr( inst, it->second );
-						}
-						else {
-							const boost::any &mod = prop->metatype()._fromStr( prop->get( inst ), it->second );
-							if ( !mod.empty() ) {
-								prop->set( inst, mod );
-							}
-						}
-					}
-				}
-			}
-		}
-		if ( doCopyFromInstance )
-			return copyFromInstance( inst );
-		else
-			return boost::any();
-	}
-*/
 	std::string
 	indent( std::string str ) {
 		std::string result = "\t";
@@ -636,12 +586,6 @@ protected:
 		}
 		return result;
 	}
-/*
-	virtual
-	boost::any
-	createAsNullPtr() {
-		return NULL;
-	}*/
 
 private:
 	const std::type_info&	m_type_info;

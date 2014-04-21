@@ -46,6 +46,7 @@ void declare()
 						.property("onlySetter", &Sample::setDoubleProp )
 						.property( "testDoubleROConst", &Sample::getDoubleProp )
 						.property( "nullPtr", &Sample::nullPtr )
+//						.property( "concreteObject", &Sample::setConcreteObject, &Sample::concreteObject )
 
 						.method<void>("testMethod", &Sample::testFunc,
 									jrtti::Annotations() << new GUIAnnotation( "method.ico", false, false ) )

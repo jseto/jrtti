@@ -354,29 +354,6 @@ protected:
 #endif
 	}
 
-	boost::any
-	copyFromInstance( void * inst )
-	{
-#ifdef BOOST_NO_IS_ABSTRACT
-		return _copyFromInstance< IsAbstractT >( inst );
-#else
-		return _copyFromInstance< ClassT >( inst );
-#endif
-	}
-/*
-	boost::any
-	copyFromInstanceAsPtr( void * inst )
-	{
-		ClassT * ptr = (ClassT *) inst;
-		return boost::any( ptr );
-	}
-
-	virtual
-	boost::any
-	createAsNullPtr() {
-		return ( ClassT * )0;
-	}
-*/
 private:
 	template <typename MethodType, typename FunctionType>
 	CustomMetaclass&
@@ -436,21 +413,6 @@ private:
 	_get_instance_ptr(const boost::any & content){
 //		return (void *) *boost::unsafe_any_cast< void * >(&content);
 		return jrtti_cast< void * >( content );
-	}
-
-//SFINAE _copyFromInstance for NON ABSTRACT
-	template< typename AbstT >
-	typename boost::disable_if< typename __IS_ABSTRACT( AbstT ), boost::any >::type
-	_copyFromInstance( void * inst ){
-		ClassT obj = *(ClassT *) inst;
-		return obj;
-	}
-
-//SFINAE _copyFromInstance for ABSTRACT
-	template< typename AbstT >
-	typename boost::enable_if< typename __IS_ABSTRACT( AbstT ), boost::any >::type
-	_copyFromInstance( void * inst ){
-		return boost::any();
 	}
 
 //SFINAE _create for NON ABSTRACT

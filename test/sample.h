@@ -60,11 +60,13 @@ public:
 		circularRef = this;
 		m_arraySize = 5;
 		_point = NULL;
+		_concreteObject = NULL;
 	}
 
 	int intMember;
 	Sample * circularRef;
 	Sample * nullPtr;
+	Sample * _concreteObject;
 
 	virtual int getIntAbstract() { return 34; }
 	virtual int getIntOverloaded() {return 87;}
@@ -129,6 +131,14 @@ public:
 		for ( jrtti::JSONParser::iterator it = parser.begin(); it != parser.end(); ++it )
 			m_sampleArray[ i++ ] = jrtti::strToNum<int>( it->second );
 */
+	}
+
+	void setConcreteObject( Sample * value ) {
+		_concreteObject = value;
+	}
+
+	Sample * concreteObject() {
+		return _concreteObject;
 	}
 
 private:	// User declarations

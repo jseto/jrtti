@@ -317,6 +317,7 @@ TEST_F(MetaTypeTest, Serialize) {
 	}
 	for (int i = 0; i< 5; ++i )
 		sample.getArray()[i] = i+10;
+	sample.setConcreteObject( new SampleDerived() );
 
 	std::ofstream fs("serialized.dat");
 
@@ -340,6 +341,7 @@ TEST_F(MetaTypeTest, Serialize) {
 #endif
 	EXPECT_EQ( serialized, ss );
 	delete point;
+	delete sample.concreteObject();
 }
 
 TEST_F(MetaTypeTest, Deserialize) {
