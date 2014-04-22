@@ -86,6 +86,7 @@ public:
 	void setByValProp( const Date&  d) { _date = d; }     // Although property is defined as Value, seter can be reference
 
 	Date& getByRefProp(){ return _date; }
+	const Date& getConstRef() { return _date; }
 //	void setByRefProp(Date& d) { _date = d; }
 
 	bool getBool() { return boolVal; }

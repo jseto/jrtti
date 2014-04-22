@@ -220,7 +220,7 @@ public:
 	set( void * instance, const boost::any& val)	{
 		if (isWritable()) {
 			PropNoRefT p = jrtti_cast< PropNoRefT >( val );
-			return internal_set( (ClassT *)instance, p );
+			return internal_set<PropNoRefT>( ( ClassT * ) instance, ( p ) );
 		}
 	}
 
@@ -256,8 +256,13 @@ private:
 		}
 	}
 
-	void
-	internal_set(ClassT * instance, PropT value) {
+	template< typename T >
+	typename boost::enable_if< typename boost::is_const< T >::type, void >::type
+	internal_set( ClassT * instance, PropT value ) {}
+
+	template< typename T >
+	typename boost::disable_if< typename boost::is_const< T >::type, void >::type
+	internal_set( ClassT * instance, PropT value ) {
 		if (m_dataMember)
 		{
 			ClassT * p = static_cast<ClassT *>(instance);
