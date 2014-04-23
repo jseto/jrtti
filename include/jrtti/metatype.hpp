@@ -38,16 +38,6 @@ public:
 		}
 	}
 
-	bool
-	operator == ( const Metatype& mt ) {
-		return this == &mt;
-	}
-
-	bool
-	operator != ( const Metatype& mt ) {
-		return !( *this == mt );
-	}
-
 	/**
 	 * Creates a new instance of the associated class
 	 * \return a pointer to the created object in a boost::any container
