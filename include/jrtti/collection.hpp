@@ -124,6 +124,9 @@ protected:
 		if ( value.type() == typeid( boost::reference_wrapper< ClassT > ) ) {
 			return boost::any_cast< boost::reference_wrapper< ClassT > >( value ).get();
 		}
+		if ( value.type() == typeid( boost::reference_wrapper< const ClassT > ) ) {
+			return const_cast< ClassT& >( boost::any_cast< boost::reference_wrapper< const ClassT > >( value ).get() );
+		}
 		else {
 //			return **boost::unsafe_any_cast< ClassT * >( &value );
 			return *jrtti_cast< ClassT * >( value );

@@ -65,6 +65,17 @@ public:
 	}
 
 	/**
+	 * \brief Get the base type without pointer qualificator
+	 *
+	 * \return the base type.
+	 */
+	virtual
+	const Metatype *
+	baseType() const {
+		return this;
+	}
+
+	/**
 	 * \brief Assigns an annotation container to this metatype
 	 * \param annotationsContainer the annotation container
 	 */
@@ -140,7 +151,7 @@ public:
 		if ( this == parent )
         	return true;
 		const Metatype * derived = this;
-		while ( derived->m_parentMetatype && ( derived->m_parentMetatype != parent ) ) {
+		while ( derived->m_parentMetatype && ( derived->m_parentMetatype->baseType() != parent->baseType() ) ) {
 			derived = derived->m_parentMetatype;
 		}
 		return ( derived->m_parentMetatype != NULL );

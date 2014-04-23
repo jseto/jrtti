@@ -23,6 +23,12 @@ public:
 		return m_baseType->create();
 	}
 
+	virtual
+	const Metatype *
+	baseType() const {
+		return m_baseType;
+	}
+
 	bool
 	isPointer() const {
 		return true;

@@ -47,6 +47,7 @@ void declare()
 						.property( "testDoubleROConst", &Sample::getDoubleProp )
 						.property( "nullPtr", &Sample::nullPtr )
 						.property( "constRef", &Sample::getConstRef, jrtti::Annotations() << new jrtti::NoSerializable() )
+						.collection( "constCollection", &Sample::getConstCollection, jrtti::Annotations() << new jrtti::NoSerializable() )
 //						.property( "concreteObject", &Sample::setConcreteObject, &Sample::concreteObject )
 
 						.method<void>("testMethod", &Sample::testFunc,

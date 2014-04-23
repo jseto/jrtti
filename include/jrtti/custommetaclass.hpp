@@ -255,11 +255,11 @@ public:
 		typedef typename boost::function< void ( ClassT*,  PropT ) >	BoostSetter;
 		typedef typename boost::function<  PropT (  ClassT * ) >		BoostGetter;
 		typedef typename boost::remove_reference< PropT >::type			PropTNoRef;
-		jrtti::declareCollection< PropTNoRef >();
+		jrtti::declareCollection< typename boost::remove_const< PropTNoRef >::type >();
 
 		BoostSetter setter;       //setter empty is used by Property<>::isReadOnly()
 		Property * p = fillProperty< PropT, BoostSetter, BoostGetter >(name,  setter, getter, annotations );
-		if ( !boost::is_same< PropT, PropTNoRef >::value ) {
+		if ( !boost::is_same< PropT, PropTNoRef >::value && !boost::is_const< PropTNoRef >::value ) {
 			p->setMode( Property::Writable );
 		}
 		return *this;

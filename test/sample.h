@@ -102,6 +102,8 @@ public:
 	Collection& getCollection(){ return _collection; }
 	void setCollection( Collection& col ){ _collection = col; }
 
+	const Collection& getConstCollection() { return _collection; }
+
 	char * getArray() {
 		return m_sampleArray;
 	}
