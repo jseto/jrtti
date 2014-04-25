@@ -8,6 +8,7 @@
 
 #include <sstream>
 #include <boost/any.hpp>
+#include <boost/type_traits/is_fundamental.hpp>
 
 namespace jrtti {
 	/**
@@ -43,7 +44,8 @@ namespace jrtti {
 	 * \brief Type cast from boost::any
 	 *
 	 * This funtion tries to cast the contents of the passed boost::any to the type
-	 * in the template parameter. Accurate conversion is guarantied except when template
+	 * in the template parameter. It also allows cast between fundamental types.
+	 * Accurate conversion is guarantied except when template.
 	 * parameter is void *.
 	 * \tparam T type to cast to
 	 * \param value boost::any to cast
@@ -104,11 +106,102 @@ namespace jrtti {
 				if ( value.type() == typeid( void * ) ) {
 					return * ( T * )boost::any_cast< void * >( value );
 				}
+				Metatype * templateMt = metatype<T>();
+				if ( templateMt && templateMt->isFundamental() ) {
+					return convert< T >( value );
+				}
 				throw BadCast( typeid( T ).name() );
 		}
 	};
+
+#pragma warning( push )
+#pragma warning( disable : 4800 )
+
+	template< typename T >
+	typename boost::enable_if< typename boost::is_fundamental< T >::type, T >::type
+	convert( const boost::any& value ) {
+		Metatype * valueMt = metatype( value.type() );
+
+		if ( metatype< T >() == valueMt ) {
+			return boost::any_cast< T >( value );
+		}
+
+		if ( value.type() == typeid( int ) ) {
+			return ( T ) boost::any_cast< int >( value );
+		}
+		if ( value.type() == typeid( boost::reference_wrapper< int > ) ) {
+			return ( T ) boost::any_cast< boost::reference_wrapper< int > >( value );
+		}
+
+		if ( value.type() == typeid( double ) ) {
+			return ( T ) boost::any_cast< double >( value );
+		}
+		if ( value.type() == typeid( boost::reference_wrapper< double > ) ) {
+			return ( T ) boost::any_cast< boost::reference_wrapper< double > >( value );
+		}
+
+		if ( value.type() == typeid( long ) ) {
+			return ( T ) boost::any_cast< long >( value );
+		}
+		if ( value.type() == typeid( boost::reference_wrapper< long > ) ) {
+			return ( T ) boost::any_cast< boost::reference_wrapper< long > >( value );
+		}
+
+		if ( value.type() == typeid( float ) ) {
+			return ( T ) boost::any_cast< float >( value );
+		}
+		if ( value.type() == typeid( boost::reference_wrapper< float > ) ) {
+			return ( T ) boost::any_cast< boost::reference_wrapper< float > >( value );
+		}
+
+		if ( value.type() == typeid( short ) ) {
+			return ( T ) boost::any_cast< short >( value );
+		}
+		if ( value.type() == typeid( boost::reference_wrapper< short > ) ) {
+			return ( T ) boost::any_cast< boost::reference_wrapper< short > >( value );
+		}
+
+		if ( value.type() == typeid( long double ) ) {
+			return ( T ) boost::any_cast< long double >( value );
+		}
+		if ( value.type() == typeid( boost::reference_wrapper< long double > ) ) {
+			return ( T ) boost::any_cast< boost::reference_wrapper< long double > >( value );
+		}
+
+		if ( value.type() == typeid( bool ) ) {
+			return ( T ) boost::any_cast< bool >( value );
+		}
+		if ( value.type() == typeid( boost::reference_wrapper< bool > ) ) {
+			return ( T ) boost::any_cast< boost::reference_wrapper< bool > >( value );
+		}
+
+		if ( value.type() == typeid( char ) ) {
+			return ( T ) boost::any_cast< char >( value );
+		}
+		if ( value.type() == typeid( boost::reference_wrapper< char > ) ) {
+			return ( T ) boost::any_cast< boost::reference_wrapper< char > >( value );
+		}
+
+		if ( value.type() == typeid( wchar_t ) ) {
+			return ( T ) boost::any_cast< wchar_t >( value );
+		}
+		if ( value.type() == typeid( boost::reference_wrapper< wchar_t > ) ) {
+			return ( T ) boost::any_cast< boost::reference_wrapper< wchar_t > >( value );
+		}
+
+		throw BadCast( typeid( T ).name() );
+	}
+
+	template< typename T >
+	typename boost::disable_if< typename boost::is_fundamental< T >::type, T >::type
+	convert( const boost::any& value ) {
+		throw BadCast( typeid( T ).name() );
+	}
+
+#pragma warning( pop )
+
 }; // namespace jrtti
 
-/** \}*/
+/** \}*/  //do not delete comment. It is required by doxygen
 
 #endif //jrttihelpersH

@@ -19,3 +19,4 @@ latex/
 /test/asString
 /test/build/msvc2012/serialized.dat
 /test/build/msvc2012/asString
+/test/*.TMP

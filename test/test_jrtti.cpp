@@ -595,6 +595,54 @@ TEST_F(MetaTypeTest, untypedProperty) {
 	EXPECT_EQ( sample.getByRefProp().place.y, 3 );
 }
 
+TEST_F( MetaTypeTest, jrtti_cast_for_fundamental ) {
+	Sample s;
+
+	s.intMember = 897;
+	mClass()[ "testDouble" ].set( &s, mClass().property( "intMember" )->get( &s ) );
+	EXPECT_EQ( 897, s.getDoubleProp() );
+
+	//intAbstract returns 34
+	mClass()[ "testDouble" ].set( &s, mClass().property( "intAbstract" )->get( &s ) );
+	EXPECT_EQ( 34, s.getDoubleProp() );
+
+	s.setBool( false );
+	mClass()[ "testDouble" ].set( &s, mClass().property( "testBool" )->get( &s ) );
+	EXPECT_EQ( 0, s.getDoubleProp() );
+
+	s.setBool( true );
+	mClass()[ "testDouble" ].set( &s, mClass().property( "testBool" )->get( &s ) );
+	EXPECT_NE( 0, s.getDoubleProp() );
+
+	s.setDoubleProp( 2.54 );
+	mClass()[ "intMember" ].set( &s, mClass().property( "testDouble" )->get( &s ) );
+	EXPECT_EQ( 2, s.intMember );
+
+	s.setBool( false );
+	mClass()[ "intMember" ].set( &s, mClass().property( "testBool" )->get( &s ) );
+	EXPECT_EQ( 0, s.intMember );
+
+	s.setBool( true );
+	mClass()[ "intMember" ].set( &s, mClass().property( "testBool" )->get( &s ) );
+	EXPECT_NE( 0, s.intMember );
+
+	s.setDoubleProp( 23.45 );
+	mClass()[ "testBool" ].set( &s, mClass().property( "testDouble" )->get( &s ) );
+	EXPECT_TRUE( s.getBool() );
+
+	s.setDoubleProp( 0 );
+	mClass()[ "testBool" ].set( &s, mClass().property( "testDouble" )->get( &s ) );
+	EXPECT_FALSE( s.getBool() );
+
+	s.intMember = 23;
+	mClass()[ "testBool" ].set( &s, mClass().property( "intMember" )->get( &s ) );
+	EXPECT_TRUE( s.getBool() );
+
+	s.intMember = 0;
+	mClass()[ "testBool" ].set( &s, mClass().property( "intMember" )->get( &s ) );
+	EXPECT_FALSE( s.getBool() );
+}
+
 TEST_F( MetaTypeTest, alias ) {
 	EXPECT_EQ( jrtti::metatype<Point>(), jrtti::metatype( "Position" ) );
 	jrtti::addAlias( "ThisIsANiceAliasForSample", jrtti::metatype<Sample>() );
