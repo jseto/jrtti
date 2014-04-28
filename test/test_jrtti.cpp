@@ -53,7 +53,8 @@ TEST_F( MetaTypeTest, Demangle ) {
 
 #ifdef _MSC_VER
 	EXPECT_EQ( "Test", demangle( "class vm::Test" ) );
-	std::string strTypeName = "class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> >";
+	//	std::string strTypeName = "class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> >";
+	std::string strTypeName = typeid( std::string ).name();
 	std::string demangledStrTypeName = "std::basic_string<char,std::char_traits<char>,std::allocator<char> >";
 	EXPECT_EQ( demangledStrTypeName, demangle( strTypeName ) );
 #endif
@@ -124,8 +125,9 @@ TEST_F(MetaTypeTest, IntMemberMutator) {
 const std::string kHelloString = "Hello, \"world\"!\nThis is a new line with non printable char\x11";
 
 TEST_F( MetaTypeTest, StdStringTypeName ) {
+	addAlias( metatype<std::string>(), "std::string" );
 	std::string typeName = metatype< std::string>()->name();
-//	EXPECT_EQ( "std::string", typeName );
+	EXPECT_EQ( "std::string", typeName );
 }
 
 TEST_F( MetaTypeTest, StdStringAccessor ) {
@@ -668,9 +670,9 @@ TEST_F( MetaTypeTest, jrtti_cast_for_fundamental ) {
 
 TEST_F( MetaTypeTest, alias ) {
 	EXPECT_EQ( jrtti::metatype<Point>(), jrtti::metatype( "Position" ) );
-	jrtti::addAlias( "ThisIsANiceAliasForSample", jrtti::metatype<Sample>() );
+	jrtti::addAlias(  jrtti::metatype<Sample>(), "ThisIsANiceAliasForSample" );
 	EXPECT_EQ( jrtti::metatype( "ThisIsANiceAliasForSample" ), jrtti::metatype<Sample>() );
-	jrtti::addAlias( "Hey-WeForgotThePointer", jrtti::metatype<Sample *>() );
+	jrtti::addAlias( jrtti::metatype<Sample *>(), "Hey-WeForgotThePointer" );
 	EXPECT_EQ( jrtti::metatype( "Hey-WeForgotThePointer" ), jrtti::metatype<Sample *>() );
 	EXPECT_NE( jrtti::metatype( "Hey-WeForgotThePointer" ), jrtti::metatype<Sample>() );
 }

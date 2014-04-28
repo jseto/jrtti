@@ -91,7 +91,7 @@ public:
 	*/
 	CustomMetaclass&
 	alias( const std::string& aliasName ) {
-		addAlias( aliasName, this );
+		addAlias( this, aliasName );
 		return *this;
 	}
 

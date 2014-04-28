@@ -56,13 +56,26 @@ public:
 		return jrtti::jrtti_cast< T >( create() );
 	}
 
+	void
+	_addAlias( const std::string& aliasName ) {
+		m_alias = aliasName;
+	}
+
 	/**
-	 * Return the demangled type name of this Metatype
+	 * \brief Return the demangled or alias name 
+	 * 
+	 * Return the demangled or alias type name of this Metatype. If you want the 
+	 * compiler dependent name use Metatype::typeInfo() 'name' member instead
 	 * \return the type name
 	 */
 	std::string
 	name()	const {
-		return demangle( m_type_info.name() );
+		if ( m_alias.length() ) {
+			return m_alias;
+		}
+		else {
+			return demangle( m_type_info.name() );
+		}
 	}
 
 	/**
@@ -618,6 +631,7 @@ private:
 	Metatype *		m_parentMetatype;
 	Metatype *		m_pointerMetatype;
 	TypeMap			m_childrenMetatypes;
+	std::string		m_alias;
 };
 
 //------------------------------------------------------------------------------

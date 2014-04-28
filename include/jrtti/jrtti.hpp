@@ -72,7 +72,7 @@ namespace jrtti {
 	std::string demangle( const std::string& name );
 	template< typename C > class Metacollection;
 	template <typename C> Metacollection<C>& declareCollection( const Annotations& annotations );
-	void addAlias( const std::string& aliasName, Metatype * mt );
+//	void addAlias( const std::string& aliasName, Metatype * mt );
 
 	AddressRefMap&	_addressRefMap();
 //	NameRefMap&	_nameRefMap();
@@ -226,8 +226,8 @@ namespace jrtti {
 	*/
 	inline
 	void
-	addAlias( const std::string& aliasName, Metatype * mt ) {
-		Reflector::instance().addAlias( aliasName, mt );
+	addAlias( Metatype * mt, const std::string& aliasName ) {
+		Reflector::instance().addAlias( mt, aliasName);
 	}
 
 	inline

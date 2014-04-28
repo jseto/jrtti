@@ -63,8 +63,9 @@ public:
 	* \param mt the metatype to associate with the alias name
 	*/
 	void
-	addAlias( const std::string& aliasName, Metatype * mt ) {
+	addAlias( Metatype * mt, const std::string& aliasName ) {
 		_meta_types[ aliasName ] = mt;
+		mt->_addAlias( aliasName );
 	}
 
 	/**
