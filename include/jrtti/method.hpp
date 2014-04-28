@@ -11,7 +11,7 @@ namespace jrtti {
 class Method {
 public:
 	std::string 
-	name() {
+	name() const {
 		return _name;
 	}
 
@@ -25,8 +25,7 @@ public:
 	 * \param annotationsContainer the annotation container
 	 */
 	void
-	annotations( const Annotations& annotationsContainer )
-	{
+	annotations( const Annotations& annotationsContainer ) {
 		_annotations = annotationsContainer;
 	}
 
@@ -35,8 +34,7 @@ public:
 	 * \return the associated annotations container of this property
 	 */
 	Annotations&
-	annotations()
-	{
+	annotations() {
 		return _annotations;
 	}
 
@@ -48,7 +46,7 @@ public:
 	}
 
 	const std::vector< Metatype * >&
-	parameters() {
+	parameters() const {
 		return _parameters;
 	}
 
@@ -57,8 +55,8 @@ public:
 		_returnType = mt;
 	}
 
-	Metatype *
-	returnType() {
+	const Metatype *
+	returnType() const {
 		return _returnType;
 	}
 
