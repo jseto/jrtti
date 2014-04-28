@@ -39,12 +39,22 @@ public:
 	}
 
 	/**
-	 * Creates a new instance of the associated class
+	 * \brief Creates a new instance of the associated class
 	 * \return a pointer to the created object in a boost::any container
 	 */
 	virtual
 	boost::any
 	create() = 0;
+
+	/**
+	 * \brief Creates a new instance of the associated class
+	 * \return a pointer to the created object in a boost::any container
+	 */
+	template< typename T >
+	T 
+	create() {
+		return jrtti::jrtti_cast< T >( create() );
+	}
 
 	/**
 	 * Return the demangled type name of this Metatype
@@ -64,6 +74,16 @@ public:
 		return m_type_info;
 	}
 
+	/**
+	 * \brief Get the parent metatype
+	 *
+	 * \return the parent metatype
+	 */
+	const Metatype * 
+	parentMetatype() {
+		return m_parentMetatype;
+	}
+	
 	/**
 	 * \brief Get the base type without pointer qualificator
 	 *

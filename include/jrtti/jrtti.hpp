@@ -68,6 +68,7 @@ namespace jrtti {
 	class Error;
 	class Metatype;
 	class JRTTI_API Reflector;
+//	void registerPrefixDecorator( const std::string & decorator );
 	std::string demangle( const std::string& name );
 	template< typename C > class Metacollection;
 	template <typename C> Metacollection<C>& declareCollection( const Annotations& annotations );
@@ -184,6 +185,19 @@ namespace jrtti {
 	Metacollection<C>&
 	declareCollection( const Annotations& annotations = Annotations() ) {
 		return Reflector::instance().declareCollection<C>( annotations );
+	}
+
+	/**
+	* \brief Register a type name decorator
+	*
+	* Helper function for Reflector::registerPrefixDecorator
+	* \param decorator the decorator to register
+	* \sa demangle
+	*/
+	inline
+	void
+	registerPrefixDecorator( const std::string & decorator ) {
+		Reflector::instance().registerPrefixDecorator( decorator );
 	}
 
 	/**

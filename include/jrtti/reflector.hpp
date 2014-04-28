@@ -41,8 +41,8 @@ public:
 	clear()	{
 		eraseMetatypes();
 		m_prefixDecorators.clear();
-		registerPrefixDecorator( "struct" );
-		registerPrefixDecorator( "class" );
+		registerPrefixDecorator( "struct " );
+		registerPrefixDecorator( "class " );
 		register_defaults();
 	}
 
@@ -237,28 +237,27 @@ public:
 	 */
 	std::string
 	demangle( const std::string& name ) {
+		std::string newName = name;
+
 #ifdef __GNUG__
 		int status = -4;
 		char* res = abi::__cxa_demangle(name.c_str(), NULL, NULL, &status);
 		const char* const demangled_name = (status==0)?res:name.c_str();
-		std::string ret_val(demangled_name);
+		newName = std::string(demangled_name);
 		free(res);
-		return ret_val;
-#elif __BORLANDC__
-		return name;
-#else
+#endif
+
 		for ( std::vector< std::string >::iterator it = m_prefixDecorators.begin(); it != m_prefixDecorators.end(); ++it ) {
-			size_t pos = name.find( *it );
+			size_t pos = newName.find( *it );
 			if ( pos != std::string::npos ) {
-				pos += it->length() + 1;
-				return name.substr( pos );
+				pos += it->length();
+				newName = newName.substr( pos );
 			}
 		}
-		return name;
-	#ifndef _MSC_VER
+#if !defined(_MSC_VER) && !defined(__GNUG__) && !defined(__BORLANDC__)
 		#warning "Your compiler may not support demangleing of typeid(T).name() results. See jrtti::demangle documentation"
 	#endif
-#endif
+		return newName;
 	}
 
 	void		//Property metatype is not defined yet. Insert in waiting list

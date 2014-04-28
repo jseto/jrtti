@@ -41,8 +41,23 @@ TEST_F(MetaTypeTest, InvertedDeclaration) {
 	EXPECT_EQ( y, d.place.x );
 }
 
-TEST_F(MetaTypeTest, DoubleType) {
-	EXPECT_EQ("double", mClass()["testDouble"].metatype()->name());
+TEST_F( MetaTypeTest, Demangle ) {
+	EXPECT_EQ( "Test", demangle( "Test" ) );
+
+#ifdef _MSC_VER
+	EXPECT_EQ( "Test", demangle( "class Test" ) );
+#endif
+
+	registerPrefixDecorator( "vm::" );
+	EXPECT_EQ( "Test", demangle( "vm::Test" ) );
+
+#ifdef _MSC_VER
+	EXPECT_EQ( "Test", demangle( "class vm::Test" ) );
+#endif
+}
+
+TEST_F( MetaTypeTest, DoubleType ) {
+	EXPECT_EQ( "double", mClass()[ "testDouble" ].metatype()->name() );
 }
 
 TEST_F(MetaTypeTest, DoubleAccessor) {
