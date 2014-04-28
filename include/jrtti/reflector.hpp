@@ -249,9 +249,9 @@ public:
 
 		for ( std::vector< std::string >::iterator it = m_prefixDecorators.begin(); it != m_prefixDecorators.end(); ++it ) {
 			size_t pos = newName.find( *it );
-			if ( pos != std::string::npos ) {
-				pos += it->length();
-				newName = newName.substr( pos );
+			while ( pos != std::string::npos ) {
+				newName = newName.erase( pos, it->length() );
+				pos = newName.find( *it );
 			}
 		}
 #if !defined(_MSC_VER) && !defined(__GNUG__) && !defined(__BORLANDC__)

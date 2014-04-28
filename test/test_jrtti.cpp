@@ -53,6 +53,9 @@ TEST_F( MetaTypeTest, Demangle ) {
 
 #ifdef _MSC_VER
 	EXPECT_EQ( "Test", demangle( "class vm::Test" ) );
+	std::string strTypeName = "class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> >";
+	std::string demangledStrTypeName = "std::basic_string<char,std::char_traits<char>,std::allocator<char> >";
+	EXPECT_EQ( demangledStrTypeName, demangle( strTypeName ) );
 #endif
 }
 
@@ -120,11 +123,16 @@ TEST_F(MetaTypeTest, IntMemberMutator) {
 
 const std::string kHelloString = "Hello, \"world\"!\nThis is a new line with non printable char\x11";
 
-TEST_F(MetaTypeTest, StdStringAccessor) {
-	sample.setStdStringProp(kHelloString);
-	std::string result = mClass()["testStr"].get<std::string>(&sample);
+TEST_F( MetaTypeTest, StdStringTypeName ) {
+	std::string typeName = metatype< std::string>()->name();
+//	EXPECT_EQ( "std::string", typeName );
+}
 
-	EXPECT_EQ(kHelloString, result);
+TEST_F( MetaTypeTest, StdStringAccessor ) {
+	sample.setStdStringProp( kHelloString );
+	std::string result = mClass()[ "testStr" ].get<std::string>( &sample );
+
+	EXPECT_EQ( kHelloString, result );
 }
 
 TEST_F(MetaTypeTest, StdStringMutator) {
