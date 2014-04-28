@@ -303,7 +303,16 @@ public:
 		typedef detail::template FunctionTypes< FuncT >::arg1_type Param1T;
 		typedef detail::template FunctionTypes< FuncT >::arg2_type Param2T;
 		typedef TypedMethod<ClassT, ReturnType, Param1T, Param2T> MethodType;
-		return fillMethod<MethodType, FuncT>( name, f, annotations );
+
+		MethodType * m = new MethodType();
+		m->name( name );
+		m->function( f );
+		m->annotations( annotations );
+		m->returnType( metatype< ReturnType >() );
+		m->parameter( metatype< Param1T >() );
+		m->parameter( metatype< Param2T >() );
+		addMethod( name, m );
+		return *this;
 	}
 
 	/**

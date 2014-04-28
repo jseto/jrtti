@@ -40,6 +40,29 @@ public:
 		return _annotations;
 	}
 
+	void
+	parameter( Metatype * mt ) {
+		if ( mt ) {
+			_parameters.push_back( mt );
+		}
+	}
+
+	const std::vector< Metatype * >&
+	parameters() {
+		return _parameters;
+	}
+
+	void 
+	returnType( Metatype * mt ) {
+		_returnType = mt;
+	}
+
+	Metatype *
+	returnType() {
+		return _returnType;
+	}
+
+
 	virtual
 	boost::any
 	call( void * instance, boost::any& param1 = boost::any(), boost::any& param2 = boost::any() ) = 0;
@@ -47,6 +70,8 @@ public:
 private:
 	std::string _name;
 	Annotations _annotations;
+	std::vector< Metatype * > _parameters;
+	Metatype * _returnType;
 };
 
 template <class ClassT, class ReturnT, class Param1=void, class Param2=void>

@@ -445,21 +445,36 @@ TEST_F(MetaTypeTest, testIntMethodCall) {
 	Sample sample;
 
 	mClass().call("testMethod", &sample);
-	int i = mClass().call< int >("testIntMethod", &sample);
+	EXPECT_EQ( 0, mClass().method( "testMethod" ).parameters().size() );
+	EXPECT_EQ( NULL, mClass().method( "testMethod" ).returnType() );
 
+
+	int i = mClass().call< int >("testIntMethod", &sample);
 	EXPECT_EQ(23, i);
+
+	EXPECT_EQ( 0, mClass().method( "testIntMethod" ).parameters().size() );
+	EXPECT_EQ( "int", mClass().method( "testIntMethod" ).returnType()->name() );
 }
 
 TEST_F(MetaTypeTest, testSquareMethodCall) {
 	Sample sample;
 	double result = mClass().call< double >("testSquare", &sample, 4.0);
 	EXPECT_EQ(16.0, result );
+
+	EXPECT_EQ( 1, mClass().method( "testSquare" ).parameters().size() );
+	EXPECT_EQ( "double", mClass().method( "testSquare" ).parameters().at(0)->name() );
+	EXPECT_EQ( "double", mClass().method( "testSquare" ).returnType()->name() );
 }
 
 TEST_F(MetaTypeTest, testSumMethodCall) {
 	Sample sample;
 	double result = mClass().call<double>("testSum",&sample,9,6.0);
 	EXPECT_EQ(15.0, result);
+
+	EXPECT_EQ( 2, mClass().method( "testSum" ).parameters().size() );
+	EXPECT_EQ( "int", mClass().method( "testSum" ).parameters().at( 0 )->name() );
+	EXPECT_EQ( "double", mClass().method( "testSum" ).parameters().at( 1 )->name() );
+	EXPECT_EQ( "double", mClass().method( "testSum" ).returnType()->name() );
 }
 
 TEST_F(MetaTypeTest, base64) {
