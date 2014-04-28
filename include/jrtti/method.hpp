@@ -1,6 +1,8 @@
 #ifndef methodH
 #define methodH
 
+#include <boost/any.hpp>
+
 namespace jrtti {
 
 /**
@@ -8,11 +10,13 @@ namespace jrtti {
  */
 class Method {
 public:
-	std::string name() {
+	std::string 
+	name() {
 		return _name;
 	}
 
-	void	name(std::string value) {
+	void	
+	name(std::string value) {
 		_name = value;
 	}
 
@@ -36,6 +40,10 @@ public:
 		return _annotations;
 	}
 
+	virtual
+	boost::any
+	call( void * instance, boost::any& param1 = boost::any(), boost::any& param2 = boost::any() ) = 0;
+
 private:
 	std::string _name;
 	Annotations _annotations;
@@ -57,8 +65,24 @@ public:
 		return *this;
 	}
 
-	ReturnT call(ClassT * instance, Param1 p1, Param2 p2)	{
-		return (ReturnT)_functor(instance,p1,p2);
+	virtual
+	boost::any
+	call( void * instance, boost::any& param1 = boost::any(), boost::any& param2 = boost::any() ) {
+		return internal_call< ReturnT >( ( ClassT * ) instance, boost::any_cast< Param1 >( param1 ), boost::any_cast< Param2 >( param2 ) );
+	};
+
+protected:
+	template< typename T >
+	typename boost::enable_if< typename boost::is_void< T >::type, boost::any >::type
+	internal_call( ClassT * instance, Param1 p1, Param2 p2 ) {
+		_functor( instance, p, p2 );
+		return boost::any();
+	}
+
+	template< typename T >
+	typename boost::disable_if< typename boost::is_void< T >::type, boost::any >::type
+	internal_call( ClassT * instance, Param1 p1, Param2 p2 ) {
+		return ( ReturnT ) _functor( instance, p1, p2 );
 	}
 
 private:
@@ -83,9 +107,24 @@ public:
 		return *this;
 	}
 
-	ReturnT
-	call(ClassT * instance) {
-		return (ReturnT)_functor(instance);
+	virtual
+	boost::any
+	call( void * instance, boost::any& param1 = boost::any(), boost::any& param2 = boost::any() ) {
+		return internal_call< ReturnT >( ( ClassT * ) instance );
+	};
+
+protected:
+	template< typename T >
+	typename boost::enable_if< typename boost::is_void< T >::type, boost::any >::type
+	internal_call( ClassT * instance ) {
+		_functor( instance );
+		return boost::any();
+	}
+
+	template< typename T >
+	typename boost::disable_if< typename boost::is_void< T >::type, boost::any >::type
+	internal_call( ClassT * instance ) {
+		return ( ReturnT ) _functor( instance );
 	}
 
 private:
@@ -111,9 +150,24 @@ public:
 		return *this;
 	}
 
-	ReturnT
-	call(ClassT * instance, Param1 p) {
-		return (ReturnT)_functor(instance,p);
+	virtual
+	boost::any
+	call( void * instance, boost::any& param1 = boost::any(), boost::any& param2 = boost::any() ) {
+		return internal_call< ReturnT >( ( ClassT * )instance, boost::any_cast< Param1 >( param1 ) );
+	};
+
+protected:
+	template< typename T >
+	typename boost::enable_if< typename boost::is_void< T >::type, boost::any >::type
+	internal_call( ClassT * instance, Param1 p1 ) {
+		_functor( instance, p );
+		return boost::any();
+	}
+
+	template< typename T >
+	typename boost::disable_if< typename boost::is_void< T >::type, boost::any >::type
+	internal_call( ClassT * instance, Param1 p1 ) {
+		return ( ReturnT ) _functor( instance, p1 );
 	}
 
 private:

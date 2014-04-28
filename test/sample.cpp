@@ -100,14 +100,11 @@ void useCase() {
 	mt[ "point" ].set( &s, &p );
 	std::cout << 23 << " == " << s.getByPtrProp()->x << std::endl;
 
-	//call a method without parameters returning void
-	mt.call<void>( "testMethod", &s );
+	//call a method without parameters and no returning
+	mt.call( "testMethod", &s );
 
 	//call a method returning int and having two parameters
-	double f = mt.call<double,Sample,int,double>( "testSum", &s, 3, 8 );
-	std::cout << 3+8 << " == " << f << std::endl;
-	//or
-	f = mt.call<double>( "testSum", &s, 3, 8.0 );
+	double f = mt.call<double>( "testSum", &s, 3, 8.0 );
 	std::cout << 3+8 << " == " << f << std::endl;
 
 

@@ -444,7 +444,7 @@ TEST_F(MetaTypeTest, testCreate) {
 TEST_F(MetaTypeTest, testIntMethodCall) {
 	Sample sample;
 
-	mClass().call< void >("testMethod", &sample);
+	mClass().call("testMethod", &sample);
 	int i = mClass().call< int >("testIntMethod", &sample);
 
 	EXPECT_EQ(23, i);
