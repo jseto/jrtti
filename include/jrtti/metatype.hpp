@@ -280,61 +280,9 @@ public:
 	}
 
 	/**
-	 * \brief Invoke a method without parameters
+	 * \brief Invoke a method
 	 *
-	 * Invokes a method without parameters from class ClassT by name.
-	 * \tparam ClassT the class type of this Metatype.
-	 * \tparam ReturnT the return type of the method.
-	 * \param methodName the name of the method to invoke
-	 * \param instance the object instance where the method will be invoked
-	 * \return the call result
-	 * \throw Error if method not found
-	 */
-	//template < class ReturnT, class ClassT >
-	//ReturnT
-	//call ( std::string methodName, ClassT * instance ) {
-	//	typedef TypedMethod< boost::remove_pointer< ClassT >::type, ReturnT > MethodType;
-
-	//	MethodType * ptr = static_cast< MethodType * >( _methods()[methodName] );
-	//	if (!ptr) {
-	//		throw Error("Method '" + methodName + "' not found in '" + name() + "' metaclass");
-	//	}
-	//	return ptr->call(instance);
-	//}
-
-	/**
-	 * \brief Invoke a method with one parameter
-	 *
-	 * Invokes a method with one parameter from class ClassT by name.
-	 * \tparam ClassT the class type of this Metatype.
-	 * \tparam ReturnT the return type of the method.
-	 * \tparam Param1 the parameter type of the method.
-	 * \param methodName the name of the method to invoke
-	 * \param instance the object instance where the method will be invoked
-	 * \param p1 method parameter
-	 * \return the call result
-	 * \throw Error if method not found
-	 */
-	//template <class ReturnT, class ClassT>
-	//ReturnT
-	//call ( std::string methodName, ClassT * instance, const boost::any& p1 ) {
-	//	typedef TypedMethod< ClassT, ReturnT, Param1 > MethodType;
-
-	//	MethodType * ptr = static_cast< MethodType * >( m_methods[methodName] );
-	//	if (!ptr) {
-	//		throw Error("Method '" + methodName + "' not found in '" + name() + "' metaclass");
-	//	}
-	//	return ptr->call(instance,p1);
-	//}
-
-	/**
-	 * \brief Invoke a method with two parameters
-	 *
-	 * Invokes a method without parameters from class ClassT by name.
-	 * \tparam ClassT the class type of this Metatype.
-	 * \tparam ReturnT the return type of the method.
-	 * \tparam Param1 the first parameter type of the method.
-	 * \tparam Param2 the second parameter type of the method.
+	 * Invokes a method from class ClassT by name.
 	 * \param methodName the name of the method to invoke
 	 * \param instance the object instance where the method will be invoked
 	 * \param p1 first method parameter
@@ -342,17 +290,6 @@ public:
 	 * \return the call result
 	 * \throw Error if method not found
 	 */
-	//template <class ReturnT, class ClassT, class Param1, class Param2>
-	//ReturnT
-	//call ( std::string methodName, ClassT * instance, Param1 p1, Param2 p2 ) {
-	//	typedef TypedMethod< ClassT, ReturnT, Param1, Param2 > MethodType;
-
-	//	MethodType * ptr = static_cast< MethodType * >( m_methods[methodName] );
-	//	if (!ptr) {
-	//		throw Error("Method '" + methodName + "' not found in '" + name() + "' metaclass");
-	//	}
-	//	return ptr->call(instance,p1,p2);
-	//}
 	boost::any
 	call( const std::string& methodName, void * instance, boost::any& p1 = boost::any(), boost::any& p2 = boost::any() ) {
 		Method * method = m_methods[methodName];
@@ -363,6 +300,18 @@ public:
 
 	}
 
+	/**
+	* \brief Invoke a method and casts result to desired type
+	*
+	* Invokes a method from class ClassT by name.
+	* \tparam T the type to cast the result of the call
+	* \param methodName the name of the method to invoke
+	* \param instance the object instance where the method will be invoked
+	* \param p1 first method parameter
+	* \param p2 second method parameter
+	* \return the call result
+	* \throw Error if method not found
+	*/
 	template< typename T >
 	T
 	call( const std::string& methodName, void * instance, boost::any p1 = boost::any(), boost::any p2 = boost::any() ) {
