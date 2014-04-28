@@ -50,11 +50,10 @@ void declare()
 						.collection( "constCollection", &Sample::getConstCollection, jrtti::Annotations() << new jrtti::NoSerializable() )
 //						.property( "concreteObject", &Sample::setConcreteObject, &Sample::concreteObject )
 
-						.method<void>("testMethod", &Sample::testFunc,
-									jrtti::Annotations() << new GUIAnnotation( "method.ico", false, false ) )
-						.method<int>("testIntMethod", &Sample::testIntFunc)
-						.method<double,double>("testSquare", &Sample::testSquare)
-						.method<double,int,double>("testSum", &Sample::testSum);
+						.method("testMethod", &Sample::testFunc, jrtti::Annotations() << new GUIAnnotation( "method.ico", false, false ) )
+						.method("testIntMethod", &Sample::testIntFunc)
+						.method("testSquare", &Sample::testSquare)
+						.method("testSum", &Sample::testSum);
 
 	jrtti::declare<Point>()
 						.alias( "Position" )

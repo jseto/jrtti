@@ -3,6 +3,7 @@
 
 #include <boost/type_traits/is_same.hpp>
 #include <boost/type_traits/remove_const.hpp>
+#include <boost/type_traits/function_traits.hpp>
 #include "metatype.hpp"
 
 namespace jrtti {
@@ -51,14 +52,34 @@ public:
 		struct FunctionTypes< R ( ClassT::* )() >
 		{
 			typedef R 		result_type;
-			typedef void 	param_type;
+			typedef ClassT	class_type;
+			typedef void 	arg1_type;
+			typedef void 	arg2_type;
 		};
 
 		template < typename R >
 		struct FunctionTypes< R ( ClassT::* )() const >
 		{
 			typedef R 		result_type;
-			typedef void 	param_type;
+			typedef ClassT	class_type;
+			typedef void 	arg1_type;
+			typedef void 	arg2_type;
+		};
+
+		template < typename R, typename T1 >
+		struct FunctionTypes< R( ClassT::* )( T1 ) > {
+			typedef R 		result_type;
+			typedef ClassT	class_type;
+			typedef T1	 	arg1_type;
+			typedef void 	arg2_type;
+		};
+
+		template < typename R, typename T1, typename T2 >
+		struct FunctionTypes< R( ClassT::* )( T1, T2 ) > {
+			typedef R 		result_type;
+			typedef ClassT	class_type;
+			typedef T1	 	arg1_type;
+			typedef T2	 	arg2_type;
 		};
 	};
 
@@ -266,69 +287,23 @@ public:
 	}
 
 	/**
-	 * \brief Declares a method without parameters
-	 *
-	 * Declares a method without parameters.
-	 * Template parameter ReturnType is the return type of the declared method.
-	 * If method returns void, simply note void in template speciallization.
-	 * \param name the method name
-	 * \param f address of the method
-	 * \param annotations a container with method annotations
-	 * \return this for chain call
-	 */
-	template <typename ReturnType>
+	* \brief Declares a method 
+	*
+	* Declares a method with 2 parameters as maximum.
+	* \tparam method signature
+	* \param f address of the method
+	* \param annotations a container with method annotations
+	* \return this for chain call
+	*/
+	template <typename FuncT>
 	CustomMetaclass&
-	method( std::string name, boost::function<ReturnType (ClassT*)> f, const Annotations& annotations = Annotations() )
-	{
-		typedef TypedMethod<ClassT,ReturnType> MethodType;
-		typedef typename boost::function<ReturnType (ClassT*)> FunctionType;
-
-		return fillMethod<MethodType, FunctionType>( name, f, annotations );
-	}
-
-	/**
-	 * \brief Declares a method with one parameter
-	 *
-	 * Declares a method with one parameter.
-	 * Template parameter ReturnType is the return type of the declared method.
-	 * If method returns void, simply note void in template speciallization.
-	 * Template parameter Param1 is the type of the parameter
-	 * \param name the method name
-	 * \param f address of the method
-	 * \param annotations a container with method annotations
-	 * \return this for chain call
-	 */
-	template <typename ReturnType, typename Param1>
-	CustomMetaclass&
-	method( std::string name,boost::function<ReturnType (ClassT*, Param1)> f, const Annotations& annotations = Annotations() )
-	{
-		typedef TypedMethod< ClassT, ReturnType, Param1 > MethodType;
-		typedef typename boost::function<ReturnType (ClassT*, Param1) > FunctionType;
-
-		return fillMethod< MethodType, FunctionType >( name, f, annotations );
-	}
-
-	/**
-	 * \brief Declares a method with two parameters
-	 *
-	 * Declares a method with two parameters.
-	 * Template parameter ReturnType is the return type of the declared method.
-	 * If method returns void, simply note void in template speciallization.
-	 * Template parameter Param1 is the type of the first parameter
-	 * Template parameter Param2 is the type of the second parameter
-	 * \param name the method name
-	 * \param f address of the method
-	 * \param annotations a container with method annotations
-	 * \return this for chain call
-	 */
-	template <typename ReturnType, typename Param1, typename Param2>
-	CustomMetaclass&
-	method( std::string name,boost::function<ReturnType (ClassT*, Param1, Param2)> f, const Annotations& annotations = Annotations() )
-	{
-		typedef TypedMethod<ClassT,ReturnType, Param1, Param2> MethodType;
-		typedef typename boost::function<ReturnType (ClassT*, Param1, Param2)> FunctionType;
-
-		return fillMethod<MethodType, FunctionType>( name, f, annotations );
+	method( std::string name, FuncT f, const Annotations& annotations = Annotations() ) {
+		typedef detail::template FunctionTypes< FuncT >::result_type ReturnType;
+		typedef detail::template FunctionTypes< FuncT >::class_type ClassT;
+		typedef detail::template FunctionTypes< FuncT >::arg1_type Param1T;
+		typedef detail::template FunctionTypes< FuncT >::arg2_type Param2T;
+		typedef TypedMethod<ClassT, ReturnType, Param1T, Param2T> MethodType;
+		return fillMethod<MethodType, FuncT>( name, f, annotations );
 	}
 
 	/**
