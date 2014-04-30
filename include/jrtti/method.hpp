@@ -98,7 +98,7 @@ protected:
 	template< typename T >
 	typename boost::enable_if< typename boost::is_void< T >::type, boost::any >::type
 	internal_call( ClassT * instance, Param1 p1, Param2 p2 ) {
-		_functor( instance, p, p2 );
+		_functor( instance, p1, p2 );
 		return boost::any();
 	}
 
@@ -183,7 +183,7 @@ protected:
 	template< typename T >
 	typename boost::enable_if< typename boost::is_void< T >::type, boost::any >::type
 	internal_call( ClassT * instance, Param1 p1 ) {
-		_functor( instance, p );
+		_functor( instance, p1 );
 		return boost::any();
 	}
 

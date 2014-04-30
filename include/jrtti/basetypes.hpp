@@ -93,6 +93,56 @@ private:
 	Metatype * m_baseType;
 };
 
+/**
+* \brief Encapsulates a pointer metatye
+*/
+class MetaVoidPointer : public Metatype {
+public:
+	MetaVoidPointer()
+		: Metatype( typeid( void * ) ){}
+
+	virtual
+	boost::any
+	create() {
+		return NULL;
+	}
+
+	bool
+	isPointer() const {
+		return true;
+	}
+
+protected:
+	Metatype *
+	pointerMetatype() {
+		return this;
+	}
+
+	virtual
+	std::string
+	_toStr( const boost::any & value ) {
+		void * inst = get_instance_ptr( value );
+
+		if ( !inst ) {
+			return "NULL";
+		}
+
+		AddressRefMap::iterator it = _addressRefMap().find( inst );
+		if ( it == _addressRefMap().end() ) {
+			return Metatype::_toStr( value );
+		}
+		else {
+			return "{this}";
+		}
+	}
+
+	virtual
+	void *
+	get_instance_ptr( const boost::any & value ) {
+		return jrtti_cast< void * >( value );
+	}
+};
+
 // predefined types
 
 /**

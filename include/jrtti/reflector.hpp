@@ -297,6 +297,8 @@ private:
 		internal_declare< long double >( new MetaLongDouble() );
 		internal_declare< wchar_t >( new MetaWchar_t() );
 		internal_declare< std::string >( new MetaString() );
+		Metatype * mt = new MetaVoidPointer();
+		_meta_types[ mt->name() ] = mt;
 	}
 
 	template< typename T >
