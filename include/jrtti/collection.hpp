@@ -1,6 +1,7 @@
 #ifndef jrtticollectionH
 #define jrtticollectionH
 
+#include "jrtti.hpp"
 #include "metatype.hpp"
 
 namespace jrtti {
@@ -8,11 +9,11 @@ namespace jrtti {
 /**
  * \brief Abstraction for a collection type
  *
- * A collection is a secuence of objects, like STL containers.
+ * A collection is a sequence of objects, like STL containers.
  * Collections should expose both, an iterator named iterator and a public type
  * exposing the the type of the contained elements named value_type. Additionally should 
  * also expose member functions begin(), end(), clear() and insert().
- * In esence, a native collection type should implement the provided
+ * In essence, a native collection type should implement the provided
  * interface CollectionInterface. Most STL container implementation are compatible
  * with CollectionInterface. That means you can directly use STL containers.
  *

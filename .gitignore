@@ -3,7 +3,7 @@ __history
 Debug/
 Release/
 *.dsk
-out/
+out*/
 *.sdf
 *.suo
 *.user

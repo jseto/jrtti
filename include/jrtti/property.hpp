@@ -4,6 +4,7 @@
 #include <vector>
 #include <boost/shared_ptr.hpp>
 #include <boost/any.hpp>
+#include <boost/type_traits/ice.hpp>
 #include "annotations.hpp"
 
 namespace jrtti {
@@ -241,9 +242,13 @@ private:
 
 	//SFINAE for values
 	template < typename T>
-	typename boost::disable_if< boost::type_traits::ice_or<
-										boost::is_pointer< T >::value,
-										boost::is_reference< T >::value >, boost::any >::type
+	typename boost::disable_if<
+#ifdef BOOST_TT_DETAIL_ICE_OR_HPP_INCLUDED
+								boost::type_traits::ice_or<	boost::is_pointer< T >::value, boost::is_reference< T >::value >
+#else
+								boost::is_pointer< T > || boost::is_reference< T >
+#endif
+								, boost::any >::type
 	internal_get(void * instance) {
 //		PropT res = m_getter( (ClassT *)instance );
 //		return res;

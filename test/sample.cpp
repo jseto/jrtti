@@ -4,6 +4,8 @@
 
 JRTTI_INSTANTIATE_SINGLETON
 
+//static jrtti::Reflector ____ref = jrtti::Reflector::instance();
+
 void declare()
 {
 	jrtti::declare<Date>()

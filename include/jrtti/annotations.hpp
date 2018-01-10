@@ -9,7 +9,7 @@
 
 namespace jrtti {
 
-//class Annotations;
+class Annotations;
 
 /**
  * \brief Base class for annotations
