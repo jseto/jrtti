@@ -9,6 +9,7 @@
 #include <sstream>
 #include <boost/any.hpp>
 #include <boost/type_traits/is_fundamental.hpp>
+#include "jrttiglobal.hpp"
 
 namespace jrtti {
 
@@ -20,7 +21,7 @@ namespace jrtti {
 	convert( const boost::any& value ) {
 		Metatype * valueMt = jrtti::metatype( value.type() );
 
-		if ( jrtti::metatype< T >() == valueMt ) {
+		if ( jrtti::metatype( typeid( T ) ) == valueMt ) {
 			return boost::any_cast< T >( value );
 		}
 
@@ -149,9 +150,10 @@ namespace jrtti {
 					return (T)*boost::unsafe_any_cast< void * >( &value );
 				}
 
-				Metatype * value_mt = Reflector::instance().metatype( value.type() );
-				Metatype * templT_mt = Reflector::instance().metatype< T >();
-				if ( ( value_mt && value_mt->isDerivedFrom( templT_mt ) ) || templT_mt->isDerivedFrom( value_mt ) ) {
+				Metatype * value_mt = jrtti::metatype( value.type() );
+				Metatype * templT_mt = jrtti::metatype( typeid( T ) );
+//				if ( ( value_mt && value_mt->isDerivedFrom( templT_mt ) ) || templT_mt->isDerivedFrom( value_mt ) ) {
+				if ( ( value_mt && jrtti::isDerived( templT_mt, value_mt ) ) || jrtti::isDerived( value_mt, templT_mt ) ) {
 					return (T)*boost::unsafe_any_cast< void * >( &value );
 				}
 
@@ -175,8 +177,8 @@ namespace jrtti {
 				if ( value.type() == typeid( void * ) ) {
 					return * ( T * )boost::any_cast< void * >( value );
 				}
-				Metatype * templateMt = metatype<T>();
-				if ( templateMt && templateMt->isFundamental() ) {
+				Metatype * templateMt = jrtti::metatype( typeid( T ));
+				if ( templateMt && jrtti::isFundamental( templateMt ) ) {
 					return convert< T >( value );
 				}
 				throw BadCast( typeid( T ).name() );

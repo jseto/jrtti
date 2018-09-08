@@ -15,6 +15,8 @@ namespace jrtti {
 */
 class GenericWriter : public Writer {
 public:
+	virtual ~GenericWriter(){}
+
 	template< typename T >
 	void
 	serialize( T * instance ) {
@@ -81,6 +83,8 @@ public:
 */
 class GenericReader : public Reader {
 public:
+	virtual ~GenericReader(){}
+
 	template< typename T >
 	T
 	deserialize( T * instance ) {

@@ -5,11 +5,15 @@
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
 #include <boost/type_traits/remove_pointer.hpp>
+#include <boost/any.hpp>
 
-#include "helpers.hpp"
+//#include "helpers.hpp"
+#include "exception.hpp"
+#include "jrttiglobal.hpp"
 #include "property.hpp"
 #include "method.hpp"
 #include "serializer.hpp"
+//#include "jrtti.hpp"
 
 namespace jrtti {
 
@@ -28,7 +32,7 @@ public:
 	typedef std::map< std::string, Property * > PropertyMap;
 	typedef std::map< std::string, Method * >	MethodMap;
 
-	~Metatype() {
+	virtual ~Metatype() {
 		for (PropertyMap::iterator it = m_ownedProperties.begin(); it != m_ownedProperties.end(); ++it) {
 			delete it->second;
 		}
@@ -201,7 +205,7 @@ public:
 	template< typename T >
 	bool
 	isDerivedFrom() const {
-		return isDerivedFrom( jrtti::metatype< T >() );
+		return isDerivedFrom( jrtti::metatype( typeid( T ) ) );
 	}
 
 	/**
@@ -291,7 +295,7 @@ public:
 	 * \throw Error if method not found
 	 */
 	boost::any
-	call( const std::string& methodName, void * instance, boost::any& p1 = boost::any(), boost::any& p2 = boost::any() ) {
+	call( const std::string& methodName, void * instance, boost::any& p1, boost::any& p2 ) {
 		Method * method = m_methods[methodName];
 		if ( !method ) {
 			throw Error("Method '" + methodName + "' not found in '" + name() + "' metaclass");
@@ -496,6 +500,7 @@ protected:
 	Metatype( const std::type_info& typeinfo, const Annotations& annotations = Annotations() )
 		:	m_type_info( typeinfo ),
 			m_annotations( annotations ),
+			m_pointerMetatype( NULL ),
 			m_parentMetatype( NULL ) {}
 
 	virtual

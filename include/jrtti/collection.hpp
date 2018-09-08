@@ -1,7 +1,7 @@
 #ifndef jrtticollectionH
 #define jrtticollectionH
 
-#include "jrtti.hpp"
+#include "jrttiglobal.hpp"
 #include "metatype.hpp"
 
 namespace jrtti {
@@ -23,6 +23,8 @@ class Metacollection: public CustomMetaclass< ClassT > {
 public:
 	Metacollection( const Annotations& annotations = Annotations() ): CustomMetaclass< ClassT >( annotations ) {}
 
+	virtual ~Metacollection(){}
+
 	bool
 	isCollection() const {
 		return true;
@@ -39,7 +41,7 @@ public:
 		ClassT& _collection = getReference( instance );
 
 		////////// COMPILER ERROR   //// Collections must declare a value_type type. See documentation for details.
-		Metatype * mt = jrtti::metatype< typename ClassT::value_type >();
+		Metatype * mt = jrtti::metatype(typeid ( typename ClassT::value_type ) );
 		writer->collectionBegin();
 
 		////////// COMPILER ERROR   //// Collections must declare a iterator type and a begin and end methods. See documentation for details.
@@ -88,7 +90,7 @@ protected:
 		ClassT& _collection = getReference( value );
 
 		////////// COMPILER ERROR   //// Collections must declare a value_type type. See documentation for details.
-		Metatype * mt = jrtti::metatype< typename ClassT::value_type >();
+		Metatype * mt = jrtti::metatype( typeid( typename ClassT::value_type ) );
 		std::string str = "[\n";
 		bool need_nl = false;
 
@@ -99,7 +101,7 @@ protected:
 
 			PropertyMap::iterator pmit = mt->_properties().find( "__typeInfoName" );
 			if ( pmit != mt->_properties().end() ) {
-				mt = Reflector::instance().metatype( pmit->second->get< std::string >( getElementPtr( *it ) ) );
+				mt = jrtti::metatype( pmit->second->get< std::string >( getElementPtr( *it ) ) );
 			}
 			str += indent( mt->_toStr( *it) );
 		}
@@ -188,6 +190,8 @@ class CollectionInterface {
 public:
 	typedef jrtti_iterator<T> iterator;
 	typedef T value_type;
+
+	virtual ~CollectionInterface(){}
 
 	/**
 	* \brief Return iterator to beginning

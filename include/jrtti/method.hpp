@@ -10,6 +10,7 @@ namespace jrtti {
  */
 class Method {
 public:
+	virtual ~Method(){}
 	std::string 
 	name() const {
 		return _name;
@@ -60,10 +61,9 @@ public:
 		return _returnType;
 	}
 
-
 	virtual
 	boost::any
-	call( void * instance, boost::any& param1 = boost::any(), boost::any& param2 = boost::any() ) = 0;
+	call( void * instance, boost::any&, boost::any& param2) = 0;
 
 private:
 	std::string _name;

@@ -20,6 +20,8 @@ class Metatype;
  */
 class Writer {
 public:
+	virtual ~Writer(){}
+
 	virtual
 	void 
 	writeObject( Metatype * mt, void * instance ) = 0;
@@ -181,6 +183,8 @@ private:
  */
 class Reader {
 public:
+	virtual ~Reader(){}
+
 	virtual
 	boost::any 
 	readObject( Metatype * mt, void * instance ) = 0;

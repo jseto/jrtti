@@ -10,7 +10,11 @@ namespace jrtti {
  */
 class Metaobject {
 public:
-	Metaobject(){}
+	Metaobject(){
+		m_metatype = NULL;
+	}
+
+	virtual ~Metaobject(){}
 
 	Metaobject( const Metaobject& mo )
 		: m_instance( mo.m_instance ),

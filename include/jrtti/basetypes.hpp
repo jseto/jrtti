@@ -17,6 +17,8 @@ public:
 			m_baseType(baseType)
 	{}
 
+	virtual ~MetaPointerType(){}
+
 	virtual
 	boost::any
 	create() {
@@ -101,6 +103,8 @@ public:
 	MetaVoidPointer()
 		: Metatype( typeid( void * ) ){}
 
+	virtual ~MetaVoidPointer(){}
+
 	virtual
 	boost::any
 	create() {
@@ -152,6 +156,8 @@ class MetaBool : public Metatype {
 public:
 	MetaBool(): Metatype( typeid( bool ) ) {}
 
+	virtual ~MetaBool(){}
+
 	virtual
 	bool
 	isFundamental() const {
@@ -190,6 +196,8 @@ protected:
 class MetaChar : public Metatype {
 public:
 	MetaChar(): Metatype( typeid( char ) ) {}
+
+	virtual ~MetaChar(){}
 
 	virtual
 	bool
@@ -231,6 +239,8 @@ class MetaShort : public Metatype {
 public:
 	MetaShort(): Metatype( typeid( short ) ) {}
 
+	virtual ~MetaShort(){}
+
 	virtual
 	bool
 	isFundamental() const {
@@ -269,6 +279,8 @@ protected:
 class MetaInt: public Metatype {
 public:
 	MetaInt(): Metatype( typeid( int ) ) {}
+
+	virtual ~MetaInt(){}
 
 	virtual
 	bool
@@ -309,6 +321,8 @@ class MetaLong: public Metatype {
 public:
 	MetaLong(): Metatype( typeid( long ) ) {}
 
+	virtual ~MetaLong(){}
+
 	virtual
 	bool
 	isFundamental() const {
@@ -348,6 +362,8 @@ class MetaFloat: public Metatype {
 public:
 	MetaFloat(): Metatype( typeid( float ) ) {}
 
+	virtual ~MetaFloat(){}
+
 	virtual
 	bool
 	isFundamental() const {
@@ -385,6 +401,8 @@ protected:
 class MetaDouble: public Metatype {
 public:
 	MetaDouble(): Metatype( typeid( double ) ) {}
+
+	virtual ~MetaDouble(){}
 
 	virtual
 	bool
@@ -424,6 +442,8 @@ class MetaLongDouble: public Metatype {
 public:
 	MetaLongDouble(): Metatype( typeid( long double ) ) {}
 
+	virtual ~MetaLongDouble(){}
+
 	virtual
 	bool
 	isFundamental() const {
@@ -462,6 +482,8 @@ class MetaWchar_t: public Metatype {
 public:
 	MetaWchar_t(): Metatype( typeid(wchar_t ) ) {}
 
+	virtual ~MetaWchar_t(){}
+
 	virtual
 	bool
 	isFundamental() const {
@@ -499,6 +521,8 @@ protected:
 class MetaString: public Metatype {
 public:
 	MetaString(): Metatype( typeid( std::string ) ) {}
+
+	virtual ~MetaString(){}
 
 	virtual
 	boost::any

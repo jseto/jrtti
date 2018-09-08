@@ -128,7 +128,7 @@ public:
 	CustomMetaclass&
 	derivesFrom()
 	{
-		return derivesFrom( jrtti::metatype< C >() );
+		return derivesFrom( jrtti::metatype( typeid( C ) ) );
 	}
 
 	/**
@@ -298,19 +298,19 @@ public:
 	template <typename FuncT>
 	CustomMetaclass&
 	method( std::string name, FuncT f, const Annotations& annotations = Annotations() ) {
-		typedef detail::template FunctionTypes< FuncT >::result_type ReturnType;
-		typedef detail::template FunctionTypes< FuncT >::class_type ClassT;
-		typedef detail::template FunctionTypes< FuncT >::arg1_type Param1T;
-		typedef detail::template FunctionTypes< FuncT >::arg2_type Param2T;
-		typedef TypedMethod<ClassT, ReturnType, Param1T, Param2T> MethodType;
+		typedef typename detail::template FunctionTypes< FuncT >::result_type ReturnType;
+		typedef typename detail::template FunctionTypes< FuncT >::class_type ClassType;
+		typedef typename detail::template FunctionTypes< FuncT >::arg1_type Param1T;
+		typedef typename detail::template FunctionTypes< FuncT >::arg2_type Param2T;
+		typedef TypedMethod< ClassType, ReturnType, Param1T, Param2T > MethodType;
 
 		MethodType * m = new MethodType();
 		m->name( name );
 		m->function( f );
 		m->annotations( annotations );
-		m->returnType( metatype< ReturnType >() );
-		m->parameter( metatype< Param1T >() );
-		m->parameter( metatype< Param2T >() );
+		m->returnType( metatype( typeid( ReturnType ) ) );
+		m->parameter( metatype( typeid( Param1T ) ) );
+		m->parameter( metatype( typeid( Param2T ) ) );
 		addMethod( name, m );
 		return *this;
 	}

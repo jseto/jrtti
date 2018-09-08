@@ -53,30 +53,14 @@
 	}								\
 
 
-#include <map>
 #include <typeinfo>
+#include <boost/any.hpp>
 #include "exception.hpp"
 #include "annotations.hpp"
 
 /// \example sample.h
 /// \example sample.cpp
 
-namespace jrtti {
-	typedef std::map< void *, std::string > AddressRefMap;
-//	typedef std::map< std::string, void * > NameRefMap;
-
-	class Error;
-	class Metatype;
-	class JRTTI_API Reflector;
-//	void registerPrefixDecorator( const std::string & decorator );
-	std::string demangle( const std::string& name );
-	template< typename C > class Metacollection;
-	template <typename C> Metacollection<C>& declareCollection( const Annotations& annotations );
-//	void addAlias( const std::string& aliasName, Metatype * mt );
-
-	AddressRefMap&	_addressRefMap();
-//	NameRefMap&	_nameRefMap();
-}
 
 #include "reflector.hpp"
 

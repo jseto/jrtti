@@ -5,6 +5,8 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/any.hpp>
 #include <boost/type_traits/ice.hpp>
+#include "jrttiglobal.hpp"
+//#include "metatype.hpp"
 #include "annotations.hpp"
 
 namespace jrtti {
@@ -21,9 +23,10 @@ public:
 	enum Mode {Readable=1, Writable=2};
 
 	Property() {
+		_metaType = NULL;
     	_mode = (Mode)0;
 	}
-
+	virtual ~Property(){}
 	/**
 	 * \brief Retrieves the name of this property
 	 * \return the property name
@@ -169,11 +172,11 @@ public:
 
 	TypedProperty()
 	{
-		Metatype * mt = jrtti::metatype< PropT >();
+		Metatype * mt = jrtti::metatype( typeid( PropT ) );
 		setMetatype( mt );
 		if ( !mt ) {
 			//Metatype for property not declared yet. Add to pending list.
-        	Reflector::instance().addPendingProperty( typeid( PropT ).name(), this );
+        	jrtti::addPendingProperty( typeid( PropT ).name(), this );
 		}
 	}
 
@@ -221,7 +224,7 @@ public:
 	set( void * instance, const boost::any& val)	{
 		if (isWritable()) {
 			PropNoRefT p = jrtti_cast< PropNoRefT >( val );
-			return internal_set<PropNoRefT>( ( ClassT * ) instance, ( p ) );
+			internal_set<PropNoRefT>( ( ClassT * ) instance, ( p ) );
 		}
 	}
 
@@ -287,14 +290,16 @@ class UntypedProperty : public Property
 {
 public:
 	UntypedProperty( Metatype * mt, const std::string& pname ) {
-		if ( !mt->isPointer() ) {
+		if ( !jrtti::isPointer( mt ) ) {
 			throw Error( "Metatype of '" + pname + "' must be a pointer type" );
 		}
+		m_dataMember = NULL;
 		setMetatype( mt );
 		name( pname );
 		setMode( Readable );
 		setMode( Writable );
 	}
+	virtual ~UntypedProperty(){}
 
 	UntypedProperty&
 	member( void * ClassT::* dataMember )

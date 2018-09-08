@@ -7,13 +7,13 @@
 #endif
 
 #include <set>
-#include "basetypes.hpp"
+//#include "basetypes.hpp"
 #include "custommetaclass.hpp"
-#include "collection.hpp"
-#include "metaobject.hpp"
-#include "property.hpp"
+//#include "collection.hpp"
+//#include "metaobject.hpp"
+//#include "property.hpp"
 //#include "serializer.hpp"
-#include <typeinfo>
+//#include <typeinfo>
 
 namespace jrtti {
 
